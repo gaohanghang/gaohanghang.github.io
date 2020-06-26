@@ -1,0 +1,985 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="如何在CentOS 7 / Fedora 31/30/29上安装ELK Stack, 高行行的个人博客">
+    <meta name="description" content="
+原文地址：https://computingforgeeks.com/how-to-install-elk-stack-on-centos-fedora/
+原作者： Josphat Mutai
+译者：高行行
+
+如何在 CentOS 7 /">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>如何在CentOS 7 / Fedora 31/30/29上安装ELK Stack | 高行行的个人博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">高行行的个人博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">高行行的个人博客</div>
+        <div class="logo-desc">
+            
+            个人公众号《骇客与画家》
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        如何在CentOS 7 / Fedora 31/30/29上安装ELK Stack
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E7%BF%BB%E8%AF%91/" target="_blank">
+                                <span class="chip bg-color">翻译</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-12-10
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>原文地址：<a href="https://computingforgeeks.com/how-to-install-elk-stack-on-centos-fedora/" target="_blank" rel="noopener">https://computingforgeeks.com/how-to-install-elk-stack-on-centos-fedora/</a></p>
+<p>原作者： <a href="https://computingforgeeks.com/author/mutai-josphat/" target="_blank" rel="noopener" title="Josphat Mutai">Josphat Mutai</a></p>
+<p>译者：高行行</p>
+</blockquote>
+<p>如何在 CentOS 7 / Fedora 31/30/29 上安装 ELK Stack？“ <strong>ELK</strong> ”是 <code>Elasticsearch, Logstash, and Kibana</code> 的缩写。</p>
+<ul>
+<li><strong>Elasticsearch</strong>：这是一个开源的、基于 REST 和 JSON 的搜索引擎。它具有可扩展性、易用性和灵活性</li>
+<li><strong>Logstash</strong> ：这是一个服务器端数据处理管道，它同时从多个来源中采集数据，转换数据，然后将其发送到类似 Elasticsearch 的“存储”中。</li>
+<li><strong>Kibana</strong> 允许用户使用图表可视化 Elasticsearch 中的数据。</li>
+</ul>
+<p>对于 RHEL 8，请参阅：</p>
+<p><a href="https://computingforgeeks.com/how-to-install-the-elk-stack-on-rhel-8/" target="_blank" rel="noopener" title="如何在RHEL / CentOS 8上安装ELK Stack">如何在 RHEL / CentOS 8 上安装 ELK Stack</a></p>
+<p>请按照以下步骤在 CentOS 7 / Fedora 31/30/29 Linux 上安装和配置 ELK stack 工具。</p>
+<h2 id="步骤-1：安装-Java"><a href="#步骤-1：安装-Java" class="headerlink" title="步骤 1：安装 Java"></a>步骤 1：安装 Java</h2><p>由于 Elasticsearch 依赖 Java，因此你需要在 CentOS 7 / Fedora 系统上安装 Java。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum -y install java-openjdk-devel java-openjdk</span><br></pre></td></tr></table></figure>
+
+<h2 id="步骤-2：添加-ELK-存储库"><a href="#步骤-2：添加-ELK-存储库" class="headerlink" title="步骤 2：添加 ELK 存储库"></a>步骤 2：添加 ELK 存储库</h2><p>安装 Java 后，添加提供 ELK 堆栈软件包的 ELK 堆栈存储库。</p>
+<p><strong>对于 Elasticsearch 7.x</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;EOF | sudo tee /etc/yum.repos.d/elasticsearch.repo</span><br><span class="line">[elasticsearch-7.x]</span><br><span class="line">name=Elasticsearch repository <span class="keyword">for</span> 7.x packages</span><br><span class="line">baseurl=https://artifacts.elastic.co/packages/7.x/yum</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch</span><br><span class="line">enabled=1</span><br><span class="line">autorefresh=1</span><br><span class="line"><span class="built_in">type</span>=rpm-md</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p><strong>对于 Elasticsearch 6.x</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cat &lt;&lt;EOF | sudo tee /etc/yum.repos.d/elasticsearch.repo</span><br><span class="line">[elasticsearch-6.x]</span><br><span class="line">name=Elasticsearch repository <span class="keyword">for</span> 6.x packages</span><br><span class="line">baseurl=https://artifacts.elastic.co/packages/6.x/yum</span><br><span class="line">gpgcheck=1</span><br><span class="line">gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch</span><br><span class="line">enabled=1</span><br><span class="line">autorefresh=1</span><br><span class="line"><span class="built_in">type</span>=rpm-md</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>添加仓库后，导入 GPG 密钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch</span><br></pre></td></tr></table></figure>
+
+<p>清除并更新你的 YUM 软件包索引。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo yum clean all</span><br><span class="line">sudo yum makecache</span><br></pre></td></tr></table></figure>
+
+<h2 id="步骤-3：安装和配置-Elasticsearch"><a href="#步骤-3：安装和配置-Elasticsearch" class="headerlink" title="步骤 3：安装和配置 Elasticsearch"></a>步骤 3：安装和配置 Elasticsearch</h2><p>Elasticsearch 存储库已准备就绪，可以使用。你可以使用以下命令安装 Elasticsearch：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum -y install elasticsearch</span><br></pre></td></tr></table></figure>
+
+<p>确认软件包安装。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ rpm -qi elasticsearch</span><br><span class="line"> Name        : elasticsearch</span><br><span class="line"> Epoch       : 0</span><br><span class="line"> Version     : 7.0.1</span><br><span class="line"> Release     : 1</span><br><span class="line"> Architecture: x86_64</span><br><span class="line"> Install Date: Mon 06 May 2019 09:59:57 PM EAT</span><br><span class="line"> Group       : Application/Internet</span><br><span class="line"> Size        : 571521653</span><br><span class="line"> License     : Elastic License</span><br><span class="line"> Signature   : RSA/SHA512, Mon 29 Apr 2019 05:14:11 PM EAT, Key ID d27d666cd88e42b4</span><br><span class="line"> Source RPM  : elasticsearch-7.0.1-1-src.rpm</span><br><span class="line"> Build Date  : Mon 29 Apr 2019 04:06:59 PM EAT</span><br><span class="line"> Build Host  : packer-virtualbox-iso-1553723689</span><br><span class="line"> Relocations : /usr</span><br><span class="line"> Packager    : Elasticsearch</span><br><span class="line"> Vendor      : Elasticsearch</span><br><span class="line"> URL         : https://www.elastic.co/</span><br><span class="line"> Summary     : Elasticsearch is a distributed RESTful search engine built <span class="keyword">for</span> the cloud. Reference documentation can be found at https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html and the <span class="string">'Elasticsearch: The Definitive Guide'</span> book can be found at https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html</span><br><span class="line"> Description :</span><br><span class="line"> Elasticsearch subproject :distribution:packages</span><br></pre></td></tr></table></figure>
+
+<p>你可以通过编辑文件来设置 JVM 选项（例如内存限制）： <code>/etc/elasticsearch/jvm.options</code></p>
+<p>下面的示例设置总堆空间的初始/最大大小</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-Xms1g</span><br><span class="line">-Xmx1g</span><br></pre></td></tr></table></figure>
+
+<p>如果你的系统内存较少，则可以将其配置为使用较小的内存。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-Xms256m</span><br><span class="line">-Xmx512m</span><br></pre></td></tr></table></figure>
+
+<p>启动并设置为开机时启用 elasticsearch 服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sudo systemctl <span class="built_in">enable</span> --now elasticsearch.service</span><br><span class="line"> Synchronizing state of elasticsearch.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.</span><br><span class="line"> Executing: /usr/lib/systemd/systemd-sysv-install <span class="built_in">enable</span> elasticsearch</span><br><span class="line"> Created symlink /etc/systemd/system/multi-user.target.wants/elasticsearch.service → /usr/lib/systemd/system/elasticsearch.service.</span><br></pre></td></tr></table></figure>
+
+<p>测试以验证其是否正常运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$ curl http://127.0.0.1:9200</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"name"</span> : <span class="string">"localhost.localdomain"</span>,</span><br><span class="line">  <span class="string">"cluster_name"</span> : <span class="string">"elasticsearch"</span>,</span><br><span class="line">  <span class="string">"cluster_uuid"</span> : <span class="string">"7fyD4TuqQ7yxog0fCnPXuA"</span>,</span><br><span class="line">  <span class="string">"version"</span> : &#123;</span><br><span class="line">    <span class="string">"number"</span> : <span class="string">"7.5.0"</span>,</span><br><span class="line">    <span class="string">"build_flavor"</span> : <span class="string">"default"</span>,</span><br><span class="line">    <span class="string">"build_type"</span> : <span class="string">"rpm"</span>,</span><br><span class="line">    <span class="string">"build_hash"</span> : <span class="string">"e9ccaed468e2fac2275a3761849cbee64b39519f"</span>,</span><br><span class="line">    <span class="string">"build_date"</span> : <span class="string">"2019-11-26T01:06:52.518245Z"</span>,</span><br><span class="line">    <span class="string">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="string">"lucene_version"</span> : <span class="string">"8.3.0"</span>,</span><br><span class="line">    <span class="string">"minimum_wire_compatibility_version"</span> : <span class="string">"6.8.0"</span>,</span><br><span class="line">    <span class="string">"minimum_index_compatibility_version"</span> : <span class="string">"6.0.0-beta1"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>创建一个测试的索引：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ curl -X PUT <span class="string">"http://127.0.0.1:9200/mytest_index"</span></span><br><span class="line">&#123;<span class="string">"acknowledged"</span>:<span class="literal">true</span>,<span class="string">"shards_acknowledged"</span>:<span class="literal">true</span>,<span class="string">"index"</span>:<span class="string">"mytest_index"</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="步骤-4：安装和配置-Kibana"><a href="#步骤-4：安装和配置-Kibana" class="headerlink" title="步骤 4：安装和配置 Kibana"></a>步骤 4：安装和配置 Kibana</h2><p>从添加的 Elasticsearch 存储库下载并安装 Kibana。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum -y install kibana</span><br></pre></td></tr></table></figure>
+
+<p>成功安装后，配置 Kibana：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ sudo vim /etc/kibana/kibana.yml</span><br><span class="line">server.host: <span class="string">"0.0.0.0"</span></span><br><span class="line">server.name: <span class="string">"kibana.example.com"</span></span><br><span class="line">elasticsearch.url: <span class="string">"http://localhost:9200"</span></span><br></pre></td></tr></table></figure>
+
+<p>根据需要更改其他设置，然后启动 kibana 服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> --now kibana</span><br></pre></td></tr></table></figure>
+
+<p>访问 <strong><a href="http://ip-address:5601" target="_blank" rel="noopener">http://ip-address:5601</a></strong> 以打开 Kibana 信息中心：</p>
+<p><img src="https://computingforgeeks.com/wp-content/uploads/2018/08/elasticsearch-kibana-centos7-min-1024x372.png" alt=""></p>
+<p>如果你有活动的防火墙服务，请允许使用 TCP <code>5601</code> 端口 </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo firewall-cmd --add-port=5601/tcp --permanent</span><br><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+
+<h2 id="步骤-5：安装和配置-Logstash"><a href="#步骤-5：安装和配置-Logstash" class="headerlink" title="步骤 5：安装和配置 Logstash"></a>步骤 5：安装和配置 Logstash</h2><p>最后安装的是针对 Logstash 的。它将充当客户端系统的集中式日志服务器，该服务器运行诸如<a href="https://www.elastic.co/products/beats/filebeat" target="_blank" rel="noopener" title="filebeat">filebeat</a>之类的代理 。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum -y install logstash</span><br></pre></td></tr></table></figure>
+
+<p>Logstash 自定义配置可以放在 <code>/etc/logstash/conf.d/</code>目录下。</p>
+<p>有关更多详细信息，请<a href="https://www.elastic.co/guide/en/logstash/current/index.html" target="_blank" rel="noopener" title=" 参阅Logstash配置手册 "> 参阅 Logstash 配置手册 </a>。</p>
+<h2 id="步骤-6：安装其他-ELK-工具-锦上添花"><a href="#步骤-6：安装其他-ELK-工具-锦上添花" class="headerlink" title="步骤 6：安装其他 ELK 工具-锦上添花"></a>步骤 6：安装其他 ELK 工具-锦上添花</h2><p>可以安装的其他 ELK 工具包括：</p>
+<ul>
+<li><strong>Filebeat</strong>：用于日志的轻量型采集器。通过提供一种转发和汇总日志与文件的轻量级方法，让简单的事情不再繁杂。</li>
+<li><strong>Metricbeat</strong>：用于从系统和服务收集指标。Metricbeat 能够以一种轻量型的方式，输送各种系统和服务统计数据，从 CPU 到内存，从 Redis 到 Nginx，不一而足。</li>
+<li><strong>Packetbeat</strong>：轻量型网络数据采集器。用于深挖网线上传输的数据，了解应用程序动态。Packetbeat 是一款轻量型网络数据包分析器，能够将数据发送至 Logstash 或 Elasticsearch。</li>
+<li><strong>Heartbeat</strong>：用于正常运行时间监视的轻量型采集器。它通过主动探测帮助你监视服务的可用性</li>
+<li><strong>Auditbeat</strong>：轻量型审计日志采集器，可帮助你审核系统上用户和进程的活动</li>
+</ul>
+<p>这些工具可以通过 <code>yum</code> 软件包管理器使用它们各自的名称一起进行安装。下面的示例将安装所有ELK插件工具。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install filebeat auditbeat metricbeat packetbeat heartbeat-elastic</span><br></pre></td></tr></table></figure>
+
+<p>有关每种工具的配置和进一步的阅读，请参考官方的 <a href="https://www.elastic.co/guide/index.html" target="_blank" rel="noopener" title="ELK Stack文档">ELK Stack 文档</a> 以及 <a href="https://www.elastic.co/learn" target="_blank" rel="noopener" title="资源和培训">资源和培训</a>。</p>
+<p>更多指南：</p>
+<p><a href="https://computingforgeeks.com/manage-logs-with-graylog-server-on-ubuntu-18-04/" target="_blank" rel="noopener" title="在Ubuntu上使用Elasticsearch 6安装Graylog 3">在 Ubuntu 上使用 Elasticsearch 6 安装 Graylog 3</a></p>
+<p><a href="https://computingforgeeks.com/how-to-install-graylog-on-centos-rhel/" target="_blank" rel="noopener" title="在CentOS / RHEL 8上安装Graylog 3">在 CentOS / RHEL 8 上安装 Graylog 3</a></p>
+<p><a href="https://computingforgeeks.com/how-to-install-elasticsearch-on-centos/" target="_blank" rel="noopener" title="在CentOS 7上安装Elasticsearch 7">在 CentOS 7 上安装 Elasticsearch 7</a></p>
+
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《如何在CentOS 7 / Fedora 31/30/29上安装ELK Stack》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/12/10/%E5%A6%82%E4%BD%95%E5%9C%A8CentOS-7-Fedora-31-30-29%E4%B8%8A%E5%AE%89%E8%A3%85ELK-Stack/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                高行行
+            </a> 采用
+            <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/12/15/%E6%AF%81%E4%BA%86%E4%BD%A0%E8%81%8C%E4%B8%9A%E7%94%9F%E6%B6%AF%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E8%AF%AF%E8%AE%A4%E7%9F%A5%EF%BC%81/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/18.jpg" class="responsive-img" alt="毁了你职业生涯的三个错误认知！">
+                        
+                        <span class="card-title">毁了你职业生涯的三个错误认知！</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+原文地址：https://mp.weixin.qq.com/s/4J_4Mfwd8PYd8VyBB0LXbA
+小结：
+三个错误认知：
+
+进行大量重复练习？
+反复练习是效率最低的一种方式。这种学习方法是在助长人的惰性。单纯地重复练习意味着我
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-12-15
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/12/10/%E4%BD%A0%E5%BA%94%E8%AF%A5%E7%9F%A5%E9%81%93%E7%9A%84RPC%E5%8E%9F%E7%90%86/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="你应该知道的RPC原理">
+                        
+                        <span class="card-title">你应该知道的RPC原理</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+原文地址：https://www.cnblogs.com/LBSer/p/4853234.html
+小结：
+RPC 可以像调用本地服务一样调用远程服务
+
+在学校期间大家都写过不少程序，比如写个 hello world 服务类，然后本地调用
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-12-10
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+
+
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,1491 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="这样设计 Java 异常更优雅，赶紧学！, 高行行的个人博客">
+    <meta name="description" content="
+
+原文地址: 这样设计 Java 异常更优雅，赶紧学！
+
+导语异常处理是程序开发中必不可少操作之一，但如何正确优雅的对异常进行处理确是一门学问，笔者根据自己的开发经验来谈一谈我是如何对异常进行处理的。
+由于本文只作一些经验之谈，不涉及到基">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>这样设计 Java 异常更优雅，赶紧学！ | 高行行的个人博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">高行行的个人博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">高行行的个人博客</div>
+        <div class="logo-desc">
+            
+            个人公众号《骇客与画家》
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/12.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        这样设计 Java 异常更优雅，赶紧学！
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/java/" target="_blank">
+                                <span class="chip bg-color">java</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-08-24
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190824191750.png" alt=""></p>
+<blockquote>
+<p>原文地址: <a href="https://mp.weixin.qq.com/s/L8VhKrZ1_w3mYHI0lif3YQ" target="_blank" rel="noopener">这样设计 Java 异常更优雅，赶紧学！</a></p>
+</blockquote>
+<h2 id="导语"><a href="#导语" class="headerlink" title="导语"></a><strong>导语</strong></h2><p>异常处理是程序开发中必不可少操作之一，但如何正确优雅的对异常进行处理确是一门学问，笔者根据自己的开发经验来谈一谈我是如何对异常进行处理的。</p>
+<p>由于本文只作一些经验之谈，不涉及到基础知识部分，如果读者对异常的概念还很模糊，请先查看基础知识。</p>
+<h2 id="如何选择异常类型"><a href="#如何选择异常类型" class="headerlink" title="如何选择异常类型"></a><strong>如何选择异常类型</strong></h2><h3 id="异常的类别"><a href="#异常的类别" class="headerlink" title="异常的类别"></a><strong>异常的类别</strong></h3><p>正如我们所知道的，java中的异常的超类是java.lang.Throwable(后文省略为Throwable),它有两个比较重要的子类,java.lang.Exception(后文省略为Exception)和java.lang.Error(后文省略为Error)，其中Error由JVM虚拟机进行管理,如我们所熟知的OutOfMemoryError异常等，所以我们本文不关注Error异常，那么我们细说一下Exception异常。</p>
+<p>Exception异常有个比较重要的子类，叫做RuntimeException。我们将RuntimeException或其他继承自RuntimeException的子类称为非受检异常(unchecked Exception)，其他继承自Exception异常的子类称为受检异常(checked Exception)。本文重点来关注一下受检异常和非受检异常这两种异常。</p>
+<h3 id="如何选择异常"><a href="#如何选择异常" class="headerlink" title="如何选择异常"></a><strong>如何选择异常</strong></h3><p>从笔者的开发经验来看，如果在一个应用中，需要开发一个方法(如某个功能的service方法)，这个方法如果中间可能出现异常，那么你需要考虑这个异常出现之后是否调用者可以处理，并且你是否希望调用者进行处理，如果调用者可以处理，并且你也希望调用者进行处理，那么就要抛出受检异常，提醒调用者在使用你的方法时，考虑到如果抛出异常时如果进行处理，相似的，如果在写某个方法时，你认为这是个偶然异常，理论上说，你觉得运行时可能会碰到什么问题，而这些问题也许不是必然发生的，也不需要调用者显示的通过异常来判断业务流程操作的，那么这时就可以使用一个RuntimeException这样的非受检异常.</p>
+<p>好了，估计我上边说的这段话，你读了很多遍也依然觉得晦涩了。</p>
+<p>那么，请跟着我的思路，在慢慢领会一下。</p>
+<h3 id="什么时候才需要抛异常"><a href="#什么时候才需要抛异常" class="headerlink" title="什么时候才需要抛异常"></a><strong>什么时候才需要抛异常</strong></h3><p>首先我们需要了解一个问题，什么时候才需要抛异常？异常的设计是方便给开发者使用的，但不是乱用的，笔者对于什么时候抛异常这个问题也问了很多朋友，能给出准确答案的确实不多。其实这个问题很简单，如果你觉得某些”问题”解决不了了，那么你就可以抛出异常了。比如，你在写一个service,其中在写到某段代码处,你发现可能会产生问题，那么就请抛出异常吧，相信我，你此时抛出异常将是一个最佳时机。</p>
+<h3 id="应该抛出怎样的异常"><a href="#应该抛出怎样的异常" class="headerlink" title="应该抛出怎样的异常"></a><strong>应该抛出怎样的异常</strong></h3><p>了解完了什么时候才需要抛出异常后，我们再思考一个问题，真的当我们抛出异常时，我们应该选用怎样的异常呢？究竟是受检异常还是非受检异常呢(RuntimeException)呢？我来举例说明一下这个问题，先从受检异常说起,比如说有这样一个业务逻辑，需要从某文件中读取某个数据，这个读取操作可能是由于文件被删除等其他问题导致无法获取从而出现读取错误，那么就要从redis或mysql数据库中再去获取此数据,参考如下代码，getKey(Integer)为入口程序.</p>
+<blockquote>
+<p>public String getKey(Integer key){</p>
+<p>​    String  value;</p>
+<p>​    try {</p>
+<p>​        InputStream inputStream = getFiles(“/file/nofile”);</p>
+<p>​        //接下来从流中读取key的value指</p>
+<p>​        value = …;</p>
+<p>​    } catch (Exception e) {</p>
+<p>​        //如果抛出异常将从mysql或者redis进行取之</p>
+<p>​        value = …;</p>
+<p>​    }</p>
+<p>}</p>
+<p>public InputStream getFiles(String path) throws Exception {</p>
+<p>​    File file = new File(path);</p>
+<p>​    InputStream inputStream = null;</p>
+<p>​    try {</p>
+<p>​        inputStream = new BufferedInputStream(new FileInputStream(file));</p>
+<p>​    } catch (FileNotFoundException e) {</p>
+<p>​        throw new Exception(“I/O读取错误”,e.getCause());</p>
+<p>​    }</p>
+<p>​    return inputStream;</p>
+<p>}</p>
+</blockquote>
+<p>ok，看了以上代码以后，你也许心中有一些想法，原来受检异常可以控制义务逻辑，对，没错，通过受检异常真的可以控制业务逻辑，但是切记不要这样使用，我们应该合理的抛出异常，因为程序本身才是流程，异常的作用仅仅是当你进行不下去的时候找到的一个借口而已，它并不能当成控制程序流程的入口或出口，如果这样使用的话，是在将异常的作用扩大化，这样将会导致代码复杂程度的增加，耦合性会提高，代码可读性降低等问题。那么就一定不要使用这样的异常吗？其实也不是，在真的有这样的需求的时候，我们可以这样使用，只是切记，不要把它真的当成控制流程的工具或手段。那么究竟什么时候才要抛出这样的异常呢？要考虑，如果调用者调用出错后，一定要让调用者对此错误进行处理才可以，满足这样的要求时，我们才会考虑使用受检异常。</p>
+<p>接下来，我们来看一下非受检异常呢(RuntimeException)，对于RuntimeException这种异常，我们其实很多见，比如java.lang.NullPointerException／java.lang.IllegalArgumentException等，那么这种异常我们时候抛出呢？当我们在写某个方法的时候，可能会偶然遇到某个错误，我们认为这个问题时运行时可能为发生的，并且理论上讲，没有这个问题的话，程序将会正常执行的时候，它不强制要求调用者一定要捕获这个异常，此时抛出RuntimeException异常,举个例子，当传来一个路径的时候，需要返回一个路径对应的File对象:</p>
+<blockquote>
+<p>public void test() {</p>
+<p>​    myTest.getFiles(“”);</p>
+<p>}</p>
+<p>public File getFiles(String path) {</p>
+<p>​    if(null == path || “”.equals(path)){</p>
+<p>​        throw  new NullPointerException(“路径不能为空!”);</p>
+<p>​    }</p>
+<p>​    File file = new File(path);</p>
+<p>​    return file;</p>
+<p>}</p>
+</blockquote>
+<p>上述例子表明，如果调用者调用getFiles(String)的时候如果path是空，那么就抛出空指针异常(它是RuntimeException的子类),调用者不用显示的进行try…catch…操作进行强制处理.这就要求调用者在调用这样的方法时先进行验证，避免发生RuntimeException.如下:</p>
+<h3 id="应该选用哪种异常"><a href="#应该选用哪种异常" class="headerlink" title="应该选用哪种异常"></a><strong>应该选用哪种异常</strong></h3><p>通过以上的描述和举例，可以总结出一个结论，RuntimeException异常和受检异常之间的区别就是:是否强制要求调用者必须处理此异常，如果强制要求调用者必须进行处理，那么就使用受检异常，否则就选择非受检异常(RuntimeException)。一般来讲，如果没有特殊的要求，我们建议使用RuntimeException异常。</p>
+<h2 id="场景介绍和技术选型"><a href="#场景介绍和技术选型" class="headerlink" title="场景介绍和技术选型"></a><strong>场景介绍和技术选型</strong></h2><h3 id="架构描述"><a href="#架构描述" class="headerlink" title="架构描述"></a><strong>架构描述</strong></h3><p>正如我们所知，传统的项目都是以MVC框架为基础进行开发的，本文主要从使用restful风格接口的设计来体验一下异常处理的优雅。</p>
+<p>我们把关注点放在restful的api层(和web中的controller层类似)和service层，研究一下在service中如何抛出异常，然后api层如何进行捕获并且转化异常。</p>
+<p>使用的技术是:spring-boot,jpa(hibernate),mysql,如果对这些技术不是太熟悉，读者需要自行阅读相关材料。</p>
+<a id="more"></a>
+
+<h3 id="业务场景描述"><a href="#业务场景描述" class="headerlink" title="业务场景描述"></a><strong>业务场景描述</strong></h3><p>选择一个比较简单的业务场景，以电商中的收货地址管理为例，用户在移动端进行购买商品时，需要进行收货地址管理，在项目中，提供一些给移动端进行访问的api接口，如:添加收货地址，删除收货地址，更改收货地址，默认收货地址设置，收货地址列表查询，单个收货地址查询等接口。</p>
+<h3 id="构建约束条件"><a href="#构建约束条件" class="headerlink" title="构建约束条件"></a><strong>构建约束条件</strong></h3><p>ok，这个是设置好的一个很基本的业务场景，当然，无论什么样的api操作，其中都包含一些规则:</p>
+<p>添加收货地址:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+<li>收货地址实体信息</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在 的</li>
+<li>收货地址的必要字段不能为 空</li>
+<li>如果用户还没有收货地址，当此收货地址创建时设置成默认收货地址 —</li>
+</ul>
+<p>删除收货地址:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+<li>收货地址id</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在的</li>
+<li>收货地址不能为空，且此收货地址确实是存在的</li>
+<li>判断此收货地址是否是用户的收货地址</li>
+<li>判断此收货地址是否为默认收货地址，如果是默认收货地址，那么不能进行删除</li>
+</ul>
+<p>更改收货地址:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+<li>收货地址id</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在的</li>
+<li>收货地址不能为空，且此收货地址确实是存在的</li>
+<li>判断此收货地址是否是用户的收货地址</li>
+</ul>
+<p>默认地址设置:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+<li>收货地址id</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在的</li>
+<li>收货地址不能为空，且此收货地址确实是存在的</li>
+<li>判断此收货地址是否是用户的收货地址</li>
+</ul>
+<p>收货地址列表查询:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在的</li>
+</ul>
+<p>单个收货地址查询:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+<li>收货地址id</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在的</li>
+<li>收货地址不能为空，且此收货地址确实是存在的</li>
+<li>判断此收货地址是否是用户的收货地址</li>
+</ul>
+<h3 id="约束判断和技术选型"><a href="#约束判断和技术选型" class="headerlink" title="约束判断和技术选型"></a><strong>约束判断和技术选型</strong></h3><p>对于上述列出的约束条件和功能列表，我选择几个比较典型的异常处理场景进行分析:添加收货地址，删除收货地址，获取收货地址列表。</p>
+<p>那么应该有哪些必要的知识储备呢，让我们看一下收货地址这个功能:</p>
+<p>添加收货地址中需要对用户id和收货地址实体信息就行校验，那么对于非空的判断，我们如何进行工具的选择呢？传统的判断如下:</p>
+<blockquote>
+<p>/**</p>
+<p> * 添加地址</p>
+<p> * @param uid</p>
+<p> * @param address</p>
+<p> * @return</p>
+<p> */</p>
+<p>public Address addAddress(Integer uid,Address address){</p>
+<p>​    if(null != uid){</p>
+<p>​        //进行处理..</p>
+<p>​    }</p>
+<p>​    return null;</p>
+<p>}</p>
+</blockquote>
+<p>上边的例子，如果只判断uid为空还好，如果再去判断address这个实体中的某些必要属性是否为空，在字段很多的情况下，这无非是灾难性的。</p>
+<p>那我们应该怎么进行这些入参的判断呢，给大家介绍两个知识点:</p>
+<ol>
+<li>Guava中的Preconditions类实现了很多入参方法的判断</li>
+<li>jsr 303的validation规范(目前实现比较全的是hibernate实现的hibernate-validator)</li>
+</ol>
+<p>如果使用了这两种推荐技术，那么入参的判断会变得简单很多。推荐大家多使用这些成熟的技术和jar工具包，他可以减少很多不必要的工作量。我们只需要把重心放到业务逻辑上。而不会因为这些入参的判断耽误更多的时间。</p>
+<h2 id="如何优雅的设计java异常"><a href="#如何优雅的设计java异常" class="headerlink" title="如何优雅的设计java异常"></a><strong>如何优雅的设计java异常</strong></h2><h3 id="domain介绍"><a href="#domain介绍" class="headerlink" title="domain介绍"></a><strong>domain介绍</strong></h3><p>根据项目场景来看，需要两个domain模型，一个是用户实体，一个是地址实体.</p>
+<p>Address domain如下:</p>
+<blockquote>
+<p>@Entity</p>
+<p>@Data</p>
+<p>public class Address {</p>
+<p>​    @Id</p>
+<p>​    @GeneratedValue</p>
+<p>​    private Integer id;</p>
+<p>​    private String province;//省</p>
+<p>​    private String city;//市</p>
+<p>​    private String county;//区</p>
+<p>​    private Boolean isDefault;//是否是默认地址</p>
+<p>​    @ManyToOne(cascade={CascadeType.ALL})</p>
+<p>​    @JoinColumn(name=”uid”)</p>
+<p>​    private User user;</p>
+<p>}</p>
+</blockquote>
+<p>User domain如下:</p>
+<blockquote>
+<p>@Entity</p>
+<p>@Data</p>
+<p>public class User {</p>
+<p>​    @Id</p>
+<p>   @GeneratedValue</p>
+<p>   private Integer id;</p>
+<p>   private String name;//姓名</p>
+<p>​    @OneToMany(cascade= CascadeType.ALL,mappedBy=”user”,fetch = FetchType.LAZY)</p>
+<p>​        private Set<Address> addresses;</p>
+<p>}</p>
+</blockquote>
+<p>ok,上边是一个模型关系，用户-收货地址的关系是1-n的关系。上边的@Data是使用了一个叫做lombok的工具，它自动生成了Setter和Getter等方法，用起来非常方便，感兴趣的读者可以自行了解一下。</p>
+<h3 id="dao介绍"><a href="#dao介绍" class="headerlink" title="dao介绍"></a><strong>dao介绍</strong></h3><p>数据连接层，我们使用了spring-data-jpa这个框架，它要求我们只需要继承框架提供的接口，并且按照约定对方法进行取名，就可以完成我们想要的数据库操作。</p>
+<p>用户数据库操作如下:</p>
+<blockquote>
+<p>@Repository</p>
+<p>public interface IUserDao extends JpaRepository&lt;User,Integer&gt; {</p>
+<p>}</p>
+</blockquote>
+<p>收货地址操作如下:</p>
+<blockquote>
+<p>@Repository</p>
+<p>public interface IAddressDao extends JpaRepository&lt;Address,Integer&gt; {</p>
+<p>}</p>
+</blockquote>
+<p>正如读者所看到的，我们的DAO只需要继承JpaRepository,它就已经帮我们完成了基本的CURD等操作，如果想了解更多关于spring-data的这个项目，请参考一下spring的官方文档，它比不方案我们对异常的研究。</p>
+<h3 id="Service异常设计"><a href="#Service异常设计" class="headerlink" title="Service异常设计"></a><strong>Service异常设计</strong></h3><p>ok，终于到了我们的重点了，我们要完成service一些的部分操作:添加收货地址，删除收货地址，获取收货地址列表.</p>
+<p>首先看我的service接口定义:</p>
+<blockquote>
+<p>public interface IAddressService {</p>
+<p>/**</p>
+<p> * 创建收货地址</p>
+<p> * @param uid</p>
+<p> * @param address</p>
+<p> * @return</p>
+<p> */</p>
+<p>Address createAddress(Integer uid,Address address);</p>
+<p>/**</p>
+<p> * 删除收货地址</p>
+<p> * @param uid</p>
+<p> * @param aid</p>
+<p> */</p>
+<p>void deleteAddress(Integer uid,Integer aid);</p>
+<p>/**</p>
+<p> * 查询用户的所有收货地址</p>
+<p> * @param uid</p>
+<p> * @return</p>
+<p> */</p>
+<p>List<Address> listAddresses(Integer uid);</p>
+<p>}</p>
+</blockquote>
+<p>我们来关注一下实现:</p>
+<p>添加收货地址</p>
+<p>首先再来看一下之前整理的约束条件:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+<li>收货地址实体信息</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在的</li>
+<li>收货地址的必要字段不能为空</li>
+<li>如果用户还没有收货地址，当此收货地址创建时设置成默认收货地址</li>
+</ul>
+<p>先看以下代码实现:</p>
+<blockquote>
+<p>@Override</p>
+<p>public Address createAddress(Integer uid, Address address) {</p>
+<p>​    //============ 以下为约束条件   ==============</p>
+<p>​    //1.用户id不能为空，且此用户确实是存在的</p>
+<p>​    Preconditions.checkNotNull(uid);</p>
+<p>​    User user = userDao.findOne(uid);</p>
+<p>​    if(null == user){</p>
+<p>​        throw new RuntimeException(“找不到当前用户!”);</p>
+<p>​    }</p>
+<p>​    //2.收货地址的必要字段不能为空</p>
+<p>​    BeanValidators.validateWithException(validator, address);</p>
+<p>​    //3.如果用户还没有收货地址，当此收货地址创建时设置成默认收货地址</p>
+<p>​    if(ObjectUtils.isEmpty(user.getAddresses())){</p>
+<p>​        address.setIsDefault(true);</p>
+<p>​    }</p>
+<p>​    //============ 以下为正常执行的业务逻辑   ==============</p>
+<p>​    address.setUser(user);</p>
+<p>​    Address result = addressDao.save(address);</p>
+<p>​    return result;</p>
+<p>}</p>
+</blockquote>
+<p>其中，已经完成了上述所描述的三点约束条件，当三点约束条件都满足时，才可以进行正常的业务逻辑，否则将抛出异常(一般在此处建议抛出运行时异常-RuntimeException)。</p>
+<p>介绍以下以上我所用到的技术:</p>
+<ol>
+<li>Preconfitions.checkNotNull(T t)这个是使用Guava中的com.google.common.base.Preconditions进行判断的，因为service中用到的验证较多，所以建议将Preconfitions改成静态导入的方式:</li>
+</ol>
+<blockquote>
+<p>import static com.google.common.base.Preconditions.checkNotNull;</p>
+</blockquote>
+<p>当然Guava的github中的说明也建议我们这样使用。</p>
+<ol start="2">
+<li>BeanValidators.validateWithException(validator, address);</li>
+</ol>
+<p>这个使用了hibernate实现的jsr 303规范来做的，需要传入一个validator和一个需要验证的实体,那么validator是如何获取的呢,如下:</p>
+<blockquote>
+<p>@Configuration</p>
+<p>public class BeanConfigs {</p>
+<p>@Bean</p>
+<p>public javax.validation.Validator getValidator(){</p>
+<p>​    return new LocalValidatorFactoryBean();</p>
+<p>}</p>
+<p>}</p>
+</blockquote>
+<p>他将获取一个Validator对象，然后我们在service中进行注入便可以使用了:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span>    </span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> Validator validator ;</span><br></pre></td></tr></table></figure>
+
+<p>那么BeanValidators这个类是如何实现的？其实实现方式很简单，只要去判断jsr 303的标注注解就ok了。</p>
+<p>那么jsr 303的注解写在哪里了呢？当然是写在address实体类中了:</p>
+<blockquote>
+<p>@Entity</p>
+<p>@Setter</p>
+<p>@Getter</p>
+<p>public class Address {</p>
+<p>@Id</p>
+<p>@GeneratedValue</p>
+<p>private Integer id;</p>
+<p>@NotNull</p>
+<p>private String province;//省</p>
+<p>@NotNull</p>
+<p>private String city;//市</p>
+<p>@NotNull</p>
+<p>private String county;//区</p>
+<p>private Boolean isDefault = false;//是否是默认地址</p>
+<p>@ManyToOne(cascade={CascadeType.ALL})</p>
+<p>@JoinColumn(name=”uid”)</p>
+<p>private User user;</p>
+<p>}</p>
+</blockquote>
+<p>写好你需要的约束条件来进行判断，如果合理的话，才可以进行业务操作，从而对数据库进行操作。</p>
+<p>这块的验证是必须的，一个最主要的原因是:这样的验证可以避免脏数据的插入。如果读者有正式上线的经验的话，就可以理解这样的一个事情，任何的代码错误都可以容忍和修改，但是如果出现了脏数据问题，那么它有可能是一个毁灭性的灾难。程序的问题可以修改，但是脏数据的出现有可能无法恢复。所以这就是为什么在service中一定要判断好约束条件，再进行业务逻辑操作的原因了。</p>
+<p>此处的判断为业务逻辑判断，是从业务角度来进行筛选判断的，除此之外，有可能在很多场景中都会有不同的业务条件约束，只需要按照要求来做就好。</p>
+<p>对于约束条件的总结如下:</p>
+<ol>
+<li>基本判断约束(null值等基本判断)</li>
+<li>实体属性约束(满足jsr 303等基础判断)</li>
+<li>业务条件约束(需求提出的不同的业务约束)</li>
+</ol>
+<p>当这个三点都满足时，才可以进行下一步操作</p>
+<p>ok,基本介绍了如何做一个基础的判断，那么再回到异常的设计问题上，上述代码已经很清楚的描述如何在适当的位置合理的判断一个异常了，那么如何合理的抛出异常呢？</p>
+<p>只抛出RuntimeException就算是优雅的抛出异常吗？当然不是，对于service中的抛出异常，笔者认为大致有两种抛出的方法:</p>
+<ol>
+<li>抛出带状态码RumtimeException异常</li>
+<li>抛出指定类型的RuntimeException异常</li>
+</ol>
+<p>相对这两种异常的方式进行结束，第一种异常指的是我所有的异常都抛RuntimeException异常，但是需要带一个状态码，调用者可以根据状态码再去查询究竟service抛出了一个什么样的异常。</p>
+<p>第二种异常是指在service中抛出什么样的异常就自定义一个指定的异常错误，然后在进行抛出异常。</p>
+<p>一般来讲，如果系统没有别的特殊需求的时候，在开发设计中，建议使用第二种方式。但是比如说像基础判断的异常，就可以完全使用guava给我们提供的类库进行操作。jsr 303异常也可以使用自己封装好的异常判断类进行操作，因为这两种异常都是属于基础判断，不需要为它们指定特殊的异常。但是对于第三点义务条件约束判断抛出的异常，就需要抛出指定类型的异常了。</p>
+<p>对于</p>
+<blockquote>
+<p>throw new RuntimeException(“找不到当前用户!”);</p>
+</blockquote>
+<p>定义一个特定的异常类来进行这个义务异常的判断:</p>
+<blockquote>
+<p>public class NotFindUserException extends RuntimeException {</p>
+<p>public NotFindUserException() {</p>
+<p>​    super(“找不到此用户”);</p>
+<p>}</p>
+<p>public NotFindUserException(String message) {</p>
+<p>​    super(message);</p>
+<p>}</p>
+<p>}</p>
+</blockquote>
+<p>然后将此处改为:</p>
+<blockquote>
+<p>throw new NotFindUserException(“找不到当前用户!”);</p>
+</blockquote>
+<p>or</p>
+<blockquote>
+<p>throw new NotFindUserException();</p>
+</blockquote>
+<p>ok,通过以上对service层的修改，代码更改如下:</p>
+<blockquote>
+<p>@Override</p>
+<p>public Address createAddress(Integer uid, Address address) {</p>
+<p>​    //============ 以下为约束条件   ==============</p>
+<p>​    //1.用户id不能为空，且此用户确实是存在的</p>
+<p>​    checkNotNull(uid);</p>
+<p>​    User user = userDao.findOne(uid);</p>
+<p>​    if(null == user){</p>
+<p>​        throw new NotFindUserException(“找不到当前用户!”);</p>
+<p>​    }</p>
+<p>​    //2.收货地址的必要字段不能为空</p>
+<p>​    BeanValidators.validateWithException(validator, address);</p>
+<p>​    //3.如果用户还没有收货地址，当此收货地址创建时设置成默认收货地址</p>
+<p>​    if(ObjectUtils.isEmpty(user.getAddresses())){</p>
+<p>​        address.setIsDefault(true);</p>
+<p>​    }</p>
+<p>​    //============ 以下为正常执行的业务逻辑   ==============</p>
+<p>​    address.setUser(user);</p>
+<p>​    Address result = addressDao.save(address);</p>
+<p>​    return result;</p>
+<p>}</p>
+</blockquote>
+<p>这样的service就看起来稳定性和理解性就比较强了。</p>
+<p>删除收货地址:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+<li>收货地址id</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在的</li>
+<li>收货地址不能为空，且此收货地址确实是存在的</li>
+<li>判断此收货地址是否是用户的收货地址</li>
+<li>判断此收货地址是否为默认收货地址，如果是默认收货地址，那么不能进行删除</li>
+</ul>
+<p>它与上述添加收货地址类似，故不再赘述，delete的service设计如下:</p>
+<blockquote>
+<p>@Override</p>
+<p>public void deleteAddress(Integer uid, Integer aid) {</p>
+<p>​    //============ 以下为约束条件   ==============</p>
+<p>​    //1.用户id不能为空，且此用户确实是存在的</p>
+<p>​    checkNotNull(uid);</p>
+<p>​    User user = userDao.findOne(uid);</p>
+<p>​    if(null == user){</p>
+<p>​        throw new NotFindUserException();</p>
+<p>​    }</p>
+<p>​    //2.收货地址不能为空，且此收货地址确实是存在的</p>
+<p>​    checkNotNull(aid);</p>
+<p>​    Address address = addressDao.findOne(aid);</p>
+<p>​    if(null == address){</p>
+<p>​        throw new NotFindAddressException();</p>
+<p>​    }</p>
+<p>​    //3.判断此收货地址是否是用户的收货地址</p>
+<p>​    if(!address.getUser().equals(user)){</p>
+<p>​        throw new NotMatchUserAddressException();</p>
+<p>​    }</p>
+<p>​    //4.判断此收货地址是否为默认收货地址，如果是默认收货地址，那么不能进行删除</p>
+<p>​    if(address.getIsDefault()){</p>
+<p>​       throw  new DefaultAddressNotDeleteException();</p>
+<p>​    }</p>
+<p>​    //============ 以下为正常执行的业务逻辑   ==============</p>
+<p>​    addressDao.delete(address);</p>
+<p>}</p>
+</blockquote>
+<p>设计了相关的四个异常类:NotFindUserException,NotFindAddressException,NotMatchUserAddressException,DefaultAddressNotDeleteException.根据不同的业务需求抛出不同的异常。</p>
+<p>获取收货地址列表:</p>
+<p>入参:</p>
+<ul>
+<li>用户id</li>
+</ul>
+<p>约束:</p>
+<ul>
+<li>用户id不能为空，且此用户确实是存在的</li>
+</ul>
+<p>代码如下:</p>
+<blockquote>
+<p>@Override</p>
+<p>public List<Address> listAddresses(Integer uid) {</p>
+<p>​    //============ 以下为约束条件   ==============</p>
+<p>​    //1.用户id不能为空，且此用户确实是存在的</p>
+<p>​    checkNotNull(uid);</p>
+<p>​    User user = userDao.findOne(uid);</p>
+<p>​    if(null == user){</p>
+<p>​        throw new NotFindUserException();</p>
+<p>​    }</p>
+<p>​    //============ 以下为正常执行的业务逻辑   ==============</p>
+<p>​    User result = userDao.findOne(uid);</p>
+<p>​    return result.getAddresses();</p>
+<p>}</p>
+</blockquote>
+<h3 id="api异常设计"><a href="#api异常设计" class="headerlink" title="api异常设计"></a><strong>api异常设计</strong></h3><p>大致有两种抛出的方法:</p>
+<ul>
+<li>抛出带状态码RumtimeException异常</li>
+<li>抛出指定类型的RuntimeException异常</li>
+</ul>
+<p>这个是在设计service层异常时提到的，通过对service层的介绍，我们在service层抛出异常时选择了第二种抛出的方式，不同的是，在api层抛出异常我们需要使用这两种方式进行抛出:要指定api异常的类型，并且要指定相关的状态码，然后才将异常抛出，这种异常设计的核心是让调用api的使用者更能清楚的了解发生异常的详细信息，除了抛出异常外，我们还需要将状态码对应的异常详细信息以及异常有可能发生的问题制作成一个对应的表展示给用户，方便用户的查询。（如github提供的api文档，微信提供的api文档等）,还有一个好处:如果用户需要自定义提示消息，可以根据返回的状态码进行提示的修改。</p>
+<h3 id="api验证约束"><a href="#api验证约束" class="headerlink" title="api验证约束"></a><strong>api验证约束</strong></h3><p>首先对于api的设计来说，需要存在一个dto对象，这个对象负责和调用者进行数据的沟通和传递，然后dto-&gt;domain在传给service进行操作，这一点一定要注意，第二点，除了说道的service需要进行基础判断(null判断)和jsr 303验证以外，同样的，api层也需要进行相关的验证，如果验证不通过的话，直接返回给调用者，告知调用失败，不应该带着不合法的数据再进行对service的访问，那么读者可能会有些迷惑，不是service已经进行验证了，为什么api层还需要进行验证么？这里便设计到了一个概念:编程中的墨菲定律，如果api层的数据验证疏忽了，那么有可能不合法数据就带到了service层，进而讲脏数据保存到了数据库。</p>
+<p>所以缜密编程的核心是:永远不要相信收到的数据是合法的。</p>
+<h3 id="api异常设计-1"><a href="#api异常设计-1" class="headerlink" title="api异常设计"></a><strong>api异常设计</strong></h3><p>设计api层异常时，正如我们上边所说的，需要提供错误码和错误信息，那么可以这样设计，提供一个通用的api超类异常，其他不同的api异常都继承自这个超类:</p>
+<blockquote>
+<p>public class ApiException extends RuntimeException {</p>
+<p>protected Long errorCode ;</p>
+<p>protected Object data ;</p>
+<p>public ApiException(Long errorCode,String message,Object data,Throwable e){</p>
+<p>​    super(message,e);</p>
+<p>​    this.errorCode = errorCode ;</p>
+<p>​    this.data = data ;</p>
+<p>}</p>
+<p>public ApiException(Long errorCode,String message,Object data){</p>
+<p>​    this(errorCode,message,data,null);</p>
+<p>}</p>
+<p>public ApiException(Long errorCode,String message){</p>
+<p>​    this(errorCode,message,null,null);</p>
+<p>}</p>
+<p>public ApiException(String message,Throwable e){</p>
+<p>​    this(null,message,null,e);</p>
+<p>}</p>
+<p>public ApiException(){</p>
+<p>}</p>
+<p>public ApiException(Throwable e){</p>
+<p>​    super(e);</p>
+<p>}</p>
+<p>public Long getErrorCode() {</p>
+<p>​    return errorCode;</p>
+<p>}</p>
+<p>public void setErrorCode(Long errorCode) {</p>
+<p>​    this.errorCode = errorCode;</p>
+<p>}</p>
+<p>public Object getData() {</p>
+<p>​    return data;</p>
+<p>}</p>
+<p>public void setData(Object data) {</p>
+<p>​    this.data = data;</p>
+<p>}</p>
+<p>}</p>
+</blockquote>
+<p>然后分别定义api层异常：ApiDefaultAddressNotDeleteException,ApiNotFindAddressException,ApiNotFindUserException,ApiNotMatchUserAddressException。</p>
+<p>以默认地址不能删除为例:</p>
+<blockquote>
+<p>public class ApiDefaultAddressNotDeleteException extends ApiException {</p>
+<p>public ApiDefaultAddressNotDeleteException(String message) {</p>
+<p>​    super(AddressErrorCode.DefaultAddressNotDeleteErrorCode, message, null);</p>
+<p>}</p>
+<p>}</p>
+</blockquote>
+<p>AddressErrorCode.DefaultAddressNotDeleteErrorCode就是需要提供给调用者的错误码。错误码类如下:</p>
+<blockquote>
+<p>public abstract class AddressErrorCode {</p>
+<p>​    public static final Long DefaultAddressNotDeleteErrorCode = 10001L;//默认地址不能删除</p>
+<p>​    public static final Long NotFindAddressErrorCode = 10002L;//找不到此收货地址</p>
+<p>​    public static final Long NotFindUserErrorCode = 10003L;//找不到此用户</p>
+<p>​    public static final Long NotMatchUserAddressErrorCode = 10004L;//用户与收货地址不匹配</p>
+<p>}</p>
+</blockquote>
+<p>ok,那么api层的异常就已经设计完了，在此多说一句，AddressErrorCode错误码类存放了可能出现的错误码，更合理的做法是把他放到配置文件中进行管理。</p>
+<h3 id="api处理异常"><a href="#api处理异常" class="headerlink" title="api处理异常"></a><strong>api处理异常</strong></h3><p>api层会调用service层，然后来处理service中出现的所有异常，首先，需要保证一点，一定要让api层非常轻，基本上做成一个转发的功能就好(接口参数，传递给service参数，返回给调用者数据,这三个基本功能)，然后就要在传递给service参数的那个方法调用上进行异常处理。</p>
+<p>此处仅以添加地址为例:</p>
+<blockquote>
+<p>@Autowired</p>
+<p>private IAddressService addressService;</p>
+<p>/**</p>
+<p> * 添加收货地址</p>
+<p> * @param addressDTO</p>
+<p> * @return</p>
+<p> */</p>
+<p>@RequestMapping(method = RequestMethod.POST)</p>
+<p>public AddressDTO add(@Valid @RequestBody AddressDTO addressDTO){</p>
+<p>​    Address address = new Address();</p>
+<p>​    BeanUtils.copyProperties(addressDTO,address);</p>
+<p>​    Address result;</p>
+<p>​    try {</p>
+<p>​        result = addressService.createAddress(addressDTO.getUid(), address);</p>
+<p>​    }catch (NotFindUserException e){</p>
+<p>​        throw new ApiNotFindUserException(“找不到该用户”);</p>
+<p>​    }catch (Exception e){//未知错误</p>
+<p>​        throw new ApiException(e);</p>
+<p>​    }</p>
+<p>​    AddressDTO resultDTO = new AddressDTO();</p>
+<p>​    BeanUtils.copyProperties(result,resultDTO);</p>
+<p>​    resultDTO.setUid(result.getUser().getId());</p>
+<p>​    return resultDTO;</p>
+<p>}</p>
+</blockquote>
+<p>这里的处理方案是调用service时，判断异常的类型，然后将任何service异常都转化成api异常，然后抛出api异常，这是常用的一种异常转化方式。相似删除收货地址和获取收货地址也类似这样处理，在此，不在赘述。</p>
+<h3 id="api异常转化"><a href="#api异常转化" class="headerlink" title="api异常转化"></a><strong>api异常转化</strong></h3><p>已经讲解了如何抛出异常和何如将service异常转化为api异常，那么转化成api异常直接抛出是否就完成了异常处理呢？ 答案是否定的，当抛出api异常后，我们需要把api异常返回的数据(json or xml)让用户看懂，那么需要把api异常转化成dto对象(ErrorDTO),看如下代码:</p>
+<blockquote>
+<p>@ControllerAdvice(annotations = RestController.class)</p>
+<p>class ApiExceptionHandlerAdvice {</p>
+<p>/**</p>
+<p> * Handle exceptions thrown by handlers.</p>
+<p> */</p>
+<p>@ExceptionHandler(value = Exception.class)</p>
+<p>@ResponseBody</p>
+<p>public ResponseEntity<ErrorDTO> exception(Exception exception,HttpServletResponse response) {</p>
+<p>​    ErrorDTO errorDTO = new ErrorDTO();</p>
+<p>​    if(exception instanceof ApiException){//api异常</p>
+<p>​        ApiException apiException = (ApiException)exception;</p>
+<p>​        errorDTO.setErrorCode(apiException.getErrorCode());</p>
+<p>​    }else{//未知异常</p>
+<p>​        errorDTO.setErrorCode(0L);</p>
+<p>​    }</p>
+<p>​    errorDTO.setTip(exception.getMessage());</p>
+<p>​    ResponseEntity<ErrorDTO> responseEntity = new ResponseEntity&lt;&gt;(errorDTO,HttpStatus.valueOf(response.getStatus()));</p>
+<p>​    return responseEntity;</p>
+<p>}</p>
+<p>@Setter</p>
+<p>@Getter</p>
+<p>class ErrorDTO{</p>
+<p>​    private Long errorCode;</p>
+<p>​    private String tip;</p>
+<p>}</p>
+<p>}</p>
+</blockquote>
+<p>ok,这样就完成了api异常转化成用户可以读懂的DTO对象了，代码中用到了@ControllerAdvice，这是spring MVC提供的一个特殊的切面处理。</p>
+<p>当调用api接口发生异常时，用户也可以收到正常的数据格式了,比如当没有用户(uid为2)时，却为这个用户添加收货地址,postman(Google plugin 用于模拟http请求)之后的数据:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"errorCode"</span>: <span class="number">10003</span>,</span><br><span class="line">  <span class="string">"tip"</span>: <span class="string">"找不到该用户"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结</strong></p>
+<p>本文只从如何设计异常作为重点来讲解，涉及到的api传输和service的处理，还有待优化，比如api接口访问需要使用https进行加密，api接口需要OAuth2.0授权或api接口需要签名认证等问题，文中都未曾提到，本文的重心在于异常如何处理，所以读者只需关注涉及到异常相关的问题和处理方式就可以了。希望本篇文章对你理解异常有所帮助。</p>
+
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《这样设计 Java 异常更优雅，赶紧学！》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/08/24/%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1-Java-%E5%BC%82%E5%B8%B8%E6%9B%B4%E4%BC%98%E9%9B%85%EF%BC%8C%E8%B5%B6%E7%B4%A7%E5%AD%A6%EF%BC%81/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                高行行
+            </a> 采用
+            <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/08/24/%E4%BB%80%E4%B9%88%E6%98%AF%E6%95%B4%E6%B4%81%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F%E4%BB%80%E4%B9%88%E6%98%AF%E8%82%AE%E8%84%8F%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/4.jpg" class="responsive-img" alt="什么是整洁的代码？什么是肮脏的代码？">
+                        
+                        <span class="card-title">什么是整洁的代码？什么是肮脏的代码？</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+
+原文地址: https://mp.weixin.qq.com/s/PDOZR8YirIo_cis-8S0wgQ
+
+
+命名的艺术
+注释
+函数
+测试
+
+
+写出整洁的代码，是每个程序员的追求。《clean code》指出，要想写出好的代码，首
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-08-24
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E9%81%93%E7%90%86/" target="_blank">
+                        <span class="chip bg-color">道理</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/08/23/%E7%9B%98%E5%8F%A3%E6%95%B0%E6%8D%AE%E9%A2%91%E7%B9%81%E5%8F%98%E5%8C%96%EF%BC%8C100W%E7%94%A8%E6%88%B7%E5%A6%82%E4%BD%95%E5%AE%9E%E6%97%B6%E9%80%9A%E7%9F%A5%EF%BC%9F/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="盘口数据频繁变化，100W用户如何实时通知？">
+                        
+                        <span class="card-title">盘口数据频繁变化，100W用户如何实时通知？</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+
+原文地址: https://mp.weixin.qq.com/s/QcPicGRkaFENP6IzMRZMaQ
+
+
+继续答星球水友提问：盘口数据频繁变化，如何做缓存与推送，如何降低数据库压力？
+并没有做过相关的业务，结合自己的架构经验，
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-08-23
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E6%9E%B6%E6%9E%84/" target="_blank">
+                        <span class="chip bg-color">架构</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+
+
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
+
+</body>
+</html>

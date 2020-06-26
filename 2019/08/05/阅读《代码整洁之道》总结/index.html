@@ -1,0 +1,966 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="阅读《代码整洁之道》总结, 高行行的个人博客">
+    <meta name="description" content="
+原文地址: https://www.cnblogs.com/xiaoyangjia/
+
+很早就阅读过《代码整洁之道》(英文版Clean Code)，当时博主是个青涩的菜鸟，正在为团队创造着混乱的代码。多年的工作中，屡次被别人的代码坑的苦不">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>阅读《代码整洁之道》总结 | 高行行的个人博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">高行行的个人博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">高行行的个人博客</div>
+        <div class="logo-desc">
+            
+            个人公众号《骇客与画家》
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        阅读《代码整洁之道》总结
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/java/" target="_blank">
+                                <span class="chip bg-color">java</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-08-05
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>原文地址: <a href="https://www.cnblogs.com/xiaoyangjia/" target="_blank" rel="noopener">https://www.cnblogs.com/xiaoyangjia/</a></p>
+</blockquote>
+<p>很早就阅读过《代码整洁之道》(英文版Clean Code)，当时博主是个青涩的菜鸟，正在为团队创造着混乱的代码。多年的工作中，屡次被别人的代码坑的苦不堪言，回想起当年我留下的代码，肯定也坑害了后来的同僚。当阅读JDK源码或者其他优秀开源工程时，叹服作者代码构建之精良，他们都有共同的特点：精确的变量名、恰到好处的设计模式、详细而不赘述的注释等等。如今重读本书，总结一下内容并加上自己的一些见解与大家分享。</p>
+<h2 id="代码是团队沟通方式"><a href="#代码是团队沟通方式" class="headerlink" title="代码是团队沟通方式"></a><strong>代码是团队沟通方式</strong></h2><p>工作的沟通，不只是电子邮件或者面对面语言交流，代码也是沟通方式之一。用代码实现需求，只是万里长征走完了第一步，必须让代码表达自己的设计思想。试想一下，你负责的功能被另外一个同事接手，如果你的代码结构清晰、注释合理，他就不用频繁的询问代码疑点，不用打断你的工作。编写代码的时候，应该考虑到别人的阅读感受，减少阅读障碍，为整个团队创造代码，而不是你自己。</p>
+<h2 id="让营地比来时更干净"><a href="#让营地比来时更干净" class="headerlink" title="让营地比来时更干净"></a><strong>让营地比来时更干净</strong></h2><p>这是美国童子军规的谚语，美国童子军相当于半军事化管理的青少年夏令营。夏令营结束后孩子们离开营地，要打扫卫生保持整洁，让营地比来时更干净。在软件开发过程中，可以理解为不要破坏规则，不要引入混乱。如果团队已经制定了代码规范，比如类名必须有子系统前缀比如BiOrderService(Bi指BI业务部门)，就继续遵循下去；再比如，团队已经提供了公共库比如MD5的加密，那就不要再次引入新的MD5库。很多新手程序员接活儿后，看到不喜欢的规范就另起炉灶，需要某些工具类也不询问老司机公共库有没有，直接引入自己熟悉的库，造成兼容性或者其他问题。</p>
+<h2 id="合适的命名"><a href="#合适的命名" class="headerlink" title="合适的命名"></a><strong>合适的命名</strong></h2><p>合适的命名是头等大事，正如给新生儿起个好名字那样重要。不合适的命名通常是词不达意、误导观众、过度缩写等，由于英文并非我们的母语，找个合适的单词命名似乎真的很难。我建议是先把业务弄清楚，组织会议定下常用业务领域的单词，禁止组员各自发明。比如代码里使用canteen表示饭堂，那就不要再发明DinnerHall，既啰嗦又误导同僚。</p>
+<p><strong>看看反例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 手机号</span></span><br><span class="line">String phone = “<span class="number">13421800409</span>”;</span><br><span class="line"><span class="comment">// 获取地址</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getDiZhi</span><span class="params">()</span></span>;</span><br><span class="line"><span class="comment">//修改密码</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">modifyPassword</span><span class="params">(String password1 ,String password2)</span></span></span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p>看看正例：**</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 手机号 mobileNo比phone更精确</span></span><br><span class="line">String mobileNo= “<span class="number">13421800409</span>”;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 避免英文拼音混杂</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> String <span class="title">getAddress</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 参数的命名要区分意义</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">modifyPassword</span><span class="params">(String oldPassowrd,String newPassword)</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="短小的方法"><a href="#短小的方法" class="headerlink" title="短小的方法"></a><strong>短小的方法</strong></h2><p>方法有多短小才合适没有定论，但是长达500行的一个方法，绝对让阅读者起杀人之心。过长的方法，让阅读者不知道从何看起，看了前面忘记后面。将复杂的方法，拆分成逻辑相对简单的短方法。</p>
+<p><strong>看看反例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//  获取个人信息</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> UserDTO <span class="title">getUserDTO</span><span class="params">(Integer userId)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取基本信息 </span></span><br><span class="line">    … 此处写了<span class="number">10</span>行</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取最近的一次订单信息</span></span><br><span class="line">    … 此处写了<span class="number">30</span>行</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 获取钱包余额、可用优惠券张数等</span></span><br><span class="line">    … 此处写了<span class="number">30</span>行</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> userDTO;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>看看正例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//  获取个人信息</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> UserDTO <span class="title">getUserDTO</span><span class="params">(Integer userId)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取基本信息 </span></span><br><span class="line">    UserDTO userDTO= getUserBasicInfo(userId);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取最近的一次订单信息</span></span><br><span class="line">    userDTO.setUserLastOrder(getUserLastOrder(userId));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取钱包、可用优惠券张数等</span></span><br><span class="line">    userDTO.setUserAccount(getUserAccount(userId));  </span><br><span class="line">    <span class="keyword">return</span> userDTO;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> UserDTO <span class="title">getUserBasicInfo</span><span class="params">(Integer userId)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">private</span> UserLastOrder <span class="title">getUserLastOrder</span><span class="params">(Integer userId)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">private</span> UserAccount <span class="title">getUserAccount</span><span class="params">(Integer userId)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="减少if-else嵌套"><a href="#减少if-else嵌套" class="headerlink" title="减少if/else嵌套"></a><strong>减少if/else嵌套</strong></h2><p>为什么要减少嵌套，难道嵌套看上去不时尚吗？我曾经看到某位同事的一段代码嵌套达到9层，他自己再去维护的时候都看晕了。代码过度嵌套的结果是只有原作者才能读懂，接盘侠一脸茫然。</p>
+<p><strong>看看反例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改用户密码，这个例子只有3层嵌套，很温柔了</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">modifyPassword</span><span class="params">(Integer userId, String oldPassword, String newPassword)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (userId != <span class="keyword">null</span> &amp;&amp; StringUtils.isNotBlank(newPassword) &amp;&amp; SpringUtils.isNotBlank(oldPassword)) &#123;</span><br><span class="line">    User user = getUserById(userId);</span><br><span class="line">    <span class="keyword">if</span> (user != <span class="keyword">null</span>) &#123;</span><br><span class="line">         <span class="keyword">if</span> (user.getPassword().equals(oldPassword) &#123;</span><br><span class="line">              <span class="keyword">return</span> updatePassword(userId, newPassword)</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>看看正例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改用户密码 </span></span><br><span class="line"><span class="function">Public Boolean <span class="title">modifyPassword</span><span class="params">(Integer userId, String oldPassword, String newPassword)</span> </span>&#123;</span><br><span class="line">     <span class="keyword">if</span> (userId == <span class="keyword">null</span> || StringUtils.isBlank(newPassword) || StringUtils.isBlank(oldPassword)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">     &#125;</span><br><span class="line">     User user = getUserById(userId);</span><br><span class="line">     <span class="keyword">if</span>(user == <span class="keyword">null</span>) &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">      &#125;</span><br><span class="line">     <span class="keyword">if</span>(!user.getPassword().equals(oldPassword) &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>;    </span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">return</span> updatePassword(userId, newPassword);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正例采用卫语句减少了嵌套，但是并非所有场景都适合这样改写。如果不适合，可以将关联性高的逻辑抽取成一个独立的方法减少嵌套。</p>
+<h2 id="抽离try-catch"><a href="#抽离try-catch" class="headerlink" title="抽离try/catch"></a><strong>抽离try/catch</strong></h2><p>大家有没有见过一个超长的方法，从头到尾被一个try/catch照顾着？博主经历过的项目中，这种不负责的写法比比皆是。并非每行代码都会抛出错误，只要将会抛出错误的业务放在一个独立的方法即可。</p>
+<p><strong>看看反例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//  获取个人信息</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> UserDTO <span class="title">getUserDTO</span><span class="params">(Integer userId)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">try</span> &#123; </span><br><span class="line">       <span class="comment">//获取基本信息 </span></span><br><span class="line">       ... 此处写了<span class="number">10</span>行</span><br><span class="line">       <span class="comment">//获取最近的一次订单信息.</span></span><br><span class="line">       ...此处写了<span class="number">20</span>行</span><br><span class="line">       <span class="comment">// 获取钱包、可用优惠券张数等</span></span><br><span class="line">       ...此处写了<span class="number">20</span>行</span><br><span class="line">    &#125;<span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        logger.error(e);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">   <span class="keyword">return</span> userDTO;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>看看正例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  获取个人信息</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> UserDTO <span class="title">getUserDTO</span><span class="params">(Integer userId)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//获取基本信息 </span></span><br><span class="line">    UserDTO userDTO= getUserBasicInfo(userId);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取最近的一次订单信息</span></span><br><span class="line">    userDTO.setUserLastOrder(getUserLastOrder(userId));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取钱包、可用优惠券张数等</span></span><br><span class="line">    userDTO.setUserAccount(getUserAccount(userId));  </span><br><span class="line">    <span class="keyword">return</span> userDTO;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span>  UserDTO <span class="title">getUserBasicInfo</span><span class="params">(Integer userId)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">private</span>  UserLastOrder <span class="title">getUserLastOrder</span><span class="params">(Integer userId)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">private</span>  UserAccount <span class="title">getUserAccount</span><span class="params">(Integer userId)</span>｛</span></span><br><span class="line"><span class="function">      <span class="keyword">try</span></span>&#123;</span><br><span class="line">          <span class="comment">// TODO</span></span><br><span class="line">      &#125; <span class="keyword">catch</span> ( Exception e) </span><br><span class="line">       &#123; <span class="comment">//TODO &#125;</span></span><br><span class="line">｝</span><br></pre></td></tr></table></figure>
+
+<h3 id="封装多个参数"><a href="#封装多个参数" class="headerlink" title="封装多个参数"></a><strong>封装多个参数</strong></h3><p>如果方法参数将超过3个，建议放在类中包装起来，否则再增加参数时，由于语义的强耦合会导致调用方语法错误。在后台管理中的分页查询接口，常常会有很多查询参数，而且有可能增加，封装起来是最好的。</p>
+<p><strong>看看反例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@Setter</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderQueryDTO</span> <span class="keyword">extends</span> <span class="title">PageDTO</span> </span>&#123;</span><br><span class="line"> <span class="keyword">private</span> String productName;</span><br><span class="line"> <span class="keyword">private</span> Integer userId;</span><br><span class="line"> <span class="keyword">private</span> Date startTime;</span><br><span class="line"> <span class="keyword">private</span> Date endTime;</span><br><span class="line"> <span class="keyword">private</span> Bigdecimal minAmount ;</span><br><span class="line"> <span class="keyword">private</span> Bigdecimal maxAmount;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 分页查询订单 6个参数</span></span><br><span class="line"><span class="function">Public Page&lt;Order&gt; <span class="title">queryOrderByPage</span><span class="params">(OrderQueryDTO orderQueryDTO)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>看看正例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@Setter</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OrderQueryDTO</span> <span class="keyword">extends</span> <span class="title">PageDTO</span> </span>&#123;</span><br><span class="line"> <span class="keyword">private</span> String productName;</span><br><span class="line"> <span class="keyword">private</span> Integer userId;</span><br><span class="line"> <span class="keyword">private</span> Date startTime;</span><br><span class="line"> <span class="keyword">private</span> Date endTime;</span><br><span class="line"> <span class="keyword">private</span> Bigdecimal minAmount ;</span><br><span class="line"> <span class="keyword">private</span> Bigdecimal maxAmount;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 分页查询订单 6个参数</span></span><br><span class="line"><span class="function">Public Page&lt;Order&gt; <span class="title">queryOrderByPage</span><span class="params">(OrderQueryDTO orderQueryDTO)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="第三方库"><a href="#第三方库" class="headerlink" title="第三方库"></a><strong>第三方库</strong></h2><p><strong>Lombok</strong></p>
+<p>Lombok组件通过注解的方式，在编译时自动为属性生成构造器、getter/setter、equals、hashcode、toString方法<br>举例如下：<br>@Setter 注解在类或字段，注解在类时为所有字段生成setter方法，注解在字段上时只为该字段生成setter方法。<br>@Getter 使用方法同上，区别在于生成的是getter方法。<br>@ToString 注解在类，添加toString方法。<br>@EqualsAndHashCode 注解在类，生成hashCode和equals方法。<br>@NoArgsConstructor 注解在类，生成无参的构造方法。<br>@RequiredArgsConstructor 注解在类，为类中需要特殊处理的字段生成构造方法，比如final和被@NonNull注解的字段。<br>@AllArgsConstructor 注解在类，生成包含类中所有字段的构造方法。<br>@Data 注解在类，生成setter/getter、equals、canEqual、hashCode、toString方法，如为final属性，则不会为该属性生成setter方法。</p>
+<p><strong>常规写法：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Public <span class="class"><span class="keyword">class</span> <span class="title">Order</span> </span>&#123;</span><br><span class="line">     <span class="keyword">private</span> Integer userId;</span><br><span class="line">     </span><br><span class="line">     <span class="function"><span class="keyword">public</span> Integer <span class="title">getUserId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">          <span class="keyword">return</span> userId;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUserId</span><span class="params">(Integer userId)</span> </span>&#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">this</span>.userId = userId; </span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>采用Lombok：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@Setter</span></span><br><span class="line">Public <span class="class"><span class="keyword">class</span> <span class="title">Order</span> </span>&#123;</span><br><span class="line">     <span class="keyword">private</span> Integer userId;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Apache-Commons系列"><a href="#Apache-Commons系列" class="headerlink" title="Apache Commons系列"></a><strong>Apache Commons系列</strong></h2><p>Apache Commons系列组件给我们提供了关于字符串、集合、IO操作等工具方法。这些组件是个大宝库，提供了不少轮子。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190805191209.png" alt=""></p>
+<p><strong>看看例子：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">例<span class="number">1</span>: 判断集合是否为空:</span><br><span class="line">CollectionUtils.isEmpty(<span class="keyword">null</span>): <span class="keyword">true</span></span><br><span class="line">CollectionUtils.isEmpty(<span class="keyword">new</span> ArrayList()): <span class="keyword">true</span></span><br><span class="line">CollectionUtils.isEmpty(&#123;a,b&#125;): <span class="keyword">false</span></span><br><span class="line"></span><br><span class="line">例<span class="number">2</span>: 判断集合是否不为空:</span><br><span class="line">CollectionUtils.isNotEmpty(<span class="keyword">null</span>): <span class="keyword">false</span></span><br><span class="line">CollectionUtils.isNotEmpty(<span class="keyword">new</span> ArrayList()): <span class="keyword">false</span></span><br><span class="line">CollectionUtils.isNotEmpty(&#123;a,b&#125;): <span class="keyword">true</span></span><br><span class="line"></span><br><span class="line">例<span class="number">3</span>：<span class="number">2</span>个集合间的操作：</span><br><span class="line">集合a: &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;</span><br><span class="line">集合b: &#123;<span class="number">3</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>&#125;</span><br><span class="line">CollectionUtils.union(a, b)(并集): &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>&#125;</span><br><span class="line">CollectionUtils.intersection(a, b)(交集): &#123;<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>&#125;</span><br><span class="line">CollectionUtils.disjunction(a, b)(交集的补集): &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">7</span>&#125;</span><br><span class="line">CollectionUtils.disjunction(b, a)(交集的补集): &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">6</span>,<span class="number">7</span>&#125;</span><br><span class="line">CollectionUtils.subtract(a, b)(A与B的差): &#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>&#125;</span><br><span class="line">CollectionUtils.subtract(b, a)(B与A的差): &#123;<span class="number">4</span>,<span class="number">6</span>,<span class="number">7</span>&#125;</span><br></pre></td></tr></table></figure>
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《阅读《代码整洁之道》总结》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/08/05/%E9%98%85%E8%AF%BB%E3%80%8A%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E3%80%8B%E6%80%BB%E7%BB%93/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                高行行
+            </a> 采用
+            <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/08/05/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%A8%E5%B1%80ID%E7%94%9F%E6%88%90%E6%96%B9%E6%A1%88/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="分布式全局ID生成方案">
+                        
+                        <span class="card-title">分布式全局ID生成方案</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+原文地址: 分布式全局ID生成方案
+
+传统的单体架构的时候，我们基本是单库然后业务单表的结构。每个业务表的ID一般我们都是从1增，通过AUTO_INCREMENT=1设置自增起始值，但是在分布式服务架构模式下分库分表的设计，使得多个库或多
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-08-05
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" target="_blank">
+                        <span class="chip bg-color">分布式</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/08/04/%E4%BD%BF%E7%94%A8-Jenkins-%E4%B8%8E-Git-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E5%8E%9F%E7%90%86/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="使用 Jenkins 与 Git 自动化部署原理">
+                        
+                        <span class="card-title">使用 Jenkins 与 Git 自动化部署原理</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+参考视频: http://www.mayikt.com/front/couinfo/193/0
+
+0 运行效果
+使用jenkins自动build运行效果
+
+
+1 Docker 安装使用脚本自动安装在测试或开发环境中 Docker 官方为了
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-08-04
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/jenkins/" target="_blank">
+                        <span class="chip bg-color">jenkins</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+
+
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
+
+</body>
+</html>

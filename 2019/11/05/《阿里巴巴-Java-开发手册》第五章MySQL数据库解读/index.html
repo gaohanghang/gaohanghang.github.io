@@ -1,0 +1,1087 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="《阿里巴巴 Java 开发手册》第五章MySQL数据库解读, 高行行的个人博客">
+    <meta name="description" content="
+基于手册最新版本《阿里巴巴 Java 开发手册（华山版）》
+《阿里巴巴 Java 开发手册》下载地址: https://github.com/alibaba/p3c
+参考文章: 
+点评阿里JAVA手册之MySQL数据库
+详细解读阿里手册之">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>《阿里巴巴 Java 开发手册》第五章MySQL数据库解读 | 高行行的个人博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">高行行的个人博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">高行行的个人博客</div>
+        <div class="logo-desc">
+            
+            个人公众号《骇客与画家》
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/23.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        《阿里巴巴 Java 开发手册》第五章MySQL数据库解读
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E5%8E%9F%E5%88%9B/" target="_blank">
+                                <span class="chip bg-color">原创</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-11-05
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>基于手册最新版本《阿里巴巴 Java 开发手册（华山版）》</p>
+<p>《阿里巴巴 Java 开发手册》下载地址: <a href="https://github.com/alibaba/p3c" target="_blank" rel="noopener">https://github.com/alibaba/p3c</a></p>
+<p>参考文章: </p>
+<p><a href="https://www.cnblogs.com/dragonsuc/p/6938006.html" target="_blank" rel="noopener">点评阿里JAVA手册之MySQL数据库</a></p>
+<p><a href="https://juejin.im/post/5c8bb168f265da2da23d73f0" target="_blank" rel="noopener">详细解读阿里手册之MySQL</a></p>
+<p>开发不规范，亲人两行泪 🤣</p>
+</blockquote>
+<h2 id="一-建表规约"><a href="#一-建表规约" class="headerlink" title="(一) 建表规约"></a>(一) 建表规约</h2><p><strong>1.</strong>【<strong>强制</strong>】表达是与否概念的字段，必须使用 is_xxx 的方式命名，数据类型是 unsigned tinyint（ 1 表示是，0 表示否）。 </p>
+<p>​    <strong>说明</strong>：任何字段如果为非负数，必须是 unsigned。</p>
+<p>​    <strong>注意</strong>：POJO 类中的任何布尔类型的变量，都不要加 is 前缀，所以，需要在 <resultMap> 设置从 is_xxx 的映射关系。数据库表示是与否的值，使用 tinyint 类型，坚持 is_xxx 的命名方式是为了明确其取值含义与取值范围。</p>
+<p>​    <strong>正例</strong>：表达逻辑删除的字段名 is_deleted，1 表示删除，0 表示未删除。</p>
+<blockquote>
+<p>unsigned 属性就是将数字类型无符号化</p>
+<p>”POJO 类中的任何布尔类型的变量，都不要加 is 前缀“，这个可以参考 Hollis 大佬的这篇文章 <a href="https://www.hollischuang.com/archives/3111" target="_blank" rel="noopener">为什么阿里巴巴禁止开发人员使用isSuccess作为变量名</a></p>
+</blockquote>
+<p><strong>2.</strong>【<strong>强制</strong>】表名、字段名必须使用小写字母或数字，禁止出现数字开头，禁止两个下划线中间只出现数字。数据库字段名的修改代价很大，因为无法进行预发布，所以字段名称需要慎重考虑。</p>
+<p>​    <strong>说明</strong>：MySQL 在 Windows 下不区分大小写，但在 Linux 下默认是区分大小写。因此，数据库名、表名、字段名，都不允许出现任何大写字母，避免节外生枝。</p>
+<p>​    <strong>正例</strong>：aliyun_admin，rdc_config，level3_name</p>
+<p>​    <strong>反例</strong>：AliyunAdmin，rdcConfig，level_3_name</p>
+<blockquote>
+<p>表名、字段名一定要规范，并且要见名知意。因为一旦使用之后，想要修改的话会比较麻烦。起一个好的名字真的很重要，能够在无形中减少沟通成本。</p>
+</blockquote>
+<p><strong>3.</strong>【<strong>强制</strong>】表名不使用复数名词。</p>
+<p>​    <strong>说明</strong>：表名应该仅仅表示表里面的实体内容，不应该表示实体数量，对应于 DO 类名也是单数形式，符合表达习惯。</p>
+<blockquote>
+<p>有些单词的复数形式可能是非常规的，或者就没有复数形式，因此单数形式更简单</p>
+</blockquote>
+<p><strong>4.</strong>【<strong>强制</strong>】禁用保留字，如 desc、range、match、delayed 等，请参考 MySQL 官方保留字。</p>
+<blockquote>
+<p>文档地址: <a href="https://dev.mysql.com/doc/refman/8.0/en/keywords.html" target="_blank" rel="noopener">https://dev.mysql.com/doc/refman/8.0/en/keywords.html</a></p>
+</blockquote>
+<p><strong>5.</strong>【<strong>强制</strong>】主键索引名为 pk_字段名；唯一索引名为 uk_字段名；普通索引名则为 idx_字段名。</p>
+<p>​    <strong>说明</strong>：pk_ 即 primary key；uk_ 即 unique key；idx_ 即 index 的简称。</p>
+<blockquote>
+<p>这样见名知意，通过前缀就可以知道是什么类型的索引</p>
+</blockquote>
+<p><strong>6.</strong>【<strong>强制</strong>】小数类型为 decimal，禁止使用 float 和 double。 </p>
+<p>​    <strong>说明</strong>：float 和 double 在存储的时候，存在精度损失的问题，很可能在值的比较时，得到不正确的结果。如果存储的数据范围超过 decimal 的范围，建议将数据拆成整数和小数分开存储。</p>
+<blockquote>
+<p>对于和钱相关的系统，精度损失是会造成金钱损失的</p>
+</blockquote>
+<p><strong>7.</strong>【<strong>强制</strong>】如果存储的字符串长度几乎相等，使用 char 定长字符串类型。</p>
+<blockquote>
+<p>CHAR(M)定义的列的长度为固定的，M取值可以为0～255之间，当保存CHAR值时，在它们的右边填充空格以达到指定的长度。当检索到CHAR值时，尾部的空格被删除掉。在存储或检索过程中不进行大小写转换。CHAR存储定长数据很方便，CHAR字段上的索引效率极高，比如定义char(10)，那么不论你存储的数据是否达到了10个字节，都要占去10个字节的空间,不足的自动用空格填充。</p>
+<p>VARCHAR(M)定义的列的长度为可变长字符串，M取值可以为0~65535之间，(VARCHAR的最大有效长度由最大行大小和使用的字符集确定。整体最大长度是65,532字节）。VARCHAR值保存时只保存需要的字符数，另加一个字节来记录长度(如果列声明的长度超过255，则使用两个字节)。VARCHAR值保存时不进行填充。当值保存和检索时尾部的空格仍保留，符合标准SQL。varchar存储变长数据，但存储效率没有CHAR高。如果一个字段可能的值是不固定长度的，我们只知道它不可能超过10个字符，把它定义为 VARCHAR(10)是最合算的。VARCHAR类型的实际长度是它的值的实际长度+1。为什么”+1”呢？这一个字节用于保存实际使用了多大的长度。从空间上考虑，用varchar合适；从效率上考虑，用char合适，关键是根据实际情况找到权衡点。</p>
+<p>来自： <a href="https://blog.csdn.net/qq_24549805/article/details/53426668" target="_blank" rel="noopener">https://blog.csdn.net/qq_24549805/article/details/53426668</a></p>
+</blockquote>
+<p><strong>8.</strong>【<strong>强制</strong>】varchar 是可变长字符串，不预先分配存储空间，长度不要超过 5000，如果存储长度大于 5000，定义字段类型为 text，独立出来一张表，用主键来对应，避免影响其它字段索引效率。</p>
+<blockquote>
+<p> <strong>MySQL中char、varchar和text的区别</strong></p>
+<p> 它们的存储方式和数据的检索方式都不一样。<br> 数据的检索效率是：char &gt; varchar &gt; text<br> 空间占用方面，就要具体情况具体分析了。</p>
+<p> <strong>1.char：</strong> 存储定长数据很方便，CHAR字段上的索引效率极高，必须在括号里定义长度，可以有默认值，比如定义char(10)，那么不论你存储的数据是否达到了10个字符，都要占去10个字符的空间（自动用空格填充），且在检索的时候后面的空格会隐藏掉，所以检索出来的数据需要记得用什么trim之类的函数去过滤空格。</p>
+<p> <strong>2.varchar：</strong> 存储变长数据，但存储效率没有CHAR高，必须在括号里定义长度，可以有默认值。保存数据的时候，不进行空格自动填充，而且如果数据存在空格时，当值保存和检索时尾部的空格仍会保留。另外，varchar类型的实际长度是它的值的实际长度+1，这一个字节用于保存实际使用了多大的长度。</p>
+<p> <strong>3.text：</strong> 存储可变长度的非Unicode数据，最大长度为2^31-1个字符。text列不能有默认值，存储或检索过程中，不存在大小写转换，后面如果指定长度，不会报错误，但是这个长度是不起作用的，意思就是你插入数据的时候，超过你指定的长度还是可以正常插入。</p>
+<p> 来自： <a href="https://www.jianshu.com/p/cc2d99559532" target="_blank" rel="noopener">https://www.jianshu.com/p/cc2d99559532</a></p>
+</blockquote>
+<p><strong>9.</strong>【<strong>强制</strong>】表必备三字段：id, create_time, update_time。</p>
+<p>​    <strong>说明</strong>：其中 id 必为主键，类型为 bigint unsigned、单表时自增、步长为 1。create_time, update_time 的类型均为 datetime 类型。</p>
+<blockquote>
+<p>create_time 为一行记录的创建时间，update_time 为一行记录的更新时间</p>
+<p>datetime、timestamp精确度都是秒，datetime与时区无关，存储的范围广(1001-9999)，timestamp与时区有关，存储的范围小(1970-2038)。</p>
+</blockquote>
+<p><strong>10.</strong>【<strong>推荐</strong>】表的命名最好是遵循 “业务名称_表的作用”。</p>
+<p>​    <strong>正例</strong>：alipay_task / force_project / trade_config</p>
+<blockquote>
+<p>方便区分和查找</p>
+</blockquote>
+<p><strong>11.</strong>【<strong>推荐</strong>】库名与应用名称尽量一致。</p>
+<blockquote>
+<p>比如你有个项目名称叫做 alipay-adapter ，那数据库名可以起名为 alipay_adapter</p>
+</blockquote>
+<p><strong>12.</strong>【<strong>推荐</strong>】如果修改字段含义或对字段表示的状态追加时,需要及时更新字段注释。</p>
+<blockquote>
+<p>字段注释要及时更新，降低沟通成本</p>
+</blockquote>
+<p><strong>13.</strong>【<strong>推荐</strong>】字段允许适当冗余，以提高查询性能，但必须考虑数据一致。冗余字段应遵循：</p>
+<p>​    1）不是频繁修改的字段。</p>
+<p>​    2）不是 varchar 超长字段，更不能是 text 字段。</p>
+<p>​    3） 不是唯一索引的字段。</p>
+<p>​    <strong>正例</strong>：商品类目名称使用频率高，字段长度短，名称基本一成不变，可在相关联的表中冗余存储类目名称，避免关联查询。</p>
+<blockquote>
+<p>数据库三范式可以不用严格遵循，有时候适当的冗余能够提高查询效率</p>
+</blockquote>
+<p><strong>14.</strong>【<strong>推荐</strong>】单表行数超过 500 万行或者单表容量超过 2GB，才推荐进行分库分表。</p>
+<p>​    <strong>说明</strong>：如果预计三年后的数据量根本达不到这个级别，请不要在创建表时就分库分表。</p>
+<p><strong>15.</strong>【<strong>参考</strong>】合适的字符存储长度，不但节约数据库表空间、节约索引存储，更重要的是提升检索速度。</p>
+<p>​    <strong>正例</strong>：如下表，其中无符号值可以避免误存负数，且扩大了表示范围。</p>
+<table>
+<thead>
+<tr>
+<th align="center">对象</th>
+<th>年龄区间</th>
+<th>类型</th>
+<th align="center">字节</th>
+<th>表示范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">人</td>
+<td>150 岁之内</td>
+<td>tinyint unsigned</td>
+<td align="center">1</td>
+<td>无符号值：0 到 255</td>
+</tr>
+<tr>
+<td align="center">龟</td>
+<td>数百岁</td>
+<td>smallint unsigned</td>
+<td align="center">2</td>
+<td>无符号值：0 到 65535</td>
+</tr>
+<tr>
+<td align="center">恐龙化石</td>
+<td>数千万年</td>
+<td>int unsigned</td>
+<td align="center">4</td>
+<td>无符号值：0 到约 42.9 亿</td>
+</tr>
+<tr>
+<td align="center">太阳</td>
+<td>约 50 亿年</td>
+<td>bigint unsigned</td>
+<td align="center">8</td>
+<td>无符号值：0 到约 10 的 19 次方</td>
+</tr>
+</tbody></table>
+<h2 id="二-索引规约"><a href="#二-索引规约" class="headerlink" title="(二) 索引规约"></a>(二) 索引规约</h2><ol>
+<li><p>【强制】业务上具有唯一特性的字段，即使是多个字段的组合，也必须建成唯一索引。</p>
+<p>说明：不要以为唯一索引影响了 insert 速度，这个速度损耗可以忽略，但提高查找速度是明显的；另外， 即使在应用层做了非常完善的校验控制，只要没有唯一索引，根据墨菲定律，必然有脏数据产生。</p>
+</li>
+<li><p>【强制】超过三个表禁止 join。需要 join 的字段，数据类型必须绝对一致；多表关联查询时，保证被关联的字段需要有索引。</p>
+</li>
+<li><p>【强制】在 varchar 字段上建立索引时，必须指定索引长度，没必要对全字段建立索引，根据实际文本区分度决定索引长度即可。</p>
+<p>说明：索引的长度与区分度是一对矛盾体，一般对字符串类型数据，长度为 20 的索引，区分度会高达 90%以上，可以使用 count(distinct left(列名, 索引长度))/count(*)的区分度来确定。</p>
+</li>
+<li><p>【强制】页面搜索严禁左模糊或者全模糊，如果需要请走搜索引擎来解决。</p>
+<p>说明：索引文件具有 B-Tree 的最左前缀匹配特性，如果左边的值未确定，那么无法使用此索引。</p>
+</li>
+<li><p>【推荐】如果有 order by 的场景，请注意利用索引的有序性。order by 最后的字段是组合索引的一部分，并且放在索引组合顺序的最后，避免出现 file_sort 的情况，影响查询性能。</p>
+<p>正例：where a=? and b=? order by c; 索引：a_b_c</p>
+<p>反例：索引如果存在范围查询，那么索引有序性无法利用，如：WHERE a&gt;10 ORDER BY b; 索引 a_b 无法排序。</p>
+</li>
+<li><p>【推荐】利用覆盖索引来进行查询操作，避免回表。</p>
+<p>说明：如果一本书需要知道第 11 章是什么标题，会翻开第 11 章对应的那一页吗？目录浏览一下就好，这 个目录就是起到覆盖索引的作用。</p>
+<p>正例：能够建立索引的种类分为主键索引、唯一索引、普通索引三种，而覆盖索引只是一种查询的一种效 果，用 explain 的结果，extra 列会出现：using index。</p>
+</li>
+<li><p>【推荐】利用延迟关联或者子查询优化超多分页场景。</p>
+<p>说明：MySQL 并不是跳过 offset 行，而是取 offset+N 行，然后返回放弃前 offset 行，返回 N 行，那当 offset 特别大的时候，效率就非常的低下，要么控制返回的总页数，要么对超过特定阈值的页数进行 SQL 改写。</p>
+<p>正例：先快速定位需要获取的 id 段，然后再关联：</p>
+<p>SELECT a.* FROM 表 1 a, (select id from 表 1 where 条件 LIMIT 100000,20 ) b where a.id=b.id</p>
+</li>
+<li><p>【推荐】SQL 性能优化的目标：至少要达到 range 级别，要求是 ref 级别，如果可以是</p>
+<p>consts 最好。</p>
+</li>
+</ol>
+<p>​    说明：</p>
+<p>   1） consts 单表中最多只有一个匹配行（主键或者唯一索引），在优化阶段即可读取到数据。</p>
+<p>   2） ref 指的是使用普通的索引（normal index）。</p>
+<p>   3） range 对索引进行范围检索。</p>
+<p>​    反例：explain 表的结果，type=index，索引物理文件全扫描，速度非常慢，这个 index 级别比较 range 还低，与全表扫描是小巫见大巫。</p>
+<ol start="9">
+<li><p>【推荐】建组合索引的时候，区分度最高的在最左边。</p>
+<p>正例：如果 where a=? and b=? ，如果 a 列的几乎接近于唯一值，那么只需要单建 idx_a 索引即可。</p>
+<p>说明：存在非等号和等号混合时，在建索引时，请把等号条件的列前置。如：where c&gt;? and d=? 那么 即使 c 的区分度更高，也必须把 d 放在索引的最前列，即索引 idx_d_c。</p>
+</li>
+<li><p>【推荐】防止因字段类型不同造成的隐式转换，导致索引失效。</p>
+</li>
+<li><p>【参考】创建索引时避免有如下极端误解：</p>
+<p>1） 宁滥勿缺。认为一个查询就需要建一个索引。</p>
+<p>2） 宁缺勿滥。认为索引会消耗空间、严重拖慢记录的更新以及行的新增速度。</p>
+<p>3） 抵制惟一索引。认为业务的惟一性一律需要在应用层通过“先查后插”方式解决。</p>
+</li>
+</ol>
+
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《《阿里巴巴 Java 开发手册》第五章MySQL数据库解读》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/11/05/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4-Java-%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E7%AC%AC%E4%BA%94%E7%AB%A0MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A7%A3%E8%AF%BB/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                高行行
+            </a> 采用
+            <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/11/06/CentOS-7-%E5%AE%89%E8%A3%85GUI%E7%95%8C%E9%9D%A2%E5%8F%8A%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="CentOS 7 安装GUI界面及远程连接">
+                        
+                        <span class="card-title">CentOS 7 安装GUI界面及远程连接</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            CentOS 7 安装GUI界面及远程连接
+参考文章：
+https://segmentfault.com/a/1190000019557600
+
+1. 安装GUI界面大多数云服务器厂商提供的镜像都无GUI界面，所以要先安装图形环境。本文使用
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-11-06
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E5%8E%9F%E5%88%9B/" target="_blank">
+                        <span class="chip bg-color">原创</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/11/04/RESTful-API%E8%A7%84%E8%8C%83%EF%BC%88%E8%AF%A6%E7%BB%86%E7%89%88%EF%BC%89/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="RESTful API规范（详细版）">
+                        
+                        <span class="card-title">RESTful API规范（详细版）</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+作者: RyuGou
+原文地址: RESTful API 规范（详细版）
+作者公众号: 互联网技术窝
+看的时候感觉写的非常不错 😆，看完自我介绍发现果然是个大佬
+
+1. 简介rest是一种软件架构风格，如果你们的接口是rest接口，那么
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-11-04
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/restful/" target="_blank">
+                        <span class="chip bg-color">restful</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+
+
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
+
+</body>
+</html>

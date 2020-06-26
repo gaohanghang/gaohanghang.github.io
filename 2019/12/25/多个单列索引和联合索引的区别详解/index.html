@@ -1,0 +1,997 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="多个单列索引和联合索引的区别详解, 高行行的个人博客">
+    <meta name="description" content="
+原文地址：https://blog.csdn.net/abysscarry/article/details/80792876
+作者：深寒丶
+对索引中的所有列执行搜索或仅对前几列执行搜索时，复合索引非常有用；仅对后面的任意列执行搜索时，复合">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>多个单列索引和联合索引的区别详解 | 高行行的个人博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">高行行的个人博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
+    
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">高行行的个人博客</div>
+        <div class="logo-desc">
+            
+            个人公众号《骇客与画家》
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        多个单列索引和联合索引的区别详解
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/%E7%B4%A2%E5%BC%95/" target="_blank">
+                                <span class="chip bg-color">索引</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-12-25
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
+<p>原文地址：<a href="https://blog.csdn.net/abysscarry/article/details/80792876" target="_blank" rel="noopener">https://blog.csdn.net/abysscarry/article/details/80792876</a></p>
+<p>作者：<a href="https://blog.csdn.net/Abysscarry" target="_blank" rel="noopener" title="深寒丶">深寒丶</a></p>
+<p>对索引中的<strong>所有列</strong>执行搜索或仅对<strong>前几列</strong>执行搜索时，<strong>复合索引非常有用</strong>；<strong>仅对后面的任意列</strong>执行搜索时，<strong>复合索引则没有用处。</strong></p>
+<p>or索引失效：</p>
+<p>所谓的索引失效指的是：假如 or 连接的<strong>俩个查询条件字段中有一个没有索引</strong>的话,引擎会放弃索引而产生全表扫描。我们从 or 的基本含义出发应该能理解并认可这种说法，没啥问题。</p>
+</blockquote>
+<p><strong><em>背景：</em></strong></p>
+<p><em>为了提高数据库效率，建索引是家常便饭；那么当查询条件为 2 个及以上时，我们是创建<strong>多个单列索引</strong>还是创建<strong>一个联合索引</strong>好呢？他们之间的区别是什么？哪个效率高呢？我在这里详细测试分析下。</em></p>
+<h2 id="一、联合索引测试"><a href="#一、联合索引测试" class="headerlink" title="一、联合索引测试"></a>一、联合索引测试</h2><p><em>注：Mysql 版本为 5.7.20</em></p>
+<p><strong>创建测试表(表记录数为 63188)：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`t_mobilesms_11`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`userId`</span> <span class="built_in">varchar</span>(<span class="number">255</span>) <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'用户id，创建任务时的userid'</span>,</span><br><span class="line">  <span class="string">`mobile`</span> <span class="built_in">varchar</span>(<span class="number">24</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'手机号码'</span>,</span><br><span class="line">  <span class="string">`billMonth`</span> <span class="built_in">varchar</span>(<span class="number">32</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'账单月'</span>,</span><br><span class="line">  <span class="string">`time`</span> <span class="built_in">varchar</span>(<span class="number">32</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'收/发短信时间'</span>,</span><br><span class="line">  <span class="string">`peerNumber`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'对方号码'</span>,</span><br><span class="line">  <span class="string">`location`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'通信地(自己的)'</span>,</span><br><span class="line">  <span class="string">`sendType`</span> <span class="built_in">varchar</span>(<span class="number">16</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'SEND-发送; RECEIVE-收取'</span>,</span><br><span class="line">  <span class="string">`msgType`</span> <span class="built_in">varchar</span>(<span class="number">8</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'SMS-短信; MSS-彩信'</span>,</span><br><span class="line">  <span class="string">`serviceName`</span> <span class="built_in">varchar</span>(<span class="number">256</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'业务名称. e.g. 点对点(网内)'</span>,</span><br><span class="line">  <span class="string">`fee`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'通信费(单位分)'</span>,</span><br><span class="line">  <span class="string">`createTime`</span> datetime <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  <span class="string">`lastModifyTime`</span> datetime <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'最后修改时间'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`联合索引`</span> (<span class="string">`userId`</span>,<span class="string">`mobile`</span>,<span class="string">`billMonth`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">71185</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COMMENT</span>=<span class="string">'手机短信详情'</span></span><br></pre></td></tr></table></figure>
+
+<p>我们为<code>userId</code>, <code>mobile</code>, <code>billMonth</code>三个字段添加上联合索引！</p>
+<p>我们选择 <code>explain</code> 查看执行计划来观察索引利用情况：</p>
+<h3 id="1-查询条件为-userid"><a href="#1-查询条件为-userid" class="headerlink" title="1.查询条件为 userid"></a><strong>1.查询条件为 <code>userid</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span> userid=<span class="string">'2222'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/2018062415524243?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>可以通过<code>key</code>看到，联合索引<strong>有效</strong></p>
+<h3 id="2-查询条件为-mobile"><a href="#2-查询条件为-mobile" class="headerlink" title="2.查询条件为 mobile"></a><strong>2.查询条件为 <code>mobile</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span> mobile=<span class="string">'13281899972'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624155746192?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>可以看到联合索引<strong>无效</strong></p>
+<h3 id="3-查询条件为-billMonth"><a href="#3-查询条件为-billMonth" class="headerlink" title="3.查询条件为 billMonth"></a><strong>3.查询条件为 <code>billMonth</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span> billMonth=<span class="string">'2018-04'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624155853370?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>联合索引<strong>无效</strong></p>
+<h3 id="4-查询条件为-userid-and-mobile"><a href="#4-查询条件为-userid-and-mobile" class="headerlink" title="4.查询条件为 userid and mobile"></a><strong>4.查询条件为 <code>userid and mobile</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span> userid=<span class="string">'2222'</span> <span class="keyword">AND</span> mobile=<span class="string">'13281899972'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624160135826?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>联合索引<strong>有效</strong></p>
+<h3 id="5-查询条件为-mobile-and-userid"><a href="#5-查询条件为-mobile-and-userid" class="headerlink" title="5.查询条件为 mobile and userid"></a><strong>5.查询条件为 <code>mobile and userid</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span>  mobile=<span class="string">'13281899972'</span> <span class="keyword">AND</span> userid=<span class="string">'2222'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624160251906?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>在 4 的基础上调换了查询条件的顺序，发现联合索引依旧<strong>有效</strong></p>
+<h3 id="6-查询条件为-userid-or-mobile"><a href="#6-查询条件为-userid-or-mobile" class="headerlink" title="6.查询条件为 userid or mobile"></a><strong>6.查询条件为 <code>userid or mobile</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span> userid=<span class="string">'2222'</span> <span class="keyword">OR</span> mobile=<span class="string">'13281899972'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624161125355?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>把 <code>and</code> 换成 <code>or</code>，发现联合所索引<strong>无效</strong>！</p>
+<h3 id="7-查询条件为-userid-and-billMonth"><a href="#7-查询条件为-userid-and-billMonth" class="headerlink" title="7.查询条件为 userid and billMonth"></a><strong>7.查询条件为 <code>userid and billMonth</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span> userid=<span class="string">'2222'</span> <span class="keyword">AND</span> billMonth=<span class="string">'2018-04'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624161421218?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>这两个条件分别位于联合索引位置的<strong>第一和第三</strong>，测试联合索引依旧<strong>有效</strong>！</p>
+<h3 id="8-查询条件为-mobile-and-billMonth"><a href="#8-查询条件为-mobile-and-billMonth" class="headerlink" title="8.查询条件为 mobile and billMonth"></a><strong>8.查询条件为 <code>mobile and billMonth</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span> mobile=<span class="string">'13281899972'</span> <span class="keyword">AND</span> billMonth=<span class="string">'2018-04'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624161555999?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>这两个条件分别位于联合索引位置的<strong>第二和第三</strong>，发现联合索引<strong>无效</strong>！</p>
+<h3 id="9-查询条件为-userid-and-mobile-and-billMonth"><a href="#9-查询条件为-userid-and-mobile-and-billMonth" class="headerlink" title="9.查询条件为 userid and mobile and billMonth"></a><strong>9.查询条件为 <code>userid and mobile and billMonth</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">EXPLAIN</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`t_mobilesms_11`</span> <span class="keyword">WHERE</span>  userid=<span class="string">'2222'</span> <span class="keyword">AND</span> mobile=<span class="string">'13281899972'</span> <span class="keyword">AND</span> billMonth=<span class="string">'2018-04'</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624162525113?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>所有条件一起查询，联合索引<strong>有效</strong>！（当然，这才是最正统的用法啊！）</p>
+<h2 id="二、单列索引测试"><a href="#二、单列索引测试" class="headerlink" title="二、单列索引测试"></a>二、单列索引测试</h2><p><em>创建三个单列索引：</em></p>
+<p><img src="https://img-blog.csdn.net/20180624163253812?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<h3 id="1-查询条件为-userid-and-mobile-and-billMonth"><a href="#1-查询条件为-userid-and-mobile-and-billMonth" class="headerlink" title="1.查询条件为 userid and mobile and billMonth"></a><strong>1.查询条件为 <code>userid and mobile and billMonth</code></strong></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN SELECT * FROM &#96;t_mobilesms_11&#96; WHERE  userid&#x3D;&#39;2222&#39; AND mobile&#x3D;&#39;13281899972&#39; AND billMonth&#x3D;&#39;2018-04&#39;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624163500567?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>我们发现三个单列索引<strong>只有 <code>userid</code> 有效（位置为查询条件第一个）</strong>，其他两个都没有用上。</p>
+<p>那么为什么没有用上呢？按照我们的理解，三个字段都加索引了，无论怎么排列组合查询，应该都能利用到这三个索引才对！</p>
+<p>其实这里其实涉及到了 mysql 优化器的<strong>优化策略</strong>！当多条件联合查询时，优化器会评估用哪个条件的索引效率最高！它会选择最佳的索引去使用，也就是说，此处<code>userid 、mobile 、billMonth</code>这三个索引列都能用，只不过<strong>优化器判断只需要使用<code>userid</code>这一个索引就能完成本次查询</strong>，故最终 explain 展示的 key 为 userid。</p>
+<p>当然，如果优化器判断本次查询非要全使用三个索引才能效率最高，那么 explain 的 key 就会是<code>userid 、mobile 、billMonth</code>，都会生效！</p>
+<h3 id="2-查询条件为-mobile-and-billMonth"><a href="#2-查询条件为-mobile-and-billMonth" class="headerlink" title="2.查询条件为 mobile and billMonth"></a><strong>2.查询条件为 <code>mobile and billMonth</code></strong></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN SELECT * FROM &#96;t_mobilesms_11&#96; WHERE mobile&#x3D;&#39;13281899972&#39; AND billMonth&#x3D;&#39;2018-04&#39;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624163836916?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>我们发现此处两个查询条件<strong>只有 <code>mobile</code> 生效（位置也为查询条件第一个）</strong></p>
+<h3 id="3-查询条件为-userid-or-mobile"><a href="#3-查询条件为-userid-or-mobile" class="headerlink" title="3.查询条件为 userid or mobile"></a><strong>3.查询条件为 <code>userid or mobile</code></strong></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN SELECT * FROM &#96;t_mobilesms_11&#96; WHERE  userid&#x3D;&#39;2222&#39; OR mobile&#x3D;&#39;13281899972&#39;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/2018062416412814?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt=""></p>
+<p>这次把 <code>and</code> 换成 <code>or</code>，发现两个查询条件都用上索引了！</p>
+<p>我们在网上可能常常看到有人说 or 会导致索引失效，其实这<strong>并不准确</strong>。而且我们首先需要<strong>判断用的是哪个数据库哪个版本，什么引擎？</strong></p>
+<p>比如我用的是 mysql5.7 版本，innodb 引擎，在<strong>这个环境下</strong>我们再去讨论索引的具体问题。</p>
+<h3 id="关于-or-查询的真相是："><a href="#关于-or-查询的真相是：" class="headerlink" title="关于 or 查询的真相是："></a><strong>关于 or 查询的真相是：</strong></h3><p>所谓的索引失效指的是：假如 or 连接的<strong>俩个查询条件字段中有一个没有索引</strong>的话,引擎会放弃索引而产生全表扫描。我们从 or 的基本含义出发应该能理解并认可这种说法，没啥问题。</p>
+<p>此刻需要注意<strong>type</strong>类型为<code>index_merge</code>。</p>
+<p>我查资料说 mysql 5.0 版本之前 使用 or<strong>只会用到一个索引</strong>（即使如上我给 userid 和 mobile 都建立的单列索引），但自从 5.0 版本开始引入了<strong>index_merge 索引合并优化</strong>！也就是说，我们现在可以利用上多个索引去优化 or 查询了。</p>
+<p><strong>index_merge 作用：</strong></p>
+<p>1、索引合并是把几个索引的范围扫描合并成一个索引。</p>
+<p>2、索引合并的时候，会对索引进行并集，交集或者先交集再并集操作，以便合并成一个索引。</p>
+<p>3、这些需要合并的索引只能是一个表的。不能对多表进行索引合并。</p>
+<p><strong>index_merge 应用场景：</strong></p>
+<p>1.对 OR 语句求并集，如查询<code>SELECT * FROM TB1 WHERE c1=&quot;xxx&quot; OR c2=&quot;&quot;xxx&quot;</code>时，如果 c1 和 c2 列上分别有索引，可以按照 c1 和 c2 条件进行查询，再将查询结果合并（union）操作，得到最终结果</p>
+<p>2.对 AND 语句求交集，如查询<code>SELECT * FROM TB1 WHERE c1=&quot;xxx&quot; AND c2=&quot;&quot;xxx&quot;</code>时，如果 c1 和 c2 列上分别有索引，可以按照 c1 和 c2 条件进行查询，再将查询结果取交集（intersect）操作，得到最终结果</p>
+<p>3.对 AND 和 OR 组合语句求结果</p>
+<h2 id="三、结论"><a href="#三、结论" class="headerlink" title="三、结论"></a>三、结论</h2><h3 id="通俗理解："><a href="#通俗理解：" class="headerlink" title="通俗理解："></a><strong>通俗理解：</strong></h3><p>利用索引中的附加列，您可以缩小搜索的范围，但使用<strong>一个具有两列的索引 不同于使用两个单独的索引</strong>。复合索引的结构与<strong>电话簿</strong>类似，人名由姓和名构成，电话簿首先按姓氏对进行排序，然后按名字对有相同姓氏的人进行排序。<strong>如果您知道姓，电话簿将非常有用；如果您知道姓和名，电话簿则更为有用，但如果您只知道名不姓，电话簿将没有用处</strong>。</p>
+<p>所以说创建复合索引时，应该仔细考虑<strong>列的顺序</strong>。对索引中的<strong>所有列</strong>执行搜索或仅对<strong>前几列</strong>执行搜索时，<strong>复合索引非常有用</strong>；<strong>仅对后面的任意列</strong>执行搜索时，<strong>复合索引则没有用处。</strong></p>
+<h3 id="重点："><a href="#重点：" class="headerlink" title="重点："></a><strong>重点：</strong></h3><p><strong>多个单列索引</strong>在<strong>多条件查询</strong>时优化器会选择<strong>最优索引策略</strong>，<strong>可能只用一个索引，也可能将多个索引全用上！</strong> 但多个单列索引底层会建立多个 B+索引树，比较占用空间，也会浪费一定搜索效率，故如果只有<strong>多条件联合查询时最好建联合索引！</strong></p>
+<h3 id="最左前缀原则："><a href="#最左前缀原则：" class="headerlink" title="最左前缀原则："></a><strong>最左前缀原则：</strong></h3><p>顾名思义是最左优先，以<strong>最左边的为起点</strong>任何连续的索引都能匹配上，<br>注：如果第一个字段是<strong>范围查询需要单独建一个索引</strong><br>注：在创建联合索引时，要根据业务需求，where 子句中<strong>使用最频繁的一列放在最左边</strong>。这样的话扩展性较好，比如 <code>userid</code> 经常需要作为查询条件，而 <code>mobile</code> 不常常用，则需要把 <code>userid</code> 放在联合索引的<strong>第一位置，即最左边</strong></p>
+<h3 id="同时存在联合索引和单列索引（字段有重复的），这个时候查询-mysql-会怎么用索引呢？"><a href="#同时存在联合索引和单列索引（字段有重复的），这个时候查询-mysql-会怎么用索引呢？" class="headerlink" title="同时存在联合索引和单列索引（字段有重复的），这个时候查询 mysql 会怎么用索引呢？"></a><strong>同时存在联合索引和单列索引（字段有重复的），这个时候查询 mysql 会怎么用索引呢？</strong></h3><p>这个涉及到 mysql 本身的<strong>查询优化器策略</strong>了，当一个表有多条索引可走时, Mysql 根据<strong>查询语句的成本</strong>来选择走哪条索引；</p>
+<p>有人说 where 查询是按照从左到右的顺序，所以筛选力度大的条件尽量放前面。网上百度过，很多都是这种说法，但是据我研究，<strong>mysql 执行优化器会对其进行优化</strong>，<strong>当不考虑索引时，where 条件顺序对效率没有影响</strong>，<strong>真正有影响的是是否用到了索引</strong>！</p>
+<h3 id="联合索引本质："><a href="#联合索引本质：" class="headerlink" title="联合索引本质："></a><strong>联合索引本质：</strong></h3><p>当创建<strong>(a,b,c)联合索引</strong>时，相当于创建了<strong>(a)单列索引</strong>，<strong>(a,b)联合索引</strong>以及<strong>(a,b,c)联合索引</strong><br>想要索引生效的话,只能使用 a 和 a,b 和 a,b,c 三种组合；当然，我们上面测试过，<strong>a,c 组合也可以，但实际上只用到了 a 的索引，c 并没有用到！</strong><br>注：这个可以结合上边的 <em>通俗理解</em> 来思考！</p>
+<h3 id="其他知识点："><a href="#其他知识点：" class="headerlink" title="其他知识点："></a><strong>其他知识点：</strong></h3><p>1、需要加索引的字段，<strong>要在 where 条件中</strong></p>
+<p>2、<strong>数据量少的字段不需要加索引</strong>；因为<strong>建索引有一定开销</strong>，如果数据量小则没必要建索引（速度反而慢）</p>
+<p>3、避免在 where 子句中使用<strong>or</strong>来连接条件,因为如果<strong>俩个字段中有一个没有索引</strong>的话,引擎会放弃索引而产生全表扫描</p>
+<p>4、<strong>联合索引比对每个列分别建索引更有优势</strong>，因为索引建立得越多就越占磁盘空间，在更新数据的时候速度会更慢。另外建立多列索引时，顺序也是需要注意的，<strong>应该将严格的索引放在前面，这样筛选的力度会更大，效率更高</strong>。</p>
+<h3 id="最后的说明："><a href="#最后的说明：" class="headerlink" title="最后的说明："></a><strong>最后的说明：</strong></h3><p>网上关于索引优化等文章太多了，针对各个数据库各个版本各种引擎都<strong>可能存在不一样的说法</strong>！</p>
+<p>我们的 SQL 引擎自带的优化也越来越强大，说不定你的某个 SQL 优化认知，其 SQL 引擎在某次升级中早就自优化了。</p>
+<p>所以要么<strong>跟进官方文档</strong>，要么<strong>关注数据库大牛的最新文章</strong>，要么在<strong>现有数据库环境下自己去亲手测试！</strong></p>
+<p><em>数据库领域的水很深。。大家加油。。共勉 ~</em></p>
+
+            </div>
+            <hr/>
+
+            
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.88rem;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《多个单列索引和联合索引的区别详解》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/12/25/%E5%A4%9A%E4%B8%AA%E5%8D%95%E5%88%97%E7%B4%A2%E5%BC%95%E5%92%8C%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                高行行
+            </a> 采用
+            <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/12/26/%E5%A6%82%E6%9E%9C%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E4%B8%AA%E6%96%B9%E6%B3%95%E5%8A%A0%E4%BA%86-synchronized%EF%BC%8C%E9%82%A3%E4%B9%88%E8%AF%A5%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%87%A0%E6%8A%8A%E9%94%81%EF%BC%9F/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt=" 如果一个对象有多个方法加了 synchronized，那么该对象有几把锁？">
+                        
+                        <span class="card-title"> 如果一个对象有多个方法加了 synchronized，那么该对象有几把锁？</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+答案是一把锁 🔐
+
+代码示例：
+1234567891011public class Test &#123;    public synchronized void method1()&#123;        // do somethi
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-12-26
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/12/19/%E4%BD%A0%E7%9A%84%E7%BC%96%E7%A8%8B%E8%83%BD%E5%8A%9B%E4%BB%8E%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%BC%80%E5%A7%8B%E7%AA%81%E9%A3%9E%E7%8C%9B%E8%BF%9B%EF%BC%9F/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="你的编程能力从什么时候开始突飞猛进？">
+                        
+                        <span class="card-title">你的编程能力从什么时候开始突飞猛进？</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+原文地址： https://www.zhihu.com/question/356351510/answer/913928066
+作者：口天师兄
+小结：
+用 Google -&gt; 读书 -&gt; 读国外大社书 -&gt; 多做业务 -
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-12-19
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E8%BD%AC%E8%BD%BD/" target="_blank">
+                        <span class="chip bg-color">转载</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+
+
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
+
+</body>
+</html>
