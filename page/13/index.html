@@ -272,7 +272,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/27/java-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E4%BD%BF%E7%94%A8-interrupt-%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/01/%E4%BD%BF%E7%94%A8Spring-Boot%E6%90%AD%E5%BB%BA%E7%AE%80%E5%8D%95GraphQL%E6%9C%8D%E5%8A%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -291,7 +291,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/09/27/java-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E4%BD%BF%E7%94%A8-interrupt-%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/" itemprop="url">java 多线程之使用 interrupt 停止线程的几种方法</a></h1>
+                <a class="post-title-link" href="/2019/09/01/%E4%BD%BF%E7%94%A8Spring-Boot%E6%90%AD%E5%BB%BA%E7%AE%80%E5%8D%95GraphQL%E6%9C%8D%E5%8A%A1/" itemprop="url">使用Spring Boot搭建简单GraphQL服务</a></h1>
         
 
         <div class="post-meta">
@@ -303,8 +303,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-27T20:52:01+08:00">
-                2019-09-27
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-01T18:15:28+08:00">
+                2019-09-01
               </time>
             
 
@@ -322,8 +322,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/09/27/java-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E4%BD%BF%E7%94%A8-interrupt-%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/27/java-多线程之使用-interrupt-停止线程的几种方法/" itemprop="commentCount"></span>
+                <a href="/2019/09/01/%E4%BD%BF%E7%94%A8Spring-Boot%E6%90%AD%E5%BB%BA%E7%AE%80%E5%8D%95GraphQL%E6%9C%8D%E5%8A%A1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/01/使用Spring-Boot搭建简单GraphQL服务/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -331,1503 +331,7 @@
 
           
           
-             <span id="/2019/09/27/java-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E4%BD%BF%E7%94%A8-interrupt-%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/" class="leancloud_visitors" data-flag-title="java 多线程之使用 interrupt 停止线程的几种方法">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>原文地址: <a href="https://juejin.im/post/5ba062be6fb9a05cd84918b7" target="_blank" rel="noopener" title="java 多线程之使用 interrupt 停止线程的几种方法">java 多线程之使用 interrupt 停止线程的几种方法</a></p>
-</blockquote>
-<p>停止线程的方式总结</p>
-<ol>
-<li>使用退出标志，使线程正常退出，也就是当 run 方法完成后才停止；</li>
-<li>使用 stop 方法强行终止线程，是过期作废的方法，这种方法可以排除不用；</li>
-<li>使用 interrupt 方法终止线程。<ul>
-<li>异常法停止线程（推荐）</li>
-<li>在 sleep() 中停止线程</li>
-<li>使用 return 停止线程</li>
-</ul>
-</li>
-</ol>
-<h2 id="停止线程"><a href="#停止线程" class="headerlink" title="停止线程"></a>停止线程</h2><p>停止线程是 java 多线程开发中很重要的技术点，实际工作中很多业务都有类似的需求，掌握此技术可以对业务中所需停止的线程做有效的处理。但是停止线程在 java 语言中并不像 break 语句中那样干脆简单，还需要我们做一下技巧性的处理。 如何更好的停止一个线程是我们应该要考虑的问题，停止一个线程意味着在线程处理完任务之前停掉正在做的操作，即放弃当前的操作。停止一个线程在之前老的 JDK 中使用的是<code>Thread.stop()</code>方法，但是后面发现这种处理方法是很危险而且不安全的，由于 stop()方法已经在 JDK 中被标明是“作废/过期”的方法，显然它在功能上是具有缺陷的。作为一个负责的 java 工程师，最好是不要去使用它，因为使用 stop()方法释放锁将会给数据造成不一致性的结果。如果出现这种情况，程序处理的数据可能遭到破坏，最终导致程序执行流程错误。 大多数停止一个线程的操作使用的是<code>Thread.interrupt()</code>方法，虽然方法名是“终止，停止”的意思，但是这个方法不会直接终止一个正在运行的线程还需要加入一个判断才可以完成线程的停止。 此外，在 java 中有以下的 3 种方法可以终止正在运行的线程：</p>
-<ol>
-<li>使用退出标志，使线程正常退出，也就是当 run 方法完成后才停止；</li>
-<li>就是我们上面所说的使用 stop 方法强行终止线程，是过期作废的方法，这种方法可以排除不用；</li>
-<li>使用 interrupt 方法终止线程。</li>
-</ol>
-<p>第一种使用退出标志的方法楼主不做介绍，具体可以参考其他博客，都大同小异，楼主写这篇博客主要是探索使用 interrupt 停止线程的几种方法的优劣。</p>
-<h2 id="异常法停止线程"><a href="#异常法停止线程" class="headerlink" title="异常法停止线程"></a>异常法停止线程</h2><p>首先我们用 for-break 方式停止线程：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExceptionInterrupt</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.run();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">500000</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isInterrupted()) &#123;</span><br><span class="line">                System.out.println(<span class="string">"已经是停止状态了！我要退出了！"</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"i="</span> + (i + <span class="number">1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"我被输出，如果此代码是for又继续运行，线程并未停止！"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ExceptionInterrupt thread = <span class="keyword">new</span> ExceptionInterrupt();</span><br><span class="line">        thread.start();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">            thread.interrupt();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"end!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>打印结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">i&#x3D;421200</span><br><span class="line">i&#x3D;421201</span><br><span class="line">i&#x3D;421202</span><br><span class="line">i&#x3D;421203</span><br><span class="line">i&#x3D;421204</span><br><span class="line">i&#x3D;421205</span><br><span class="line">i&#x3D;421206</span><br><span class="line">i&#x3D;421207</span><br><span class="line">i&#x3D;421208</span><br><span class="line">i&#x3D;421209</span><br><span class="line">已经是停止状态了！我要退出了！</span><br><span class="line">我被输出，如果此代码是for又继续运行，线程并未停止！</span><br><span class="line">end!</span><br></pre></td></tr></table></figure>
-
-<p>我们发现，上面的示例虽然停止了线程，但是如果 for 语句下面还有语句，那么还是会继续执行。所以我们这里用异常法来停止线程，就不会继续执行 for 后面的业务逻辑了。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExceptionInterrupt2</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.run();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">500000</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="keyword">this</span>.isInterrupted()) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"已经是停止状态了！我要退出了！"</span>);</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> InterruptedException();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">"i="</span> + (i + <span class="number">1</span>));</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"我在for下面"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            System.out.println(<span class="string">"进入ExceptionInterrupt2 类中run方法的catch了!"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ExceptionInterrupt2 thread = <span class="keyword">new</span> ExceptionInterrupt2();</span><br><span class="line">        thread.start();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">            thread.interrupt();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            System.out.println(<span class="string">"main catch"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"end!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>打印结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">i&#x3D;96487</span><br><span class="line">i&#x3D;96488</span><br><span class="line">i&#x3D;96489</span><br><span class="line">i&#x3D;96490</span><br><span class="line">i&#x3D;96491</span><br><span class="line">i&#x3D;96492</span><br><span class="line">i&#x3D;96493</span><br><span class="line">已经是停止状态了！我要退出了！</span><br><span class="line">进入ExceptionInterrupt2 类中run方法的catch了!</span><br><span class="line">java.lang.InterruptedException</span><br><span class="line">	at com.thread.chapter1.ExceptionInterrupt2.run(ExceptionInterrupt2.java:20)</span><br><span class="line">end!</span><br></pre></td></tr></table></figure>
-
-<h2 id="在-sleep-中停止线程"><a href="#在-sleep-中停止线程" class="headerlink" title="在 sleep()中停止线程"></a>在 sleep()中停止线程</h2><p>如果线程在 sleep()状态下停止线程，会有什么效果呢？我们来看下面的示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SleepInterrupt</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.run();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">"run begin"</span>);</span><br><span class="line">            Thread.sleep(<span class="number">200000</span>);</span><br><span class="line">            System.out.println(<span class="string">"run end"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            System.out.println(<span class="string">"在沉睡中被停止！进入catch!"</span>+<span class="keyword">this</span>.isInterrupted());</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            SleepInterrupt thread=<span class="keyword">new</span> SleepInterrupt();</span><br><span class="line">            thread.start();</span><br><span class="line">            Thread.sleep(<span class="number">200</span>);</span><br><span class="line">            thread.interrupt();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            System.out.println(<span class="string">"main catch"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">"end"</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>执行结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">run begin</span><br><span class="line">end</span><br><span class="line">在沉睡中被停止！进入catch!false</span><br><span class="line">java.lang.InterruptedException: sleep interrupted</span><br><span class="line">	at java.lang.Thread.sleep(Native Method)</span><br><span class="line">	at com.thread.chapter1.SleepInterrupt.run(SleepInterrupt.java:18)</span><br></pre></td></tr></table></figure>
-
-<p>从执行结果来看，如果在 sleep 状态下停止某一线程，会进入 catch 语句，并且清除停止状态值，使之变为 false。上面的示例是先 sleep 然后再用 interrupt()停止，与之相反的操作也要注意。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SleepInterrupt2</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.run();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++) &#123;</span><br><span class="line">                System.out.println(<span class="string">"i="</span> + (i + <span class="number">1</span>));</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"run begin"</span>);</span><br><span class="line">            Thread.sleep(<span class="number">200000</span>);</span><br><span class="line">            System.out.println(<span class="string">"run end"</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">            System.out.println(<span class="string">"先停止,再遇到了sleep!进入catch!"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SleepInterrupt2 thread = <span class="keyword">new</span> SleepInterrupt2();</span><br><span class="line">        thread.start();</span><br><span class="line">        thread.interrupt();</span><br><span class="line">        System.out.println(<span class="string">"end"</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>执行结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">i&#x3D;99991</span><br><span class="line">i&#x3D;99992</span><br><span class="line">i&#x3D;99993</span><br><span class="line">i&#x3D;99994</span><br><span class="line">i&#x3D;99995</span><br><span class="line">i&#x3D;99996</span><br><span class="line">i&#x3D;99997</span><br><span class="line">i&#x3D;99998</span><br><span class="line">i&#x3D;99999</span><br><span class="line">i&#x3D;100000</span><br><span class="line">run begin</span><br><span class="line">先停止,再遇到了sleep!进入catch!</span><br><span class="line">java.lang.InterruptedException: sleep interrupted</span><br><span class="line">	at java.lang.Thread.sleep(Native Method)</span><br><span class="line">	at com.thread.chapter1.SleepInterrupt2.run(SleepInterrupt2.java:21)</span><br></pre></td></tr></table></figure>
-
-<h2 id="使用-return-停止线程"><a href="#使用-return-停止线程" class="headerlink" title="使用 return 停止线程"></a>使用 return 停止线程</h2><p>将方法 interrupted()与 return 结合使用也能实现停止线程的效果。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReturnInterrupt</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isInterrupted()) &#123;</span><br><span class="line">                System.out.println(<span class="string">"停止了！"</span>);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"time="</span> + System.currentTimeMillis());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        ReturnInterrupt thread=<span class="keyword">new</span> ReturnInterrupt();</span><br><span class="line">        thread.start();</span><br><span class="line">        Thread.sleep(<span class="number">2000</span>);</span><br><span class="line">        thread.interrupt();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>执行结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">time&#x3D;1536809054172</span><br><span class="line">time&#x3D;1536809054172</span><br><span class="line">time&#x3D;1536809054172</span><br><span class="line">time&#x3D;1536809054172</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">time&#x3D;1536809054173</span><br><span class="line">停止了！</span><br></pre></td></tr></table></figure>
-
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>上面几种方法都是通过使用 interrupt 停止线程，只是做了不同的技巧处理，不过建议使用“抛异常”的方法来实现线程的停止，因为在 catch 块中还可以将异常向上抛，使线程停止的事件得以传播。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p>《java 多线程编程核心技术》</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/24/%E6%80%9D%E8%80%83-3-%E4%BB%BB%E4%BD%95%E4%BA%8B%E6%83%85%E9%83%BD%E6%9C%89%E4%BB%A3%E4%BB%B7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/24/%E6%80%9D%E8%80%83-3-%E4%BB%BB%E4%BD%95%E4%BA%8B%E6%83%85%E9%83%BD%E6%9C%89%E4%BB%A3%E4%BB%B7/" itemprop="url">思考 3: 任何事情都有代价</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-24T21:17:28+08:00">
-                2019-09-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/24/%E6%80%9D%E8%80%83-3-%E4%BB%BB%E4%BD%95%E4%BA%8B%E6%83%85%E9%83%BD%E6%9C%89%E4%BB%A3%E4%BB%B7/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/24/思考-3-任何事情都有代价/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/24/%E6%80%9D%E8%80%83-3-%E4%BB%BB%E4%BD%95%E4%BA%8B%E6%83%85%E9%83%BD%E6%9C%89%E4%BB%A3%E4%BB%B7/" class="leancloud_visitors" data-flag-title="思考 3: 任何事情都有代价">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>选择越多，选择越好</p>
-<p>没得选也不要盲目</p>
-</blockquote>
-<p><a href="https://www.bilibili.com/video/av38824746" target="_blank" rel="noopener">https://www.bilibili.com/video/av38824746</a></p>
-<blockquote>
-<p>任何事情都有代价</p>
-<p>选择难的事情</p>
-<p>选择贵的东西</p>
-</blockquote>
-<p><a href="https://www.bilibili.com/video/av38272155" target="_blank" rel="noopener">https://www.bilibili.com/video/av38272155</a></p>
-<p>恨一个人总是容易，随便找个理由，大可弃他而去，爱一个人总是那么难，就算他于你而言只是个意外，就算有反对的声音，就算有人冷嘲热讽，你还是无法弃之不顾，还是常常奋不顾身，即便经过这一切，他还是惦记着你的不好，你也不过一声叹息。–S01E07</p>
-<p><a href="https://www.bilibili.com/video/av46310847" target="_blank" rel="noopener">https://www.bilibili.com/video/av46310847</a></p>
-<p>人生充满谎言</p>
-<p>人心浮动，坚守初心</p>
-<p>真正想要的一件不拉的全丢光了</p>
-<p>死亡的本身并没有意义</p>
-<p>活在当下</p>
-<p><a href="https://www.bilibili.com/video/av34173276" target="_blank" rel="noopener">https://www.bilibili.com/video/av34173276</a></p>
-<p>一个人最大优点，往往藏着他最大的弱点</p>
-<p><a href="https://www.bilibili.com/video/av38041629" target="_blank" rel="noopener">https://www.bilibili.com/video/av38041629</a></p>
-<p>见识过这世界的疯狂，才明白什么叫做无常</p>
-<p>S01E08</p>
-<p><a href="https://www.bilibili.com/video/av38531844" target="_blank" rel="noopener">https://www.bilibili.com/video/av38531844</a></p>
-<blockquote>
-<p>没得到的不一定是好的</p>
-</blockquote>
-<p>一个早早离开的人，安放着你最美好的想像</p>
-<p>“人的出现是没有目的的，你的存在也不需要任何意义，不过是众多时间线里一个选择的结果。你也不用纠结另一种可能的生活，你之所以成为你就是你之前的的无数选择。偏差一点点就变成了另一个世界的故事。就像埋在花园里的爷孙俩，那和你并没有关系。你的人生是唯一而且确定的，它就在眼前。”<br>“最向往的生活永远在别处，这是一种求而不得的无奈，而这世间最无奈的就是就是将‘拥有’和‘没有’做比较。一处不存在的生活，一个早已离开的人安放着你最美好的想象，没有谁敌得过想象。”</p>
-<p><a href="https://www.bilibili.com/video/av67233866" target="_blank" rel="noopener">https://www.bilibili.com/video/av67233866</a></p>
-<p>标签效应：领导会给人贴标签</p>
-<p>少点标签</p>
-<p>自证预言</p>
-<p>强者愈强</p>
-<p><a href="https://www.bilibili.com/video/av53942294" target="_blank" rel="noopener">https://www.bilibili.com/video/av53942294</a></p>
-<p>少犯错，少拖延</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/23/7%E4%BB%B6%E5%B8%8C%E6%9C%9B20%E5%B2%81%E7%9A%84%E8%87%AA%E5%B7%B1%E5%B0%B1%E5%BC%80%E5%A7%8B%E5%81%9A%E7%9A%84%E4%BA%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/23/7%E4%BB%B6%E5%B8%8C%E6%9C%9B20%E5%B2%81%E7%9A%84%E8%87%AA%E5%B7%B1%E5%B0%B1%E5%BC%80%E5%A7%8B%E5%81%9A%E7%9A%84%E4%BA%8B/" itemprop="url">7件希望20岁的自己就开始做的事</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-23T00:16:15+08:00">
-                2019-09-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/23/7%E4%BB%B6%E5%B8%8C%E6%9C%9B20%E5%B2%81%E7%9A%84%E8%87%AA%E5%B7%B1%E5%B0%B1%E5%BC%80%E5%A7%8B%E5%81%9A%E7%9A%84%E4%BA%8B/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/23/7件希望20岁的自己就开始做的事/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/23/7%E4%BB%B6%E5%B8%8C%E6%9C%9B20%E5%B2%81%E7%9A%84%E8%87%AA%E5%B7%B1%E5%B0%B1%E5%BC%80%E5%A7%8B%E5%81%9A%E7%9A%84%E4%BA%8B/" class="leancloud_visitors" data-flag-title="7件希望20岁的自己就开始做的事">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>视频作者：是落拓啊</p>
-</blockquote>
-<iframe src="//player.bilibili.com/player.html?aid=67813093&cid=117543866&page=1"  width="780" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
-## 1.对自己负责任，投资自己
-
-<p>每一选择都在影响你的未来，不要害怕承担你的责任。</p>
-<h2 id="2-好好学习"><a href="#2-好好学习" class="headerlink" title="2.好好学习"></a>2.好好学习</h2><p>软实力，高标准，决定对自己负责</p>
-<h2 id="3-珍惜时间，设计目标"><a href="#3-珍惜时间，设计目标" class="headerlink" title="3.珍惜时间，设计目标"></a>3.珍惜时间，设计目标</h2><p>人生的时间很短，和喜欢的东西一起浪费的时间更像时间。</p>
-<h2 id="4-行动"><a href="#4-行动" class="headerlink" title="4.行动"></a>4.行动</h2><p>看完书好像是得到了什么，但是没有，行动是很重要的，实践，持续坚持，赶紧行动。</p>
-<h2 id="5-关注健康（锻炼，饮食-营养，休息）"><a href="#5-关注健康（锻炼，饮食-营养，休息）" class="headerlink" title="5.关注健康（锻炼，饮食/营养，休息）"></a>5.关注健康（锻炼，饮食/营养，休息）</h2><p>身体是一切的基础，多锻炼</p>
-<h2 id="6-学会拒绝"><a href="#6-学会拒绝" class="headerlink" title="6.学会拒绝"></a>6.学会拒绝</h2><p>不要推着被走</p>
-<h2 id="7-记录生活"><a href="#7-记录生活" class="headerlink" title="7.记录生活"></a>7.记录生活</h2><p>拿上相机记录你的生活，可以看看以前的自己，十年之后是很宝贵的记忆。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/22/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E9%80%89%E6%8B%A9-%E5%B8%83%E5%B1%80%E6%9C%AA%E6%9D%A55%E5%B9%B4%E7%9A%84%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/22/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E9%80%89%E6%8B%A9-%E5%B8%83%E5%B1%80%E6%9C%AA%E6%9D%A55%E5%B9%B4%E7%9A%84%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url">编程语言选择 布局未来5年的编程语言</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-22T23:26:02+08:00">
-                2019-09-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/22/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E9%80%89%E6%8B%A9-%E5%B8%83%E5%B1%80%E6%9C%AA%E6%9D%A55%E5%B9%B4%E7%9A%84%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/22/编程语言选择-布局未来5年的编程语言/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/22/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E9%80%89%E6%8B%A9-%E5%B8%83%E5%B1%80%E6%9C%AA%E6%9D%A55%E5%B9%B4%E7%9A%84%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="leancloud_visitors" data-flag-title="编程语言选择 布局未来5年的编程语言">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <iframe src="//player.bilibili.com/player.html?aid=66950601&cid=116097860&page=1" width="780" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
-
-<blockquote>
-<p>对于我来说</p>
-<p>主语言: java</p>
-<p>未来值得学习的语言: js、go</p>
-</blockquote>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/22/%E7%BA%BF%E7%A8%8B%E6%B1%A0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/22/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" itemprop="url">线程池</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-22T16:11:05+08:00">
-                2019-09-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/22/%E7%BA%BF%E7%A8%8B%E6%B1%A0/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/22/线程池/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/22/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" class="leancloud_visitors" data-flag-title="线程池">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>原文来自 《码出高效：Java开发手册》</p>
-</blockquote>
-<h2 id="线程池的好处"><a href="#线程池的好处" class="headerlink" title="线程池的好处"></a>线程池的好处</h2><ul>
-<li>利用线程池管理并复用线程、控制最大并发数等。</li>
-<li>实现任务线程队列缓存策略和拒绝机制</li>
-<li>实现某些与时间相关的功能，如定时执行、周期执行等</li>
-<li>隔离线程环境。比如，交易服务和搜索服务在同一台服务器上，分别开启两个线程池，交易线程的资源消耗明显更大；因此，通过配置独立的线程池，将较慢的交易服务与搜索服务隔离开，避免各服务线程相互影响。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/21/%E6%80%9D%E8%80%83-2-%E9%9A%BE%E5%BA%A6%E9%80%92%E5%A2%9E%E5%8E%9F%E5%88%99%F0%9F%A4%94/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/21/%E6%80%9D%E8%80%83-2-%E9%9A%BE%E5%BA%A6%E9%80%92%E5%A2%9E%E5%8E%9F%E5%88%99%F0%9F%A4%94/" itemprop="url">思考 2: 难度递增原则🤔</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-21T13:47:48+08:00">
-                2019-09-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/21/%E6%80%9D%E8%80%83-2-%E9%9A%BE%E5%BA%A6%E9%80%92%E5%A2%9E%E5%8E%9F%E5%88%99%F0%9F%A4%94/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/21/思考-2-难度递增原则🤔/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/21/%E6%80%9D%E8%80%83-2-%E9%9A%BE%E5%BA%A6%E9%80%92%E5%A2%9E%E5%8E%9F%E5%88%99%F0%9F%A4%94/" class="leancloud_visitors" data-flag-title="思考 2: 难度递增原则🤔">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>个人思考，可能不太正确</p>
-</blockquote>
-<p><strong>事情的难度是逐渐递增的</strong></p>
-<p>🌰例子：</p>
-<p>互联网的招聘要求越来越高</p>
-<p>生活成本越来越高</p>
-<p>房价越来越高</p>
-<p>可能跟熵增加原理有关，因此必须有外力减少熵值，让事情变得稳定有序。</p>
-<blockquote>
-<p>注: 熵增加原理可以参考下面👇的文章</p>
-<p> <a href="http://www.ruanyifeng.com/blog/2013/04/entropy.html" target="_blank" rel="noopener">熵的社会学意义</a></p>
-</blockquote>
-<p><strong>要求高不一定坏事</strong></p>
-<p>要求高的工作反而可能会简单些，比如在小公司什么都要干，大公司只需要专注一个方面，并且大公司培养制度比较完善。</p>
-<p><strong>后来者居上</strong></p>
-<p>比如以前都是使用SSM框架比较麻烦，后来使用Spring Boot框架，学习成本更低，如果不学习不进步，就会被淘汰。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/20/%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90-1-Postman-%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/20/%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90-1-Postman-%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/" itemprop="url">工具推荐 1: Postman-最常用的接口测试工具</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-20T21:01:34+08:00">
-                2019-09-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/20/%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90-1-Postman-%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/20/工具推荐-1-Postman-最常用的接口测试工具/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/20/%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90-1-Postman-%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7/" class="leancloud_visitors" data-flag-title="工具推荐 1: Postman-最常用的接口测试工具">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>参考文章: </p>
-<p><a href="https://www.cnblogs.com/fnng/p/9136434.html" target="_blank" rel="noopener">Postman安装与使用</a></p>
-<p><a href="https://www.cnblogs.com/mafly/p/postman.html" target="_blank" rel="noopener">Postman 安装及使用入门教程</a></p>
-</blockquote>
-<blockquote>
-<p>Postman一款非常流行的API调试工具。其实，开发人员用的更多。因为测试人员做接口测试会有更多选择，例如Jmeter、soapUI等。不过，对于开发过程中去调试接口，Postman确实足够的简单方便，而且功能强大。</p>
-</blockquote>
-<p>官方网站：<a href="https://www.getpostman.com/" target="_blank" rel="noopener">https://www.getpostman.com/</a></p>
-<h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1. 安装"></a>1. 安装</h2><p>Postman下载地址: <a href="https://www.getpostman.com/apps" target="_blank" rel="noopener">https://www.getpostman.com/apps</a></p>
-<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g76ack2aqcj31gm0u0gwr.jpg" alt=""></p>
-<p><strong>主界面</strong></p>
-<p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g76ad7n7gkj31220moad5.jpg" alt=""></p>
-<h2 id="2-测试"><a href="#2-测试" class="headerlink" title="2. 测试"></a>2. 测试</h2><h3 id="2-1-简单的Get请求："><a href="#2-1-简单的Get请求：" class="headerlink" title="2.1 简单的Get请求："></a>2.1 简单的Get请求：</h3><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g76afsggamj31jo0u0dsd.jpg" alt=""></p>
-<h3 id="2-2-简单的POST请求"><a href="#2-2-简单的POST请求" class="headerlink" title="2.2 简单的POST请求"></a>2.2 简单的POST请求</h3><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g76aggax99j31jc0u0wrz.jpg" alt=""></p>
-<p>POST：HTTP的常用请求方法。</p>
-<p>Body：设置POST请求的参数。</p>
-<ul>
-<li>form-data： HTTP请求中的multipart/form-data，它会将表单的数据处理为一条消息，以标签为单元，用分隔符分开。</li>
-<li>x-wwww-form-urlencode：HTTP请求中的application/x-www-from-urlencoded，会将表单内的数据转换为键值对。</li>
-<li>raw：可以发送任意格式的接口数据，可以text、json、xml、html等。</li>
-<li>binary：HTTP请求中的相Content-Type:application/octet-stream，只可以发送二进制数据。通常用于文件的上传。</li>
-</ul>
-<h3 id="2-3-认证接口"><a href="#2-3-认证接口" class="headerlink" title="2.3 认证接口"></a>2.3 认证接口</h3><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g76aid0ld4j31kh0u0al1.jpg" alt=""></p>
-<p>Authorization：用于需要认证的接口。<br>Basic Auth：最基本的一种认证类型，还有OAuth 1.0/2.0、Digest Auth等认证类型。<br>Username/Password：这是针对Basic Auth类型的认证的用户名/密码，并非我们认为的系统登录的用户名密码。</p>
-<h2 id="3-界面简单介绍"><a href="#3-界面简单介绍" class="headerlink" title="3. 界面简单介绍"></a>3. 界面简单介绍</h2><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g76an84gs1j31400n3acz.jpg" alt=""></p>
-<p>标记出来的几个按钮，从上到下、从左至右的顺序依次是 <strong>导入、新建文件夹、保存请求、下载</strong>。</p>
-<ul>
-<li><strong>导入</strong>：用于导入你或团队保存的API请求文件，json格式。</li>
-<li><strong>新建文件夹</strong>：用于API请求分门别类，便于管理。</li>
-<li><strong>保存请求</strong>：保存你的API请求，返回值也能存储下来。</li>
-<li><strong>下载</strong>：下载你测试通过的API请求，团队共享，导入。json格式，可手动编辑的</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/20/%E5%B9%B4%E8%BD%BB%E4%BA%BA%EF%BC%8C%E4%BD%A0%E8%AE%A4%E5%91%BD%E5%90%97%EF%BC%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/20/%E5%B9%B4%E8%BD%BB%E4%BA%BA%EF%BC%8C%E4%BD%A0%E8%AE%A4%E5%91%BD%E5%90%97%EF%BC%9F/" itemprop="url">年轻人，你认命吗？</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-20T20:30:10+08:00">
-                2019-09-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/20/%E5%B9%B4%E8%BD%BB%E4%BA%BA%EF%BC%8C%E4%BD%A0%E8%AE%A4%E5%91%BD%E5%90%97%EF%BC%9F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/20/年轻人，你认命吗？/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/20/%E5%B9%B4%E8%BD%BB%E4%BA%BA%EF%BC%8C%E4%BD%A0%E8%AE%A4%E5%91%BD%E5%90%97%EF%BC%9F/" class="leancloud_visitors" data-flag-title="年轻人，你认命吗？">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>原文作者: 大飞码字</p>
-<p>原文地址: <a href="https://mp.weixin.qq.com/s/h_TR7kH1YQzsN6d9sJwZrA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/h_TR7kH1YQzsN6d9sJwZrA</a></p>
-</blockquote>
-<blockquote>
-<p>信命，但我不认命，加油 ⛽️</p>
-<p>每个优秀的人，都有一段沉默的时光。那段时光，是付出了很多努力，却得不到结果的日子，我们把它叫做扎根。—- Feily Zhang 留言</p>
-</blockquote>
-<p>最近有一位同学留言，大意是说：时代不同了，你们这辈人(80后)赶上了时代的红利，而我们这些新人(90后) 已经吃不到红利，再怎么努力也改变不了人生了。</p>
-<p>我看到过好几次类似的留言了，这种逻辑也对，也错，或者本没有什么对错。这是一种人生态度，甚至可以说是一种信念，有时候你信，就会成真，如果你坚信未来没有机会了，那大概率对你来说，可能真的没有机会了。</p>
-<p>前段时间有篇爆火的文章《大江大河40年：改变命运的七次机遇》，里面历数了过去40年的七次大机遇，每次大机遇都会给一拨人带来巨大的红利，甚至直接带来阶层的跃迁。</p>
-<p>80后同学赶上的是PC互联网红利，移动互联网红利和房地产后期红利，90后同学只赶上了移动互联网后期红利，地产红利大部分90后可能没赶上，未来还有没有，也不知晓了。像70后的前辈们，他们赶上的是整体互联网兴起的红利，还有地产的全盘红利。</p>
-<p>这么来看，确实有种，一代不如一代的感觉。</p>
-<p>中国经济在过去的40年里面，获得了飞速的发展，到目前为止，经济依然维持了6个点的增速，虽然没有前几年高了， 但对比其它国家2个点，1个点甚至是负增长，中国已经是非常厉害了。</p>
-<p>我不觉得国内经济的腾飞立马就要结束了，就算是增速不如以前，但依然还在上升之中，我觉得未来依然蕴藏着大量的机会。</p>
-<p>有些同学没有赶上移动互联网的红利，没有赶上地产的红利，就开始信命了，觉得自己的命不好，觉得自己命中注定吃不到这些红利。</p>
-<p>我也活了三十好几了，我不完全否定命的说法，命可以理解为运气或者是大运气吧，每个人身上都存在。但这种东西，我们无法去改变，也无法预知，甚至乎，在你的生命没有结束之前，你都无法判断自己的命是好还是不好。</p>
-<p>一生长着呢，年轻人，怎么能那么快就认命了呢？</p>
-<p>我不能说自己经历过什么大风大浪，但一路走来，也并非一帆风顺。</p>
-<p>初中考试，以全县第十的成绩考入我们市第一的高中，那是我的高光时刻。但我高中过得一塌糊涂，最后只考了一个二本。当时有一个远房亲戚，跟我一同考入市高中，当时我的分数比他高了70几分(总分650，我是612), 高考的时候，他考到了中大，我只考到一个二本。</p>
-<p>这种巨大落差带来的打击，是可以直接击垮一个人的，按理，我的人生有可能就此一蹶不振了，在二本里面浑浑噩噩，最后毕业可能连工作都找不到。</p>
-<p>但我不服，我不认命，大学四年，我拼命的学，我可以毫不谦虚的说，我大学四年的努力程度要远超很多一本的学生。最后进入了腾讯，当时我们学院1000多人，跟我一同进腾讯的只有5个。</p>
-<p>如果我当时认命了，就不会有你现在看到的文章了。</p>
-<p>工作之后，我也没有表现的差劲，超越了很多一本或研究生毕业的同学。中间过程中，有人来，有人走，有人受不了加班，受不了压力离开了，我也一路扛了下来。</p>
-<p>在工作了十年之后，我开始写起了公众号，我也不知道未来会怎样，但我依然不认命，我相信命运的存在，但我要尽我最大的努力去控制我的人生，我相信，自己的人生是被自己创造出来的，不是随波逐流的，虽然我无法对抗历史的洪流，但我依然可以在人力所能极的范围内做到最好。</p>
-<p>这就是我的人生信条，很多事情，包括自己的未来，不信是一定不会有的，信了，虽然未必会有，但心里有信念，你的人生才会有希望！</p>
-<p>机遇和能力是相辅相成的，先得有能力，机遇出现的时候，才能够抓住，而个人又会在捉住的机遇中获得新的成长。所以得先有了能力，才可能抓住机遇，这是显而易见的道理，但当你认命，认为自己命中不会有这些机遇，你就容易放弃自己。</p>
-<p>从过去40几年发展的情况来看，随着中国经济的发展，每隔几年就会出现一波新的红利，目前的经济远未到衰落的时候，所以未来的红利依然存在，但捉住红利不是一件容易的事情，有不少人因为自身没有准备好，机遇到自己身边的时候也无法抓住，这就极其可惜了。</p>
-<p>有人信：“三分天注定，七分靠打拼！”</p>
-<p>有人信：“七分天注定，三分靠打拼！”</p>
-<p>没有对，也没有错，不同的人，会信奉不同的人生信条，不同的信念也造就了不同的人生。</p>
-<p>你问我信什么？</p>
-<p>我信命，但我不认命，只要还能活着，我就不会放弃努力！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/18/Github-docsify%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%96%87%E6%A1%A3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/18/Github-docsify%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%96%87%E6%A1%A3/" itemprop="url">Github+docsify打造个人文档</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-18T20:50:53+08:00">
-                2019-09-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/18/Github-docsify%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%96%87%E6%A1%A3/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/18/Github-docsify打造个人文档/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/18/Github-docsify%E6%89%93%E9%80%A0%E4%B8%AA%E4%BA%BA%E6%96%87%E6%A1%A3/" class="leancloud_visitors" data-flag-title="Github+docsify打造个人文档">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>原文地址: <a href="https://juejin.im/post/5c2ed059518825253661a5f2" target="_blank" rel="noopener" title="Github+docsify打造个人文档">Github+docsify打造个人文档</a></p>
-</blockquote>
-<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p>在日常开发中 前后端对接时 经常要写很多文档Api。docsify就是一个强大的文档生成工具 界面清新好 支持语法高亮和Markdown 语法，并且docsify 扩展了一些 Markdown 语法可以让文档更易读。像vue.js官网(<a href="https://link.juejin.im/?target=https%3A%2F%2Fcn.vuejs.org%2F" title="cn.vuejs.org/">cn.vuejs.org/</a>)就是 docsify 其中的一种主题 并且是目前用的的最多的主题</p>
-<h2 id="2-效果图如下"><a href="#2-效果图如下" class="headerlink" title="2. 效果图如下"></a>2. 效果图如下</h2><p>预览链接：<a href="http://gaohanghang.github.io/docsify/" target="_blank" rel="noopener">http://gaohanghang.github.io/docsify/</a></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20190918205748.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20190918213332.png" alt=""></p>
-<h2 id="3-快速开始"><a href="#3-快速开始" class="headerlink" title="3. 快速开始"></a>3. 快速开始</h2><p>首先先安装好npm和nodejs,这里就不做过多介绍了 自行安装即可</p>
-<p>安装docsify 推荐安装 docsify-cli 工具，可以方便创建及本地预览文档网站。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm i docsify-cli -g</span><br></pre></td></tr></table></figure>
-
-<p>初始化项目</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入指定文件目录 如下：F:\ideWork\githubWork\test_docs </span></span><br><span class="line">运行    docsify init ./docs</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20190918205857.png" alt=""></p>
-<p>初始化成功后，可以看到 ./docs 目录下创建的几个文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">index.html 入口文件</span><br><span class="line">README.md 会做为主页内容渲染</span><br><span class="line">.nojekyll 用于阻止 GitHub Pages 会忽略掉下划线开头的文件</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20190918210136.png" alt=""></p>
-<h2 id="4-本地预览网站"><a href="#4-本地预览网站" class="headerlink" title="4. 本地预览网站"></a>4. 本地预览网站</h2><p>运行一个本地服务器通过 docsify serve 可以方便的预览效果，而且提供 LiveReload 功能，可以让实时的预览。默认访问 <code>http://localhost:3000</code>。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docsify serve docs</span><br></pre></td></tr></table></figure>
-
-<p>一个基本的文档网站就搭建好了，docsify还可以自定义导航栏，自定义侧边栏以及背景图和一些开发插件等等 更多配置请参考官方文档 <a href="https://docsify.js.org/#/zh-cn/quickstart" target="_blank" rel="noopener">https://docsify.js.org/#/zh-cn/quickstart</a></p>
-<h2 id="5-下面介绍docsify如何部署到Github-Pages"><a href="#5-下面介绍docsify如何部署到Github-Pages" class="headerlink" title="5. 下面介绍docsify如何部署到Github Pages"></a>5. 下面介绍docsify如何部署到Github Pages</h2><p>和 GitBook 生成的文档一样，我们可以直接把文档网站部署到 GitHub Pages 或者 VPS 上</p>
-<h3 id="5-1-GitHub-Pages"><a href="#5-1-GitHub-Pages" class="headerlink" title="5.1 GitHub Pages"></a>5.1 GitHub Pages</h3><p>GitHub Pages 支持从三个地方读取文件</p>
-<ul>
-<li>docs/ 目录</li>
-<li>master 分支</li>
-<li>gh-pages 分支</li>
-</ul>
-<p>上传文件至Github仓库 官方推荐直接将文档放在 docs/ 目录下，在设置页面开启 GitHub Pages 功能并选择 master branch /docs folder 选项。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20190918210329.png" alt=""></p>
-<p>选择了之后就可以访问个人文档了。</p>
-<p>官方文档：<a href="https://docsify.js.org/#/zh-cn/quickstart" target="_blank" rel="noopener">https://docsify.js.org/#/zh-cn/quickstart</a></p>
-<p>预览链接：<a href="http://gaohanghang.github.io/docsify/" target="_blank" rel="noopener">http://gaohanghang.github.io/docsify/</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/17/%E9%82%A3%E4%BA%9B%E5%B9%B4%EF%BC%8C%E6%88%91%E4%BB%AC%E8%A7%81%E8%BF%87%E7%9A%84Java%E6%9C%8D%E5%8A%A1%E7%AB%AF%E2%80%9C%E9%97%AE%E9%A2%98%E2%80%9D/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/09/17/%E9%82%A3%E4%BA%9B%E5%B9%B4%EF%BC%8C%E6%88%91%E4%BB%AC%E8%A7%81%E8%BF%87%E7%9A%84Java%E6%9C%8D%E5%8A%A1%E7%AB%AF%E2%80%9C%E9%97%AE%E9%A2%98%E2%80%9D/" itemprop="url">那些年，我们见过的Java服务端“问题”</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-17T21:06:42+08:00">
-                2019-09-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/09/17/%E9%82%A3%E4%BA%9B%E5%B9%B4%EF%BC%8C%E6%88%91%E4%BB%AC%E8%A7%81%E8%BF%87%E7%9A%84Java%E6%9C%8D%E5%8A%A1%E7%AB%AF%E2%80%9C%E9%97%AE%E9%A2%98%E2%80%9D/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/17/那些年，我们见过的Java服务端“问题”/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/09/17/%E9%82%A3%E4%BA%9B%E5%B9%B4%EF%BC%8C%E6%88%91%E4%BB%AC%E8%A7%81%E8%BF%87%E7%9A%84Java%E6%9C%8D%E5%8A%A1%E7%AB%AF%E2%80%9C%E9%97%AE%E9%A2%98%E2%80%9D/" class="leancloud_visitors" data-flag-title="那些年，我们见过的Java服务端“问题”">
+             <span id="/2019/09/01/%E4%BD%BF%E7%94%A8Spring-Boot%E6%90%AD%E5%BB%BA%E7%AE%80%E5%8D%95GraphQL%E6%9C%8D%E5%8A%A1/" class="leancloud_visitors" data-flag-title="使用Spring Boot搭建简单GraphQL服务">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1860,109 +364,46 @@
       
         
           <blockquote>
-<p>原文地址: <a href="https://mp.weixin.qq.com/s/sxXVzB_t1qMAwqBCsGrVNg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/sxXVzB_t1qMAwqBCsGrVNg</a></p>
-<p>写的非常棒，通俗易懂，而且讲的是java服务端开发过程中大概率会碰到的问题，非常值得看</p>
-<p><strong>小结：</strong></p>
-<p>分布式好处</p>
-<p>多线程使用</p>
-<p>合理定义流程</p>
-<p>系统之间的交互</p>
-<p>数据查询分页</p>
+<p>原作者: <a href="https://itnext.io/@swathisprasad?source=post_page-----69d229e87b19----------------------" target="_blank" rel="noopener">Swathi Prasad</a></p>
+<p><a href="https://link.juejin.im/?target=https%3A%2F%2Fitnext.io%2Fbeginners-guide-to-graphql-with-spring-boot-69d229e87b19">原文地址</a></p>
+<p>译者: <a href="https://juejin.im/book/5c90640c5188252d7941f5bb/section/5c9065385188252da6320022" target="_blank" rel="noopener">ClamorousKun</a></p>
+<p>译文链接: <a href="https://juejin.im/post/5d61397bf265da03c92703a3" target="_blank" rel="noopener">https://juejin.im/post/5d61397bf265da03c92703a3</a></p>
 </blockquote>
-<h2 id="导读"><a href="#导读" class="headerlink" title="导读"></a><strong>导读</strong></h2><p>明代著名的心学集大成者王阳明先生在《传习录》中有云：“道无精粗，人之所见有精粗。如这一间房，人初进来，只见一个大规模如此。处久，便柱壁之类，一一看得明白。再久，如柱上有些文藻，细细都看出来。然只是一间房。”</p>
-<p>是的，知识理论哪有什么精粗之分，只是人的认识程度不同而已。笔者在技术圈摸爬滚打数年，接触了各式各样的Java服务端架构，见得多了自然也就认识深了，就能分辨出各种方案的优劣了。这里总结了一些初创公司存在的Java服务端问题，并尝试性地给出了一些解决方案，供大家交流参考。</p>
-<h2 id="1-系统不是分布式"><a href="#1-系统不是分布式" class="headerlink" title="1.系统不是分布式"></a><strong>1.</strong>系统不是分布式</h2><h3 id="1-1-单机版系统抢单案例"><a href="#1-1-单机版系统抢单案例" class="headerlink" title="1.1.单机版系统抢单案例"></a><strong>1.1.单机版系统抢单案例</strong></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 抢取订单函数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">grabOrder</span><span class="params">(Long orderId, Long userId)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取订单信息</span></span><br><span class="line">    OrderDO order = orderDAO.get(orderId);</span><br><span class="line">    <span class="keyword">if</span> (Objects.isNull(order)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BizRuntimeException(String.format(<span class="string">"订单(%s)不存在"</span>, orderId));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查订单状态</span></span><br><span class="line">    <span class="keyword">if</span> (!Objects.equals(order.getStatus, OrderStatus.WAITING_TO_GRAB.getValue())) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BizRuntimeException(String.format(<span class="string">"订单(%s)已被抢"</span>, orderId));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置订单被抢</span></span><br><span class="line">    orderDAO.setGrabed(orderId, userId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>GraphQL 是一种用于 API 的查询语言，使得客户端能够准确地获得它需要的数据，而且没有任何冗余。GraphQL是一种强类型协议，所有数据操作都会根据 GraphQL Schema 来进行校验。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901173113.png" alt=""></p>
+<p>在本文中，我们将使用Spring Boot构建一个简单的GraphQL服务器。</p>
+<h2 id="添加Maven依赖项"><a href="#添加Maven依赖项" class="headerlink" title="添加Maven依赖项"></a>添加Maven依赖项</h2><p>创建示例Spring Boot应用程序并添加以下依赖项。</p>
+<ul>
+<li><p>graphql-spring-boot-starter</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">  用于启用 GraphQL 控制器，并使其在 path&#x2F;graphql 中可用。它将初始化GraphQL Schema bean。</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>graphql-java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">  可以使用易于理解的Graphql Schema 语言来编写 schema。</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>graphiql-spring-boot-starter</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">  提供图形界面，我们可以使用它来测试 GraphQL 查询和查看查询定义。</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
 
-<p>以上代码，在一台服务器上运行没有任何问题。进入函数grabOrder（抢取订单）时，利用synchronized关键字把整个函数锁定，要么进入函数前订单未被人抢取，从而抢单成功，要么进入函数前订单已被抢取导致抢单失败，绝对不会出现进入函数前订单未被抢取而进入函数后订单又被抢取的情况。</p>
-<p>但是，如果上面的代码在两台服务器上同时运行，由于Java的synchronized关键字只在一个虚拟机内生效，所以就会导致两个人能够同时抢取一个订单，但会以最后一个写入数据库的数据为准。所以，大多数的单机版系统，是无法作为分布式系统运行的。</p>
-<h3 id="1-2-分布式系统抢单案例"><a href="#1-2-分布式系统抢单案例" class="headerlink" title="1.2.分布式系统抢单案例"></a><strong>1.2.分布式系统抢单案例</strong></h3><p>添加分布式锁，进行代码优化：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 抢取订单函数</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">grabOrder</span><span class="params">(Long orderId, Long userId)</span> </span>&#123;</span><br><span class="line">    Long lockId = orderDistributedLock.lock(orderId);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        grabOrderWithoutLock(orderId, userId);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        orderDistributedLock.unlock(orderId, lockId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不带锁的抢取订单函数</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">grabOrderWithoutLock</span><span class="params">(Long orderId, Long userId)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取订单信息</span></span><br><span class="line">    OrderDO order = orderDAO.get(orderId);</span><br><span class="line">    <span class="keyword">if</span> (Objects.isNull(order)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BizRuntimeException(String.format(<span class="string">"订单(%s)不存在"</span>, orderId));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查订单状态</span></span><br><span class="line">    <span class="keyword">if</span> (!Objects.equals(order.getStatus, OrderStatus.WAITING_TO_GRAB.getValue())) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BizRuntimeException(String.format(<span class="string">"订单(%s)已被抢"</span>, orderId));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置订单被抢</span></span><br><span class="line">    orderDAO.setGrabed(orderId, userId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.graphql-java<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>graphql-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.graphql-java<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>graphql-java-tools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.graphql-java<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>graphiql-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>优化后的代码，在调用函数grabOrderWithoutLock（不带锁的抢取订单）前后，利用分布式锁orderDistributedLock（订单分布式锁）进行加锁和释放锁，跟单机版的synchronized关键字加锁效果基本一样。</p>
-<h3 id="1-3-分布式系统的优缺点"><a href="#1-3-分布式系统的优缺点" class="headerlink" title="1.3.分布式系统的优缺点"></a><strong>1.3.分布式系统的优缺点</strong></h3><p><strong>分布式系统（Distributed System）</strong>是支持分布式处理的软件系统，是由通信网络互联的多处理机体系结构上执行任务的系统，包括分布式操作系统、分布式程序设计语言及其编译系统、分布式文件系统分布式数据库系统等。</p>
-<p><strong>分布式系统的优点：</strong></p>
-<ul>
-<li>可靠性、高容错性：</li>
-</ul>
-<p>一台服务器的崩溃，不会影响其它服务器，其它服务器仍能提供服务。</p>
-<ul>
-<li>可扩展性：</li>
-</ul>
-<p>如果系统服务能力不足，可以水平扩展更多服务器。</p>
-<ul>
-<li>灵活性：</li>
-</ul>
-<p>可以很容易的安装、实施、扩容和升级系统。</p>
-<ul>
-<li>性能高：</li>
-</ul>
-<p>拥有多台服务器的计算能力，比单台服务器处理速度更快。</p>
-<ul>
-<li>性价比高：</li>
-</ul>
-<p>分布式系统对服务器硬件要求很低，可以选用廉价服务器搭建分布式集群，从而得到更好的性价比。</p>
-<p><strong>分布式系统的缺点：</strong></p>
-<ul>
-<li>排查难度高：</li>
-</ul>
-<p>由于系统分布在多台服务器上，故障排查和问题诊断难度较高。</p>
-<ul>
-<li>软件支持少：</li>
-</ul>
-<p>分布式系统解决方案的软件支持较少。</p>
-<ul>
-<li>建设成本高：</li>
-</ul>
-<p>需要多台服务器搭建分布式系统。</p>
-<p>曾经有不少的朋友咨询我：”找外包做移动应用，需要注意哪些事项？”</p>
-<p><strong>首先，确定是否需要用分布式系统。</strong>软件预算有多少？预计用户量有多少？预计访问量有多少？是否只是业务前期试水版？单台服务器能否解决？是否接收短时间宕机？……如果综合考虑，单机版系统就可以解决的，那就不要采用分布式系统了。因为单机版系统和分布式系统的差别很大，相应的软件研发成本的差别也很大。</p>
-<p><strong>其次，确定是否真正的分布式系统。</strong>分布式系统最大的特点，就是当系统服务能力不足时，能够通过水平扩展的方式，通过增加服务器来增加服务能力。然而，单机版系统是不支持水平扩展的，强行扩展就会引起一系列数据问题。由于单机版系统和分布式系统的研发成本差别较大，市面上的外包团队大多用单机版系统代替分布式系统交付。</p>
-<p>那么，如何确定你的系统是真正意义上的分布式系统呢？从软件上来说，是否采用了分布式软件解决方案；从硬件上来说，是否采用了分布式硬件部署方案。</p>
-<h3 id="1-4-分布式软件解决方案"><a href="#1-4-分布式软件解决方案" class="headerlink" title="1.4.分布式软件解决方案"></a><strong>1.4.分布式软件解决方案</strong></h3><p>作为一个合格的分布式系统，需要根据实际需求采用相应的分布式软件解决方案。</p>
-<h4 id="1-4-1-分布式锁"><a href="#1-4-1-分布式锁" class="headerlink" title="1.4.1.分布式锁"></a><strong>1.4.1.分布式锁</strong></h4><p>分布式锁是单机锁的一种扩展，主要是为了锁住分布式系统中的物理块或逻辑块，用以此保证不同服务之间的逻辑和数据的一致性。</p>
-<p>目前，主流的分布式锁实现方式有3种：</p>
-<ol>
-<li>基于数据库实现的分布式锁；</li>
-<li>基于Redis实现的分布式锁；</li>
-<li>基于Zookeeper实现的分布式锁。</li>
-</ol>
-<h4 id="1-4-2-分布式消息"><a href="#1-4-2-分布式消息" class="headerlink" title="1.4.2.分布式消息"></a><strong>1.4.2.分布式消息</strong></h4><p>分布式消息中间件是支持在分布式系统中发送和接受消息的软件基础设施。常见的分布式消息中间件有ActiveMQ、RabbitMQ、Kafka、MetaQ等。</p>
-<p>MetaQ（全称Metamorphosis）是一个高性能、高可用、可扩展的分布式消息中间件，思路起源于LinkedIn的Kafka，但并不是Kafka的一个拷贝。MetaQ具有消息存储顺序写、吞吐量大和支持本地和XA事务等特性，适用于大吞吐量、顺序消息、广播和日志数据传输等场景。</p>
-<h4 id="1-4-3-数据库分片分组"><a href="#1-4-3-数据库分片分组" class="headerlink" title="1.4.3.数据库分片分组"></a><strong>1.4.3.数据库分片分组</strong></h4><p>针对大数据量的数据库，一般会采用”分片分组”策略：</p>
-<p><strong>分片(shard)</strong>：主要解决扩展性问题，属于水平拆分。引入分片，就引入了数据路由和分区键的概念。其中，<strong>分表</strong>解决的是数据量过大的问题，<strong>分库</strong>解决的是数据库性能瓶颈的问题。</p>
-<p><strong>分组(group)</strong>：主要解决可用性问题，通过<strong>主从复制</strong>的方式实现，并提供<strong>读写分离</strong>策略用以提高数据库性能。</p>
-<h4 id="1-4-4-分布式计算"><a href="#1-4-4-分布式计算" class="headerlink" title="1.4.4.分布式计算"></a><strong>1.4.4.分布式计算</strong></h4><p>分布式计算( Distributed computing )是一种”把需要进行大量计算的工程数据分割成小块，由多台计算机分别计算；在上传运算结果后，将结果统一合并得出数据结论”的科学。</p>
-<p>当前的高性能服务器在处理海量数据时，其计算能力、内存容量等指标都远远无法达到要求。在大数据时代，工程师采用廉价的服务器组成分布式服务集群，以集群协作的方式完成海量数据的处理，从而解决单台服务器在计算与存储上的瓶颈。Hadoop、Storm以及Spark是常用的分布式计算中间件，Hadoop是对非实时数据做批量处理的中间件，Storm和Spark是对实时数据做流式处理的中间件。</p>
-<p>除此之外，还有更多的分布式软件解决方案，这里就不再一一介绍了。</p>
-<h3 id="1-5-分布式硬件部署方案"><a href="#1-5-分布式硬件部署方案" class="headerlink" title="1.5.分布式硬件部署方案"></a><strong>1.5.分布式硬件部署方案</strong></h3><p>介绍完服务端的分布式软件解决方案，就不得不介绍一下服务端的分布式硬件部署方案。这里，只画出了服务端常见的接口服务器、MySQL数据库、Redis缓存，而忽略了其它的云存储服务、消息队列服务、日志系统服务……</p>
-<h4 id="1-5-1-一般单机版部署方案"><a href="#1-5-1-一般单机版部署方案" class="headerlink" title="1.5.1.一般单机版部署方案"></a><strong>1.5.1.一般单机版部署方案</strong></h4><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g768pdc7bfj30lr0bejs2.jpg" alt=""></p>
-<p><strong>架构说明：</strong></p>
-<p>只有1台接口服务器、1个MySQL数据库、1个可选Redis缓存，可能都部署在同一台服务器上。</p>
-<p><strong>适用范围：</strong></p>
-<p>适用于演示环境、测试环境以及不怕宕机且日PV在5万以内的小型商业应用。</p>
-<h4 id="1-5-2-中小型分布式硬件部署方案"><a href="#1-5-2-中小型分布式硬件部署方案" class="headerlink" title="1.5.2.中小型分布式硬件部署方案"></a><strong>1.5.2.中小型分布式硬件部署方案</strong></h4><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g768qmqegvj30q60fswgo.jpg" alt=""></p>
-<p><strong>架构说明：</strong></p>
-<p>通过SLB/Nginx组成一个负载均衡的接口服务器集群，MySQL数据库和Redis缓存采用了一主一备（或多备）的部署方式。</p>
-<p><strong>适用范围：</strong></p>
-<p>适用于日PV在500万以内的中小型商业应用。</p>
-<h4 id="1-5-3-大型分布式硬件部署方案"><a href="#1-5-3-大型分布式硬件部署方案" class="headerlink" title="1.5.3.大型分布式硬件部署方案"></a><strong>1.5.3.大型分布式硬件部署方案</strong></h4><p><img src="https://tva1.sinaimg.cn/large/006y8mN6ly1g768qtdzkqj30u00dejtl.jpg" alt=""></p>
-<p><strong>架构说明：</strong></p>
-<p>通过SLB/Nginx组成一个负载均衡的接口服务器集群，利用分片分组策略组成一个MySQL数据库集群和Redis缓存集群。</p>
-<p><strong>适用范围：</strong></p>
-<p>适用于日PV在500万以上的大型商业应用。</p>
-<h2 id="2-多线程使用不正确"><a href="#2-多线程使用不正确" class="headerlink" title="2.多线程使用不正确"></a><strong>2.多线程使用不正确</strong></h2><p>多线程最主要目的就是”最大限度地利用CPU资源”，可以把串行过程变成并行过程，从而提高了程序的执行效率。</p>
-<h3 id="2-1-一个慢接口案例"><a href="#2-1-一个慢接口案例" class="headerlink" title="2.1.一个慢接口案例"></a><strong>2.1.一个慢接口案例</strong></h3><p>假设在用户登录时，如果是新用户，需要创建用户信息，并发放新用户优惠券。例子代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// 登录函数(示意写法)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> UserVO <span class="title">login</span><span class="params">(String phoneNumber, String verifyCode)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 检查验证码</span></span><br><span class="line">    <span class="keyword">if</span> (!checkVerifyCode(phoneNumber, verifyCode)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ExampleException(<span class="string">"验证码错误"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查用户存在</span></span><br><span class="line">    UserDO user = userDAO.getByPhoneNumber(phoneNumber);</span><br><span class="line">    <span class="keyword">if</span> (Objects.nonNull(user)) &#123;</span><br><span class="line">        <span class="keyword">return</span> transUser(user);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建新用户</span></span><br><span class="line">    <span class="keyword">return</span> createNewUser(user);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建新用户函数</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> UserVO <span class="title">createNewUser</span><span class="params">(String phoneNumber)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 创建新用户</span></span><br><span class="line">    UserDO user = <span class="keyword">new</span> UserDO();</span><br><span class="line">    ...</span><br><span class="line">    userDAO.insert(user);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 绑定优惠券</span></span><br><span class="line">    couponService.bindCoupon(user.getId(), CouponType.NEW_USER);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回新用户</span></span><br><span class="line">    <span class="keyword">return</span> transUser(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以下完整的POM文件内容。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">"http://maven.apache.org/POM/4.0.0"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.techshard.graphql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springboot-graphql<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.6.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">relativePath</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.reporting.outputEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.reporting.outputEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-jpa<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.graphql-java<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>graphql-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.graphql-java<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>graphql-java-tools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.graphql-java<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>graphiql-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.h2database<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>h2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.18.8<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>其中，绑定优惠券（bindCoupon）是给用户绑定新用户优惠券，然后再给用户发送推送通知。如果随着优惠券数量越来越多，该函数也会变得越来越慢，执行时间甚至超过1秒，并且没有什么优化空间。现在，登录（login）函数就成了名副其实的慢接口，需要进行接口优化。</p>
-<h3 id="2-2-采用多线程优化"><a href="#2-2-采用多线程优化" class="headerlink" title="2.2.采用多线程优化"></a><strong>2.2.采用多线程优化</strong></h3><p>通过分析发现，绑定优惠券（bindCoupon）函数可以异步执行。首先想到的是采用多线程解决该问题，代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建新用户函数</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> UserVO <span class="title">createNewUser</span><span class="params">(String phoneNumber)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 创建新用户</span></span><br><span class="line">    UserDO user = <span class="keyword">new</span> UserDO();</span><br><span class="line">    ...</span><br><span class="line">    userDAO.insert(user);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 绑定优惠券</span></span><br><span class="line">    executorService.execute(()-&gt;couponService.bindCoupon(user.getId(), CouponType.NEW_USER));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回新用户</span></span><br><span class="line">    <span class="keyword">return</span> transUser(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="创建JPA实体和存储库"><a href="#创建JPA实体和存储库" class="headerlink" title="创建JPA实体和存储库"></a>创建JPA实体和存储库</h2><p>接下来让我们创建一个名为Vehicle的简单实体和相应的JPA存储库。我们将使用Lombok来编写，这样可以避免编写诸如getter和setter等等的样板文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.techshard.graphql.dao.entity;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.Data;</span><br><span class="line"><span class="keyword">import</span> lombok.EqualsAndHashCode;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.persistence.*;</span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"><span class="keyword">import</span> java.time.LocalDate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@EqualsAndHashCode</span></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Vehicle</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"ID"</span>, nullable = <span class="keyword">false</span>)</span><br><span class="line">    <span class="meta">@GeneratedValue</span>(strategy = GenerationType.AUTO)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"type"</span>, nullable = <span class="keyword">false</span>)</span><br><span class="line">    <span class="keyword">private</span> String type;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"model_code"</span>, nullable = <span class="keyword">false</span>)</span><br><span class="line">    <span class="keyword">private</span> String modelCode;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"brand_name"</span>)</span><br><span class="line">    <span class="keyword">private</span> String brandName;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"launch_date"</span>)</span><br><span class="line">    <span class="keyword">private</span> LocalDate launchDate;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">transient</span>  String formattedDate;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Getter and setter</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getFormattedDate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getLaunchDate().toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>现在，在新线程中执行绑定优惠券（bindCoupon）函数，使用户登录（login）函数性能得到很大的提升。但是，如果在新线程执行绑定优惠券函数过程中，系统发生重启或崩溃导致线程执行失败，用户将永远获取不到新用户优惠券。除非提供用户手动领取优惠券页面，否则就需要程序员后台手工绑定优惠券。所以，用采用多线程优化慢接口，并不是一个完善的解决方案。</p>
-<h3 id="2-3-采用消息队列优化"><a href="#2-3-采用消息队列优化" class="headerlink" title="2.3.采用消息队列优化"></a><strong>2.3.采用消息队列优化</strong></h3><p>如果要保证绑定优惠券函数执行失败后能够重启执行，可以采用数据库表、Redis队列、消息队列的等多种解决方案。由于篇幅优先，这里只介绍采用MetaQ消息队列解决方案，并省略了MetaQ相关配置仅给出了核心代码。</p>
+<p>然后是相应的JPA存储库。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.techshard.graphql.dao.repository;</span><br><span class="line"><span class="keyword">import</span> com.techshard.graphql.dao.entity.Vehicle;</span><br><span class="line"><span class="keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Repository;</span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">VehicleRepository</span> <span class="keyword">extends</span> <span class="title">JpaRepository</span>&lt;<span class="title">Vehicle</span>, <span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="GraphQL-Schema"><a href="#GraphQL-Schema" class="headerlink" title="GraphQL Schema"></a>GraphQL Schema</h2><p>GraphQL 用有自己的独特语言来编写GraphQL Schema，称为<a href="https://link.juejin.im/?target=https%3A%2F%2Fwww.howtographql.com%2Fbasics%2F2-core-concepts%2F">Schema Definition Language</a>（SDL）。schema 的定义，是由端点上所有可用的 API 功能组成的。</p>
+<p>GraphQL架构的典型示例如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">type Vehicle &#123;</span><br><span class="line">	id: ID!,</span><br><span class="line">	type: String,</span><br><span class="line">	modelCode: String,</span><br><span class="line">	brandName: String,</span><br><span class="line">	launchDate: String</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Query &#123;</span><br><span class="line">	vehicles(count: Int):[Vehicle]</span><br><span class="line">	vehicle(id: ID):Vehicle</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Mutation &#123;</span><br><span class="line">	createVehicle(type: String!, modelCode: String!, brandName: String, launchDate: String):Vehicle</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，在 src/main/resources 下创建一个文件夹，名为 graphql，并在该文件夹下创建vehicleql.graphqls文件。复制上面的内容并将其粘贴到vehicleql.graphqls文件中。需要注意的是，文件名称是可自定义的。以.graphqls作为文件扩展名即可。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/09/17/%E9%82%A3%E4%BA%9B%E5%B9%B4%EF%BC%8C%E6%88%91%E4%BB%AC%E8%A7%81%E8%BF%87%E7%9A%84Java%E6%9C%8D%E5%8A%A1%E7%AB%AF%E2%80%9C%E9%97%AE%E9%A2%98%E2%80%9D/#more" rel="contents">
+            <a class="btn" href="/2019/09/01/%E4%BD%BF%E7%94%A8Spring-Boot%E6%90%AD%E5%BB%BA%E7%AE%80%E5%8D%95GraphQL%E6%9C%8D%E5%8A%A1/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -2000,11 +441,1635 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/09/01/%E8%B5%B0%E5%90%91%E4%B8%AD%E7%BA%A7%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%B7%AF%E4%B8%8A%EF%BC%8C%E6%88%91%E4%BB%AC%E7%BB%99%E4%BD%A0%E6%80%BB%E7%BB%93%E5%87%BA%E4%BA%86%E4%B8%80%E6%9D%A1%E6%8D%B7%E5%BE%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/01/%E8%B5%B0%E5%90%91%E4%B8%AD%E7%BA%A7%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%B7%AF%E4%B8%8A%EF%BC%8C%E6%88%91%E4%BB%AC%E7%BB%99%E4%BD%A0%E6%80%BB%E7%BB%93%E5%87%BA%E4%BA%86%E4%B8%80%E6%9D%A1%E6%8D%B7%E5%BE%84/" itemprop="url">走向中级程序员的路上，我们给你总结出了一条捷径</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-01T13:09:30+08:00">
+                2019-09-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/09/01/%E8%B5%B0%E5%90%91%E4%B8%AD%E7%BA%A7%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%B7%AF%E4%B8%8A%EF%BC%8C%E6%88%91%E4%BB%AC%E7%BB%99%E4%BD%A0%E6%80%BB%E7%BB%93%E5%87%BA%E4%BA%86%E4%B8%80%E6%9D%A1%E6%8D%B7%E5%BE%84/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/09/01/走向中级程序员的路上，我们给你总结出了一条捷径/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/09/01/%E8%B5%B0%E5%90%91%E4%B8%AD%E7%BA%A7%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%B7%AF%E4%B8%8A%EF%BC%8C%E6%88%91%E4%BB%AC%E7%BB%99%E4%BD%A0%E6%80%BB%E7%BB%93%E5%87%BA%E4%BA%86%E4%B8%80%E6%9D%A1%E6%8D%B7%E5%BE%84/" class="leancloud_visitors" data-flag-title="走向中级程序员的路上，我们给你总结出了一条捷径">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901182829.png" alt=""></p>
+<blockquote>
+<p>原作者: Saurabh Maurya</p>
+<p>译者: 核子可乐</p>
+<p>译文地址: <a href="https://www.infoq.cn/article/3EzkoEAlgktTAm4Rz0pT" target="_blank" rel="noopener">https://www.infoq.cn/article/3EzkoEAlgktTAm4Rz0pT</a></p>
+</blockquote>
+<p>我们逐渐在工作当中找到了状态，部署生命周期不再是神秘的难题，代码审查的速度也终于超过了代码编写。最重要的是，我们开始发布真正能够运行的成果。</p>
+<p>但是接下来，我们可以松懈吗？当然不行！对知识的探索，永远是我们时刻追求的目标。</p>
+<p><strong>在克服惰性方面，一种务实的方法是坚持学习那些能够帮助我们在面试中表现更好的知识。</strong></p>
+<p>如此一来，我们就会拥有一种明显的进步以及值得始终坚守的目标。</p>
+<p>请关注以下五个方面——</p>
+<ol>
+<li>低级 / 库设计</li>
+<li>系统设计</li>
+<li>并发</li>
+<li>设计模式</li>
+<li>一般编码惯例</li>
+</ol>
+<p>我在本文中给出的资源主要与 Java 相关，但大家肯定也能找到针对其他语言的类似资料。无论如何，这里提到的大部分设计理念与语言无关。</p>
+<h2 id="低级-库设计"><a href="#低级-库设计" class="headerlink" title="低级 / 库设计"></a><strong>低级 / 库设计</strong></h2><p>如果大家回顾一下 Uber、亚马逊等企业在第 2/3 轮软件开发工程师面试当中提出的问题，就会发现其中至少会有一轮主要涉及此类低级设计方向。我听说过的两大常见场景分别是：</p>
+<ol>
+<li>设计一套记录器库</li>
+<li>使用 Java 语言实现流框架</li>
+</ol>
+<p>我特别喜欢这个关于记录器的问题；因为根据求职者的业务水平，大家可能会想到多种多样的答案。<br>这里大家可以先着手试试。在完成之后，请各位思考以下几个问题：</p>
+<ul>
+<li>您是否将实现分解为不同的接口？或者说使用了一个超类来涵盖一切？</li>
+<li>您是否考虑到类当中的线程安全问题？</li>
+<li>您的记录器是单体的吗？采用懒惰加载还是急切加载？为什么？</li>
+<li>它具备可插拔性吗？第三方可以利用其它实现来扩展您的库吗？</li>
+<li>垃圾收集机制是如何实现的？您是否创建了过多对象？</li>
+</ul>
+<p><strong>Log4j2</strong> 是一套设计上极为出色的记录工具，感兴趣的朋友可以<a href="https://logging.apache.org/log4j/2.0/manual/architecture.html" target="_blank" rel="noopener">点击此处</a>参考它的实现思路。<br>我暂时没找到其它更好的低级设计资源。如果各位有什么好主意，请在评论中不吝赐教。</p>
+<h2 id="系统设计"><a href="#系统设计" class="headerlink" title="系统设计"></a><strong>系统设计</strong></h2><p>开发人员们可能更熟悉“设计问题”这种表述。我听说过的具体案例包括：</p>
+<ol>
+<li>设计一套 URL 缩短系统</li>
+<li>设计 Twitter 的 NewsFeed 系统</li>
+</ol>
+<p>这里我向大家推荐<a href="https://github.com/donnemartin/system-design-primer" target="_blank" rel="noopener"> Donne Martin 的《设计入门》</a>。虽然篇幅很长，但这确实是一种优秀的广度优先方法，能够帮助大家快速熟悉系统设计原理。<br>至少，大家应该熟悉以下知识：</p>
+<ol>
+<li>异步与同步写入；消息队列</li>
+<li>一致性模式——特别是最终一致性</li>
+<li>数据库类型（SQL 与 NoSQL）以及规模伸缩</li>
+<li>不同级别的缓存</li>
+<li>将问题陈述分解为不同的独立服务</li>
+</ol>
+<p>这里我要向大家推荐<a href="https://www.educative.io/collection/5668639101419520/5649050225344512" target="_blank" rel="noopener">《深入理解系统设计访谈》</a>。其中详细探讨了系统设计的具体问题，包括我之前提到的两个例子。虽然属于付费资源，但绝对物有所值。</p>
+<p><img src="https://static001.infoq.cn/resource/image/00/0d/0042458e4f3e6d9e793f55bd1b213f0d.png" alt=""></p>
+<h2 id="并发"><a href="#并发" class="headerlink" title="并发"></a><strong>并发</strong></h2><p>并发性是初级工程师与高级工程师之间的一大核心区别。很多朋友可能想象不到，并发实际上非常难以实现。<br>这里推荐大家阅读《Java 并发实践（<strong>Java Concurrency in Practice</strong>）》一书。在读完之后，大家应该会对以下问题拥有更深刻的理解：</p>
+<ol>
+<li>Java 的内存模型</li>
+<li>发生前关系</li>
+<li>虚假唤醒调用</li>
+<li>易失性与同步性</li>
+<li>线程安全、等待与通知等</li>
+</ol>
+<p>如果大家使用的是其他编程语言，也请参考对应的书籍。总之，如果没能彻底掌握相关概念，我们将很难对竞争条件进行调试。<br>Educative 的《Java 多线程与并发（<a href="https://www.educative.io/courses/java-multithreading-for-senior-engineering-interviews" target="_blank" rel="noopener"> Java Multithreading and Concurrency </a>）》 也是很好的资源，推荐大家阅读其中的概念，而后结合常见的面试问题进行理解。</p>
+<h2 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a><strong>设计模式</strong></h2><p>虽然面试一般不会问到这些问题，但在研究不同的设计用例时，大家或多或少都会接触到。<br>而在了解了相关概念之后，我们就会意识到这些模式无处不在。举几个例子：</p>
+<ol>
+<li>Adapter — Arrays.asList()</li>
+<li>Decorator — Collections.synchronizedCollection(new ArrayList&lt;&gt;())</li>
+<li>Prototype — Immutables.copyOf()</li>
+<li>Command — Runnable interface</li>
+<li>Strategy — java.util.Comparator#compare()</li>
+</ol>
+<p>StackOverflow 中列出一份长长的 Java 核心库模式<a href="https://stackoverflow.com/a/2707195" target="_blank" rel="noopener">清单</a>，推荐大家了解一下。<br>我也尝试过阅读经典的《设计模式：可重用面向对象软件中的元素（Design Patterns: Elements of Reusable Object-Oriented Software）》，但我承认我真的啃不下来。</p>
+<p>但我也试过《深入浅出谈设计模式（<strong>Head First Design Patterns</strong>）》，这看起来不像是技术读物，但却给我带来了巨大的帮助。</p>
+<p>这本书里的故事选得很好，清晰梳理出了类似模式之间的微妙差别。我花了一个周末读完了它，真的是干货多多又有趣。<br>过一阵子我想再回去啃啃《可重用面向对象软件中的元素》，这本书同样极具价值，只是比较硬核、对开发经验的要求更高。</p>
+<h2 id="一般编码惯例"><a href="#一般编码惯例" class="headerlink" title="一般编码惯例"></a><strong>一般编码惯例</strong></h2><p><strong>看书、看书、再看书</strong></p>
+<p>《高效 Java（<strong>Effective Java</strong>）》。这是大家熟悉 Java 表达与最佳实践的理想方法。其中分为 90 个独立的主题，每个主题都长达数页。因此，我们可以选择与当前工作内容相关性最强的部分。<br>《清洁代码（<strong>Clean Code</strong>）》——有了这本书的帮助，大家能够更快更方便地阅读并审查其他人编写的代码。与《高效 Java》类似，我同样推荐大家有选择地阅读这本书中的对应章节。</p>
+<p><strong>熟练掌握您的 IDE</strong></p>
+<p>好吧，这一点跟面试没什么关系。但说真的，熟练掌握 IDE 能够极大提升编程的效率与趣味性！</p>
+<p>我个人使用 IntelliJ，还安装了一款“Key Promoter X”插件。每当我使用了能够通过快捷键实现的鼠标操作时，它都会发出提醒。只需要几周，大家就能掌握快捷键操作并让自己看起来专业万分～当然，这都是被提示磨出来的。如果大家使用的是其他 IDE，也可以试试类似的小工具。但我还是强烈推荐 IntelliJ，真的很棒。</p>
+<p>《42 项 IntelliJ 提示与技（<a href="https://www.youtube.com/watch?v=eq3KiAH4IBI" target="_blank" rel="noopener"> 42 IntelliJ Idea Tips and Tricks </a>）》是 YouTube 上的一段讲座，大家可以通过这种有趣的方式熟悉 IntelliJ 中提供的各种常用功能。</p>
+<p>这份清单挺长的，不过大家不用着急，阅读的意义不在于读完，而在于借此改善自己在日常工作中的体验。加油！</p>
+<p>顺便说一句，这份清单主要面向已经拥有 0 到 4 年开发经验的人群。如果各位还没开始工作，请先从 Leet Code 入手，等有了一定积累之后再阅读这份书单。</p>
+<p>一般来说，直到接触现实场景中的实际系统之后，大家才会遇到设计概念层面的问题。</p>
+<p><em>相关书籍</em></p>
+<p><em>下面，我再立足各个基础方向推荐一本好书，尽可能把它们组织成一个学习体系。</em></p>
+<ol>
+<li><a href="https://www.goodreads.com/book/show/105099.Effective_Java_Programming_Language_Guide" target="_blank" rel="noopener">Effective Java </a> — Java 最佳实践入门，阅读难度很低。</li>
+<li><a href="https://www.goodreads.com/book/show/3735293-clean-code" target="_blank" rel="noopener">Clean Code </a> — 助您快速掌握编码中的经验法则。</li>
+<li><a href="https://www.goodreads.com/book/show/127932.Java_Concurrency_in_Practice" target="_blank" rel="noopener">Java Concurrency In Practice </a> — 用于掌握并发机制的基础书籍。</li>
+<li><a href="https://www.goodreads.com/book/show/58128.Head_First_Design_Patterns" target="_blank" rel="noopener">Head First Design Patterns </a> — 有趣、有效的面向对象设计思维学习方式。</li>
+<li><a href="https://www.goodreads.com/book/show/23463279-designing-data-intensive-applications" target="_blank" rel="noopener">Designing Data Intensive Applications </a> — 我见过的最高级别的技术类书籍，包含极为丰富的系统设计知识——但也非常难啃，建议大家一次读一点慢慢消化。</li>
+</ol>
+<p>原文链接：<br><a href="https://medium.com/javarevisited/growing-pains-becoming-an-intermediate-developer-6108a00211d5" target="_blank" rel="noopener">Growing pains — Becoming an Intermediate developer</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/31/git%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/31/git%E5%85%A5%E9%97%A8/" itemprop="url">git入门</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-31T14:48:42+08:00">
+                2019-08-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/31/git%E5%85%A5%E9%97%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/31/git入门/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/08/31/git%E5%85%A5%E9%97%A8/" class="leancloud_visitors" data-flag-title="git入门">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831190018.png" alt=""></p>
+<blockquote>
+<p>视频地址: <a href="https://www.imooc.com/video/17972" target="_blank" rel="noopener">https://www.imooc.com/video/17972</a></p>
+</blockquote>
+<h2 id="第一章-概述"><a href="#第一章-概述" class="headerlink" title="第一章 概述"></a>第一章 概述</h2><h3 id="1-1-为什么学习Git"><a href="#1-1-为什么学习Git" class="headerlink" title="1-1 为什么学习Git"></a>1-1 为什么学习Git</h3><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831145048.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831145343.png" alt=""></p>
+<h3 id="1-2-Git-安装"><a href="#1-2-Git-安装" class="headerlink" title="1-2 Git 安装"></a>1-2 Git 安装</h3><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831145456.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git config --global user.name &quot;&quot;</span><br><span class="line">git config --global user.email &quot;&quot;</span><br><span class="line">git config --list</span><br></pre></td></tr></table></figure>
+
+<h2 id="第2章"><a href="#第2章" class="headerlink" title="第2章"></a>第2章</h2><h3 id="2-1-创建仓库"><a href="#2-1-创建仓库" class="headerlink" title="2-1 创建仓库"></a>2-1 创建仓库</h3><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831145849.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831150116.png" alt=""></p>
+<h3 id="2-2-工作流"><a href="#2-2-工作流" class="headerlink" title="2-2 工作流"></a>2-2 工作流</h3><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831150930.png" alt=""></p>
+<h2 id="第3章-Git主要功能"><a href="#第3章-Git主要功能" class="headerlink" title="第3章 Git主要功能"></a>第3章 Git主要功能</h2><h3 id="3-1-远程仓库"><a href="#3-1-远程仓库" class="headerlink" title="3-1 远程仓库"></a>3-1 远程仓库</h3><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831151253.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831151917.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831152304.png" alt=""></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/08/31/git%E5%85%A5%E9%97%A8/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/31/%E3%80%8A%E6%9E%81%E5%AE%A2%E4%B8%8E%E5%9B%A2%E9%98%9F%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/31/%E3%80%8A%E6%9E%81%E5%AE%A2%E4%B8%8E%E5%9B%A2%E9%98%9F%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url">《极客与团队》读书笔记</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-31T13:44:11+08:00">
+                2019-08-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/31/%E3%80%8A%E6%9E%81%E5%AE%A2%E4%B8%8E%E5%9B%A2%E9%98%9F%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/31/《极客与团队》读书笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/08/31/%E3%80%8A%E6%9E%81%E5%AE%A2%E4%B8%8E%E5%9B%A2%E9%98%9F%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" class="leancloud_visitors" data-flag-title="《极客与团队》读书笔记">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831134533.png" alt=""></p>
+<blockquote>
+<p>豆瓣地址: <a href="https://book.douban.com/subject/21372237/" target="_blank" rel="noopener">极客与团队</a></p>
+<p>原文地址: <a href="https://book.douban.com/subject/21372237/" target="_blank" rel="noopener">https://book.douban.com/subject/21372237/</a></p>
+</blockquote>
+<h2 id="天才程序员神话"><a href="#天才程序员神话" class="headerlink" title="天才程序员神话"></a>天才程序员神话</h2><p>本章重点：<strong>软件开发是一项集体活动。要在工程团队中获得成功，需要根据谦虚、尊重和信任组织自己的行为。</strong> 这其实也是全书基石。</p>
+<ol>
+<li>不要隐藏自己的工作：克服不安全感，勇于让同事看到未成熟的工作，尽早发现错误、改善设计。</li>
+<li>接受批评与自我批评。</li>
+<li>快速失败，并从失败中总结。</li>
+<li>留出学习的时间。</li>
+<li>学会忍耐。</li>
+</ol>
+<h2 id="打造团队文化"><a href="#打造团队文化" class="headerlink" title="打造团队文化"></a>打造团队文化</h2><p>团队文化很重要，如果不打造和维护团队文化，那么强个性的人会在团队中培养自己的文化（也就是说，一种掌控团队的文化氛围是无可避免的）。团队中每一个人都应该参与到定义、维护团队文化当中。如果有明确的团队文化，那么团队会选择合适自己的人。</p>
+<p>成功的团队文化重视沟通，一个通用的准则是：<strong>人少时使用同步沟通，人多时使用异步沟通</strong>。所有信息都应该存在项目文档中。</p>
+<p>高效会议的几点原则：</p>
+<ol>
+<li>只邀请必需的人；</li>
+<li>草拟议程并提前发出；</li>
+<li>完成会议目标即散会；</li>
+<li>保持会议议程；</li>
+<li>尽量安排在中断点附近；</li>
+</ol>
+<p>什么是文化 27</p>
+<p>为什么要关心它 30</p>
+<p>文化和人 33</p>
+<p>优秀团队文化中的沟通模式 36</p>
+<p>高层面同步 38</p>
+<p>每日进行的讨论 46</p>
+<p>使用bug跟踪系统 50</p>
+<p>沟通也是工程的一部分 50</p>
+<p>说到底真正重要的还是代码本身 55</p>
+<h2 id="群龙不可无首"><a href="#群龙不可无首" class="headerlink" title="群龙不可无首"></a>群龙不可无首</h2><p>本章的重点：<strong>传统的经理关系如何做事，而领导者关系做什么事（并相信团队知道如何实现）……</strong></p>
+<p>自然界没有真空地带 57</p>
+<p>@deprecated manager 59</p>
+<p>主管才是新的经理 60</p>
+<p>唯一要担心的就是……好吧，所有的事情 62</p>
+<p>仆人式领导 64</p>
+<p>反模式 65</p>
+<p>领袖的处事之道 71</p>
+<p>人是植物 89</p>
+<p>内部激励和外部激励 91</p>
+<h2 id="应对有害之人"><a href="#应对有害之人" class="headerlink" title="应对有害之人"></a>应对有害之人</h2><p>如何应对对团队有害的外部因素（不良用户等）以及内部因素。</p>
+<p><strong>最有可能受到影响的因素是团队的注意力和专注力</strong>。</p>
+<p>优先考虑消除有害的行为，而不是针对人。</p>
+<h2 id="组织操纵的艺术"><a href="#组织操纵的艺术" class="headerlink" title="组织操纵的艺术"></a>组织操纵的艺术</h2><p>这一章没啥好说的，就是一堆办公室政治。</p>
+<p>优点、缺点和策略 113<br>理想的情况：团队在公司里应该是怎么运作的 114<br>现实的情况：当环境成为成功路上的绊脚石 117<br>操纵你的组织 124<br>b计划：走为上 138<br>不要放弃 140</p>
+<h2 id="用户也是人"><a href="#用户也是人" class="headerlink" title="用户也是人"></a>用户也是人</h2><p>三个简单概念：</p>
+<ol>
+<li>市场营销：了解人们对软件的看法，决定用户会不会使用；</li>
+<li>产品设计：容易尝试、速度快、友好；</li>
+<li>客户服务：与用户建立长期的良好关系；</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总而言之，<strong>HRT（谦虚、尊重和信任）是最核心的原则</strong>。</p>
+<p><strong>谦虚</strong></p>
+<p>年纪越大，就越知道自己的局限。知识越丰富，越知道自己的无知。绝大部分时候，我们的想法和行为只是历史洪流中微小的一部分。对自己和对外界的看法，依赖于我们的认知地层，后者又依赖于学识和阅历。回顾过去，当时认为重要的东西，现在看来价值有限。曾经自认为的独一无二的想法，原来只是千万个类似想法中的一个。</p>
+<p><strong>尊重</strong></p>
+<p>“出身”很重要。一个人的发展，很难超越自己的出身太多。总要付出一整个青春的努力，才能进入更高一点的阶层。位于阶层顶部的人，往往是经过了几代人的奋斗，一点一点积累而来。我们的优秀，建立在先辈们的优秀之上。所以和别人比没有意义，起点不同。要和自己比，和先辈们比，看有没有通过努力让自己站得更高，走得更远。</p>
+<p>一人一个活法。每个人有自己的世界观价值观，以自己的狭隘妄自评判别人的生活，是幼稚的。每个人至少能比别人更知道自己想要什么，想过什么样的生活。哪怕想法一样，同样的努力，最终结果也会大相径庭，各有各的难处。成熟的一个表现就是接受差异，尊重不同。</p>
+<p><strong>信任</strong></p>
+<p>人总有长处和短处，哪怕都是长处，时间精力也不能让我们事必躬亲。科学技术的发展，每一件事背后的复杂性大大增加，要做成一件事，越来越依靠协作。组织制度健全程度的一个评判方法，就是你对陌生人有多信任。公司内部也是如此，如果别人辜负了你的信任，最终给对方带来的损失比你自己的更大。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/31/%E5%8F%88%E5%88%B0%E5%BC%80%E5%AD%A6%E6%97%B6%EF%BC%8C%E8%AF%B7%E7%9B%B8%E4%BF%A1%E6%97%B6%E9%97%B4%E7%9A%84%E5%8A%9B%E9%87%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/31/%E5%8F%88%E5%88%B0%E5%BC%80%E5%AD%A6%E6%97%B6%EF%BC%8C%E8%AF%B7%E7%9B%B8%E4%BF%A1%E6%97%B6%E9%97%B4%E7%9A%84%E5%8A%9B%E9%87%8F/" itemprop="url">请相信时间的力量</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-31T12:44:35+08:00">
+                2019-08-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/31/%E5%8F%88%E5%88%B0%E5%BC%80%E5%AD%A6%E6%97%B6%EF%BC%8C%E8%AF%B7%E7%9B%B8%E4%BF%A1%E6%97%B6%E9%97%B4%E7%9A%84%E5%8A%9B%E9%87%8F/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/31/又到开学时，请相信时间的力量/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/08/31/%E5%8F%88%E5%88%B0%E5%BC%80%E5%AD%A6%E6%97%B6%EF%BC%8C%E8%AF%B7%E7%9B%B8%E4%BF%A1%E6%97%B6%E9%97%B4%E7%9A%84%E5%8A%9B%E9%87%8F/" class="leancloud_visitors" data-flag-title="请相信时间的力量">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901183000.png" alt=""></p>
+<blockquote>
+<p>原作者: 李永乐</p>
+<p>原文地址: <a href="https://www.bilibili.com/read/cv3514171" target="_blank" rel="noopener">又到开学时，请相信时间的力量</a></p>
+<p><strong>不用在乎一时的得失成败，更不追求一时的成绩突飞猛进，只要持之以恒，就能获得巨大的收获</strong>。</p>
+</blockquote>
+<p>去年9月开学前，我写了一篇文章《相信时间的力量》。如今又到了开学季，有同学升入了初中高中，也有同学即将面临中考、高考。我再把这篇文章发出来，希望能给同学们一点启示。</p>
+<p>在我十年的教学生涯中，教过许许多多的学生，经历了许多次开学第一课。我曾经利用第一课讲物理学的发展史、讲科学到底是什么，也曾经用第一课讲三国，分析孙刘联军为什么能打赢曹操。现在，又要开学了，我想给同学们上的第一课是：相信时间的力量。</p>
+<p><strong>我们不妨从一部电影《当幸福来敲门》说起……</strong></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901184514.png" alt="">《当幸福来敲门》宣传海报</p>
+<p>克里斯•加纳 是一名推销员，他用尽全部积蓄买下了高科技治疗仪，到处向医院推销，可是价格高昂，接受的人不多。就算他多努力都无法提供一个良好的生活环境给妻儿，妻子最终选择离开家。从此他带着儿子克里斯托夫相依为命。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901184548.png" alt=""></p>
+<p>父子俩流落街头</p>
+<p>一个偶然的机会，克里斯争取来一个股票投资公司的实习机会，但是他有6个月的实习期，实习期里没有报酬，实习期结束后也只会从20个人中选一个人成为正式员工。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901184642.png" alt=""></p>
+<p>股票投资公司实习</p>
+<p>为了自己的理想，他必须在更短的时间里做出比别人更好的成绩。他默默努力着，白天连续拨打着一个又一个电话，为了节约上厕所的时间甚至不喝水，晚上与儿子住在教堂的收容所里，或者躲在地铁站里的公共厕所里……</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901185711.png" alt=""></p>
+<p>子俩躲在厕所</p>
+<p>他坚信，幸福明天就会来临。最终，当他获知自己被公司录用时，默默的流着泪为自己鼓掌。这一幕感动了无数观众。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901185936.png" alt=""></p>
+<p>为自己鼓掌</p>
+<p>这部电影中有一个情节，克里斯带着他的儿子打篮球，他的儿子打得不好，克里斯说：“也许你永远也打不好篮球了。”他的儿子听了非常泄气，准备放弃篮球。</p>
+<p>克里斯突然对儿子说：“<strong>你有梦想的话，就要去捍卫它。别让别人告诉你，你成不了材，就算是我也不行。</strong>”</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901190057.png" alt=""></p>
+<p>父子对话</p>
+<p>进入新学期，每个同学都会有自己的目标。但是也许在长时间学习和偶尔遇到挫折的时候，我们不免会产生一种心理：是不是我无论如何努力，也不能追上班里的学霸了？是不是我无论如何努力，也无法竞争过大城市名校的学生考入理想的大学了？是不是我脑子太笨了，智商不行，无论如何努力也都不会有效果呢？</p>
+<p>其实，在600万年前，人类和黑猩猩有着共同的祖先，人类在600万年前开始一天天学会了劳动，一天天产生了语言，一天天学会了相互扶持，学会了用每天一点点的进步改变自己，也许一年两年过去了，人类并没有发现自己跟黑猩猩有什么区别，然而就是这每天一点点地进步，使人类穿上衣服，住进房子，学会耕种和放牧，使人类出现了牛顿爱因斯坦这样伟大的科学家，孔子孟子这样伟大的思想家。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901190219.png" alt=""></p>
+<p>人类和黑猩猩</p>
+<p>我希望同学能够记住这句话：<strong>你有梦想的话，就要去捍卫它，时间就是最厉害的武器。</strong></p>
+<p>也许每天我们只能前进一小步，一天两天一个月两个月过去了，你都不会发现自己有什么提高，但你永远不知道如果你每天努力一点点，300天后会有多么惊人的进步。</p>
+<p>我见过太多在高三成绩发生飞跃的学生了，他们在高二毕业的时候好多课成绩不好，到了高考的时候考到了重点大学。新的学期，拼搏和努力不需要理由，自我放纵自甘堕落成为黑猩猩，才需要理由。成功之道就在于不要去想能否成功，而要把通向成功的每一步都走好。</p>
+<p>在这个过程中，我们<strong>不用在乎一时的得失成败，更不追求一时的成绩突飞猛进，只要持之以恒，就能获得巨大的收获**</strong>。**投资大师巴菲特其实每年的利润增长也并不高，但是他做到了40年持续的投资回报，资产从100美元变成了160亿美元。这就是时间的力量。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901190438.png" alt=""></p>
+<p>巴菲特</p>
+<p>也许有同学要问：我在去年就每天都熬夜学习，为什么最终也没什么进步呢？</p>
+<p>我要说的是，有些人并没有努力学习300天，而是学习了一天，重复了300次。</p>
+<p><strong>学习和思考同样重要</strong>，我们每天都要反思：自己今天是不是比昨天有进步？又弄懂了哪些问题？避免了哪些错误？明天又应该通过什么方式补充自己的不足？而不是只为了完成作业，或者熬夜到12点，以祈求自己心理上的安慰。这种学习方式表面上是勤奋，实际是懒惰和对自己的不负责。</p>
+<p>如果有人问：人生最大的幸福是什么？同学们的回答会有很多种。我想跟大家说说我的理解：人生最大的幸福就是拥有为自己的梦想而奋斗和拼搏的机会，中学生们正处于这种幸福之中。</p>
+<p>许多成年人都很怀念青少年时代，我们希望回到过去那个无忧无虑的日子，希望回到那个白天上学下课踢球，骑着一辆破自行车回家，拿一块钱买个冰淇淋自己舍不得吃送给班里女生的日子。</p>
+<p>同学们，老师真的很羡慕你们！你们处于花季雨季，你们的未来有无限的可能！</p>
+<p>我忠心的希望他们好好享受现在的生活，只要你们努力过，奋斗过，那么无论结果如何，当他们长大了，回顾自己的学习生活，都无怨无悔，你会对他的师弟师妹说，那段日子是我一生中最美好的日子，我没有因为虚度年华而悔恨，也没有因为因为碌碌无为而羞愧。</p>
+<p>福楼拜说：<strong>人生最辉煌的时刻不是功成名就之时，而是战胜痛苦和绝望，从自卑走向自信的时候。</strong>我希望新学期的第一天就是各位同学新的起点，把学习生活当作你的爱人，去爱慕她，追求她，拥有她，享受她，为她努力和拼搏，这一切不妨就从今天，从现在开始。</p>
+<p>顺便一说，《当幸福来敲门》是根据真人真事改编的，故事的原型叫做加纳徳，他曾经经历了电影中的各种悲惨遭遇，但是没有向命运低头，如今他是一个千万富翁。电影中他也客串了一个龙套角色。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190901190645.png" alt=""></p>
+<p>加纳德</p>
+<p>他经常对别人说：“<strong>你可能会贫穷潦倒，但最终怎样取决于你自己。**</strong>”**</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/31/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E8%89%AF%E5%A5%BD%E7%9A%84%E6%8E%A5%E5%8F%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/31/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E8%89%AF%E5%A5%BD%E7%9A%84%E6%8E%A5%E5%8F%A3/" itemprop="url">如何设计一个良好的接口</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-31T00:47:57+08:00">
+                2019-08-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/31/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E8%89%AF%E5%A5%BD%E7%9A%84%E6%8E%A5%E5%8F%A3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/31/如何设计一个良好的接口/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/08/31/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E8%89%AF%E5%A5%BD%E7%9A%84%E6%8E%A5%E5%8F%A3/" class="leancloud_visitors" data-flag-title="如何设计一个良好的接口">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831005844.png" alt=""></p>
+<blockquote>
+<p>作者：Alan_beijing</p>
+<p><a href="http://www.cnblogs.com/wangjiming" target="_blank" rel="noopener">www.cnblogs.com/wangjiming</a></p>
+</blockquote>
+<p>在设计接口时，有很多因素要考虑，如接口的业务定位，接口的安全性，接口的可扩展性、接口的稳定性、接口的跨域性、接口的协议规则、接口的路径规则、接口单一原则、接口过滤和接口组合等诸多因素，本篇文章将简要分析这些因素。</p>
+<h3 id="一-规范性建议"><a href="#一-规范性建议" class="headerlink" title="一 规范性建议"></a>一 规范性建议</h3><h4 id="1-职责原则"><a href="#1-职责原则" class="headerlink" title="1.职责原则"></a>1.职责原则</h4><p>在设计接口时，必须明确接口的职责，即接口类型，接口应解决什么业务问题等</p>
+<h4 id="2-单一性原则"><a href="#2-单一性原则" class="headerlink" title="2.单一性原则"></a>2.单一性原则</h4><p>在明确接口职责的条件下，尽量做到接口单一，即一个接口只做一件事，而非两件以上。很多非资深接口设计者，在设计接口时，总认为接口所做的事越多，越牛叉，这是非常严重的错误认识。</p>
+<h4 id="3-协议规范"><a href="#3-协议规范" class="headerlink" title="3.协议规范"></a>3.协议规范</h4><p>在设计接口时，应明确接口协议，是采用HTTP协议,HTTPS协议还是FTP协议，要根据具体情况来定。</p>
+<ul>
+<li>FTP协议(File Transfer Protocol，简称FTP)，是一套标准的文件传输协议，用于传输文件，如.txt，.csv等，一般文件传输，采用FTP协议</li>
+<li>HTTP协议，适用一般对安全性要求比较低或没要求的业务情景</li>
+<li>HTTPS=HTTP+SSL,适用于对安全性要求较高的业务情景</li>
+</ul>
+<h4 id="4-路径规则"><a href="#4-路径规则" class="headerlink" title="4.路径规则"></a>4.路径规则</h4><p>由于api获取的是一种资源，所以网址中尽量为名词，而非动词</p>
+<blockquote>
+<p>/api/v1.0/Pruduct/2019<br>/api/v1.0/Users/2019</p>
+</blockquote>
+<h4 id="5-http请求方式"><a href="#5-http请求方式" class="headerlink" title="5.http请求方式"></a>5.http请求方式</h4><p>接口基本访问协议：get(获取)，post(新增)，put(修改)和delete(删除)</p>
+<ul>
+<li>get /users：列出所有用户</li>
+<li>get /users/id：根据id获取用户</li>
+<li>post /user：新增用户</li>
+<li>put /user/id：根据用户id更新用户</li>
+<li>delete /user/id：根据用户id删除用户</li>
+</ul>
+<h4 id="6-域名"><a href="#6-域名" class="headerlink" title="6.域名"></a>6.域名</h4><p>一般地，域名分为主域名和专有域名，主域名适合api长期不变或变化较少的业务，专有域名是解决具体的专有业务的</p>
+<h5 id="以百度举例："><a href="#以百度举例：" class="headerlink" title="以百度举例："></a>以百度举例：</h5><p>(1)主域名:<a href="http://www.baidu.com" target="_blank" rel="noopener">www.baidu.com</a></p>
+<p>(2)产品服务类</p>
+<ul>
+<li>百度文库：<a href="https://wenku.baidu.com/" target="_blank" rel="noopener">https://wenku.baidu.com/</a></li>
+<li>百度知道：<a href="https://zhidao.baidu.com/" target="_blank" rel="noopener">https://zhidao.baidu.com/</a></li>
+<li>百度资讯： <a href="https://zhidao.baidu.com/" target="_blank" rel="noopener">https://zhidao.baidu.com/</a></li>
+</ul>
+<p>(3)市场活动类</p>
+<ul>
+<li>百度公益：<a href="http://gongyi.baidu.com" target="_blank" rel="noopener">http://gongyi.baidu.com</a></li>
+<li>百度logo：<a href="http://logo.baidu.com/" target="_blank" rel="noopener">http://logo.baidu.com/</a></li>
+<li>百度世界：<a href="https://baiduworld.baidu.com" target="_blank" rel="noopener">https://baiduworld.baidu.com</a></li>
+</ul>
+<h4 id="7-跨域考虑"><a href="#7-跨域考虑" class="headerlink" title="7.跨域考虑"></a>7.跨域考虑</h4><p>在明确域名的情况下，一定要考虑接口是否跨域，以及跨域应采用的技术手段等。</p>
+<h4 id="8-api版本"><a href="#8-api版本" class="headerlink" title="8.api版本"></a>8.api版本</h4><p>对于接口的url，应加版本号<a href="http://api.demo.com/v{d}/，如" target="_blank" rel="noopener">http://api.demo.com/v{d}/，如</a> ，其中d表示版本号,如v1.0,v2.0</p>
+<p>例子：获取产品号为2019,版本号为v1.0的版本号的产品信息</p>
+<blockquote>
+<p>/api/v1.0/Pruducts/2019</p>
+</blockquote>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/08/31/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E8%89%AF%E5%A5%BD%E7%9A%84%E6%8E%A5%E5%8F%A3/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/30/%E7%A4%BE%E4%BC%9A%E7%9A%84%E4%B8%A4%E5%A4%A7%E7%9F%9B%E7%9B%BE%EF%BC%8C%E6%96%87%E7%A7%91%E6%80%9D%E7%BB%B4%E5%92%8C%E7%90%86%E7%A7%91%E6%80%9D%E7%BB%B4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/30/%E7%A4%BE%E4%BC%9A%E7%9A%84%E4%B8%A4%E5%A4%A7%E7%9F%9B%E7%9B%BE%EF%BC%8C%E6%96%87%E7%A7%91%E6%80%9D%E7%BB%B4%E5%92%8C%E7%90%86%E7%A7%91%E6%80%9D%E7%BB%B4/" itemprop="url">社会的两大矛盾，文科思维和理科思维(原创)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-30T00:20:27+08:00">
+                2019-08-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/30/%E7%A4%BE%E4%BC%9A%E7%9A%84%E4%B8%A4%E5%A4%A7%E7%9F%9B%E7%9B%BE%EF%BC%8C%E6%96%87%E7%A7%91%E6%80%9D%E7%BB%B4%E5%92%8C%E7%90%86%E7%A7%91%E6%80%9D%E7%BB%B4/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/30/社会的两大矛盾，文科思维和理科思维/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/08/30/%E7%A4%BE%E4%BC%9A%E7%9A%84%E4%B8%A4%E5%A4%A7%E7%9F%9B%E7%9B%BE%EF%BC%8C%E6%96%87%E7%A7%91%E6%80%9D%E7%BB%B4%E5%92%8C%E7%90%86%E7%A7%91%E6%80%9D%E7%BB%B4/" class="leancloud_visitors" data-flag-title="社会的两大矛盾，文科思维和理科思维(原创)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190830011136.png" alt=""></p>
+<p>以下观点只是很粗略的思考 🤔，可能不太严谨，只是个人的一些想法和思索。</p>
+<p>工作已经 1 年多了，愈发的感觉社会其实存在着两大基本矛盾，即<strong>文科思维和理科思维</strong></p>
+<p>文科思维讲人文，讲集体，有些对应共产主义。</p>
+<p>理科思维讲科学，讲个人，有些对应资本主义。</p>
+<h2 id="哪种转变最好？"><a href="#哪种转变最好？" class="headerlink" title="哪种转变最好？"></a>哪种转变最好？</h2><p>这两者其实都会趋向结合，即文科思维会逐渐理科化，理科思维会逐渐文科化，逐渐中和，但源头总归占大头，全然转变是不可能的，那哪个思维向哪个思维转变其实是最好的呢？</p>
+<p><strong>我觉得是理科思维向文科思维转变是最好的转变方式。</strong></p>
+<p>比如工作上，理科比文科是更要好找工作的，因为社会很现实，追逐利益是社会不变的主题，我们应该先有一技之长吃饱穿暖才能进一步发展，先生存再思考。</p>
+<p><strong>恰完饭才能追逐梦想，过于理想主义会过的遍体鳞伤。</strong></p>
+<p>那文科思维有用处吗，有，有大用处，<strong>技术让我们活下来，而文化让我们成为一个人而不是动物。</strong></p>
+<p>比如有谁会记得 10 年前某个普通程序员(大佬除外)写的软件对人类的意义，而文学可以，文学记录了人的思想和价值，是可以长久流传的。</p>
+<h2 id="两种思维在经济上的影响"><a href="#两种思维在经济上的影响" class="headerlink" title="两种思维在经济上的影响"></a>两种思维在经济上的影响</h2><p>科技的快速进步会压制文学，会有一段时间的反弹，科技会进入一个小的滞停期 (经济危机的由来？😆)，但人类的发展潮流终归是技术进步，因此总会进入下一个科技发展爆发期。</p>
+<p>美国 1995年至2001年间出现互联网泡沫后，互联网进入快速发展期</p>
+<p>中国 2018-至今 出现的互联网寒冬，其实可能也预示着中国下一阶段的科技爆发期，在这个时期应该更多的提高个人技能，才能在下一波红利中获利。</p>
+<p>##理科思维向文科思维转变在日常生活的应用</p>
+<p>先实践再理论 (学习上先实践，再学习知识)</p>
+<p>先业务后技术 (程序上先实现业务功能，再考虑技术优化)</p>
+<p>先实现后深化 (先实现功能，再迭代进化)</p>
+<p>先简单后复杂 (先实现简单的功能，逐渐组合实现复杂系统)</p>
+<h2 id="思考-🤔"><a href="#思考-🤔" class="headerlink" title="思考 🤔"></a>思考 🤔</h2><p>总感觉程序员和哲学家有些地方是共通的，哲学家思考社会，程序员思考程序设计，也许要两者兼具，才能成为大佬吧。</p>
+<p>不想做哲学家的程序员不是好程序员（哈哈😼）</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/29/%E5%AF%B9%E9%A9%AC%E4%BA%91%E5%92%8C%E9%A9%AC%E6%96%AF%E5%85%8B%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%80%9D%E8%80%83%F0%9F%A4%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/29/%E5%AF%B9%E9%A9%AC%E4%BA%91%E5%92%8C%E9%A9%AC%E6%96%AF%E5%85%8B%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%80%9D%E8%80%83%F0%9F%A4%94/" itemprop="url">对马云和马斯克对话的思考🤔</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-29T23:20:17+08:00">
+                2019-08-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/29/%E5%AF%B9%E9%A9%AC%E4%BA%91%E5%92%8C%E9%A9%AC%E6%96%AF%E5%85%8B%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%80%9D%E8%80%83%F0%9F%A4%94/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/29/对马云和马斯克对话的思考🤔/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/08/29/%E5%AF%B9%E9%A9%AC%E4%BA%91%E5%92%8C%E9%A9%AC%E6%96%AF%E5%85%8B%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%80%9D%E8%80%83%F0%9F%A4%94/" class="leancloud_visitors" data-flag-title="对马云和马斯克对话的思考🤔">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190829234745.png" alt=""></p>
+<h2 id="1-思考-🤔"><a href="#1-思考-🤔" class="headerlink" title="1. 思考 🤔"></a>1. 思考 🤔</h2><blockquote>
+<p>今天看新闻，2019 世界人工智能大会于八月二十九日在上海举世博中心举行，马云马斯克进行关于ai 发展的对话</p>
+<p>看了新闻视频感觉很有意思，用主持人的话说，这就是地球和卫星的对话</p>
+<p>马云的思维很符合中国人的思想内涵，而马斯克符合美国人的思维想法</p>
+<blockquote>
+<p>马斯克关心宇宙，马云关心地球</p>
+<p>马斯克忧虑AI发展，马云对人的优势迷之自信</p>
+<p>马斯克从技术来推理，马云用玄学来解释</p>
+<p>— sosence</p>
+</blockquote>
+<p>总体感觉，马云的观点更注重人文，马斯克观点更注重技术，文科生和理科生的相爱相杀 😼</p>
+<p>有点像《流浪地球》电影讨论时，中国人选择带着地球流浪，美国人会选择乘飞船离开地球 🌐。中国人比较注重家国思想，而美国人崇尚个人主义。</p>
+<p>不论对错，这是一场思维的碰撞 💥，很有意思，推荐大家看一下</p>
+</blockquote>
+<h2 id="2-视频地址"><a href="#2-视频地址" class="headerlink" title="2. 视频地址:"></a>2. 视频地址:</h2><iframe src="//player.bilibili.com/player.html?aid=65915912&cid=114357892&page=1" width="780" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
+<h2 id="3-马云-VS-马斯克对话全文实录"><a href="#3-马云-VS-马斯克对话全文实录" class="headerlink" title="3. 马云 VS 马斯克对话全文实录"></a>3. 马云 VS 马斯克对话全文实录</h2><blockquote>
+<p>原文地址: <a href="https://www.ifanr.com/1253696" target="_blank" rel="noopener">马云 VS 马斯克对话全文实录</a></p>
+</blockquote>
+<p> 2019 世界人工智能大会（WAIC）上，自嘲为「火星人」的马云和「未来的火星人」埃隆 · 马斯克（Elon Musk）针对人工智能、宇宙、教育、人类命途等话题上演了一场精彩对话。</p>
+<p>以下是现场对话全文 (视频<a href="https://tifan.net/1042152.mp4" target="_blank" rel="noopener">点这里</a>）：</p>
+<h3 id="话题一：AI"><a href="#话题一：AI" class="headerlink" title="话题一：AI"></a>话题一：AI</h3><p>马斯克：我们先看看 AI 这个关键词，我听说 AI 是「爱」的意思，是这个意思吗？</p>
+<p>马云：我特别不喜欢把 AI 叫做人工智能，我把它称之为「阿里巴巴智能」。</p>
+<p>马斯克：我也这么感觉。一般大家都会低估人工智能的能力，他们觉得可能就像是聪明人而已。实际上，人工智能比这个厉害得多，可能比最聪明的人还要聪明。面对这个状况我们应该做什么呢？我也不知道，我也不确定，但我希望 AI 会是好东西。</p>
+<p>有一句老话，如果打不过他们就和他们组成团队吧。我所开发的公司就是这样，目的就是让我们加入到 AI 战队里面。现在我们已经和手机、电脑连在一块了，我们已经成为带有机器特征的人了，机器在你生命相当于你生命的延伸，你离开了手机像少了一个手臂。</p>
+<p>与人的思维速度相比，现在的人工智能太慢了。假定一个计算机多几个服务点的计算能力，每个毫秒在计算机来说是极大进步，对于我们来说这不算什么。理解人类的自然语言对于计算机来说非常短，像鲸鱼在发的声音，每秒钟最多一百个字节左右的信息对于电脑来说太慢太短了。计算机可以超过你几十万倍数字通量的方式进行对话，机器人看到人应该会特别无聊，我想机器会比人聪明得多。这是我想说的人和计算机的差别。</p>
+<p>马云：我特别惊讶于你对于科技的愿景。我不是搞高科技的人，我是讲生活的，我觉得 AI 能够给全世界，给社会打开一个新的篇章，让大家更好的理解自己，而不是完全理解外部的世界。</p>
+<p>今天要预测未来很难，特别难。99.9% 的预测都是错的，只有 0.001% 的预测是对的。为什么对呢？那是运气好，很多情况 80% 的数据是错的。</p>
+<p>对于人工智能，对于阿里巴巴的智能，我很高兴它们能够更好的理解人类的本质。很多人担心人工智能，他们需要对自己有更多的自信。今天很多问题没有解决方案，但是未来会有，青年人会有解决方案。</p>
+<p>AI 的未来很难预测，历史上，人们对未来的 99.99% 的预测后来都被证明是错的。人们应该有更多的自信，AI 不是一个威胁，也不是恐怖的东西，人类也可以学会。</p>
+<p>我很乐观，我不觉得 AI 是一种威胁，我不认为人工智能是很恐怖的东西，因为人类很聪明。我觉得 AI 很好很有意思，我们会拥抱它。</p>
+<p>马斯克：告诉大家一个事实，现在电脑进步的速度是惊人的。比如玩电子游戏，往前看 40 年 50 年，可能你会有两个方块的单机游戏，但是现在可以很多人在一个游戏平台上一起打游戏，进步巨大。越来越多的游戏做得越来越真实。科技在未来仍然会有非常巨大的发展。</p>
+<p>人类文明有 7000 年历史，这个人类文明史从文明角度来看高低起伏非常厉害。我不是个天然的乐观或者悲观的人，但未来科技发展将会超越我们理解它的能力。我不知道这样是好事还是坏事。</p>
+<h3 id="话题二：火星"><a href="#话题二：火星" class="headerlink" title="话题二：火星"></a>话题二：火星</h3><p>马云：听说你要去火星？我对火星没有兴趣，我刚从火星回来。我对地球上发生的一切更感兴趣，为什么大家对火星这么好奇。</p>
+<p>对于火星，我们需要采取行动。我没有考虑过外星人。外星人在哪里，这是一个问题。为什么没有找到外星人，有些人找到外星人，说去过 51 区吗？我说别开玩笑了，有外星人我一定知道。</p>
+<p>马斯克：我觉得我们需要更进一步了解宇宙的本质，以确保我们能够进入到不同的行星生活。这并不是因为我觉得地球没有希望了，但毕竟存在这种可能，即使我们尽了最大的努力，地球还是有可能会发生人类无法控制的事情，外部力量或者内部事物导致文明被毁灭或者我们受到足够的威胁以至于我们只能搬到另外一个星球去生活。</p>
+<p>换句话说，地球 45 亿年的历史中，现在第一次有可能让生命离开地球生活，之前是没有可能的。但是这个机会窗口会有多久，长或者短都有可能。假定机会窗口不长，我们需要尽快抓住机会窗口。这是我的观点。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/08/29/%E5%AF%B9%E9%A9%AC%E4%BA%91%E5%92%8C%E9%A9%AC%E6%96%AF%E5%85%8B%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%80%9D%E8%80%83%F0%9F%A4%94/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/" itemprop="url">类加载过程</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-29T19:07:58+08:00">
+                2019-08-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/29/类加载过程/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/08/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/" class="leancloud_visitors" data-flag-title="类加载过程">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190829203531.png" alt=""></p>
+<blockquote>
+<p>原文来自《码出高效: Java 开发手册》</p>
+<p>代码地址: <a href="https://github.com/gaohanghang/easy-coding/tree/master/src/ch4" target="_blank" rel="noopener">easy-coding</a></p>
+</blockquote>
+<p>Java 的类加载器是一个运行时核心基础设施模块，如图 4-4 所示，主要是在启动之初进行类的 Load、Link 和  Init，即加载、链接、初始化。</p>
+<p>第一步，Load 阶段读取类文件产生二进制流，并转换为特定的数据结构，初步校验 cafe babe 魔法数、常量池、文件长度、是否有父类等，然后创建对应类的 java.lang.Class 实例。</p>
+<p>第二步，Link 阶段包括验证、准备、解析三个步骤。验证是更详细的校验，比如 final 是否合规、类型是否正确、静态变量是否合理等；准备阶段是为静态变量分配内存，并设定默认值；解析阶段是解析类和方法，确保类与类之间的相互引用正确性，完成内存结构布局。</p>
+<p>第三步，Init 阶段执行类构造器 <code>&lt;clinit&gt;</code> 方法，如果赋值运算是通过其他类的静态方法来完成的，那么会马上解析另一个类，在虚拟机栈中执行完毕后通过返回值进行赋值。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190829190953.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/imgIMG_0028.jpg" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/imgIMG_0029.jpg" alt=""></p>
+<p><strong>代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClassTest</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 数组类型有一个魔法属性: length 来获取数组长度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span>[] array = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">3</span>];</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> length = array.length;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 任何小写 class 定义的类，也有一个魔法属性: class，来获取此类的大写 Class 类对象</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Class&lt;One&gt; one = One<span class="class">.<span class="keyword">class</span></span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Class&lt;Another&gt; another = Another<span class="class">.<span class="keyword">class</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 通过newInstance 方法创建 One 和 Another 的类对象（ 第 1 处 ）</span></span><br><span class="line">        One oneObject = one.newInstance();</span><br><span class="line">        oneObject.call();</span><br><span class="line"></span><br><span class="line">        Another anotherObject = another.newInstance();</span><br><span class="line">        anotherObject.speak();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 通过 one 这个大写的 Class 对象，获取私有成员属性对象 Field（ 第 2 处 ）</span></span><br><span class="line">        Field privateFieldInOne = one.getDeclaredField(<span class="string">"inner"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置私有对象可以访问和修改（ 第 3 处 ）</span></span><br><span class="line">        privateFieldInOne.setAccessible(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">        privateFieldInOne.set(oneObject, <span class="string">"world changed."</span>);</span><br><span class="line">        <span class="comment">// 成功修改类的私有属性 inner 变量值为 world changed.</span></span><br><span class="line">        System.out.println(oneObject.getInner());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">One</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String inner = <span class="string">"time files."</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"hello world."</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getInner</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> inner;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Another</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">speak</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"easy coding."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/08/29/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/27/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90%E3%80%8A%E6%88%91%E7%9A%84%E4%B8%89%E4%BD%93%E3%80%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/27/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90%E3%80%8A%E6%88%91%E7%9A%84%E4%B8%89%E4%BD%93%E3%80%8B/" itemprop="url">动画推荐《我的三体》</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-27T21:47:43+08:00">
+                2019-08-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/08/27/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90%E3%80%8A%E6%88%91%E7%9A%84%E4%B8%89%E4%BD%93%E3%80%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/27/动画推荐《我的三体》/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/08/27/%E5%8A%A8%E7%94%BB%E6%8E%A8%E8%8D%90%E3%80%8A%E6%88%91%E7%9A%84%E4%B8%89%E4%BD%93%E3%80%8B/" class="leancloud_visitors" data-flag-title="动画推荐《我的三体》">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190827224209.png" alt=""></p>
+<blockquote>
+<p>《我的三体》是一部粉丝自制的动画番剧，改编自刘慈欣的科幻小说《三体》。旨在以方的风格把《三体》的故事改编成动画。由神游八方始更于2014年，截至2015年10月6日，共拍摄完成并发布了11集 ，第一季完结。</p>
+<p>豆瓣地址: <a href="https://movie.douban.com/subject/27624727/" target="_blank" rel="noopener">https://movie.douban.com/subject/27624727/</a></p>
+<p>视频地址: <a href="https://space.bilibili.com/614801/video" target="_blank" rel="noopener">https://space.bilibili.com/614801/video</a></p>
+<p>逛b站的时候发现了豆瓣2015评分最高的十部短片合集，也非常推荐观看</p>
+<p><a href="https://www.bilibili.com/video/av3746956" target="_blank" rel="noopener">【2015】豆瓣电影年度榜单 评分最高的十部短片</a></p>
+</blockquote>
+<p>我是在一个周末花了一天时间一口气看完的，画质完美的诠释了什么叫技术爆炸，画质从第一季第一集的粗糙逐步提升到第二季最后一集的惊艳。</p>
+<p>《我的三体》第一季和第二季在豆瓣这种苛刻的地方居然都能拿到9分以上的高分，说明这部动画真的非常棒👍，非常推荐观看。</p>
+<p>第一季开始是这样的</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190827220924.png" alt=""></p>
+<p>第二季是这样的</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190827223830.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190827220540.png" alt=""></p>
+<p>宇宙社会学:人类当前的科技水平和社会状况下，从两条不证自明的基本公理出发（一、生存是文明的第一需要。二、文明不断增长和扩张，但宇宙中的物质总量保持不变），借由引入两个重要概念——<a href="https://baike.baidu.com/item/猜疑链/170096" target="_blank" rel="noopener">猜疑链</a>和<a href="https://baike.baidu.com/item/技术爆炸/5428949" target="_blank" rel="noopener">技术爆炸</a>，从理论上建立起的一套关于描述当前宇宙社会大图景的大体系的一门学科。</p>
+<p>当你显露出本领的时候，别人把你当成救世主，当你告诉别人你做不到的时候，他们恨不得把你踩进尘埃里。人就是这样，这样的不讲理。罗辑是善良的，他愿意为了人类尽自己最大的努力去改变，即使别人对他指指点点，仍旧心存善意，这样的人可敬。</p>
+<p>当你显露出本领的时候，别人把你当成救世主，当你告诉别人你做不到的时候，他们恨不得把你踩进尘埃里。人就是这样，这样的不讲理。罗辑是善良的，他愿意为了人类尽自己最大的努力去改变，即使别人对他指指点点，仍旧心存善意，这样的人可敬。— 豆瓣 <a href="https://www.douban.com/people/179863588/" target="_blank" rel="noopener">小萝卜</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/12/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/50/">50</a><a class="extend next" rel="next" href="/page/14/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/12/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/46/">46</a><a class="extend next" rel="next" href="/page/14/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
   </nav>
 
 
@@ -2054,7 +2119,7 @@
               
                 <a href="/archives/%20%7C%7C%20archive">
               
-                  <span class="site-state-item-count">491</span>
+                  <span class="site-state-item-count">460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -2067,7 +2132,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">99</span>
+                  <span class="site-state-item-count">98</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -2084,6 +2149,22 @@
             </div>
           
 
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/gaohanghang" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/gao-xing-68-15/activities" target="_blank" title="zhihu">
+                      
+                        <i class="fa fa-fw fa-globe"></i>zhihu</a>
+                  </span>
+                
+            </div>
           
 
           

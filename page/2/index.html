@@ -272,436 +272,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2020/02/24/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/24/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" itemprop="url">Redis 数据类型及应用场景</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-02-24T19:53:22+08:00">
-                2020-02-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/02/24/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/02/24/Redis-数据类型及应用场景/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2020/02/24/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" class="leancloud_visitors" data-flag-title="Redis 数据类型及应用场景">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>原文地址：<a href="https://segmentfault.com/a/1190000012212663" target="_blank" rel="noopener">https://segmentfault.com/a/1190000012212663</a></p>
-<p>作者：<a href="https://segmentfault.com/u/waterandair" target="_blank" rel="noopener">waterandair</a></p>
-</blockquote>
-<h3 id="一、-redis-特点"><a href="#一、-redis-特点" class="headerlink" title="一、 redis 特点"></a>一、 redis 特点</h3><ul>
-<li>所有数据存储在内存中，高速读写</li>
-<li>提供丰富多样的数据类型：string、 hash、 set、 sorted set、bitmap、hyperloglog</li>
-<li>提供了 AOF 和 RDB 两种数据的持久化保存方式，保证了 Redis 重启后数据不丢失</li>
-<li>Redis 的所有操作都是原子性的，还支持对几个操作合并后的原子性操作，支持事务</li>
-</ul>
-<p>　通常我们都把数据存到关系型数据库中，但为了提升应用的性能，我们应该把访频率高且不会经常变动的数据缓存到内存中。。Redis 没有像 MySQL 这类关系型数据库那样强大的查询功能，需要考虑如何把关系型数据库中的数据，合理的对应到缓存的 key-value 数据结构中。</p>
-<h3 id="二、-设计-Redis-Key"><a href="#二、-设计-Redis-Key" class="headerlink" title="二、 设计 Redis Key"></a>二、 设计 Redis Key</h3><h4 id="分段设计法"><a href="#分段设计法" class="headerlink" title="分段设计法"></a>分段设计法</h4><p>　　使用冒号把 key 中要表达的多种含义分开表示，步骤如下：</p>
-<ol>
-<li>把表名转化为 key 前缀</li>
-<li>主键名（或其他常用于搜索的字段）</li>
-<li>主键值</li>
-<li>要存储的字段。</li>
-</ol>
-<p>eg. 用户表（user）</p>
-<table>
-<thead>
-<tr>
-<th>id</th>
-<th>name</th>
-<th>email</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>zj</td>
-<td><a href="mailto:156577812@qq.com">156577812@qq.com</a></td>
-</tr>
-<tr>
-<td>2</td>
-<td>ai</td>
-<td><a href="mailto:156577813@qq.com">156577813@qq.com</a></td>
-</tr>
-</tbody></table>
-<p>这个简单的表可能经常会有这个的需求：&gt;根据用户 id 查询用户邮箱地址，可以选择把邮箱地址这个数据存到 redis 中：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set user:id:1:email 156577812@qq.com;</span><br><span class="line">set user:id:2:email 156577812@qq.com;</span><br></pre></td></tr></table></figure>
-
-<h3 id="三、-String数据类型的应用场景"><a href="#三、-String数据类型的应用场景" class="headerlink" title="三、 String数据类型的应用场景"></a>三、 String数据类型的应用场景</h3><h4 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　string 类型是 Redis 中最基本的数据类型，最常用的数据类型，甚至被很多玩家当成 redis 唯一的数据类型去使用。string 类型在 redis 中是二进制安全(binary safe)的,这意味着 string 值关心二进制的字符串，不关心具体格式，你可以用它存储 json 格式或 JPEG 图片格式的字符串。
-　　</p>
-<h4 id="2-数据模型"><a href="#2-数据模型" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p>　　string 类型是基本的 Key-Value 结构，Key 是某个数据在 Redis 中的唯一标识，Value 是具体的数据。</p>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Value</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>‘name’</td>
-<td>‘redis’</td>
-</tr>
-<tr>
-<td>‘type’</td>
-<td>‘string’</td>
-</tr>
-</tbody></table>
-<h4 id="3-应用场景"><a href="#3-应用场景" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><h5 id="1-存储-MySQL-中某个字段的值"><a href="#1-存储-MySQL-中某个字段的值" class="headerlink" title="(1) 存储 MySQL 中某个字段的值"></a>(1) 存储 MySQL 中某个字段的值</h5><p>把 key 设计为 表名：主键名：主键值：字段名<br>eg.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set user:id:1:email 156577812@qq.com</span><br></pre></td></tr></table></figure>
-
-<h5 id="2-存储对象"><a href="#2-存储对象" class="headerlink" title="(2) 存储对象"></a>(2) 存储对象</h5><p>string 类型支持任何格式的字符串，应用最多的就是存储 json 或其他对象格式化的字符串。(这种场景下推荐使用 hash 数据类型)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set user:id:1 &#39;[&#123;&quot;id&quot;:1,&quot;name&quot;:&quot;zj&quot;,&quot;email&quot;:&quot;156577812@qq.com&quot;&#125;,&#123;&quot;id&quot;:1,&quot;name&quot;:&quot;zj&quot;,&quot;email&quot;:&quot;156577812@qq.com&quot;&#125;]&#39;</span><br></pre></td></tr></table></figure>
-
-<h5 id="3-生成自增-id"><a href="#3-生成自增-id" class="headerlink" title="(3) 生成自增 id"></a>(3) 生成自增 id</h5><p>当 redis 的 string 类型的值为整数形式时，redis 可以把它当做是整数一样进行自增（incr）自减（decr）操作。由于 redis 所有的操作都是原子性的，所以<code>不必担心多客户端连接时可能出现的事务</code>问题。</p>
-<h3 id="四、hash-数据类型的应用场景"><a href="#四、hash-数据类型的应用场景" class="headerlink" title="四、hash 数据类型的应用场景"></a>四、hash 数据类型的应用场景</h3><h4 id="1-简介-1"><a href="#1-简介-1" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　hash 类型很像一个关系型数据库的数据表，hash 的 Key 是一个唯一值，Value 部分是一个 hashmap 的结构。
-　　</p>
-<h4 id="2-数据模型-1"><a href="#2-数据模型-1" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p>　　假设有一张数据库表如下：</p>
-<table>
-<thead>
-<tr>
-<th>id</th>
-<th>name</th>
-<th>type</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>redis</td>
-<td>hash</td>
-</tr>
-</tbody></table>
-<p>　　如果要用 redis 的 hash 结构存储，数据模型如下：</p>
-<p><img src="https://segmentfault.com/img/bVVQ6K?w=403&h=191" alt="clipboard.png"></p>
-<p>　　hash数据类型在存储上述类型的数据时具有比 string 类型更灵活、更快的优势，具体的说，使用 string 类型存储，必然需要转换和解析 json 格式的字符串，即便不需要转换，在内存开销方面，还是 hash 占优势。
-　　</p>
-<h4 id="3-应用场景-1"><a href="#3-应用场景-1" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><p>hash 类型十分适合存储对象类数据，相对于在 string 中介绍的把对象转化为 json 字符串存储，hash 的结构可以任意添加或删除‘字段名’，更加高效灵活。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hmset user:1 name zj email 156577812@qq.com</span><br></pre></td></tr></table></figure>
-
-<h3 id="五、list-数据类型的应用场景"><a href="#五、list-数据类型的应用场景" class="headerlink" title="五、list 数据类型的应用场景"></a>五、list 数据类型的应用场景</h3><h4 id="1-简介-2"><a href="#1-简介-2" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　list 是按照插入顺序排序的字符串链表，可以在头部和尾部插入新的元素（双向链表实现，两端添加元素的时间复杂度为 O(1)）。插入元素时，如果 key 不存在，redis 会为该 key 创建一个新的链表，如果链表中所有的元素都被移除，该 key 也会从 redis 中移除。</p>
-<h4 id="2-数据模型-2"><a href="#2-数据模型-2" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p><img src="https://segmentfault.com/img/bVVRaU?w=483&h=159" alt="clipboard.png"></p>
-<p>　　常见操作时用 lpush 命令在 list 头部插入元素， 用 rpop 命令在 list 尾取出数据。
-　　</p>
-<h4 id="3-应用场景-2"><a href="#3-应用场景-2" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><h5 id="1-消息队列"><a href="#1-消息队列" class="headerlink" title="(1) 消息队列"></a>(1) 消息队列</h5><p>　　redis 的 list 数据类型对于大部分使用者来说，是实现队列服务的最经济，最简单的方式。
-　　</p>
-<h5 id="2-“最新内容”"><a href="#2-“最新内容”" class="headerlink" title="(2) “最新内容”"></a>(2) “最新内容”</h5><p>因为 list 结构的数据查询两端附近的数据性能非常好，所以适合一些需要获取最新数据的场景，比如新闻类应用的 “最近新闻”。
-　　</p>
-<h4 id="4-优化建议"><a href="#4-优化建议" class="headerlink" title="4.优化建议"></a>4.优化建议</h4><h5 id="1-list-是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。"><a href="#1-list-是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。" class="headerlink" title="(1) list 是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。"></a>(1) list 是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。</h5><h3 id="六、set-数据类型的应用场景"><a href="#六、set-数据类型的应用场景" class="headerlink" title="六、set 数据类型的应用场景"></a>六、set 数据类型的应用场景</h3><h4 id="1-简介-3"><a href="#1-简介-3" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　set 数据类型是一个集合（没有排序，不重复），可以对 set 类型的数据进行添加、删除、判断是否存在等操作（时间复杂度是 O(1) ）<br>　　set 集合不允许数据重复，如果添加的数据在 set 中已经存在，将只保留一份。<br>　　set 类型提供了多个 set 之间的聚合运算，如求交集、并集、补集，这些操作在 redis 内部完成，效率很高。</p>
-<h4 id="2-数据模型-3"><a href="#2-数据模型-3" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p><img src="https://segmentfault.com/img/bVVRdw?w=385&h=274" alt="clipboard.png"></p>
-<h4 id="3-应用场景-3"><a href="#3-应用场景-3" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><p>　　set 类型的特点是——不重复且无序的一组数据，并且具有丰富的计算功能，在一些特定的场景中可以高效的解决一般关系型数据库不方便做的工作。</p>
-<h5 id="1-“共同好友列表”"><a href="#1-“共同好友列表”" class="headerlink" title="1. “共同好友列表”"></a>1. “共同好友列表”</h5><p>　　社交类应用中，获取两个人或多个人的共同好友，两个人或多个人共同关注的微博这样类似的功能，用 MySQL 的话操作很复杂，可以把每个人的好友 id 存到集合中，获取共同好友的操作就可以简单到一个取交集的命令就搞定。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 这里为了方便阅读，把 id 替换成姓名</span><br><span class="line">sadd user:wade james melo paul kobe</span><br><span class="line">sadd user:james wade melo paul kobe</span><br><span class="line">sadd user:paul wade james melo kobe</span><br><span class="line">sadd user:melo wade james paul kobe</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 获取 wade 和 james 的共同好友</span><br><span class="line">sinter user:wade user:james</span><br><span class="line">&#x2F;* 输出：</span><br><span class="line"> *      1) &quot;kobe&quot;</span><br><span class="line"> *      2) &quot;paul&quot;</span><br><span class="line"> *      3) &quot;melo&quot;</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line"> &#x2F;&#x2F; 获取香蕉四兄弟的共同好友</span><br><span class="line"> sinter user:wade user:james user:paul user:melo</span><br><span class="line"> &#x2F;* 输出：</span><br><span class="line"> *      1) &quot;kobe&quot;</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line"> &#x2F;*</span><br><span class="line">     类似的需求还有很多 , 必须把每个标签下的文章 id 存到集合中，可以很容易的求出几个不同标签下的共同文章；</span><br><span class="line"> 把每个人的爱好存到集合中，可以很容易的求出几个人的共同爱好。 </span><br><span class="line"> *&#x2F;</span><br></pre></td></tr></table></figure>
-
-<h3 id="七、sorted-set-数据类型的应用场景"><a href="#七、sorted-set-数据类型的应用场景" class="headerlink" title="七、sorted set 数据类型的应用场景"></a>七、sorted set 数据类型的应用场景</h3><h4 id="1-简介-4"><a href="#1-简介-4" class="headerlink" title="1.简介"></a>1.简介</h4><p>　　在 set 的基础上给集合中每个元素关联了一个分数，往有序集合中插入数据时会自动根据这个分数排序。</p>
-<h4 id="2-应用场景"><a href="#2-应用场景" class="headerlink" title="2.应用场景"></a>2.应用场景</h4><p>　　在集合类型的场景上加入排序就是有序集合的应用场景了。比如根据好友的“亲密度”排序显示好友列表。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 用元素的分数（score）表示与好友的亲密度</span><br><span class="line">zadd user:kobe 80 james 90 wade  85 melo  90 paul</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 根据“亲密度”给好友排序</span><br><span class="line">zrevrange user:kobe 0 -1</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> * 输出：</span><br><span class="line"> *      1) &quot;wade&quot;</span><br><span class="line"> *      2) &quot;paul&quot;</span><br><span class="line"> *      3) &quot;melo&quot;</span><br><span class="line"> *      4) &quot;james&quot;</span><br><span class="line"> *&#x2F;</span><br><span class="line"> </span><br><span class="line">&#x2F;&#x2F; 增加好友的亲密度</span><br><span class="line">zincrby user:kobe 15 james</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 再次根据“亲密度”给好友排序</span><br><span class="line">zrevrange user:kobe 0 -1</span><br><span class="line"></span><br><span class="line">&#x2F;**</span><br><span class="line"> * 输出：</span><br><span class="line"> *      1) &quot;james&quot;</span><br><span class="line"> *      2) &quot;wade&quot;</span><br><span class="line"> *      3) &quot;paul&quot;</span><br><span class="line"> *      2) &quot;melo&quot;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2020/02/22/Spring-Data-JPA%E5%AE%A1%E8%AE%A1%E5%8A%9F%E8%83%BD%EF%BC%9A%E8%87%AA%E5%8A%A8%E4%BF%9D%E5%AD%98CreatedBy%EF%BC%8CCreatedDate%EF%BC%8CLastModifiedBy%EF%BC%8CLastModifiedDate/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/22/Spring-Data-JPA%E5%AE%A1%E8%AE%A1%E5%8A%9F%E8%83%BD%EF%BC%9A%E8%87%AA%E5%8A%A8%E4%BF%9D%E5%AD%98CreatedBy%EF%BC%8CCreatedDate%EF%BC%8CLastModifiedBy%EF%BC%8CLastModifiedDate/" itemprop="url">Spring Data JPA审计功能：自动保存CreatedBy，CreatedDate，LastModifiedBy，LastModifiedDate</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-02-22T17:13:40+08:00">
-                2020-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/02/22/Spring-Data-JPA%E5%AE%A1%E8%AE%A1%E5%8A%9F%E8%83%BD%EF%BC%9A%E8%87%AA%E5%8A%A8%E4%BF%9D%E5%AD%98CreatedBy%EF%BC%8CCreatedDate%EF%BC%8CLastModifiedBy%EF%BC%8CLastModifiedDate/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/02/22/Spring-Data-JPA审计功能：自动保存CreatedBy，CreatedDate，LastModifiedBy，LastModifiedDate/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2020/02/22/Spring-Data-JPA%E5%AE%A1%E8%AE%A1%E5%8A%9F%E8%83%BD%EF%BC%9A%E8%87%AA%E5%8A%A8%E4%BF%9D%E5%AD%98CreatedBy%EF%BC%8CCreatedDate%EF%BC%8CLastModifiedBy%EF%BC%8CLastModifiedDate/" class="leancloud_visitors" data-flag-title="Spring Data JPA审计功能：自动保存CreatedBy，CreatedDate，LastModifiedBy，LastModifiedDate">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>原文地址：<a href="https://medium.com/programmingmitra-com/spring-data-jpa-auditing-saving-createdby-createddate-lastmodifiedby-lastmodifieddate-c2d64c42998e" target="_blank" rel="noopener">https://medium.com/programmingmitra-com/spring-data-jpa-auditing-saving-createdby-createddate-lastmodifiedby-lastmodifieddate-c2d64c42998e</a></p>
-<p>作者：<a href="https://medium.com/@njnareshjoshi?source=post_page-----c2d64c42998e----------------------" target="_blank" rel="noopener">纳雷什·乔希</a></p>
-<p>翻译：高行行</p>
-<p>参考文章：</p>
-<p><a href="http://blog.takwolf.com/2016/06/22/spring-data-enable-jpa-auditing/index.html" target="_blank" rel="noopener">启用 Spring Data JPA 审计 - @EnableJpaAuditing</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/94312171" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/94312171</a></p>
-</blockquote>
-<p>在任何业务应用程序中，审计仅意味着跟踪和记录我们在持久性记录中所做的每个更改，这仅意味着跟踪每个插入，更新和删除操作并将其存储。</p>
-<p>审记可以帮助我们维护历史记录，以后可以帮助我们跟踪用户活动。如果实施得当，审记还可以为我们提供类似的功能，例如版本控制系统。ps 我们保留历史记录，以后可以帮助我们跟踪用户活动。如果实施得当，审记还可以为我们提供类似的功能，例如版本控制系统。</p>
-<p>我已经看到项目手动存储这些东西，并且这样做变得非常复杂，因为你将需要完全自己编写它，这将需要大量的代码，并且大量的代码意味着较少的可维护性和对编写业务逻辑的关注。</p>
-<p>但是，当 JPA 和 Hibernate 都提供自动审记功能时，为什么有人需要走这条路，我们可以在你的项目中轻松配置该功能。 ñ 当 JPA 和 Hibernate 都提供“自动审记”功能时，必须走这条路，我们可以在你的项目中轻松配置该功能。</p>
-<p>在本文的本文中，我将讨论如何配置 JPA 以自动持久化任何实体的 CreatedBy，CreatedDate，LastModifiedBy，LastModifiedDate 列。</p>
-<p><img src="https://miro.medium.com/max/1814/0*PHaHQ7WeKj5prMr5.png" alt="img"></p>
-<p>我将引导你完成必要的步骤和代码部分，你需要将它们包括在项目中以自动更新这些属性。我们将使用 Spring Boot，Spring Data JPA，MySql 进行演示。我们需要将下方的父项和依赖项添加到我们的 pom 文件中</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.1.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-data-jpa<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>假设我们有一个 File 实体，并且在文件表中有一条记录存储了文件的名称和内容，并且还想存储谁在什么时候创建和修改了任何文件。因此，我们可以跟踪文件的创建时间以及文件的最后修改时间。</p>
-<p>因此，我们需要将名称，内容，createdBy，createdDate，lastModifiedBy，lastModifiedDate 属性添加到我们的 File 实体，并使它更合适，我们可以将 createdBy，createdDate，lastModifiedBy，lastModifiedDate 属性移至可审记的基类，并通过以下方式对该基类进行注释<strong>@MappedSuperClass</strong>，以后我们可以在其他受审记实体中使用 Auditable 类。</p>
-<blockquote>
-<p>你还需要编写 getter，setter，构造函数，toString，equals 以及这些字段。但是，<strong>如果要自动生成这些内容</strong>，则应查看<a href="https://programmingmitra.blogspot.in/2017/01/Project-Lombok-The-Boilerplate-Code-Extractor.html" target="_blank" rel="noopener"><em>Project Lombok: The Boilerplate Code Extractor</em></a>。</p>
-</blockquote>
-<p>这两个类看起来像</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@MappedSuperclass</span></span><br><span class="line"><span class="meta">@EntityListeners</span>(AuditingEntityListener<span class="class">.<span class="keyword">class</span>)</span></span><br><span class="line"><span class="class"><span class="title">public</span> <span class="title">abstract</span> <span class="title">class</span> <span class="title">Auditable</span>&lt;<span class="title">U</span>&gt; </span>&#123;</span><br><span class="line">  </span><br><span class="line">		<span class="meta">@CreatedBy</span></span><br><span class="line">    <span class="keyword">protected</span> U createdBy;</span><br><span class="line">  </span><br><span class="line">		<span class="meta">@CreatedDate</span></span><br><span class="line">    <span class="meta">@Temporal</span>(TIMESTAMP)</span><br><span class="line">    <span class="keyword">protected</span> Date creationDate;</span><br><span class="line">  </span><br><span class="line">		<span class="meta">@LastModifiedBy</span></span><br><span class="line">    <span class="keyword">protected</span> U lastModifiedBy;</span><br><span class="line">  </span><br><span class="line">		<span class="meta">@LastModifiedDate</span></span><br><span class="line">    <span class="meta">@Temporal</span>(TIMESTAMP)</span><br><span class="line">    <span class="keyword">protected</span> Date lastModifiedDate;</span><br><span class="line">  </span><br><span class="line">		<span class="comment">// Getters and Setters</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">File</span> <span class="keyword">extends</span> <span class="title">Auditable</span>&lt;<span class="title">String</span>&gt; </span>&#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String content;</span><br><span class="line">		<span class="comment">// Getters and Setters</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如你在上面看到的，我在各个字段上使用了@ CreatedBy，@ CreatedDate，@ LastModifiedBy 和@LastModifiedDate 注释。</p>
-<p>Spring Data JPA 方法抽象了使用 JPA 回调的工作，并为我们提供了这些精美的注释，以自动保存和更新审记实体。</p>
-<h1 id="将-AuditingEntityListener-类与-EntityListeners-一起使用"><a href="#将-AuditingEntityListener-类与-EntityListeners-一起使用" class="headerlink" title="将 AuditingEntityListener 类与@EntityListeners 一起使用"></a>将 AuditingEntityListener 类与@EntityListeners 一起使用</h1><p>Spring Data JPA 提供了一个 JPA 实体侦听器类<strong>AuditingEntityListener</strong>，其中包含回调方法（带有<strong>@PrePersist</strong>和<strong>@PreUpdate</strong>批注），将在我们将要持久化或更新我们的实体时用于持久化和更新这些属性。</p>
-<p>JPA 提供<strong>@EntityListeners</strong>批注，以指定用于注册 AuditingEntityListener 类的回调侦听器类。</p>
-<p>但是，如果需要，我们也可以定义自己的回调侦听器类，并使用@EntityListeners 批注指定它们。在下一篇文章中，我将演示如何使用@EntityListeners 存储审记日志。</p>
-<h1 id="使用-AuditorAware-和-Spring-Security-的审记作者"><a href="#使用-AuditorAware-和-Spring-Security-的审记作者" class="headerlink" title="使用 AuditorAware 和 Spring Security 的审记作者"></a>使用 AuditorAware 和 Spring Security 的审记作者</h1><p>JPA 可以使用当前系统时间来分析 createdDate 和 lastModifiedDate，但是 createdBy 和 lastModifiedBy 字段又如何呢？JPA 如何识别这些字段中存储的内容？</p>
-<p>为了向 JPA 告知当前登录的用户，我们需要提供<strong>AuditorAware</strong>的实现并重写 getCurrentAuditor（）方法。在 getCurrentAuditor（）内部，我们将需要获取当前登录的用户。</p>
-<p>到目前为止，我已经提供了一个硬编码用户，但是你使用的是 Spring 安全性，然后使用它来查找当前登录的用户，与我在评论中提到的相同。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuditorAwareImpl</span> <span class="keyword">implements</span> <span class="title">AuditorAware</span>&lt;<span class="title">String</span>&gt; </span>&#123;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getCurrentAuditor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Naresh"</span>;</span><br><span class="line">        <span class="comment">// Can use Spring Security to return currently logged in user</span></span><br><span class="line">        <span class="comment">// return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="使用-EnableJpaAuditing-启用-JPA-审记"><a href="#使用-EnableJpaAuditing-启用-JPA-审记" class="headerlink" title="使用@EnableJpaAuditing 启用 JPA 审记"></a>使用@EnableJpaAuditing 启用 JPA 审记</h1><p>我们将需要创建类型为 AuditorAware 的 bean，还需要通过在我们的配置类之一中指定<strong>@EnableJpaAuditing</strong>来启用 JPA 审计。@EnableJpaAuditing 在我们需要传递 AuditorAware bean 名称的地方接受一个参数 auditAwareRef。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableJpaAuditing</span>(auditorAwareRef = <span class="string">"auditorAware"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JpaConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AuditorAware&lt;String&gt; <span class="title">auditorAware</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AuditorAwareImpl();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>现在，如果我们尝试保留或更新文件对象 CreatedBy，CreatedDate，LastModifiedBy，LastModifiedDate 属性，则将自动保存它们。</p>
-<p>在下一篇文章<a href="https://programmingmitra.blogspot.in/2017/02/automatic-jpa-auditing-persisting-audit-logs-automatically-using-entityListeners.html" target="_blank" rel="noopener">JPA 审记：使用 EntityListeners 自动保留审记日志中</a>，我讨论了如何使用 JPA EntityListeners 创建审记日志并为每个插入，更新和删除操作生成历史记录。</p>
-<p>你可以在此<a href="https://github.com/njnareshjoshi/articles/tree/master/spring-data-jpa-auditing" target="_blank" rel="noopener">Github 存储库中</a>找到完整的代码，请随时提供宝贵的反馈。</p>
-<hr>
-<p>最初发布在： <a href="https://www.programmingmitra.com/2017/02/automatic-spring-data-jpa-auditing-saving-CreatedBy-createddate-lastmodifiedby-lastmodifieddate-automatically.html" target="_blank" rel="noopener">https://www.programmingmitra.com</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://ghang.top/2020/02/22/JSON-Web-Token-%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -879,161 +449,6 @@
 <li><a href="https://github.com/dwyl/learn-json-web-tokens/blob/master/README.md" target="_blank" rel="noopener">Learn how to use JSON Web Tokens</a>, by dwyl</li>
 </ul>
 <p>（完）</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2020/02/22/%E4%BD%BF%E7%94%A8JWT%E4%BF%9D%E6%8A%A4Spring-Boot%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%AE%89%E5%85%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/02/22/%E4%BD%BF%E7%94%A8JWT%E4%BF%9D%E6%8A%A4Spring-Boot%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%AE%89%E5%85%A8/" itemprop="url">使用JWT保护Spring Boot应用程序安全</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-02-22T00:21:03+08:00">
-                2020-02-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2020/02/22/%E4%BD%BF%E7%94%A8JWT%E4%BF%9D%E6%8A%A4Spring-Boot%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%AE%89%E5%85%A8/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/02/22/使用JWT保护Spring-Boot应用程序安全/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2020/02/22/%E4%BD%BF%E7%94%A8JWT%E4%BF%9D%E6%8A%A4Spring-Boot%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E5%AE%89%E5%85%A8/" class="leancloud_visitors" data-flag-title="使用JWT保护Spring Boot应用程序安全">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>应用程序的安全性是要考虑的最大问题之一。</p>
-<p>每天都有数百万用户将敏感信息发布到Internet上，而如何确保这些信息的安全是开发人员面临的最大挑战之一。幸运的是，这不是一个新问题，我们有几种工具可用来确保应用程序用户数据的安全。那些特别实用且易于实现的工具之一就是JWT（JSON Web令牌）。</p>
-<h2 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h2><p>在整个这篇文章中，我们将学习如何使用JWT和Spring Boot实现基本的用户身份验证，但是首先我们需要知道JWT是什么。如果我们进行快速的Google搜索，我们会发现JWT是<a href="https://datatracker.ietf.org/doc/rfc7519/" target="_blank" rel="noopener">RFC 7519</a>开放标准。如果您转到该链接，则会找到以下定义：</p>
-<p>JSON Web令牌（JWT）是一种紧凑的，URL安全的方法，用于表示要在两方之间转移的声明。JWT中的声明被编码为JSON对象，用作JSON Web签名（JWS）结构的有效负载或JSON Web加密（JWE）结构的纯文本，从而使声明可以进行数字签名或完整性保护带有消息验证码（MAC）和/或加密的消息。*</p>
-<p>这些定义有时看起来比它们复杂，因此我们将尝试以一种更简单的方式进行解释。在任何具有私人信息或访问受限的应用程序中，我们都需要一种方法来验证请求，而无需为每个请求处理客户端的登录凭据。为此，我们有JWT，它无需Cookie或登录信息即可验证用户身份。</p>
-<hr>
-<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>用户登录时，后端会生成一个JWT，其组成如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">header.payload.signature</span><br></pre></td></tr></table></figure>
-
-<h2 id="头部（Header）"><a href="#头部（Header）" class="headerlink" title="头部（Header）"></a>头部（Header）</h2><p>我们可以看到JWT从头部开始，头部包含有关必须如何解释令牌的所有相关信息。</p>
-<h2 id="消息体（Payload）"><a href="#消息体（Payload）" class="headerlink" title="消息体（Payload）"></a>消息体（Payload）</h2><p>消息体包含声明。简而言之，声明是用户的数据（或任何实体）加上为 Token 添加功能的其他重要信息（非强制性）。</p>
-<p>我们可以找到三种类型的索赔：已注册，公开，私有。</p>
-<p><strong><em>已注册的声明\</em></strong>用于提供有关令牌的其他信息，例如令牌的创建时间或令牌到期时间。这些声明不是强制性的。</p>
-<p><strong><em>公开声明\</em></strong>由使用JWT的人定义。应该注意使用的名称，因为它们可能导致冲突。</p>
-<p><strong><em>私人声明\</em></strong>可以用于存储信息，而无需使用<em>注册的声明</em>或<em>公共声明</em>。请记住，它们很容易发生碰撞。</p>
 
           
         
@@ -2344,11 +1759,838 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2020/01/10/Synchronized%E5%90%8C%E6%AD%A5%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E5%92%8C%E9%9D%9E%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/10/Synchronized%E5%90%8C%E6%AD%A5%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E5%92%8C%E9%9D%9E%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" itemprop="url">转|Synchronized同步静态方法和非静态方法总结</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-01-10T01:29:46+08:00">
+                2020-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/01/10/Synchronized%E5%90%8C%E6%AD%A5%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E5%92%8C%E9%9D%9E%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/01/10/Synchronized同步静态方法和非静态方法总结/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2020/01/10/Synchronized%E5%90%8C%E6%AD%A5%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E5%92%8C%E9%9D%9E%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/" class="leancloud_visitors" data-flag-title="转|Synchronized同步静态方法和非静态方法总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20200111223325.png" alt="Photo by SnapwireSnaps"></p>
+<blockquote>
+<p>原文地址：<a href="https://blog.csdn.net/u010842515/article/details/65443084" target="_blank" rel="noopener">https://blog.csdn.net/u010842515/article/details/65443084</a></p>
+<p>作者：<a href="https://blog.csdn.net/u010842515" target="_blank" rel="noopener">编程初丁</a></p>
+</blockquote>
+<h2 id="1-Synchronized修饰非静态方法，实际上是对调用该方法的对象加锁，俗称“对象锁”。"><a href="#1-Synchronized修饰非静态方法，实际上是对调用该方法的对象加锁，俗称“对象锁”。" class="headerlink" title="1. Synchronized修饰非静态方法，实际上是对调用该方法的对象加锁，俗称“对象锁”。"></a>1. Synchronized修饰非静态方法，实际上是对调用该方法的对象加锁，俗称“对象锁”。</h2><p>Java中每个对象都有一个锁，并且是唯一的。假设分配的一个对象空间，里面有多个方法，相当于空间里面有多个小房间，如果我们把所有的小房间都加锁，因为这个对象只有一把钥匙，因此同一时间只能有一个人打开一个小房间，然后用完了还回去，再由JVM 去分配下一个获得钥匙的人。</p>
+<h3 id="情况1：同一个对象在两个线程中分别访问该对象的两个同步方法"><a href="#情况1：同一个对象在两个线程中分别访问该对象的两个同步方法" class="headerlink" title="情况1：同一个对象在两个线程中分别访问该对象的两个同步方法"></a>情况1：同一个对象在两个线程中分别访问该对象的两个同步方法</h3><p><strong>结果</strong>：会产生互斥。</p>
+<p><strong>解释</strong>：因为锁针对的是对象，当对象调用一个synchronized方法时，其他同步方法需要等待其执行结束并释放锁后才能执行。</p>
+<h3 id="情况2：不同对象在两个线程中调用同一个同步方法"><a href="#情况2：不同对象在两个线程中调用同一个同步方法" class="headerlink" title="情况2：不同对象在两个线程中调用同一个同步方法"></a>情况2：不同对象在两个线程中调用同一个同步方法</h3><p>结果：不会产生互斥。</p>
+<p>解释：因为是两个对象，锁针对的是对象，并不是方法，所以可以并发执行，不会互斥。形象的来说就是因为我们每个线程在调用方法的时候都是new 一个对象，那么就会出现两个空间，两把钥匙，</p>
+<h2 id="2-Synchronized修饰静态方法，实际上是对该类对象加锁，俗称“类锁”。"><a href="#2-Synchronized修饰静态方法，实际上是对该类对象加锁，俗称“类锁”。" class="headerlink" title="2. Synchronized修饰静态方法，实际上是对该类对象加锁，俗称“类锁”。"></a>2. Synchronized修饰静态方法，实际上是对该类对象加锁，俗称“类锁”。</h2><h3 id="情况1：用类直接在两个线程中调用两个不同的同步方法"><a href="#情况1：用类直接在两个线程中调用两个不同的同步方法" class="headerlink" title="情况1：用类直接在两个线程中调用两个不同的同步方法"></a>情况1：用类直接在两个线程中调用两个不同的同步方法</h3><p><strong>结果</strong>：会产生互斥。</p>
+<p><strong>解释</strong>：因为对静态对象加锁实际上对类（.class）加锁，类对象只有一个，可以理解为任何时候都只有一个空间，里面有N个房间，一把锁，因此房间（同步方法）之间一定是互斥的。</p>
+<p>注：上述情况和用单例模式声明一个对象来调用非静态方法的情况是一样的，因为永远就只有这一个对象。所以访问同步方法之间一定是互斥的。</p>
+<h3 id="情况2：用一个类的静态对象在两个线程中调用静态方法或非静态方法"><a href="#情况2：用一个类的静态对象在两个线程中调用静态方法或非静态方法" class="headerlink" title="情况2：用一个类的静态对象在两个线程中调用静态方法或非静态方法"></a>情况2：用一个类的静态对象在两个线程中调用静态方法或非静态方法</h3><p>结果：会产生互斥。</p>
+<p>解释：因为是一个对象调用，同上。</p>
+<h3 id="情况3：一个对象在两个线程中分别调用一个静态同步方法和一个非静态同步方法"><a href="#情况3：一个对象在两个线程中分别调用一个静态同步方法和一个非静态同步方法" class="headerlink" title="情况3：一个对象在两个线程中分别调用一个静态同步方法和一个非静态同步方法"></a>情况3：一个对象在两个线程中分别调用一个静态同步方法和一个非静态同步方法</h3><p><strong>结果</strong>：不会产生互斥。</p>
+<p><strong>解释</strong>：因为虽然是一个对象调用，但是两个方法的锁类型不同，调用的静态方法实际上是类对象在调用，即这两个方法产生的并不是同一个对象锁，因此不会互斥，会并发执行。</p>
+<p>测试代码：</p>
+<p>同步方法类：SynchronizedTest.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedTest</span> </span>&#123;</span><br><span class="line">	<span class="comment">/*private SynchronizedTest()&#123;&#125;</span></span><br><span class="line"><span class="comment">	private static SynchronizedTest st;           //懒汉式单例模式，线程不安全，需要加synchronized同步</span></span><br><span class="line"><span class="comment">	public static SynchronizedTest getInstance()&#123;</span></span><br><span class="line"><span class="comment">		if(st == null)&#123;</span></span><br><span class="line"><span class="comment">			st = new SynchronizedTest();</span></span><br><span class="line"><span class="comment">		&#125;</span></span><br><span class="line"><span class="comment">		return st;</span></span><br><span class="line"><span class="comment">	&#125;*/</span></span><br><span class="line">	<span class="comment">/*private SynchronizedTest()&#123;&#125;</span></span><br><span class="line"><span class="comment">	private static final SynchronizedTest st = new SynchronizedTest();  //饿汉式单利模式，天生线程安全</span></span><br><span class="line"><span class="comment">	public static SynchronizedTest getInstance()&#123;</span></span><br><span class="line"><span class="comment">		return st;</span></span><br><span class="line"><span class="comment">	&#125;*/</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> SynchronizedTest staticIn = <span class="keyword">new</span> SynchronizedTest();   <span class="comment">//静态对象</span></span><br><span class="line">	</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>&#123;                                      <span class="comment">//非静态方法1</span></span><br><span class="line">    	 <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; <span class="number">10</span>;i++)&#123;  </span><br><span class="line">    		 System.out.println(<span class="string">"method1 is running!"</span>);</span><br><span class="line">    		 <span class="keyword">try</span> &#123;</span><br><span class="line">				Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">    	 &#125;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span></span>&#123;                                   <span class="comment">//非静态方法2</span></span><br><span class="line">    	 <span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span> ; i++)&#123;</span><br><span class="line">    		 System.out.println(<span class="string">"method2 is running!"</span>);</span><br><span class="line">    		 <span class="keyword">try</span> &#123;</span><br><span class="line">				Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">    	 &#125;</span><br><span class="line">     &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">staticMethod1</span><span class="params">()</span></span>&#123;                     <span class="comment">//静态方法1</span></span><br><span class="line">    	<span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span> ; i++)&#123;</span><br><span class="line">   		 System.out.println(<span class="string">"static method1 is running!"</span>);</span><br><span class="line">   		 <span class="keyword">try</span> &#123;</span><br><span class="line">				Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">   	 &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">staticMethod2</span><span class="params">()</span></span>&#123;                      <span class="comment">//静态方法2</span></span><br><span class="line">    	<span class="keyword">for</span>( <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span> ; i++)&#123;</span><br><span class="line">   		 System.out.println(<span class="string">"static method2 is running!"</span>);</span><br><span class="line">   		 <span class="keyword">try</span> &#123;</span><br><span class="line">				Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">   	 &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>线程类1：Thread1.java（释放不同的注释可以测试不同的情况）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread1</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line"><span class="comment">//		SynchronizedTest s = SynchronizedTest.getInstance();</span></span><br><span class="line"><span class="comment">//		s.method1();</span></span><br><span class="line"><span class="comment">//		SynchronizedTest s1 = new SynchronizedTest();</span></span><br><span class="line"><span class="comment">//		s1.method1();</span></span><br><span class="line">		SynchronizedTest.staticIn.method1();</span><br><span class="line"> </span><br><span class="line"><span class="comment">//		SynchronizedTest.staticMethod1();</span></span><br><span class="line"><span class="comment">//		SynchronizedTest.staticMethod2();</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>线程类2：Thread2.Java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread2</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"> </span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line"><span class="comment">//		SynchronizedTest s = SynchronizedTest.getInstance();</span></span><br><span class="line"><span class="comment">//		SynchronizedTest s2 = new SynchronizedTest();</span></span><br><span class="line"><span class="comment">//		s2.method1();</span></span><br><span class="line"><span class="comment">//		s.method2();</span></span><br><span class="line"><span class="comment">//		SynchronizedTest.staticMethod1();</span></span><br><span class="line"><span class="comment">//		SynchronizedTest.staticMethod2();</span></span><br><span class="line"><span class="comment">//		SynchronizedTest.staticIn.method2();</span></span><br><span class="line">		SynchronizedTest.staticIn.staticMethod1();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主类：ThreadMain.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadMain</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">	Thread t1 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Thread1());</span><br><span class="line">        Thread t2 = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Thread2());</span><br><span class="line">        ExecutorService exec = Executors.newCachedThreadPool();</span><br><span class="line">        exec.execute(t1);</span><br><span class="line">        exec.execute(t2);</span><br><span class="line">        exec.shutdown();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-总结："><a href="#3-总结：" class="headerlink" title="3. 总结："></a>3. 总结：</h2><p>1.对象锁钥匙只能有一把才能互斥，才能保证共享变量的唯一性</p>
+<p>2.在静态方法上的锁，和 实例方法上的锁，默认不是同样的，如果同步需要制定两把锁一样。</p>
+<p>3.关于同一个类的方法上的锁，来自于调用该方法的对象，如果调用该方法的对象是相同的，那么锁必然相同，否则就不相同。比如 new A().x() 和 new A().x(),对象不同，锁不同，如果A的单利的，就能互斥。</p>
+<p>4.静态方法加锁，能和所有其他静态方法加锁的 进行互斥</p>
+<p>5.静态方法加锁，和xx.class 锁效果一样，直接属于类的</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1gat00jvxyig30p00dw4qq.gif" alt=""></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2020/01/06/mysql%E4%BC%98%E5%8C%96%EF%BC%9A%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95%EF%BC%88%E5%BB%B6%E8%BF%9F%E5%85%B3%E8%81%94%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/06/mysql%E4%BC%98%E5%8C%96%EF%BC%9A%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95%EF%BC%88%E5%BB%B6%E8%BF%9F%E5%85%B3%E8%81%94%EF%BC%89/" itemprop="url">mysql优化：覆盖索引、延迟关联</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-01-06T23:14:17+08:00">
+                2020-01-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/01/06/mysql%E4%BC%98%E5%8C%96%EF%BC%9A%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95%EF%BC%88%E5%BB%B6%E8%BF%9F%E5%85%B3%E8%81%94%EF%BC%89/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/01/06/mysql优化：覆盖索引（延迟关联）/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2020/01/06/mysql%E4%BC%98%E5%8C%96%EF%BC%9A%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95%EF%BC%88%E5%BB%B6%E8%BF%9F%E5%85%B3%E8%81%94%EF%BC%89/" class="leancloud_visitors" data-flag-title="mysql优化：覆盖索引、延迟关联">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>作者：<a href="https://www.cnblogs.com/wang-meng/" target="_blank" rel="noopener" title="一枝花算不算浪漫">一枝花算不算浪漫</a></p>
+<p>原文地址：<a href="https://www.cnblogs.com/wang-meng/p/ae6d1c4a7b553e9a5c8f46b67fb3e3aa.html" target="_blank" rel="noopener">https://www.cnblogs.com/wang-meng/p/ae6d1c4a7b553e9a5c8f46b67fb3e3aa.html</a></p>
+<p>小结：</p>
+<p><strong>回表</strong>：回到主键索引树搜索的过程，我们称为回表。</p>
+<p><strong>覆盖索引</strong>：就是 select 的数据列只用从索引中就能够取得，不必从数据表中读取。简单点说就是你要查的数据索引里都有，一次搞定，美滋滋 😎。</p>
+<p><strong>延迟关联</strong>：通过使用覆盖索引查询返回需要的主键，再根据主键关联原表获得需要的数据。</p>
+</blockquote>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h2><p>上周新系统改版上线，上线第二天就出现了较多的线上<strong>慢 sql</strong> 查询，紧接着 dba 给出了定位及解决方案，这里较多的是使用<strong>延迟关联</strong>去优化。</p>
+<p>而我对于这个<strong>延迟关联</strong>也是第一次听说（o(╥﹏╥)o），所以今天一定要学习并产出一篇学习笔记。(<em>^▽^</em>)</p>
+<h2 id="2-回表"><a href="#2-回表" class="headerlink" title="2. 回表"></a>2. 回表</h2><p>我们都知道 InnoDB 采用的 B+ tree 来实现索引的，索引又分为主键索引(聚簇索引)和普通索引(二级索引)。</p>
+<p>那么我们就来看下<strong>基于主键索引和普通索引的查询有什么区别？</strong></p>
+<ul>
+<li>如果语句是 select * from T where ID=500，即主键查询方式，则只需要搜索 ID 这棵 B+树；</li>
+<li>如果语句是 select * from T where k=5，即普通索引查询方式，则需要先搜索 k 索引树，得到 ID 的值为 500，再到 ID 索引树搜索一次。这个过程称为回表。</li>
+</ul>
+<p>举个栗子：</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganac2wt4kj30l505b3yq.jpg" alt=""></p>
+<p>可以看出我们有一个普通索引 k，那么两颗 B+树的示意图如下：</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganacgk91rj30vq0nsgnf.jpg" alt=""></p>
+<p><strong>（注：图来自极客时间专栏）</strong></p>
+<p>当我们查询 <strong><code>select \* from T where k=5</code></strong> 其实会先到 k 那个索引树上查询 k = 5，然后找到对应的 id 为 500，最后回表到主键索引的索引树找返回所需数据。</p>
+<p>如果我们查询<strong><code>select id from T where k=5</code></strong> 则不需要回表就直接返回。</p>
+<p>也就是说，基于非主键索引的查询需要多扫描一棵索引树。因此，我们在应用中应该尽量使用主键查询。</p>
+<h2 id="3-覆盖索引"><a href="#3-覆盖索引" class="headerlink" title="3. 覆盖索引"></a>3. 覆盖索引</h2><ul>
+<li>解释一： 就是 select 的数据列只用从索引中就能够取得，不必从数据表中读取，换句话说查询列要被所使用的索引覆盖。</li>
+<li>解释二： 索引是高效找到行的一个方法，当能通过检索索引就可以读取想要的数据，那就不需要再到数据表中读取行了。如果一个索引包含了（或覆盖了）满足查询语句中字段与条件的数据就叫做覆盖索引。</li>
+<li>解释三：是非聚集组合索引的一种形式，它包括在查询里的 Select、Join 和 Where 子句用到的所有列（即建立索引的字段正好是覆盖查询语句[select 子句]与查询条件[Where 子句]中所涉及的字段，也即，索引包含了查询正在查找的所有数据）。</li>
+<li><strong>不是所有类型的索引都可以成为覆盖索引。覆盖索引必须要存储索引的列，而哈希索引、空间索引和全文索引等都不存储索引列的值，所以 MySQL 只能使用 B-Tree 索引做覆盖索引</strong></li>
+<li><strong>当发起一个被索引覆盖的查询(也叫作索引覆盖查询)时，在 EXPLAIN 的 Extra 列可以看到“Using index”的信息</strong></li>
+</ul>
+<p>概念如上，这里我们还是用例子来说明：</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganad2p4unj30vq0nsgnf.jpg" alt=""></p>
+<p><strong>（注：图来自极客时间专栏）</strong></p>
+<p>现在，我们一起来看看这条 SQL 查询语句的执行流程： select * from T where k between 3 and 5</p>
+<ol>
+<li>在 k 索引树上找到 k=3 的记录，取得 ID = 300；</li>
+<li>再到 ID 索引树查到 ID=300 对应的 R3；</li>
+<li>在 k 索引树取下一个值 k=5，取得 ID=500；</li>
+<li>再回到 ID 索引树查到 ID=500 对应的 R4；</li>
+<li>在 k 索引树取下一个值 k=6，不满足条件，循环结束。</li>
+</ol>
+<p>在这个过程中，<strong>回到主键索引树搜索的过程，我们称为回表。</strong>可以看到，这个查询过程读了 k 索引树的 3 条记录（步骤 1、3 和 5），回表了两次（步骤 2 和 4）。</p>
+<p>在这个例子中，由于查询结果所需要的数据只在主键索引上有，所以不得不回表。那么，有没有可能经过索引优化，避免回表过程呢？</p>
+<p>如果执行的语句是 select ID from T where k between 3 and 5，这时只需要查 ID 的值，而 ID 的值已经在 k 索引树上了，因此可以直接提供查询结果，不需要回表。也就是说，在这个查询里面，索引 k 已经“覆盖了”我们的查询需求，我们称为覆盖索引。</p>
+<p><strong>由于覆盖索引可以减少树的搜索次数，显著提升查询性能，所以使用覆盖索引是一个常用的性能优化手段。</strong></p>
+<p>需要注意的是，在引擎内部使用覆盖索引在索引 k 上其实读了三个记录，R3~R5（对应的索引 k 上的记录项），但是对于 MySQL 的 Server 层来说，它就是找引擎拿到了两条记录，因此 MySQL 认为扫描行数是 2。</p>
+<h2 id="4-延迟关联"><a href="#4-延迟关联" class="headerlink" title="4. 延迟关联"></a>4. 延迟关联</h2><p>上面介绍了那么多 其实是在为延迟关联做铺垫，这里直接续上我们本次慢查询的 sql：</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganadnaw4nj30w70a4dhu.jpg" alt=""></p>
+<p>我们都知道在做分页时会用到 Limit 关键字去筛选所需数据，limit 接受 1 个或者 2 个参数，接受两个参数时第一个参数表示偏移量，即从哪一行开始取数据，第二个参数表示要取的行数。 如果只有一个参数，相当于偏移量为 0。</p>
+<p>当偏移量很大时，如 limit 100000,10 取第 100001-100010 条记录，mysql 会取出 100010 条记录然后将前 100000 条记录丢弃，这无疑是一种巨大的性能浪费。</p>
+<p>这个 sql 并没有利用索引覆盖，因为所要 select 的字段不全都在索引上，每次根据二级索引（expert_id） 查询到一条记录，都要再走一遍主键索引去表里找出所需要的其他列，速度自然慢。</p>
+<p>当有这种写法时，我们可以采用延迟关联来进行优化，重点关注：<strong>SELECT id FROM qa_question WHERE expert_id = 69 AND STATUS = 30 ORDER BY over_time DESC LIMIT 0, 10</strong>， 这里其实利用了索引覆盖，where 条件后的 expert_id 是有添加索引的，这里查询 id 可以避免回表，大大提升效率。</p>
+<h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5. 结语"></a>5. 结语</h2><p>工作中会遇到各种各样的问题，对于一个研发来说最重要的是能够从这些问题中学到什么。好久没有写博客了，究其原因还是自己变得懒惰了。 (￣ェ￣)</p>
+<p>最后以《高性能 Mysql》中的一段话结束：</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganae8vmo7j30na0awq66.jpg" alt=""></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2020/01/04/%E5%82%BB%E5%82%BB%E5%88%86%E4%B8%8D%E6%B8%85%E4%B9%8B-Cookie%E3%80%81Session%E3%80%81Token%E3%80%81JWT/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/04/%E5%82%BB%E5%82%BB%E5%88%86%E4%B8%8D%E6%B8%85%E4%B9%8B-Cookie%E3%80%81Session%E3%80%81Token%E3%80%81JWT/" itemprop="url">傻傻分不清之 Cookie、Session、Token、JWT</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-01-04T13:19:48+08:00">
+                2020-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2020/01/04/%E5%82%BB%E5%82%BB%E5%88%86%E4%B8%8D%E6%B8%85%E4%B9%8B-Cookie%E3%80%81Session%E3%80%81Token%E3%80%81JWT/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2020/01/04/傻傻分不清之-Cookie、Session、Token、JWT/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2020/01/04/%E5%82%BB%E5%82%BB%E5%88%86%E4%B8%8D%E6%B8%85%E4%B9%8B-Cookie%E3%80%81Session%E3%80%81Token%E3%80%81JWT/" class="leancloud_visitors" data-flag-title="傻傻分不清之 Cookie、Session、Token、JWT">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文地址：<a href="https://juejin.im/post/5e055d9ef265da33997a42cc" target="_blank" rel="noopener">https://juejin.im/post/5e055d9ef265da33997a42cc</a></p>
+<p>作者：秋天不落叶</p>
+</blockquote>
+<h2 id="1-什么是认证（Authentication）"><a href="#1-什么是认证（Authentication）" class="headerlink" title="1. 什么是认证（Authentication）"></a>1. 什么是认证（Authentication）</h2><ul>
+<li>通俗地讲就是<strong>验证当前用户的身份</strong>，证明“你是你自己”（比如：你每天上下班打卡，都需要通过指纹打卡，当你的指纹和系统里录入的指纹相匹配时，就打卡成功）</li>
+<li>互联网中的认证：<ul>
+<li>用户名密码登录</li>
+<li>邮箱发送登录链接</li>
+<li>手机号接收验证码</li>
+<li>只要你能收到邮箱/验证码，就默认你是账号的主人</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-什么是授权（Authorization）"><a href="#2-什么是授权（Authorization）" class="headerlink" title="2. 什么是授权（Authorization）"></a>2. 什么是授权（Authorization）</h2><ul>
+<li>用户授予第三方应用访问该用户某些资源的权限<ul>
+<li>你在安装手机应用的时候，APP 会询问是否允许授予权限（访问相册、地理位置等权限）</li>
+<li>你在访问微信小程序时，当登录时，小程序会询问是否允许授予权限（获取昵称、头像、地区、性别等个人信息）</li>
+</ul>
+</li>
+<li>实现授权的方式有：cookie、session、token、OAuth</li>
+</ul>
+<h2 id="3-什么是凭证（Credentials）"><a href="#3-什么是凭证（Credentials）" class="headerlink" title="3. 什么是凭证（Credentials）"></a>3. 什么是凭证（Credentials）</h2><ul>
+<li><p>实现认证和授权的前提</p>
+<p>是需要一种</p>
+<p>媒介（证书）</p>
+<p>来标记访问者的身份</p>
+<ul>
+<li>在战国时期，商鞅变法，发明了照身帖。照身帖由官府发放，是一块打磨光滑细密的竹板，上面刻有持有人的头像和籍贯信息。国人必须持有，如若没有就被认为是黑户，或者间谍之类的。</li>
+<li>在现实生活中，每个人都会有一张专属的<a href="https://baike.baidu.com/item/居民身份证/2080960" target="_blank" rel="noopener" title="居民身份证">居民身份证</a>，是用于证明持有人身份的一种法定<a href="https://baike.baidu.com/item/证件/5804999" target="_blank" rel="noopener" title="证件">证件</a>。通过身份证，我们可以办理手机卡/银行卡/个人贷款/交通出行等等，这就是<strong>认证的凭证。</strong></li>
+<li>在互联网应用中，一般网站（如掘金）会有两种模式，游客模式和登录模式。游客模式下，可以正常浏览网站上面的文章，一旦想要点赞/收藏/分享文章，就需要登录或者注册账号。当用户登录成功后，服务器会给该用户使用的浏览器颁发一个令牌（token），这个令牌用来表明你的身份，每次浏览器发送请求时会带上这个令牌，就可以使用游客模式下无法使用的功能。</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-什么是-Cookie"><a href="#4-什么是-Cookie" class="headerlink" title="4. 什么是 Cookie"></a>4. 什么是 Cookie</h2><ul>
+<li><strong>HTTP 是无状态的协议（对于事务处理没有记忆能力，每次客户端和服务端会话完成时，服务端不会保存任何会话信息</strong>）：每个请求都是完全独立的，服务端无法确认当前访问者的身份信息，无法分辨上一次的请求发送者和这一次的发送者是不是同一个人。所以服务器与浏览器为了进行会话跟踪（知道是谁在访问我），就必须主动的去维护一个状态，这个状态用于告知服务端前后两个请求是否来自同一浏览器。而这个状态需要通过 cookie 或者 session 去实现。</li>
+<li><strong>cookie 存储在客户端：</strong> cookie 是服务器发送到用户浏览器并保存在本地的一小块数据，它会在浏览器下次向同一服务器再发起请求时被携带并发送到服务器上。</li>
+<li><strong>cookie 是不可跨域的：</strong> 每个 cookie 都会绑定单一的域名，无法在别的域名下获取使用，<strong>一级域名和二级域名之间是允许共享使用的</strong>（<strong>靠的是 domain）</strong>。</li>
+</ul>
+<p><strong>cookie 重要的属性</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>name=value</strong></td>
+<td align="left">键值对，设置 Cookie 的名称及相对应的值，都必须是<strong>字符串类型</strong> - 如果值为 Unicode 字符，需要为字符编码。 - 如果值为二进制数据，则需要使用 BASE64 编码。</td>
+</tr>
+<tr>
+<td align="left"><strong>domain</strong></td>
+<td align="left">指定 cookie 所属域名，默认是当前域名</td>
+</tr>
+<tr>
+<td align="left"><strong>path</strong></td>
+<td align="left"><strong>指定 cookie 在哪个路径（路由）下生效，默认是 ‘/‘</strong>。 如果设置为 <code>/abc</code>，则只有 <code>/abc</code> 下的路由可以访问到该 cookie，如：<code>/abc/read</code>。</td>
+</tr>
+<tr>
+<td align="left"><strong>maxAge</strong></td>
+<td align="left">cookie 失效的时间，单位秒。如果为整数，则该 cookie 在 maxAge 秒后失效。如果为负数，该 cookie 为临时 cookie ，关闭浏览器即失效，浏览器也不会以任何形式保存该 cookie 。如果为 0，表示删除该 cookie 。默认为 -1。 - <strong>比 expires 好用</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>expires</strong></td>
+<td align="left">过期时间，在设置的某个时间点后该 cookie 就会失效。 一般浏览器的 cookie 都是默认储存的，当关闭浏览器结束这个会话的时候，这个 cookie 也就会被删除</td>
+</tr>
+<tr>
+<td align="left"><strong>secure</strong></td>
+<td align="left">该 cookie 是否仅被使用安全协议传输。安全协议有 HTTPS，SSL 等，在网络上传输数据之前先将数据加密。默认为 false。 当 secure 值为 true 时，cookie 在 HTTP 中是无效，在 HTTPS 中才有效。</td>
+</tr>
+<tr>
+<td align="left"><strong>httpOnly</strong></td>
+<td align="left"><strong>如果给某个 cookie 设置了 httpOnly 属性，则无法通过 JS 脚本 读取到该 cookie 的信息，但还是能通过 Application 中手动修改 cookie，所以只是在一定程度上可以防止 XSS 攻击，不是绝对的安全</strong></td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<h2 id="5-什么是-Session"><a href="#5-什么是-Session" class="headerlink" title="5. 什么是 Session"></a>5. 什么是 Session</h2><ul>
+<li><strong>session 是另一种记录服务器和客户端会话状态的机制</strong></li>
+<li><strong>session 是基于 cookie 实现的，session 存储在服务器端，sessionId 会被存储到客户端的 cookie 中</strong></li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04d0b3cf5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="session.png"></p>
+<ul>
+<li>session 认证流程：<ul>
+<li>用户第一次请求服务器的时候，服务器根据用户提交的相关信息，创建对应的 Session</li>
+<li>请求返回时将此 Session 的唯一标识信息 SessionID 返回给浏览器</li>
+<li>浏览器接收到服务器返回的 SessionID 信息后，会将此信息存入到 Cookie 中，同时 Cookie 记录此 SessionID 属于哪个域名</li>
+<li>当用户第二次访问服务器的时候，请求会自动判断此域名下是否存在 Cookie 信息，如果存在自动将 Cookie 信息也发送给服务端，服务端会从 Cookie 中获取 SessionID，再根据 SessionID 查找对应的 Session 信息，如果没有找到说明用户没有登录或者登录失效，如果找到 Session 证明用户已经登录可执行后面操作。</li>
+</ul>
+</li>
+</ul>
+<p>根据以上流程可知，<strong>SessionID 是连接 Cookie 和 Session 的一道桥梁</strong>，大部分系统也是根据此原理来验证用户登录状态。</p>
+<h2 id="6-Cookie-和-Session-的区别"><a href="#6-Cookie-和-Session-的区别" class="headerlink" title="6. Cookie 和 Session 的区别"></a>6. Cookie 和 Session 的区别</h2><ul>
+<li><strong>安全性：</strong> Session 比 Cookie 安全，Session 是存储在服务器端的，Cookie 是存储在客户端的。</li>
+<li><strong>存取值的类型不同</strong>：Cookie 只支持存字符串数据，想要设置其他类型的数据，需要将其转换成字符串，Session 可以存任意数据类型。</li>
+<li><strong>有效期不同：</strong> Cookie 可设置为长时间保持，比如我们经常使用的默认登录功能，Session 一般失效时间较短，客户端关闭（默认情况下）或者 Session 超时都会失效。</li>
+<li><strong>存储大小不同：</strong> 单个 Cookie 保存的数据不能超过 4K，Session 可存储数据远高于 Cookie，但是当访问量过多，会占用过多的服务器资源。</li>
+</ul>
+<h2 id="7-什么是-Token（令牌）"><a href="#7-什么是-Token（令牌）" class="headerlink" title="7. 什么是 Token（令牌）"></a>7. 什么是 Token（令牌）</h2><h3 id="7-1-Acesss-Token"><a href="#7-1-Acesss-Token" class="headerlink" title="7.1 Acesss Token"></a>7.1 Acesss Token</h3><ul>
+<li><strong>访问资源接口（API）时所需要的资源凭证</strong></li>
+<li><strong>简单 token 的组成：</strong> uid(用户唯一的身份标识)、time(当前时间的时间戳)、sign（签名，token 的前几位以哈希算法压缩成的一定长度的十六进制字符串）</li>
+<li>特点：<ul>
+<li><strong>服务端无状态化、可扩展性好</strong></li>
+<li><strong>支持移动端设备</strong></li>
+<li>安全</li>
+<li>支持跨程序调用</li>
+</ul>
+</li>
+<li><strong>token 的身份验证流程：</strong></li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04d9c745f?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<ol>
+<li>客户端使用用户名跟密码请求登录</li>
+<li>服务端收到请求，去验证用户名与密码</li>
+<li>验证成功后，服务端会签发一个 token 并把这个 token 发送给客户端</li>
+<li>客户端收到 token 以后，会把它存储起来，比如放在 cookie 里或者 localStorage 里</li>
+<li>客户端每次向服务端请求资源的时候需要带着服务端签发的 token</li>
+<li>服务端收到请求，然后去验证客户端请求里面带着的 token ，如果验证成功，就向客户端返回请求的数据</li>
+</ol>
+<ul>
+<li><strong>每一次请求都需要携带 token，需要把 token 放到 HTTP 的 Header 里</strong></li>
+<li><strong>基于 token 的用户认证是一种服务端无状态的认证方式，服务端不用存放 token 数据。用解析 token 的计算时间换取 session 的存储空间，从而减轻服务器的压力，减少频繁的查询数据库</strong></li>
+<li><strong>token 完全由应用管理，所以它可以避开同源策略</strong></li>
+</ul>
+<h3 id="7-2-Refresh-Token"><a href="#7-2-Refresh-Token" class="headerlink" title="7.2 Refresh Token"></a>7.2 Refresh Token</h3><ul>
+<li>另外一种 token——refresh token</li>
+<li>refresh token 是专用于刷新 access token 的 token。如果没有 refresh token，也可以刷新 access token，但每次刷新都要用户输入登录用户名与密码，会很麻烦。有了 refresh token，可以减少这个麻烦，客户端直接用 refresh token 去更新 access token，无需用户进行额外的操作。</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04d1c887b?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<ul>
+<li>Access Token 的有效期比较短，当 Acesss Token 由于过期而失效时，使用 Refresh Token 就可以获取到新的 Token，如果 Refresh Token 也失效了，用户就只能重新登录了。</li>
+<li>Refresh Token 及过期时间是存储在服务器的数据库中，只有在申请新的 Acesss Token 时才会验证，不会对业务接口响应时间造成影响，也不需要向 Session 一样一直保持在内存中以应对大量的请求。</li>
+</ul>
+<h2 id="8-Token-和-Session-的区别"><a href="#8-Token-和-Session-的区别" class="headerlink" title="8. Token 和 Session 的区别"></a>8. Token 和 Session 的区别</h2><ul>
+<li>Session 是一种<strong>记录服务器和客户端会话状态的机制，使服务端有状态化，可以记录会话信息</strong>。而 Token 是<strong>令牌</strong>，<strong>访问资源接口（API）时所需要的资源凭证</strong>。Token <strong>使服务端无状态化，不会存储会话信息。</strong></li>
+<li>Session 和 Token 并不矛盾，作为身份认证 Token 安全性比 Session 好，因为每一个请求都有签名还能防止监听以及重放攻击，而 Session 就必须依赖链路层来保障通讯安全了。<strong>如果你需要实现有状态的会话，仍然可以增加 Session 来在服务器端保存一些状态。</strong></li>
+<li>所谓 Session 认证只是简单的把 User 信息存储到 Session 里，因为 SessionID 的不可预测性，暂且认为是安全的。而 Token ，如果指的是 OAuth Token 或类似的机制的话，提供的是 认证 和 授权 ，认证是针对用户，授权是针对 App 。其目的是让某 App 有权利访问某用户的信息。这里的 Token 是唯一的。不可以转移到其它 App 上，也不可以转到其它用户上。Session 只提供一种简单的认证，即只要有此 SessionID ，即认为有此 User 的全部权利。是需要严格保密的，这个数据应该只保存在站方，不应该共享给其它网站或者第三方 App。所以简单来说：<strong>如果你的用户数据可能需要和第三方共享，或者允许第三方调用 API 接口，用 Token 。如果永远只是自己的网站，自己的 App，用什么就无所谓了。</strong></li>
+</ul>
+<h2 id="9-什么是-JWT"><a href="#9-什么是-JWT" class="headerlink" title="9. 什么是 JWT"></a>9. 什么是 JWT</h2><ul>
+<li>JSON Web Token（简称 JWT）是目前最流行的<strong>跨域认证</strong>解决方案。</li>
+<li>是一种<strong>认证授权机制</strong>。</li>
+<li>JWT 是为了在网络应用环境间<strong>传递声明</strong>而执行的一种基于 JSON 的开放标准（<a href="https://tools.ietf.org/html/rfc7519" target="_blank" rel="noopener" title="RFC 7519">RFC 7519</a>）。JWT 的声明一般被用来在身份提供者和服务提供者间传递被认证的用户身份信息，以便于从资源服务器获取资源。比如用在用户登录上。</li>
+<li>可以使用 HMAC 算法或者是 RSA 的公/私秘钥对 JWT 进行签名。因为数字签名的存在，这些传递的信息是可信的。</li>
+<li><strong>阮一峰老师的 <a href="http://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html" target="_blank" rel="noopener" title="JSON Web Token 入门教程">JSON Web Token 入门教程</a> 讲的非常通俗易懂，这里就不再班门弄斧了</strong></li>
+</ul>
+<h3 id="9-1-生成-JWT"><a href="#9-1-生成-JWT" class="headerlink" title="9.1 生成 JWT"></a>9.1 生成 JWT</h3><p><a href="https://jwt.io/" target="_blank" rel="noopener" title="jwt.io/">jwt.io/</a><br><a href="https://www.jsonwebtoken.io/" target="_blank" rel="noopener" title="www.jsonwebtoken.io/">www.jsonwebtoken.io/</a></p>
+<h3 id="9-2-JWT-的原理"><a href="#9-2-JWT-的原理" class="headerlink" title="9.2 JWT 的原理"></a>9.2 JWT 的原理</h3><p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04e881087?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<ul>
+<li>JWT 认证流程：<ul>
+<li>用户输入用户名/密码登录，服务端认证成功后，会返回给客户端一个 JWT</li>
+<li>客户端将 token 保存到本地（通常使用 localstorage，也可以使用 cookie）</li>
+<li>当用户希望访问一个受保护的路由或者资源的时候，需要请求头的 Authorization 字段中使用 Bearer 模式添加 JWT，其内容看起来是下面这样</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Authorization</span>: Bearer &lt;token&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>服务端的保护路由将会检查请求头 Authorization 中的 JWT 信息，如果合法，则允许用户的行为</li>
+<li>因为 JWT 是自包含的（内部包含了一些会话信息），因此减少了需要查询数据库的需要</li>
+<li>因为 JWT 并不使用 Cookie 的，所以你可以使用任何域名提供你的 API 服务而不需要担心跨域资源共享问题（CORS）</li>
+<li>因为用户的状态不再存储在服务端的内存中，所以这是一种无状态的认证机制</li>
+</ul>
+<h3 id="9-3-JWT-的使用方式"><a href="#9-3-JWT-的使用方式" class="headerlink" title="9.3 JWT 的使用方式"></a>9.3 JWT 的使用方式</h3><ul>
+<li>客户端收到服务器返回的 JWT，可以储存在 Cookie 里面，也可以储存在 localStorage。</li>
+</ul>
+<h4 id="方式一"><a href="#方式一" class="headerlink" title="方式一"></a>方式一</h4><ul>
+<li><p>当用户希望访问一个受保护的路由或者资源的时候，可以把它放在 Cookie 里面自动发送，但是这样不能跨域，所以更好的做法是放在 HTTP 请求头信息的 Authorization 字段里，使用 Bearer 模式添加 JWT。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /calendar/v1/events</span><br><span class="line"><span class="attribute">Host</span>: api.example.com</span><br><span class="line"><span class="attribute">Authorization</span>: Bearer &lt;token&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>用户的状态不会存储在服务端的内存中，这是一种 <strong>无状态的认证机制</strong></p>
+<ul>
+<li>服务端的保护路由将会检查请求头 Authorization 中的 JWT 信息，如果合法，则允许用户的行为。</li>
+<li>由于 JWT 是自包含的，因此减少了需要查询数据库的需要</li>
+<li>JWT 的这些特性使得我们可以完全依赖其无状态的特性提供数据 API 服务，甚至是创建一个下载流服务。</li>
+<li>因为 JWT 并不使用 Cookie ，所以你可以使用任何域名提供你的 API 服务而<strong>不需要担心跨域资源共享问题</strong>（CORS）</li>
+</ul>
+</li>
+</ul>
+<h4 id="方式二"><a href="#方式二" class="headerlink" title="方式二"></a>方式二</h4><ul>
+<li>跨域的时候，可以把 JWT 放在 POST 请求的数据体里。</li>
+</ul>
+<h4 id="方式三"><a href="#方式三" class="headerlink" title="方式三"></a>方式三</h4><ul>
+<li>通过 URL 传输</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.example.com/user?token=xxx</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-4-项目中使用-JWT"><a href="#9-4-项目中使用-JWT" class="headerlink" title="9.4 项目中使用 JWT"></a>9.4 项目中使用 JWT</h3><p><a href="https://github.com/yjdjiayou/jwt-demo" target="_blank" rel="noopener" title="**项目地址**"><strong>项目地址</strong></a></p>
+<h2 id="10-Token-和-JWT-的区别"><a href="#10-Token-和-JWT-的区别" class="headerlink" title="10. Token 和 JWT 的区别"></a>10. Token 和 JWT 的区别</h2><p><strong>相同：</strong></p>
+<ul>
+<li>都是访问资源的令牌</li>
+<li>都可以记录用户的信息</li>
+<li>都是使服务端无状态化</li>
+<li>都是只有验证成功后，客户端才能访问服务端上受保护的资源</li>
+</ul>
+<p><strong>区别：</strong></p>
+<ul>
+<li>Token：服务端验证客户端发送过来的 Token 时，还需要查询数据库获取用户信息，然后验证 Token 是否有效。</li>
+<li>JWT： 将 Token 和 Payload 加密后存储于客户端，服务端只需要使用密钥解密进行校验（校验也是 JWT 自己实现的）即可，不需要查询或者减少查询数据库，因为 JWT 自包含了用户信息和加密的数据。</li>
+</ul>
+<h2 id="11-常见的前后端鉴权方式"><a href="#11-常见的前后端鉴权方式" class="headerlink" title="11. 常见的前后端鉴权方式"></a>11. 常见的前后端鉴权方式</h2><ol>
+<li>Session-Cookie</li>
+<li>Token 验证（包括 JWT，SSO）</li>
+<li>OAuth2.0（开放授权）</li>
+</ol>
+<h2 id="12-常见的加密算法"><a href="#12-常见的加密算法" class="headerlink" title="12. 常见的加密算法"></a>12. 常见的加密算法</h2><p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04f17f2fc?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="image.png"></p>
+<ul>
+<li>哈希算法(Hash Algorithm)又称散列算法、散列函数、哈希函数，是一种从任何一种数据中创建小的数字“指纹”的方法。哈希算法将数据重新打乱混合，重新创建一个哈希值。</li>
+<li>哈希算法主要用来保障数据真实性(即完整性)，即发信人将原始消息和哈希值一起发送，收信人通过相同的哈希函数来校验原始数据是否真实。</li>
+<li>哈希算法通常有以下几个特点：<ul>
+<li>正像快速：原始数据可以快速计算出哈希值</li>
+<li>逆向困难：通过哈希值基本不可能推导出原始数据</li>
+<li>输入敏感：原始数据只要有一点变动，得到的哈希值差别很大</li>
+<li>冲突避免：很难找到不同的原始数据得到相同的哈希值，宇宙中原子数大约在 10 的 60 次方到 80 次方之间，所以 2 的 256 次方有足够的空间容纳所有的可能，算法好的情况下冲突碰撞的概率很低：<ul>
+<li>2 的 128 次方为 340282366920938463463374607431768211456，也就是 10 的 39 次方级别</li>
+<li>2 的 160 次方为 1.4615016373309029182036848327163e+48，也就是 10 的 48 次方级别</li>
+<li>2 的 256 次方为 1.1579208923731619542357098500869 × 10 的 77 次方，也就是 10 的 77 次方</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>注意：</strong></p>
+<ol>
+<li>以上不能保证数据被恶意篡改，原始数据和哈希值都可能被恶意篡改，要保证不被篡改，可以使用 RSA 公钥私钥方案，再配合哈希值。</li>
+<li>哈希算法主要用来防止计算机传输过程中的错误，早期计算机通过前 7 位数据第 8 位奇偶校验码来保障（12.5% 的浪费效率低），对于一段数据或文件，通过哈希算法生成 128bit 或者 256bit 的哈希值，如果校验有问题就要求重传。</li>
+</ol>
+<h2 id="13-常见问题"><a href="#13-常见问题" class="headerlink" title="13. 常见问题"></a>13. 常见问题</h2><h3 id="13-1-使用-cookie-时需要考虑的问题"><a href="#13-1-使用-cookie-时需要考虑的问题" class="headerlink" title="13.1 使用 cookie 时需要考虑的问题"></a>13.1 使用 cookie 时需要考虑的问题</h3><ul>
+<li>因为存储在客户端，容易被客户端篡改，使用前需要验证合法性</li>
+<li>不要存储敏感数据，比如用户密码，账户余额</li>
+<li>使用 httpOnly 在一定程度上提高安全性</li>
+<li>尽量减少 cookie 的体积，能存储的数据量不能超过 4kb</li>
+<li>设置正确的 domain 和 path，减少数据传输</li>
+<li><strong>cookie 无法跨域</strong></li>
+<li>一个浏览器针对一个网站最多存 20 个 Cookie，浏览器一般只允许存放 300 个 Cookie</li>
+<li><strong>移动端对 cookie 的支持不是很好，而 session 需要基于 cookie 实现，所以移动端常用的是 token</strong></li>
+</ul>
+<h3 id="13-2-使用-session-时需要考虑的问题"><a href="#13-2-使用-session-时需要考虑的问题" class="headerlink" title="13.2 使用 session 时需要考虑的问题"></a>13.2 使用 session 时需要考虑的问题</h3><ul>
+<li>将 session 存储在服务器里面，当用户同时在线量比较多时，这些 session 会占据较多的内存，需要在服务端定期的去清理过期的 session</li>
+<li>当网站采用<strong>集群部署</strong>的时候，会遇到多台 web 服务器之间如何做 session 共享的问题。因为 session 是由单个服务器创建的，但是处理用户请求的服务器不一定是那个创建 session 的服务器，那么该服务器就无法拿到之前已经放入到 session 中的登录凭证之类的信息了。</li>
+<li>当多个应用要共享 session 时，除了以上问题，还会遇到跨域问题，因为不同的应用可能部署的主机不一样，需要在各个应用做好 cookie 跨域的处理。</li>
+<li><strong>sessionId 是存储在 cookie 中的，假如浏览器禁止 cookie 或不支持 cookie 怎么办？</strong> 一般会把 sessionId 跟在 url 参数后面即重写 url，所以 session 不一定非得需要靠 cookie 实现</li>
+<li><strong>移动端对 cookie 的支持不是很好，而 session 需要基于 cookie 实现，所以移动端常用的是 token</strong></li>
+</ul>
+<h3 id="13-3-使用-token-时需要考虑的问题"><a href="#13-3-使用-token-时需要考虑的问题" class="headerlink" title="13.3 使用 token 时需要考虑的问题"></a>13.3 使用 token 时需要考虑的问题</h3><ul>
+<li>如果你认为用数据库来存储 token 会导致查询时间太长，可以选择放在内存当中。比如 redis 很适合你对 token 查询的需求。</li>
+<li><strong>token 完全由应用管理，所以它可以避开同源策略</strong></li>
+<li><strong>token 可以避免 CSRF 攻击(因为不需要 cookie 了)</strong></li>
+<li><strong>移动端对 cookie 的支持不是很好，而 session 需要基于 cookie 实现，所以移动端常用的是 token</strong></li>
+</ul>
+<h3 id="13-4-使用-JWT-时需要考虑的问题"><a href="#13-4-使用-JWT-时需要考虑的问题" class="headerlink" title="13.4 使用 JWT 时需要考虑的问题"></a>13.4 使用 JWT 时需要考虑的问题</h3><ul>
+<li>因为 JWT 并不依赖 Cookie 的，所以你可以使用任何域名提供你的 API 服务而不需要担心跨域资源共享问题（CORS）</li>
+<li>JWT 默认是不加密，但也是可以加密的。生成原始 Token 以后，可以用密钥再加密一次。</li>
+<li>JWT 不加密的情况下，不能将秘密数据写入 JWT。</li>
+<li>JWT 不仅可以用于认证，也可以用于交换信息。有效使用 JWT，可以降低服务器查询数据库的次数。</li>
+<li>JWT 最大的优势是服务器不再需要存储 Session，使得服务器认证鉴权业务可以方便扩展。但这也是 JWT 最大的缺点：由于服务器不需要存储 Session 状态，因此使用过程中无法废弃某个 Token 或者更改 Token 的权限。也就是说一旦 JWT 签发了，到期之前就会始终有效，除非服务器部署额外的逻辑。</li>
+<li>JWT 本身包含了认证信息，一旦泄露，任何人都可以获得该令牌的所有权限。为了减少盗用，JWT 的有效期应该设置得比较短。对于一些比较重要的权限，使用时应该再次对用户进行认证。</li>
+<li>JWT 适合一次性的命令认证，颁发一个有效期极短的 JWT，即使暴露了危险也很小，由于每次操作都会生成新的 JWT，因此也没必要保存 JWT，真正实现无状态。</li>
+<li>为了减少盗用，JWT 不应该使用 HTTP 协议明码传输，要使用 HTTPS 协议传输。</li>
+</ul>
+<h3 id="13-5-使用加密算法时需要考虑的问题"><a href="#13-5-使用加密算法时需要考虑的问题" class="headerlink" title="13.5 使用加密算法时需要考虑的问题"></a>13.5 使用加密算法时需要考虑的问题</h3><ul>
+<li>绝不要以<strong>明文存储</strong>密码</li>
+<li><strong>永远使用 哈希算法 来处理密码，绝不要使用 Base64 或其他编码方式来存储密码，这和以明文存储密码是一样的，使用哈希，而不要使用编码</strong>。编码以及加密，都是双向的过程，而密码是保密的，应该只被它的所有者知道， 这个过程必须是单向的。哈希正是用于做这个的，从来没有解哈希这种说法， 但是编码就存在解码，加密就存在解密。</li>
+<li>绝不要使用弱哈希或已被破解的哈希算法，像 MD5 或 SHA1 ，只使用强密码哈希算法。</li>
+<li>绝不要以明文形式显示或发送密码，即使是对密码的所有者也应该这样。如果你需要 “忘记密码” 的功能，可以随机生成一个新的 <strong>一次性的</strong>（这点很重要）密码，然后把这个密码发送给用户。</li>
+</ul>
+<h3 id="13-6-分布式架构下-session-共享方案"><a href="#13-6-分布式架构下-session-共享方案" class="headerlink" title="13.6 分布式架构下 session 共享方案"></a>13.6 分布式架构下 session 共享方案</h3><h4 id="1-session-复制"><a href="#1-session-复制" class="headerlink" title="1. session 复制"></a>1. session 复制</h4><ul>
+<li>任何一个服务器上的 session 发生改变（增删改），该节点会把这个 session 的所有内容序列化，然后广播给所有其它节点，不管其他服务器需不需要 session ，以此来保证 session 同步</li>
+</ul>
+<p><strong>优点：</strong> 可容错，各个服务器间 session 能够实时响应。<br><strong>缺点：</strong> 会对网络负荷造成一定压力，如果 session 量大的话可能会造成网络堵塞，拖慢服务器性能。</p>
+<h4 id="2-粘性-session-IP-绑定策略"><a href="#2-粘性-session-IP-绑定策略" class="headerlink" title="2. 粘性 session /IP 绑定策略"></a>2. 粘性 session /IP 绑定策略</h4><ul>
+<li><strong>采用 Ngnix 中的 ip_hash 机制，将某个 ip 的所有请求都定向到同一台服务器上，即将用户与服务器绑定。</strong> 用户第一次请求时，负载均衡器将用户的请求转发到了 A 服务器上，如果负载均衡器设置了粘性 session 的话，那么用户以后的每次请求都会转发到 A 服务器上，相当于把用户和 A 服务器粘到了一块，这就是粘性 session 机制。</li>
+</ul>
+<p><strong>优点：</strong> 简单，不需要对 session 做任何处理。<br><strong>缺点：</strong> 缺乏容错性，如果当前访问的服务器发生故障，用户被转移到第二个服务器上时，他的 session 信息都将失效。<br><strong>适用场景：</strong> 发生故障对客户产生的影响较小；服务器发生故障是低概率事件 。<br><strong>实现方式：</strong> 以 Nginx 为例，在 upstream 模块配置 ip_hash 属性即可实现粘性 session。</p>
+<h4 id="3-session-共享（常用）"><a href="#3-session-共享（常用）" class="headerlink" title="3. session 共享（常用）"></a>3. session 共享（常用）</h4><ul>
+<li>使用分布式缓存方案比如 Memcached 、Redis 来缓存 session，但是要求 Memcached 或 Redis 必须是集群</li>
+<li>把 session 放到 Redis 中存储，虽然架构上变得复杂，并且需要多访问一次 Redis ，但是这种方案带来的好处也是很大的：<ul>
+<li>实现了 session 共享；</li>
+<li>可以水平扩展（增加 Redis 服务器）；</li>
+<li>服务器重启 session 不丢失（不过也要注意 session 在 Redis 中的刷新/失效机制）；</li>
+<li>不仅可以跨服务器 session 共享，甚至可以跨平台（例如网页端和 APP 端）</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04fb8b4b8?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<h4 id="4-session-持久化"><a href="#4-session-持久化" class="headerlink" title="4. session 持久化"></a>4. session 持久化</h4><ul>
+<li>将 session 存储到数据库中，保证 session 的持久化</li>
+</ul>
+<p><strong>优点：</strong> 服务器出现问题，session 不会丢失<br><strong>缺点：</strong> 如果网站的访问量很大，把 session 存储到数据库中，会对数据库造成很大压力，还需要增加额外的开销维护数据库。</p>
+<h3 id="13-7-只要关闭浏览器-，session-真的就消失了？"><a href="#13-7-只要关闭浏览器-，session-真的就消失了？" class="headerlink" title="13.7 只要关闭浏览器 ，session 真的就消失了？"></a>13.7 <strong>只要关闭浏览器 ，session 真的就消失了？</strong></h3><p>不对。对 session 来说，除非程序通知服务器删除一个 session，否则服务器会一直保留，程序一般都是在用户做 log off 的时候发个指令去删除 session。<br>然而浏览器从来不会主动在关闭之前通知服务器它将要关闭，因此服务器根本不会有机会知道浏览器已经关闭，之所以会有这种错觉，是大部分 session 机制都使用会话 cookie 来保存 session id，而关闭浏览器后这个 session id 就消失了，再次连接服务器时也就无法找到原来的 session。如果服务器设置的 cookie 被保存在硬盘上，或者使用某种手段改写浏览器发出的 HTTP 请求头，把原来的 session id 发送给服务器，则再次打开浏览器仍然能够打开原来的 session。<br>恰恰是<strong>由于关闭浏览器不会导致 session 被删除，迫使服务器为 session 设置了一个失效时间，当距离客户端上一次使用 session 的时间超过这个失效时间时，服务器就认为客户端已经停止了活动，才会把 session 删除以节省存储空间。</strong></p>
+<h2 id="14-项目地址"><a href="#14-项目地址" class="headerlink" title="14. 项目地址"></a>14. 项目地址</h2><p><a href="https://github.com/yjdjiayou/jwt-demo" target="_blank" rel="noopener" title="**在项目中使用 JWT**"><strong>在项目中使用 JWT</strong></a></p>
+<h2 id="15-后语"><a href="#15-后语" class="headerlink" title="15. 后语"></a>15. 后语</h2><ul>
+<li>本文只是基于自己的理解讲了理论知识，因为对后端/算法知识不是很熟，如有谬误，还请告知，万分感谢</li>
+<li>如果本文对你有所帮助，还请点个赞~~</li>
+</ul>
+<h2 id="16-参考"><a href="#16-参考" class="headerlink" title="16. 参考"></a>16. 参考</h2><p><a href="https://baike.baidu.com/item/cookie/1119?fr=aladdin" target="_blank" rel="noopener" title="**百度百科-cookie**"><strong>百度百科-cookie</strong></a></p>
+<p><a href="https://baike.baidu.com/item/session/479100?fr=aladdin#3" target="_blank" rel="noopener" title="**百度百科-session**"><strong>百度百科-session</strong></a></p>
+<p><a href="https://juejin.im/post/5d01f82cf265da1b67210869" target="_blank" rel="noopener" title="**详解 Cookie，Session，Token**"><strong>详解 Cookie，Session，Token</strong></a></p>
+<p><a href="https://juejin.im/post/5de4c3c76fb9a071b86cc482#heading-0" target="_blank" rel="noopener" title="**一文彻底搞懂Cookie、Session、Token到底是什么**"><strong>一文彻底搞懂 Cookie、Session、Token 到底是什么</strong></a></p>
+<p><strong><a href="https://www.cnblogs.com/lyzg/p/6067766.html" target="_blank" rel="noopener" title="3种web会话管理的方式">3 种 web 会话管理的方式</a>！！！</strong></p>
+<p><strong><a href="https://www.cnblogs.com/JamesWang1993/p/8593494.html" target="_blank" rel="noopener" title="Token ，Cookie和Session的区别">Token ，Cookie 和 Session 的区别</a>！！！</strong></p>
+<p><strong><a href="https://www.cnblogs.com/moyand/p/9047978.html" target="_blank" rel="noopener" title="彻底理解 cookie、session、token">彻底理解 cookie、session、token</a>！！！</strong></p>
+<p><a href="https://juejin.im/post/5c6e6063f265da2da53ec8f3" target="_blank" rel="noopener" title="**前端鉴权**"><strong>前端鉴权</strong></a></p>
+<p><a href="https://zh.wikipedia.org/wiki/SHA-1" target="_blank" rel="noopener" title="**SHA-1**"><strong>SHA-1</strong></a></p>
+<p><a href="https://zh.wikipedia.org/wiki/SHA-2" target="_blank" rel="noopener" title="**SHA-2**"><strong>SHA-2</strong></a></p>
+<p><a href="https://zh.wikipedia.org/wiki/SHA-3" target="_blank" rel="noopener" title="**SHA-3**"><strong>SHA-3</strong></a></p>
+<p><a href="https://blog.csdn.net/zhezhebie/article/details/71631077" target="_blank" rel="noopener" title="**不要再使用MD5和SHA1加密密码了！**"><strong>不要再使用 MD5 和 SHA1 加密密码了！</strong></a></p>
+<p><a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1023025778520640" target="_blank" rel="noopener" title="**廖雪峰 Node 教程之 crypto**"><strong>廖雪峰 Node 教程之 crypto</strong></a><a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1023025778520640" target="_blank" rel="noopener" title=" "> </a></p>
+<h2 id="17-推荐阅读"><a href="#17-推荐阅读" class="headerlink" title="17. 推荐阅读"></a>17. 推荐阅读</h2><p><a href="https://juejin.im/post/5df648836fb9a016526eba01" target="_blank" rel="noopener" title="**你真的了解 React 生命周期吗**"><strong>你真的了解 React 生命周期吗</strong></a></p>
+<p><strong><a href="https://juejin.im/post/5dbbdbd5f265da4d4b5fe57d" target="_blank" rel="noopener" title="React Hooks 详解 【近 1W 字】+ 项目实战">React Hooks 详解 【近 1W 字】+ 项目实战</a></strong></p>
+<p><strong><a href="https://juejin.im/post/5def0816f265da33aa6aa7fe" target="_blank" rel="noopener" title="React SSR 详解【近 1W 字】+ 2个项目实战">React SSR 详解【近 1W 字】+ 2 个项目实战</a></strong></p>
+<p><strong><a href="https://juejin.im/post/5da56e34f265da5b932e73fa" target="_blank" rel="noopener" title="从 0 到 1 实现一款简易版 Webpack">从 0 到 1 实现一款简易版 Webpack</a></strong></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/50/">50</a><a class="extend next" rel="next" href="/page/3/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/46/">46</a><a class="extend next" rel="next" href="/page/3/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
   </nav>
 
 
@@ -2398,7 +2640,7 @@
               
                 <a href="/archives/%20%7C%7C%20archive">
               
-                  <span class="site-state-item-count">491</span>
+                  <span class="site-state-item-count">460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -2411,7 +2653,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">99</span>
+                  <span class="site-state-item-count">98</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -2428,6 +2670,22 @@
             </div>
           
 
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/gaohanghang" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/gao-xing-68-15/activities" target="_blank" title="zhihu">
+                      
+                        <i class="fa fa-fw fa-globe"></i>zhihu</a>
+                  </span>
+                
+            </div>
           
 
           

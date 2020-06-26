@@ -272,7 +272,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/15/Spring-Boot-%E4%B8%80%E4%B8%AA%E4%BE%9D%E8%B5%96%E6%90%9E%E5%AE%9A-session-%E5%85%B1%E4%BA%AB%EF%BC%8C%E6%B2%A1%E6%9C%89%E6%AF%94%E8%BF%99%E6%9B%B4%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%B9%E6%A1%88%E4%BA%86%EF%BC%81/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/24/Spring-Boot-Thymeleaf-%E7%83%AD%E9%83%A8%E7%BD%B2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -291,7 +291,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/15/Spring-Boot-%E4%B8%80%E4%B8%AA%E4%BE%9D%E8%B5%96%E6%90%9E%E5%AE%9A-session-%E5%85%B1%E4%BA%AB%EF%BC%8C%E6%B2%A1%E6%9C%89%E6%AF%94%E8%BF%99%E6%9B%B4%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%B9%E6%A1%88%E4%BA%86%EF%BC%81/" itemprop="url">Spring Boot 一个依赖搞定 session 共享，没有比这更简单的方案了！</a></h1>
+                <a class="post-title-link" href="/2019/05/24/Spring-Boot-Thymeleaf-%E7%83%AD%E9%83%A8%E7%BD%B2/" itemprop="url">Spring Boot Thymeleaf 热部署</a></h1>
         
 
         <div class="post-meta">
@@ -303,8 +303,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-15T21:21:11+08:00">
-                2019-06-15
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-24T21:20:18+08:00">
+                2019-05-24
               </time>
             
 
@@ -322,8 +322,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/06/15/Spring-Boot-%E4%B8%80%E4%B8%AA%E4%BE%9D%E8%B5%96%E6%90%9E%E5%AE%9A-session-%E5%85%B1%E4%BA%AB%EF%BC%8C%E6%B2%A1%E6%9C%89%E6%AF%94%E8%BF%99%E6%9B%B4%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%B9%E6%A1%88%E4%BA%86%EF%BC%81/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/15/Spring-Boot-一个依赖搞定-session-共享，没有比这更简单的方案了！/" itemprop="commentCount"></span>
+                <a href="/2019/05/24/Spring-Boot-Thymeleaf-%E7%83%AD%E9%83%A8%E7%BD%B2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/24/Spring-Boot-Thymeleaf-热部署/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -331,317 +331,7 @@
 
           
           
-             <span id="/2019/06/15/Spring-Boot-%E4%B8%80%E4%B8%AA%E4%BE%9D%E8%B5%96%E6%90%9E%E5%AE%9A-session-%E5%85%B1%E4%BA%AB%EF%BC%8C%E6%B2%A1%E6%9C%89%E6%AF%94%E8%BF%99%E6%9B%B4%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%B9%E6%A1%88%E4%BA%86%EF%BC%81/" class="leancloud_visitors" data-flag-title="Spring Boot 一个依赖搞定 session 共享，没有比这更简单的方案了！">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>原文地址 <a href="https://cloud.tencent.com/developer/article/1445325" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1445325</a></p>
-</blockquote>
-<p>有的人可能会觉得题目有点夸张，其实不夸张，题目没有使用任何修辞手法！认真读完本文，你就知道松哥说的是对的了！</p>
-<p>在传统的单服务架构中，一般来说，只有一个服务器，那么不存在 Session 共享问题，但是在分布式/集群项目中，Session 共享则是一个必须面对的问题，先看一个简单的架构图：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190615212220.png" alt=""></p>
-<p>在这样的架构中，会出现一些单服务中不存在的问题，例如客户端发起一个请求，这个请求到达 Nginx 上之后，被 Nginx 转发到 Tomcat A 上，然后在 Tomcat A 上往 session 中保存了一份数据，下次又来一个请求，这个请求被转发到 Tomcat B 上，此时再去 Session 中获取数据，发现没有之前的数据。对于这一类问题的解决，思路很简单，就是将各个服务之间需要共享的数据，保存到一个公共的地方（主流方案就是 <a href="https://cloud.tencent.com/product/crs?from=10680" target="_blank" rel="noopener">Redis</a>）：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190615212240.png" alt=""></p>
-<p>当所有 Tomcat 需要往 Session 中写数据时，都往 Redis 中写，当所有 Tomcat 需要读数据时，都从 Redis 中读。这样，不同的服务就可以使用相同的 Session 数据了。</p>
-<p>这样的方案，可以由开发者手动实现，即手动往 Redis 中存储数据，手动从 Redis 中读取数据，相当于使用一些 Redis 客户端工具来实现这样的功能，毫无疑问，手动实现工作量还是蛮大的。</p>
-<p>一个简化的方案就是使用 Spring Session 来实现这一功能，Spring Session 就是使用 Spring 中的代理过滤器，将所有的 Session 操作拦截下来，自动的将数据 同步到 Redis 中，或者自动的从 Redis 中读取数据。</p>
-<p>对于开发者来说，所有关于 Session 同步的操作都是透明的，开发者使用 Spring Session，一旦配置完成后，具体的用法就像使用一个普通的 Session 一样。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/06/15/Spring-Boot-%E4%B8%80%E4%B8%AA%E4%BE%9D%E8%B5%96%E6%90%9E%E5%AE%9A-session-%E5%85%B1%E4%BA%AB%EF%BC%8C%E6%B2%A1%E6%9C%89%E6%AF%94%E8%BF%99%E6%9B%B4%E7%AE%80%E5%8D%95%E7%9A%84%E6%96%B9%E6%A1%88%E4%BA%86%EF%BC%81/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/14/Spring%E5%85%A8%E5%AE%B6%E6%A1%B6%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/14/Spring%E5%85%A8%E5%AE%B6%E6%A1%B6%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" itemprop="url">Spring全家桶系列教程笔记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-14T20:12:03+08:00">
-                2019-06-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/14/Spring%E5%85%A8%E5%AE%B6%E6%A1%B6%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/14/Spring全家桶系列教程/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/06/14/Spring%E5%85%A8%E5%AE%B6%E6%A1%B6%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/" class="leancloud_visitors" data-flag-title="Spring全家桶系列教程笔记">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="01-Spring-课程介绍"><a href="#01-Spring-课程介绍" class="headerlink" title="01 Spring 课程介绍"></a>01 Spring 课程介绍</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614201638.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614201716.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614201743.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614201820.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614201852.png" alt=""></p>
-<h2 id="02-一起认识Spring家族的主要成员"><a href="#02-一起认识Spring家族的主要成员" class="headerlink" title="02 一起认识Spring家族的主要成员"></a>02 一起认识Spring家族的主要成员</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614202017.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614202106.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614202143.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614202236.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190614202340.png" alt=""></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/06/14/Spring%E5%85%A8%E5%AE%B6%E6%A1%B6%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/14/sublime%E4%B8%AD%E5%88%86%E5%8F%B7%E6%9B%BF%E6%8D%A2%E6%88%90%E6%8D%A2%E8%A1%8C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/14/sublime%E4%B8%AD%E5%88%86%E5%8F%B7%E6%9B%BF%E6%8D%A2%E6%88%90%E6%8D%A2%E8%A1%8C/" itemprop="url">sublime中分号替换成换行 </a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-14T09:53:38+08:00">
-                2019-06-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/14/sublime%E4%B8%AD%E5%88%86%E5%8F%B7%E6%9B%BF%E6%8D%A2%E6%88%90%E6%8D%A2%E8%A1%8C/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/14/sublime中分号替换成换行/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/06/14/sublime%E4%B8%AD%E5%88%86%E5%8F%B7%E6%9B%BF%E6%8D%A2%E6%88%90%E6%8D%A2%E8%A1%8C/" class="leancloud_visitors" data-flag-title="sublime中分号替换成换行 ">
+             <span id="/2019/05/24/Spring-Boot-Thymeleaf-%E7%83%AD%E9%83%A8%E7%BD%B2/" class="leancloud_visitors" data-flag-title="Spring Boot Thymeleaf 热部署">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -674,10 +364,37 @@
       
         
           
-            <p>commd + option +f</p>
-<p>findwhat中输入 ；</p>
-<p>在Rplace With 中输入 commd+ shift+enter</p>
-<p>点击replaceall</p>
+            <h3 id="thymeleaf禁用缓存"><a href="#thymeleaf禁用缓存" class="headerlink" title="thymeleaf禁用缓存"></a>thymeleaf禁用缓存</h3><p>将thymeleaf的cache属性置为false，不使用thymeleaf的缓存功能。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">    <span class="attr">thymeleaf:</span></span><br><span class="line">        <span class="attr">cache:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<p>一开始我就配置了，但是修改页面之后，刷新浏览器，修改的内容没有生效。</p>
+<h3 id="最终解决办法"><a href="#最终解决办法" class="headerlink" title="最终解决办法"></a>最终解决办法</h3><p>这个时候查看target目录下，你修改的html文件，发现刚刚修改的内容并没有编译到该文件中。刷新浏览器自然就没有生效。所以需要我们自己手动build一下。。。</p>
+<h4 id="方法1"><a href="#方法1" class="headerlink" title="方法1"></a><strong>方法1</strong></h4><ol>
+<li><p>首先，需要thymeleaf的缓存设置为false。 </p>
+</li>
+<li><p>然后使用下面两条命令，均可以。 </p>
+<p>ctrl + shift + F9：Recompile （这个一般是修改了java代码，如controller等文件，重新编译）<br>ctrl + F9：Build Project （这个，当你修改了静态页面，如html页面，重新build）</p>
+</li>
+</ol>
+<p>如果只是修改了静态页面，建议使用ctrl + F9。</p>
+<h4 id="方法2"><a href="#方法2" class="headerlink" title="方法2"></a><strong>方法2</strong></h4><p>可能你觉得每次修改之后，按一下快捷键也很麻烦。那么就需要配置一下IDEA。开启IDEA的自动build功能。使用spring-boot-devtools进行热部署。</p>
+<ol>
+<li><p>首先，还是需要把thymeleaf的缓存设置为false。 </p>
+</li>
+<li><p>pom.xml加入，引入devtools:</p>
+</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 热部署 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-devtools<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.4.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 启用 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">optional</span>&gt;</span>true<span class="tag">&lt;/<span class="name">optional</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>修改IDEA的两处配置<br>①file —&gt; setting —&gt;Compiler，启用自动build </li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190524212520.png" alt=""></p>
+<p>ps：这里有可能IDEA的版本不一样，没有这个选项，有可能是<code>make project automatically</code>。</p>
+<p>​    ②IDEA中按下快捷键：<code>ctrl + shift +alt + /</code> ，调出如下面板 </p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190524212631.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190524212644.png" alt=""></p>
+<p>OK。这个时候，修改文件，再刷新一下浏览器。会发现刚刚改的东西生效了（java代码和静态页面得修改都会自动生效）。修改<code>controller</code>里面的代码，不用重新编译，也自动生效了。</p>
 
           
         
@@ -726,7 +443,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-%E9%98%BF%E9%87%8C%E5%89%8D%E8%BE%88%E7%9A%84%E6%9E%B6%E6%9E%84%E7%BB%8F/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/24/Java-%E7%94%9F%E6%80%81%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -745,7 +462,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-%E9%98%BF%E9%87%8C%E5%89%8D%E8%BE%88%E7%9A%84%E6%9E%B6%E6%9E%84%E7%BB%8F/" itemprop="url">拉勾官方 阿里前辈的架构经</a></h1>
+                <a class="post-title-link" href="/2019/05/24/Java-%E7%94%9F%E6%80%81%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/" itemprop="url">Java 生态核心知识点整理</a></h1>
         
 
         <div class="post-meta">
@@ -757,8 +474,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-13T23:16:09+08:00">
-                2019-06-13
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-24T12:39:18+08:00">
+                2019-05-24
               </time>
             
 
@@ -776,8 +493,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-%E9%98%BF%E9%87%8C%E5%89%8D%E8%BE%88%E7%9A%84%E6%9E%B6%E6%9E%84%E7%BB%8F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/13/拉勾官方-阿里前辈的架构经/" itemprop="commentCount"></span>
+                <a href="/2019/05/24/Java-%E7%94%9F%E6%80%81%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/24/Java-生态核心知识点整理/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -785,312 +502,7 @@
 
           
           
-             <span id="/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-%E9%98%BF%E9%87%8C%E5%89%8D%E8%BE%88%E7%9A%84%E6%9E%B6%E6%9E%84%E7%BB%8F/" class="leancloud_visitors" data-flag-title="拉勾官方 阿里前辈的架构经">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="开篇词"><a href="#开篇词" class="headerlink" title="开篇词"></a>开篇词</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613231738.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613231825.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613231849.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613231903.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613232003.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613232027.png" alt=""></p>
-<h2 id="01-大型架构的演进之路"><a href="#01-大型架构的演进之路" class="headerlink" title="01: 大型架构的演进之路"></a>01: 大型架构的演进之路</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613232113.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613232131.png" alt=""></p>
-<h2 id="02-分布式缓存-上"><a href="#02-分布式缓存-上" class="headerlink" title="02 分布式缓存(上)"></a>02 分布式缓存(上)</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613232357.png" alt=""></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-%E9%98%BF%E9%87%8C%E5%89%8D%E8%BE%88%E7%9A%84%E6%9E%B6%E6%9E%84%E7%BB%8F/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-32%E4%B8%AAJava%E9%9D%A2%E8%AF%95%E5%BF%85%E8%80%83%E7%82%B9/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-32%E4%B8%AAJava%E9%9D%A2%E8%AF%95%E5%BF%85%E8%80%83%E7%82%B9/" itemprop="url">拉勾官方 32个Java面试必考点</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-13T22:38:48+08:00">
-                2019-06-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-32%E4%B8%AAJava%E9%9D%A2%E8%AF%95%E5%BF%85%E8%80%83%E7%82%B9/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/13/拉勾官方-32个Java面试必考点/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-32%E4%B8%AAJava%E9%9D%A2%E8%AF%95%E5%BF%85%E8%80%83%E7%82%B9/" class="leancloud_visitors" data-flag-title="拉勾官方 32个Java面试必考点">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>视频地址 <a href="https://www.bilibili.com/video/av53338822" target="_blank" rel="noopener">https://www.bilibili.com/video/av53338822</a></p>
-</blockquote>
-<h2 id="02-上-操作系统与计算机网络"><a href="#02-上-操作系统与计算机网络" class="headerlink" title="02(上) 操作系统与计算机网络"></a>02(上) 操作系统与计算机网络</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613223918.png" alt=""></p>
-<h2 id="02-下-Java语言特性与设计模式"><a href="#02-下-Java语言特性与设计模式" class="headerlink" title="02(下) Java语言特性与设计模式"></a>02(下) Java语言特性与设计模式</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613224110.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613224129.png" alt=""></p>
-<h2 id="03-深入浅出JVM"><a href="#03-深入浅出JVM" class="headerlink" title="03: 深入浅出JVM"></a>03: 深入浅出JVM</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613224425.png" alt=""></p>
-<h2 id="04-并发与多线程"><a href="#04-并发与多线程" class="headerlink" title="04: 并发与多线程"></a>04: 并发与多线程</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190613224537.png" alt=""></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/06/13/%E6%8B%89%E5%8B%BE%E5%AE%98%E6%96%B9-32%E4%B8%AAJava%E9%9D%A2%E8%AF%95%E5%BF%85%E8%80%83%E7%82%B9/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/13/ubuntu%E6%9F%A5%E7%9C%8B%E5%8D%A0%E7%94%A8%E6%9F%90%E7%AB%AF%E5%8F%A3%E7%9A%84%E7%A8%8B%E5%BA%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/13/ubuntu%E6%9F%A5%E7%9C%8B%E5%8D%A0%E7%94%A8%E6%9F%90%E7%AB%AF%E5%8F%A3%E7%9A%84%E7%A8%8B%E5%BA%8F/" itemprop="url">ubuntu查看占用某端口的程序</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-13T19:50:31+08:00">
-                2019-06-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/13/ubuntu%E6%9F%A5%E7%9C%8B%E5%8D%A0%E7%94%A8%E6%9F%90%E7%AB%AF%E5%8F%A3%E7%9A%84%E7%A8%8B%E5%BA%8F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/13/ubuntu查看占用某端口的程序/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/06/13/ubuntu%E6%9F%A5%E7%9C%8B%E5%8D%A0%E7%94%A8%E6%9F%90%E7%AB%AF%E5%8F%A3%E7%9A%84%E7%A8%8B%E5%BA%8F/" class="leancloud_visitors" data-flag-title="ubuntu查看占用某端口的程序">
+             <span id="/2019/05/24/Java-%E7%94%9F%E6%80%81%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/" class="leancloud_visitors" data-flag-title="Java 生态核心知识点整理">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1124,314 +536,517 @@
         
           
             <blockquote>
-<p>原文地址 <a href="https://blog.csdn.net/jubincn/article/details/6146594" target="_blank" rel="noopener">ubuntu查看占用某端口的程序</a></p>
+<p>原文链接 <a href="[http://www.ityouknow.com/java/2019/03/25/java-knowledge.html](http://www.ityouknow.com/java/2019/03/25/java-knowledge.html)">Java 生态核心知识点整理</a></p>
+<p>下载地址 <a href="[https://github.com/harvies/books/blob/master/Java/JAVA%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86.pdf](https://github.com/harvies/books/blob/master/Java/JAVA核心知识点整理.pdf)">Java核心知识点整理</a></p>
 </blockquote>
-<p>查看端口使用情况，使用netstat命令。</p>
-<p>查看已经连接的服务端口（ESTABLISHED</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -a</span><br></pre></td></tr></table></figure>
-
-<p>查看所有的服务端口（LISTEN，ESTABLISHED）</p>
-<pre><code>netstat -ap</code></pre><p>查看8080端口，则可以结合grep命令： </p>
-<pre><code>netstat -ap | grep 8080</code></pre><p>如查看8888端口，则在终端中输入：</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsof -i:8888</span><br></pre></td></tr></table></figure>
-
-<p>若要停止使用这个端口的程序，使用kill +对应的pid即可</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/13/MySQL-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E5%85%A8%E6%94%BB%E7%95%A5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/13/MySQL-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E5%85%A8%E6%94%BB%E7%95%A5/" itemprop="url">MySQL 索引优化全攻略</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-13T08:55:05+08:00">
-                2019-06-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/13/MySQL-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E5%85%A8%E6%94%BB%E7%95%A5/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/13/MySQL-索引优化全攻略/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/06/13/MySQL-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E5%85%A8%E6%94%BB%E7%95%A5/" class="leancloud_visitors" data-flag-title="MySQL 索引优化全攻略">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/12/%E8%BF%84%E4%BB%8A%E4%B8%BA%E6%AD%A2%E6%8A%8A%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5-%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E-BIO-NIO-AIO%E8%AE%B2%E7%9A%84%E6%9C%80%E6%B8%85%E6%A5%9A%E7%9A%84%E5%A5%BD%E6%96%87%E7%AB%A0%EF%BC%88%E5%BB%BA%E8%AE%AE%E6%94%B6%E8%97%8F%EF%BC%89/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/12/%E8%BF%84%E4%BB%8A%E4%B8%BA%E6%AD%A2%E6%8A%8A%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5-%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E-BIO-NIO-AIO%E8%AE%B2%E7%9A%84%E6%9C%80%E6%B8%85%E6%A5%9A%E7%9A%84%E5%A5%BD%E6%96%87%E7%AB%A0%EF%BC%88%E5%BB%BA%E8%AE%AE%E6%94%B6%E8%97%8F%EF%BC%89/" itemprop="url">迄今为止把同步/异步/阻塞/非阻塞/BIO/NIO/AIO讲的最清楚的好文章（建议收藏）</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-12T20:05:06+08:00">
-                2019-06-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/12/%E8%BF%84%E4%BB%8A%E4%B8%BA%E6%AD%A2%E6%8A%8A%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5-%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E-BIO-NIO-AIO%E8%AE%B2%E7%9A%84%E6%9C%80%E6%B8%85%E6%A5%9A%E7%9A%84%E5%A5%BD%E6%96%87%E7%AB%A0%EF%BC%88%E5%BB%BA%E8%AE%AE%E6%94%B6%E8%97%8F%EF%BC%89/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/12/迄今为止把同步-异步-阻塞-非阻塞-BIO-NIO-AIO讲的最清楚的好文章（建议收藏）/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/06/12/%E8%BF%84%E4%BB%8A%E4%B8%BA%E6%AD%A2%E6%8A%8A%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5-%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E-BIO-NIO-AIO%E8%AE%B2%E7%9A%84%E6%9C%80%E6%B8%85%E6%A5%9A%E7%9A%84%E5%A5%BD%E6%96%87%E7%AB%A0%EF%BC%88%E5%BB%BA%E8%AE%AE%E6%94%B6%E8%97%8F%EF%BC%89/" class="leancloud_visitors" data-flag-title="迄今为止把同步/异步/阻塞/非阻塞/BIO/NIO/AIO讲的最清楚的好文章（建议收藏）">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>原文地址 <a href="https://juejin.im/post/5cff70c0f265da1ba56b14fd" target="_blank" rel="noopener">迄今为止把同步/异步/阻塞/非阻塞/BIO/NIO/AIO讲的最清楚的好文章（建议收藏）</a></p>
-</blockquote>
+<p>又到了求职的金三银四的黄金月份，我相信有不少小伙伴已经摩拳擦掌的准备寻找下一份工作。</p>
+<p>就目前国内的面试模式来讲，在面试前积极的准备面试，复习整个 Java 知识体系将变得非常重要，可以很负责任的说一句，复习准备的是否充分，将直接影响你入职的成功率。</p>
+<p>但很多小伙伴却苦于没有合适的资料来回顾整个 Java 知识体系，或者有的小伙伴可能都不知道该从哪里开始复习。</p>
+<p>我偶然从一个网友群中发现了整理的这份资料，不论是从整个 Java 知识体系，还是从面试的角度来看，都是一份含技术量很高的资料。</p>
+<p>也不知道这位作者是谁，里面的内容也大多整理来自于互联网，但很明显的是这位作者为了整理这份资料用了很多心，在此表示感谢。</p>
 <blockquote>
-<p>网上有很多讲同步/异步/阻塞/非阻塞/BIO/NIO/AIO的文章，但是都没有达到我的心里预期，于是自己写一篇出来。</p>
+<p>注，后来联系上了作者是美团的一位大佬，再次表示感谢！</p>
 </blockquote>
-<h4 id="常规的误区"><a href="#常规的误区" class="headerlink" title="常规的误区"></a>常规的误区</h4><p>假设有一个展示用户详情的需求，分两步，先调用一个HTTP接口拿到详情数据，然后使用适合的视图展示详情数据。</p>
-<p>如果网速很慢，代码发起一个HTTP请求后，就卡住不动了，直到十几秒后才拿到HTTP响应，然后继续往下执行。</p>
-<p>这个时候你问别人，刚刚代码发起的这个请求是不是一个同步请求，对方一定回答是。这是对的，它确实是。</p>
-<p>但你要问它为什么是呢？对方一定是这样回答的，<strong>“因为发起请求后，代码就卡住不动了，直到拿到响应后才可以继续往下执行”。</strong></p>
-<p>我相信很多人也都是这样认为的，其实这是不对的，是把因果关系搞反了： <strong>不是因为代码卡住不动了才叫同步请求，而是因为它是同步请求所以代码才卡住不动了</strong>。 至于为什么能卡住不动，这是由操作系统和CPU决定的： <strong>因为内核空间里的对应函数会卡住不动，造成用户空间发起的系统调用卡住不动，继而使程序里的用户代码卡住不动了</strong>。 因此卡住不动了只是同步请求的一个副作用，并不能用它来定义同步请求，那该如何定义呢？</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190612200647.png" alt=""></p>
-<h4 id="同步和异步"><a href="#同步和异步" class="headerlink" title="同步和异步"></a>同步和异步</h4><p>所谓同步，指的是协同步调。既然叫协同，所以至少要有2个以上的事物存在。协同的结果就是： <strong>多个事物不能同时进行，必须一个一个的来，上一个事物结束后，下一个事物才开始。 那当一个事物正在进行时，其它事物都在干嘛呢？</strong></p>
-<p>严格来讲这个并没有要求，但一般都是处于一种“等待”的状态，因为通常后面事物的正常进行都需要依赖前面事物的结果或前面事物正在使用的资源。 因此，可以认为，同步更希望关注的是从宏观整体来看，多个事物是一种逐个逐个的串行化关系，绝对不会出现交叉的情况。 所以，自然也不太会去关注某个瞬间某个具体事物是处于一个什么状态。</p>
+<p>我随后截了几张图，大家可以仔细查看左边的菜单栏，覆盖的知识面真的很广，而且质量都很不错。</p>
+<p><img src="http://www.itmind.net/assets/images/2019/java/java01.jpg" alt="img">)<img src="http://www.itmind.net/assets/images/2019/java/java02.jpg" alt="img">)<img src="http://www.itmind.net/assets/images/2019/java/java03.jpg" alt="img">)<img src="http://www.itmind.net/assets/images/2019/java/java04.jpg" alt="img"></p>
+<p>说实话，作为一名 Java 程序员，不论你需不需要面试都应该好好看下这份资料。我大概撸了一边，真的是堪称典范。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/24/PostgreSQL-%E5%85%B3%E9%97%ADsession%E9%93%BE%E6%8E%A5%EF%BC%8C%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%E5%BA%93%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/24/PostgreSQL-%E5%85%B3%E9%97%ADsession%E9%93%BE%E6%8E%A5%EF%BC%8C%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%E5%BA%93%E6%96%B9%E6%B3%95/" itemprop="url">PostgreSQL关闭session链接，删除数据库方法 </a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-24T11:05:20+08:00">
+                2019-05-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/24/PostgreSQL-%E5%85%B3%E9%97%ADsession%E9%93%BE%E6%8E%A5%EF%BC%8C%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%E5%BA%93%E6%96%B9%E6%B3%95/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/24/PostgreSQL-关闭session链接，删除数据库方法/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/05/24/PostgreSQL-%E5%85%B3%E9%97%ADsession%E9%93%BE%E6%8E%A5%EF%BC%8C%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%E5%BA%93%E6%96%B9%E6%B3%95/" class="leancloud_visitors" data-flag-title="PostgreSQL关闭session链接，删除数据库方法 ">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文链接 <a href="https://blog.csdn.net/achang21/article/details/53067945" target="_blank" rel="noopener">PostgreSQL 关闭session链接，删除数据库方法</a></p>
+</blockquote>
+<h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>PostgreSQL 中 有时候想删除数据库（drop database swiftliveqaapi;），发现提示“ERROR:  database “xxxxxx” is being accessed by other users DETAIL:  There are 30 other sessions using the database.”</p>
+<p>意思是 有其他用户在连接数据库，不能删除。</p>
+<h3 id="解决方法："><a href="#解决方法：" class="headerlink" title="解决方法："></a>解决方法：</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> pg_terminate_backend(pid) <span class="keyword">FROM</span> pg_stat_activity <span class="keyword">WHERE</span> datname=<span class="string">'数据库名'</span> <span class="keyword">AND</span> pid&lt;&gt;pg_backend_pid();</span><br></pre></td></tr></table></figure>
+
+
+<p>然后就可以删除数据库了。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/23/%E5%9B%BE%E5%BA%8A%E8%BD%AF%E4%BB%B6%E6%8E%A8%E8%8D%90-%E5%8E%9F%E5%88%9B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/23/%E5%9B%BE%E5%BA%8A%E8%BD%AF%E4%BB%B6%E6%8E%A8%E8%8D%90-%E5%8E%9F%E5%88%9B/" itemprop="url">图床软件推荐(原创)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-23T00:14:40+08:00">
+                2019-05-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/23/%E5%9B%BE%E5%BA%8A%E8%BD%AF%E4%BB%B6%E6%8E%A8%E8%8D%90-%E5%8E%9F%E5%88%9B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/23/图床软件推荐-原创/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/05/23/%E5%9B%BE%E5%BA%8A%E8%BD%AF%E4%BB%B6%E6%8E%A8%E8%8D%90-%E5%8E%9F%E5%88%9B/" class="leancloud_visitors" data-flag-title="图床软件推荐(原创)">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>之前七牛云图床翻车了，现在微博图床也不能用了，下定决心使用github作为图床，还是美帝的便宜好占。</p>
+<p>搜了下发现这款图床软件不错，所以推荐一下。</p>
+</blockquote>
+<h2 id="PicGo"><a href="#PicGo" class="headerlink" title="PicGo"></a>PicGo</h2><blockquote>
+<p>图片上传+管理新体验</p>
+<p>官网 <a href="https://picgo.github.io/PicGo-Doc/zh/" target="_blank" rel="noopener">PicGo</a>     </p>
+</blockquote>
+<h3 id="应用截图"><a href="#应用截图" class="headerlink" title="应用截图"></a>应用截图</h3><p><img src="https://raw.githubusercontent.com/Molunerfinn/test/master/picgo/picgo-2.0.gif" alt="img"></p>
+<p><img src="https://user-images.githubusercontent.com/12621342/34242310-b5056510-e655-11e7-8568-60ffd4f71910.gif" alt="picgo-menubar"></p>
+<h3 id="应用说明"><a href="#应用说明" class="headerlink" title="应用说明"></a>应用说明</h3><p><strong>PicGo在上传图片之后自动会将图片链接复制到你的剪贴板里，可选5种复制的链接格式。</strong></p>
+<p>PicGo目前支持了</p>
+<ul>
+<li><code>微博图床</code> v1.0</li>
+<li><code>七牛图床</code> v1.0</li>
+<li><code>腾讯云COS v4\v5版本</code> v1.1 &amp; v1.5.0</li>
+<li><code>又拍云</code> v1.2.0</li>
+<li><code>GitHub</code> v1.5.0</li>
+<li><code>SM.MS</code> v1.5.1</li>
+<li><code>阿里云OSS</code> v1.6.0</li>
+<li><code>Imgur</code> v1.6.0</li>
+</ul>
+<h3 id="GitHub图床配置"><a href="#GitHub图床配置" class="headerlink" title="GitHub图床配置"></a>GitHub图床配置</h3><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"repo"</span>: <span class="string">""</span>, <span class="comment">// 仓库名，格式是username/reponame</span></span><br><span class="line">  <span class="attr">"token"</span>: <span class="string">""</span>, <span class="comment">// github token</span></span><br><span class="line">  <span class="attr">"path"</span>: <span class="string">""</span>, <span class="comment">// 自定义存储路径，比如img/</span></span><br><span class="line">  <span class="attr">"customUrl"</span>: <span class="string">""</span>, <span class="comment">// 自定义域名，注意要加http://或者https://</span></span><br><span class="line">  <span class="attr">"branch"</span>: <span class="string">""</span> <span class="comment">// 分支名，默认是master</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>1.</strong> 首先你得有一个GitHub账号。注册GitHub就不用我多言。</p>
+<p><strong>2.</strong> 新建一个仓库</p>
+<p><img src="https://raw.githubusercontent.com/Molunerfinn/test/master/picgo/create_new_repo.png" alt="img"></p>
+<p>记下你取的仓库名。</p>
+<p><strong>3.</strong> 生成一个token用于PicGo操作你的仓库：</p>
+<p>访问：<a href="https://github.com/settings/tokens" target="_blank" rel="noopener">https://github.com/settings/tokens</a></p>
+<p>然后点击<code>Generate new token</code>。</p>
+<p><img src="https://raw.githubusercontent.com/Molunerfinn/test/master/picgo/generate_new_token.png" alt="img"></p>
+<p>把repo的勾打上即可。然后翻到页面最底部，点击<code>Generate token</code>的绿色按钮生成token。</p>
+<p><img src="https://raw.githubusercontent.com/Molunerfinn/test/master/picgo/20180508210435.png" alt="img"></p>
+<p><strong>注意：</strong>这个token生成后只会显示一次！你要把这个token复制一下存到其他地方以备以后要用。</p>
+<p><img src="https://raw.githubusercontent.com/Molunerfinn/test/master/picgo/copy_token.png" alt="img"></p>
+<p><strong>4.</strong> 配置PicGo</p>
+<p><strong>注意：</strong>仓库名的格式是<code>用户名/仓库</code>，比如我创建了一个叫做<code>test</code>的仓库，在PicGo里我要设定的仓库名就是<code>Molunerfinn/test</code>。一般我们选择<code>master</code>分支即可。然后记得点击确定以生效，然后可以点击<code>设为默认图床</code>来确保上传的图床是GitHub。</p>
+<p><img src="https://raw.githubusercontent.com/Molunerfinn/test/master/picgo/setup_github.png" alt="img"></p>
+<p>至此配置完毕，已经可以使用了。当你上传的时候，你会发现你的仓库里也会增加新的图片了：</p>
+<p><img src="https://raw.githubusercontent.com/Molunerfinn/test/master/picgo/success.png" alt="img"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/22/%E6%89%93%E9%80%A0-Mac-%E4%B8%8B%E9%AB%98%E9%A2%9C%E5%80%BC%E5%A5%BD%E7%94%A8%E7%9A%84%E7%BB%88%E7%AB%AF%E7%8E%AF%E5%A2%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/22/%E6%89%93%E9%80%A0-Mac-%E4%B8%8B%E9%AB%98%E9%A2%9C%E5%80%BC%E5%A5%BD%E7%94%A8%E7%9A%84%E7%BB%88%E7%AB%AF%E7%8E%AF%E5%A2%83/" itemprop="url">打造 Mac 下高颜值好用的终端环境 </a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-22T22:04:51+08:00">
+                2019-05-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/22/%E6%89%93%E9%80%A0-Mac-%E4%B8%8B%E9%AB%98%E9%A2%9C%E5%80%BC%E5%A5%BD%E7%94%A8%E7%9A%84%E7%BB%88%E7%AB%AF%E7%8E%AF%E5%A2%83/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/22/打造-Mac-下高颜值好用的终端环境/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/05/22/%E6%89%93%E9%80%A0-Mac-%E4%B8%8B%E9%AB%98%E9%A2%9C%E5%80%BC%E5%A5%BD%E7%94%A8%E7%9A%84%E7%BB%88%E7%AB%AF%E7%8E%AF%E5%A2%83/" class="leancloud_visitors" data-flag-title="打造 Mac 下高颜值好用的终端环境 ">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>原文链接 <a href="https://blog.biezhi.me/2018/11/build-a-beautiful-mac-terminal-environment.html" target="_blank" rel="noopener">打造 Mac 下高颜值好用的终端环境</a></p>
+</blockquote>
+<p>如果你觉得当前的终端操作不符合你的气质，可以看看我今天来介绍的 Mac 终端利器，不过不会介绍太多细节操作。</p>
+<p><a href="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/biezhi_iterm2.png" target="_blank" rel="noopener"><img src="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/biezhi_iterm2.png" alt="biezhi iterm"></a></p>
+<h2 id="它们是谁？"><a href="#它们是谁？" class="headerlink" title="它们是谁？"></a>它们是谁？</h2><ul>
+<li>iTerm2：号称 Mac 下最好的终端工具（嗯，我也这么认为，毕竟我不会别的了）</li>
+<li>zsh：一款强大的终端工具，能帮助你更高效地编写和执行命令。</li>
+</ul>
+<h2 id="安装-iTerm2"><a href="#安装-iTerm2" class="headerlink" title="安装 iTerm2"></a>安装 iTerm2</h2><p>下面的安装我几乎都用 <a href="https://brew.sh/" target="_blank" rel="noopener">brew</a> 方式了，如果你还不懂什么是 brew 可以看看 <a href="http://zhailiange.com/2016/06/04/Homebrew/" target="_blank" rel="noopener">这个</a>。</p>
+<p>所以下面我假设你已经安装了 <code>Homebrew</code>。</p>
+<p>如果你从来没有运行过 <code>brew cask</code> 命令，可以先执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew tap caskroom&#x2F;cask</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>多执行也不会怀孕的，放心！</p>
+</blockquote>
+<p>然后开始安装 <code>iTerm2</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew cask install iterm2</span><br></pre></td></tr></table></figure>
+
+<p>安装成功后在 Launchpad 中可以看到有一个新图标出现，打开 iTerm2。</p>
+<h3 id="代码配色"><a href="#代码配色" class="headerlink" title="代码配色"></a>代码配色</h3><p>默认的界面还是略显丑陋的，我们来设置一下代码配色吧。</p>
+<p><a href="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/open_settings.png" target="_blank" rel="noopener"><img src="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/open_settings.png" alt="iTerm2 设置"></a></p>
+<p>先检查下终端颜色配置为 <code>xterm-256color</code>，位置在 <code>iTerm2 -&gt; Preferences -&gt; Profiles -&gt; Terminal</code>。</p>
+<p><a href="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/iterm_terminal_color.png" target="_blank" rel="noopener"><img src="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/iterm_terminal_color.png" alt="iTerm2 终端颜色值"></a></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/06/12/%E8%BF%84%E4%BB%8A%E4%B8%BA%E6%AD%A2%E6%8A%8A%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5-%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E-BIO-NIO-AIO%E8%AE%B2%E7%9A%84%E6%9C%80%E6%B8%85%E6%A5%9A%E7%9A%84%E5%A5%BD%E6%96%87%E7%AB%A0%EF%BC%88%E5%BB%BA%E8%AE%AE%E6%94%B6%E8%97%8F%EF%BC%89/#more" rel="contents">
+            <a class="btn" href="/2019/05/22/%E6%89%93%E9%80%A0-Mac-%E4%B8%8B%E9%AB%98%E9%A2%9C%E5%80%BC%E5%A5%BD%E7%94%A8%E7%9A%84%E7%BB%88%E7%AB%AF%E7%8E%AF%E5%A2%83/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -1482,7 +1097,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/12/PostgreSQL%E6%AD%BB%E9%94%81%E8%BF%9B%E7%A8%8B%E5%8F%8A%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86-%E5%8E%9F/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/13/Spring-Cloud-%E5%BC%80%E6%BA%90%E8%BD%AF%E4%BB%B6%E9%83%BD%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -1501,7 +1116,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/12/PostgreSQL%E6%AD%BB%E9%94%81%E8%BF%9B%E7%A8%8B%E5%8F%8A%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86-%E5%8E%9F/" itemprop="url">PostgreSQL死锁进程及慢查询处理 原</a></h1>
+                <a class="post-title-link" href="/2019/05/13/Spring-Cloud-%E5%BC%80%E6%BA%90%E8%BD%AF%E4%BB%B6%E9%83%BD%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F/" itemprop="url">Spring Cloud 开源软件都有哪些？</a></h1>
         
 
         <div class="post-meta">
@@ -1513,8 +1128,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-12T16:56:26+08:00">
-                2019-06-12
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-13T22:09:03+08:00">
+                2019-05-13
               </time>
             
 
@@ -1532,8 +1147,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/06/12/PostgreSQL%E6%AD%BB%E9%94%81%E8%BF%9B%E7%A8%8B%E5%8F%8A%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86-%E5%8E%9F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/12/PostgreSQL死锁进程及慢查询处理-原/" itemprop="commentCount"></span>
+                <a href="/2019/05/13/Spring-Cloud-%E5%BC%80%E6%BA%90%E8%BD%AF%E4%BB%B6%E9%83%BD%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/13/Spring-Cloud-开源软件都有哪些？/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1541,7 +1156,181 @@
 
           
           
-             <span id="/2019/06/12/PostgreSQL%E6%AD%BB%E9%94%81%E8%BF%9B%E7%A8%8B%E5%8F%8A%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%A4%84%E7%90%86-%E5%8E%9F/" class="leancloud_visitors" data-flag-title="PostgreSQL死锁进程及慢查询处理 原">
+             <span id="/2019/05/13/Spring-Cloud-%E5%BC%80%E6%BA%90%E8%BD%AF%E4%BB%B6%E9%83%BD%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F/" class="leancloud_visitors" data-flag-title="Spring Cloud 开源软件都有哪些？">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>原文链接 <a href="http://www.ityouknow.com/springcloud/2018/08/06/spring-cloud-open-source.html" target="_blank" rel="noopener">http://www.ityouknow.com/springcloud/2018/08/06/spring-cloud-open-source.html</a></p>
+</blockquote>
+<p>学习一门新的技术如果有优秀的开源项目，对初学者的学习将会是事半功倍，通过研究和学习优秀的开源项目，可以快速的了解此技术的相关应用场景和应用示例，参考优秀开源项目会降低将此技术引入到项目中的成本。为此抽了一些时间为大家寻找了一些非常优秀的 Spring Cloud 开源软件供大家学习参考。</p>
+<p>上次写了一篇文章<a href="http://www.ityouknow.com/springboot/2018/03/05/spring-boot-open-source.html" target="_blank" rel="noopener">Spring Boot 2 (三)：Spring Boot 开源软件都有哪些</a> 给大家介绍优秀的 Spring Boot 开源项目，本篇文章给介绍 Spring Cloud 的优秀开源项目。Spring Cloud 开源项目主要集中在 Github/码云 ，本文所有项目地址也均来自于这两个网站。</p>
+<h2 id="1、-awesome-spring-cloud"><a href="#1、-awesome-spring-cloud" class="headerlink" title="1、 awesome-spring-cloud"></a>1、 <a href="https://github.com/ityouknow/awesome-spring-cloud" target="_blank" rel="noopener">awesome-spring-cloud</a></h2><p>首先给大家介绍的就是 Spring Cloud 中文索引，这是一个专门收集 Spring Cloud 相关资料的开源项目，也有对应的导航页面。</p>
+<p><strong>产品主页</strong></p>
+<p><a href="http://springcloud.fun/" target="_blank" rel="noopener">http://springcloud.fun/</a></p>
+<p><strong>项目主页</strong></p>
+<p><a href="https://github.com/ityouknow/awesome-spring-cloud" target="_blank" rel="noopener">https://github.com/ityouknow/awesome-spring-cloud</a></p>
+<p><strong>产品截图</strong></p>
+<p><img src="http://www.itmind.net/assets/images/2018/springcloud/awesome-spring-cloud.png" alt="img"></p>
+<h2 id="2、-PiggyMetrics"><a href="#2、-PiggyMetrics" class="headerlink" title="2、 PiggyMetrics"></a>2、 <a href="https://github.com/sqshq/PiggyMetrics" target="_blank" rel="noopener">PiggyMetrics</a></h2><p>一个简单的个人财务系统，基于 Spring Boot，Spring Cloud 和 Docker 简单演示了微服务的架构模式，整个项目几乎包含了 Spring Cloud 的所有特性包括 配置中心、Gateway zuul API 网关、Eureka 服务发现、Hystrix、Turbine仪 表盘应用健康监控等等。</p>
+<p>PiggyMetrics 被分解为三个核心微服务。这些服务都是围绕某些业务能力组织的可独立部署的应用程序。</p>
+<p><img src="http://www.itmind.net/assets/images/2018/springcloud/PiggyMetrics_sercive.png" alt="img"></p>
+<p>PiggyMetrics 的项目架构图</p>
+<p><img src="http://www.itmind.net/assets/images/2018/springcloud/PInfrastructure.png" alt="img"></p>
+<p><strong>项目主页</strong></p>
+<p><a href="https://github.com/sqshq/PiggyMetrics" target="_blank" rel="noopener">https://github.com/sqshq/PiggyMetrics</a></p>
+<p><strong>产品截图</strong></p>
+<p><img src="http://www.itmind.net/assets/images/2018/springcloud/piggyMetrics.png" alt="img"></p>
+<h2 id="3、-spaascloud-master"><a href="#3、-spaascloud-master" class="headerlink" title="3、 spaascloud-master"></a>3、 <a href="https://github.com/paascloud/paascloud-master" target="_blank" rel="noopener">spaascloud-master</a></h2><p>spring cloud + vue 全家桶实战，模拟商城，完整的购物流程、后端运营平台，可以实现快速搭建企业级微服务项目。</p>
+<p>功能点： 模拟商城，完整的购物流程、后端运营平台对前端业务的支撑，和对项目的运维，有各项的监控指标和运维指标。</p>
+<p>技术点： 核心技术为springcloud+vue两个全家桶实现，采取了取自开源用于开源的目标，所以能用开源绝不用收费框架，整体技术栈只有 阿里云短信服务是收费的，都是目前java前瞻性的框架，可以为中小企业解决微服务架构难题，可以帮助企业快速建站。由于服务 器成本较高，尽量降低开发成本的原则，本项目由10个后端项目和3个前端项目共同组成。真正实现了基于RBAC、jwt和oauth2的 无状态统一权限认证的解决方案，实现了异常和日志的统一管理，实现了MQ落地保证100%到达的解决方案。</p>
+<p><strong>产品主页</strong></p>
+<p><a href="http://mall.paascloud.net/index" target="_blank" rel="noopener">http://mall.paascloud.net/index</a></p>
+<p><strong>项目主页</strong></p>
+<p><a href="https://github.com/paascloud/paascloud-master" target="_blank" rel="noopener">https://github.com/paascloud/paascloud-master</a></p>
+<p><strong>产品截图</strong></p>
+<p><img src="http://www.itmind.net/assets/images/2018/springcloud/paascloud.png" alt="img"></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/05/13/Spring-Cloud-%E5%BC%80%E6%BA%90%E8%BD%AF%E4%BB%B6%E9%83%BD%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/04/Restlet-Client%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/04/Restlet-Client%E4%BD%BF%E7%94%A8/" itemprop="url">Restlet Client使用(原创)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-04T10:08:08+08:00">
+                2019-05-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/04/Restlet-Client%E4%BD%BF%E7%94%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/04/Restlet-Client使用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/05/04/Restlet-Client%E4%BD%BF%E7%94%A8/" class="leancloud_visitors" data-flag-title="Restlet Client使用(原创)">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1574,7 +1363,18 @@
       
         
           
-            
+            <h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><ul>
+<li><p>谷歌应用商城中搜索Restlet Client,然后点击下载安装</p>
+</li>
+<li><p>离线下载，插件地址:<a href="https://download.csdn.net/download/java_wucao/10301502" target="_blank" rel="noopener">https://download.csdn.net/download/java_wucao/10301502</a></p>
+</li>
+</ul>
+<blockquote>
+<p>安装成功后，浏览器效果</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img006tNc79ly1g2p3a6myjwj306c00y744.png" alt=""></p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img006tNc79ly1g2p3aoxuucj312d0gw0v1.png" alt=""></p>
+
           
         
       
@@ -1622,7 +1422,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/11/%E7%A8%8B%E5%BA%8F%E5%91%98%E9%80%9A%E7%94%A8%E7%AE%80%E5%86%99%E8%A1%A8/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/04/%E5%9C%A8%20IntelliJ%20IDEA%20%E4%B8%AD%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -1641,7 +1441,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/11/%E7%A8%8B%E5%BA%8F%E5%91%98%E9%80%9A%E7%94%A8%E7%AE%80%E5%86%99%E8%A1%A8/" itemprop="url">程序员通用简写表</a></h1>
+                <a class="post-title-link" href="/2019/05/04/%E5%9C%A8%20IntelliJ%20IDEA%20%E4%B8%AD%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8/" itemprop="url">在 IntelliJ IDEA 中部署应用到服务器</a></h1>
         
 
         <div class="post-meta">
@@ -1653,8 +1453,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-11T21:25:02+08:00">
-                2019-06-11
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-04T09:53:20+08:00">
+                2019-05-04
               </time>
             
 
@@ -1672,8 +1472,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/06/11/%E7%A8%8B%E5%BA%8F%E5%91%98%E9%80%9A%E7%94%A8%E7%AE%80%E5%86%99%E8%A1%A8/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/11/程序员通用简写表/" itemprop="commentCount"></span>
+                <a href="/2019/05/04/%E5%9C%A8%20IntelliJ%20IDEA%20%E4%B8%AD%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/04/在 IntelliJ IDEA 中部署应用到服务器/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1681,7 +1481,336 @@
 
           
           
-             <span id="/2019/06/11/%E7%A8%8B%E5%BA%8F%E5%91%98%E9%80%9A%E7%94%A8%E7%AE%80%E5%86%99%E8%A1%A8/" class="leancloud_visitors" data-flag-title="程序员通用简写表">
+             <span id="/2019/05/04/%E5%9C%A8%20IntelliJ%20IDEA%20%E4%B8%AD%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="leancloud_visitors" data-flag-title="在 IntelliJ IDEA 中部署应用到服务器">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>原文链接 <a href="https://yq.aliyun.com/articles/696132?spm=a2c4e.11153940.blogcont665049.25.740b266d4K5GLk" target="_blank" rel="noopener">在 IntelliJ IDEA 中部署应用到服务器</a></p>
+</blockquote>
+<p>在之前的文章<a href="https://yq.aliyun.com/articles/673825" target="_blank" rel="noopener">《在 Intellij IDEA 中部署 Java 应用到 阿里云 ECS》</a>中讲解了如何将一个本地应用部署到阿里云 ECS 上去，有些读者反馈目前还有一些测试机器是在经典网络，甚至是在本地机房中，咨询是否可以通过 Cloud Toolkit 插件将应用部署到这些服务器上去？最新版本的 Cloud Toolkit 已经发布，完全支持啦。</p>
+<h1 id="本地开发"><a href="#本地开发" class="headerlink" title="本地开发"></a>本地开发</h1><p>无论是编写云端运行的，还是编写本地运行的 Java 应用程序，代码编写本身并没有特别大的变化，因此本文采用一个及其基础的样例《在 Web 页面打印 HelloWorld 的 Java Servlet 》为例，做参考。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img0e3e037b58282a9cfeb9be24d1bac8c71b64fbc6.png" alt=""></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IndexServlet</span> <span class="keyword">extends</span> <span class="title">HttpServlet</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = -<span class="number">112210702214857712L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">( HttpServletRequest req, HttpServletResponse resp )</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        PrintWriter writer = resp.getWriter();</span><br><span class="line">        <span class="comment">//Demo：通过 Cloud Toolkit ，高效的将本地应用程序代码修改，部署到云上。</span></span><br><span class="line">        writer.write(<span class="string">"Deploy from alibaba cloud toolkit. 2018-10-24"</span>);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doPost</span><span class="params">( HttpServletRequest req, HttpServletResponse resp )</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://yq.aliyun.com/attachment/download/?filename=IndexSer...[银时].1540514368.zip" target="_blank" rel="noopener">源代码下载</a></p>
+<p>上述代码就是一个标准的 Java 工程，用于在 Web 页面上打印一串“Hello World”的文案。</p>
+<h1 id="安装插件"><a href="#安装插件" class="headerlink" title="安装插件"></a>安装插件</h1><p>阿里云提供了基于 Intellij IDEA 的插件，以方便开发人员能够高效的将本地 IDE 中编写的应用程序，极速部署到服务器中去。<br>插件主页：<a href="https://www.aliyun.com/product/cloudtoolkit" target="_blank" rel="noopener">https://www.aliyun.com/product/cloudtoolkit</a></p>
+<p>阿里云的这个 IntelliJ IDEA 插件的安装过程，和普通的插件大同小异，这里不再赘述，读者请自行安装。</p>
+<h1 id="添加服务器"><a href="#添加服务器" class="headerlink" title="添加服务器"></a>添加服务器</h1><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img4518bf75af70cdb30054156b4397873ef88302db.png" alt=""></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/05/04/%E5%9C%A8%20IntelliJ%20IDEA%20%E4%B8%AD%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8%E5%88%B0%E6%9C%8D%E5%8A%A1%E5%99%A8/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/04/IDEA%E4%B8%AD%E7%94%A8%E5%A5%BDLombok%EF%BC%8C%E6%92%B8%E7%A0%81%E6%95%88%E7%8E%87%E8%87%B3%E5%B0%91%E6%8F%90%E5%8D%875%E5%80%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/04/IDEA%E4%B8%AD%E7%94%A8%E5%A5%BDLombok%EF%BC%8C%E6%92%B8%E7%A0%81%E6%95%88%E7%8E%87%E8%87%B3%E5%B0%91%E6%8F%90%E5%8D%875%E5%80%8D/" itemprop="url">IDEA中用好Lombok，撸码效率至少提升5倍</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-04T09:13:19+08:00">
+                2019-05-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/04/IDEA%E4%B8%AD%E7%94%A8%E5%A5%BDLombok%EF%BC%8C%E6%92%B8%E7%A0%81%E6%95%88%E7%8E%87%E8%87%B3%E5%B0%91%E6%8F%90%E5%8D%875%E5%80%8D/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/04/IDEA中用好Lombok，撸码效率至少提升5倍/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/05/04/IDEA%E4%B8%AD%E7%94%A8%E5%A5%BDLombok%EF%BC%8C%E6%92%B8%E7%A0%81%E6%95%88%E7%8E%87%E8%87%B3%E5%B0%91%E6%8F%90%E5%8D%875%E5%80%8D/" class="leancloud_visitors" data-flag-title="IDEA中用好Lombok，撸码效率至少提升5倍">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>原文链接 <a href="https://mp.weixin.qq.com/s/Ex_4QumoF1CmqGMUyDfx9Q" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/Ex_4QumoF1CmqGMUyDfx9Q</a></p>
+</blockquote>
+<p>以前的Java项目中，充斥着太多不友好的代码：POJO的getter/setter/toString；异常处理；I/O流的关闭操作等等，这些样板代码既没有技术含量，又影响着代码的美观，Lombok应运而生。</p>
+<p>任何技术的出现都是为了解决某一类问题，如果在此基础上再建立奇技淫巧，不如回归Java本身，应该保持合理使用而不滥用。</p>
+<p>Lombok的使用非常简单：</p>
+<h3 id="1）引入相应的maven包"><a href="#1）引入相应的maven包" class="headerlink" title="1）引入相应的maven包"></a>1）引入相应的maven包</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.16.18<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Lombok的scope=provided，说明它只在编译阶段生效，不需要打入包中。事实正是如此，Lombok在编译期将带Lombok注解的Java文件正确编译为完整的Class文件。</p>
+<h3 id="2）添加IDE工具对Lombok的支持："><a href="#2）添加IDE工具对Lombok的支持：" class="headerlink" title="2）添加IDE工具对Lombok的支持："></a><strong>2）添加IDE工具对Lombok的支持：</strong></h3><p>IDEA中引入Lombok支持如下：</p>
+<ul>
+<li>点击File– Settings设置界面，安装Lombok插件：</li>
+</ul>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1g2p0sueiy5j30nz0dp76d.jpg" alt=""></p>
+<ul>
+<li><p>Eclipse的Lombok插件安装可以自行百度，也比较简单，值得一提的是，由于Eclipse内置的编译器不是Oracle javac，而是eclipse自己实现的Eclipse Compiler for Java (ECJ).要让ECJ支持Lombok，需要在eclipse.ini配置文件中添加如下两项内容：</p>
+<p>-Xbootclasspath/a:[lombok.jar所在路径]</p>
+</li>
+</ul>
+<p>  -javaagent:[lombok.jar所在路径]</p>
+<h3 id="3）Lombok实现原理："><a href="#3）Lombok实现原理：" class="headerlink" title="3）Lombok实现原理："></a><strong>3）Lombok实现原理：</strong></h3><p>自从Java 6起，javac就支持“JSR 269 Pluggable Annotation Processing API”规范，只要程序实现了该API，就能在javac运行的时候得到调用。</p>
+<p>Lombok就是一个实现了”JSR 269 API”的程序。在使用javac的过程中，它产生作用的具体流程如下：</p>
+<ul>
+<li>javac对源代码进行分析，生成一棵抽象语法树(AST)</li>
+<li>javac编译过程中调用实现了JSR 269的Lombok程序</li>
+<li>此时Lombok就对第一步骤得到的AST进行处理，找到Lombok注解所在类对应的语法树(AST)，然后修改该语法树(AST)，增加Lombok注解定义的相应树节点</li>
+<li>javac使用修改后的抽象语法树(AST)生成字节码文件</li>
+</ul>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/05/04/IDEA%E4%B8%AD%E7%94%A8%E5%A5%BDLombok%EF%BC%8C%E6%92%B8%E7%A0%81%E6%95%88%E7%8E%87%E8%87%B3%E5%B0%91%E6%8F%90%E5%8D%875%E5%80%8D/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/05/03/java%E7%A8%8B%E5%BA%8F%E5%91%98%E6%8A%80%E8%83%BD%E8%A6%81%E6%B1%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/05/03/java%E7%A8%8B%E5%BA%8F%E5%91%98%E6%8A%80%E8%83%BD%E8%A6%81%E6%B1%82/" itemprop="url">java程序员技能要求</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-03T15:21:09+08:00">
+                2019-05-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/05/03/java%E7%A8%8B%E5%BA%8F%E5%91%98%E6%8A%80%E8%83%BD%E8%A6%81%E6%B1%82/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/05/03/java程序员技能要求/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/05/03/java%E7%A8%8B%E5%BA%8F%E5%91%98%E6%8A%80%E8%83%BD%E8%A6%81%E6%B1%82/" class="leancloud_visitors" data-flag-title="java程序员技能要求">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1714,523 +1843,44 @@
       
         
           
-            <blockquote>
-<p> 本文来源于：<a href="http://blog.csdn.net/guoxiaoqian8028/article/details/8565889" target="_blank" rel="noopener">http://blog.csdn.net/guoxiaoqian8028/article/details/8565889</a></p>
-</blockquote>
-<p>说明：</p>
-<p>1、本缩写表是《编码命名规范》的附录。</p>
-<p>2、本缩写表中列出的都是通用性缩写，不提供标准缩写，如：Win9x、COM 等。</p>
-<p>3、使用本缩写表里的缩写时，请对其进行必要的注释说明。</p>
-<p>4、除少数情况以外，大部分缩写与大小写无关。</p>
-<p>通 用 缩 写 表</p>
-<table>
-<thead>
-<tr>
-<th>缩 写</th>
-<th>全 称</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>addr</td>
-<td>Address</td>
-</tr>
-<tr>
-<td>adm</td>
-<td>Administrator</td>
-</tr>
-<tr>
-<td>app</td>
-<td>Application</td>
-</tr>
-<tr>
-<td>arg</td>
-<td>Argument</td>
-</tr>
-<tr>
-<td>asm</td>
-<td>assemble</td>
-</tr>
-<tr>
-<td>asyn</td>
-<td>asynchronization</td>
-</tr>
-<tr>
-<td>avg</td>
-<td>average</td>
-</tr>
-<tr>
-<td>DB</td>
-<td>Database</td>
-</tr>
-<tr>
-<td>bk</td>
-<td>back</td>
-</tr>
-<tr>
-<td>bmp</td>
-<td>Bitmap</td>
-</tr>
-<tr>
-<td>btn</td>
-<td>Button</td>
-</tr>
-<tr>
-<td>buf</td>
-<td>Buffer</td>
-</tr>
-<tr>
-<td>calc</td>
-<td>Calculate</td>
-</tr>
-<tr>
-<td>char</td>
-<td>Character</td>
-</tr>
-<tr>
-<td>chg</td>
-<td>Change</td>
-</tr>
-<tr>
-<td>clk</td>
-<td>Click</td>
-</tr>
-<tr>
-<td>clr</td>
-<td>color</td>
-</tr>
-<tr>
-<td>cmd</td>
-<td>Command</td>
-</tr>
-<tr>
-<td>cmp</td>
-<td>Compare</td>
-</tr>
-<tr>
-<td>col</td>
-<td>Column</td>
-</tr>
-<tr>
-<td>coord</td>
-<td>coordinates</td>
-</tr>
-<tr>
-<td>cpy</td>
-<td>copy</td>
-</tr>
-<tr>
-<td>ctl / ctrl</td>
-<td>Control</td>
-</tr>
-<tr>
-<td>cur</td>
-<td>Current</td>
-</tr>
-<tr>
-<td>cyl</td>
-<td>Cylinder</td>
-</tr>
-<tr>
-<td>dbg</td>
-<td>Debug</td>
-</tr>
-<tr>
-<td>dbl</td>
-<td>Double</td>
-</tr>
-<tr>
-<td>dec</td>
-<td>Decrease</td>
-</tr>
-<tr>
-<td>def</td>
-<td>default</td>
-</tr>
-<tr>
-<td>del</td>
-<td>Delete</td>
-</tr>
-<tr>
-<td>dest / dst</td>
-<td>Destination</td>
-</tr>
-<tr>
-<td>dev</td>
-<td>Device</td>
-</tr>
-<tr>
-<td>dict</td>
-<td>dictionary</td>
-</tr>
-<tr>
-<td>diff</td>
-<td>different</td>
-</tr>
-<tr>
-<td>dir</td>
-<td>directory</td>
-</tr>
-<tr>
-<td>disp</td>
-<td>Display</td>
-</tr>
-<tr>
-<td>div</td>
-<td>Divide</td>
-</tr>
-<tr>
-<td>缩 写</td>
-<td>全 称</td>
-</tr>
-<tr>
-<td>dlg</td>
-<td>Dialog</td>
-</tr>
-<tr>
-<td>doc</td>
-<td>Document</td>
-</tr>
-<tr>
-<td>drv</td>
-<td>Driver</td>
-</tr>
-<tr>
-<td>dyna</td>
-<td>Dynamic</td>
-</tr>
-<tr>
-<td>env</td>
-<td>Environment</td>
-</tr>
-<tr>
-<td>err</td>
-<td>error</td>
-</tr>
-<tr>
-<td>ex/ext</td>
-<td>Extend</td>
-</tr>
-<tr>
-<td>exec</td>
-<td>execute</td>
-</tr>
-<tr>
-<td>flg</td>
-<td>flag</td>
-</tr>
-<tr>
-<td>frm</td>
-<td>Frame</td>
-</tr>
-<tr>
-<td>func / fn</td>
-<td>Function</td>
-</tr>
-<tr>
-<td>grp</td>
-<td>group</td>
-</tr>
-<tr>
-<td>horz</td>
-<td>Horizontal</td>
-</tr>
-<tr>
-<td>idx / ndx</td>
-<td>Index</td>
-</tr>
-<tr>
-<td>img</td>
-<td>Image</td>
-</tr>
-<tr>
-<td>impl</td>
-<td>Implement</td>
-</tr>
-<tr>
-<td>inc</td>
-<td>Increase</td>
-</tr>
-<tr>
-<td>info</td>
-<td>Information</td>
-</tr>
-<tr>
-<td>init</td>
-<td>Initial/Initialize/Initialization</td>
-</tr>
-<tr>
-<td>ins</td>
-<td>Insert</td>
-</tr>
-<tr>
-<td>inst</td>
-<td>Instance</td>
-</tr>
-<tr>
-<td>INT / intr</td>
-<td>Interrupt</td>
-</tr>
-<tr>
-<td>len</td>
-<td>Length</td>
-</tr>
-<tr>
-<td>lib</td>
-<td>Library</td>
-</tr>
-<tr>
-<td>lnk</td>
-<td>Link</td>
-</tr>
-<tr>
-<td>log</td>
-<td>logical</td>
-</tr>
-<tr>
-<td>lst</td>
-<td>List</td>
-</tr>
-<tr>
-<td>max</td>
-<td>maximum</td>
-</tr>
-<tr>
-<td>mem</td>
-<td>Memory</td>
-</tr>
-<tr>
-<td>mgr / man</td>
-<td>Manage / Manager</td>
-</tr>
-<tr>
-<td>mid</td>
-<td>middle</td>
-</tr>
-<tr>
-<td>min</td>
-<td>minimum</td>
-</tr>
-<tr>
-<td>msg</td>
-<td>Message</td>
-</tr>
-<tr>
-<td>mul</td>
-<td>Multiply</td>
-</tr>
-<tr>
-<td>num</td>
-<td>Number</td>
-</tr>
-<tr>
-<td>obj</td>
-<td>Object</td>
-</tr>
-<tr>
-<td>ofs</td>
-<td>Offset</td>
-</tr>
-<tr>
-<td>org</td>
-<td>Origin / Original</td>
-</tr>
-<tr>
-<td>param</td>
-<td>Parameter</td>
-</tr>
-<tr>
-<td>pic</td>
-<td>picture</td>
-</tr>
-<tr>
-<td>pkg</td>
-<td>package</td>
-</tr>
-<tr>
-<td>pnt / pt</td>
-<td>Point</td>
-</tr>
-<tr>
-<td>pos</td>
-<td>Position</td>
-</tr>
-<tr>
-<td>pre / prev</td>
-<td>previous</td>
-</tr>
-<tr>
-<td>缩 写</td>
-<td>全 称</td>
-</tr>
-<tr>
-<td>prg</td>
-<td>program</td>
-</tr>
-<tr>
-<td>prn</td>
-<td>Print</td>
-</tr>
-<tr>
-<td>proc</td>
-<td>Process / Procedure</td>
-</tr>
-<tr>
-<td>prop</td>
-<td>Properties</td>
-</tr>
-<tr>
-<td>psw</td>
-<td>Password</td>
-</tr>
-<tr>
-<td>ptr</td>
-<td>Pointer</td>
-</tr>
-<tr>
-<td>pub</td>
-<td>Public</td>
-</tr>
-<tr>
-<td>rc</td>
-<td>rect</td>
-</tr>
-<tr>
-<td>ref</td>
-<td>Reference</td>
-</tr>
-<tr>
-<td>reg</td>
-<td>Register</td>
-</tr>
-<tr>
-<td>req</td>
-<td>request</td>
-</tr>
-<tr>
-<td>res</td>
-<td>Resource</td>
-</tr>
-<tr>
-<td>ret</td>
-<td>return</td>
-</tr>
-<tr>
-<td>rgn</td>
-<td>region</td>
-</tr>
-<tr>
-<td>scr</td>
-<td>screen</td>
-</tr>
-<tr>
-<td>sec</td>
-<td>Second</td>
-</tr>
-<tr>
-<td>seg</td>
-<td>Segment</td>
-</tr>
-<tr>
-<td>sel</td>
-<td>Select</td>
-</tr>
-<tr>
-<td>src</td>
-<td>Source</td>
-</tr>
-<tr>
-<td>std</td>
-<td>Standard</td>
-</tr>
-<tr>
-<td>stg</td>
-<td>Storage</td>
-</tr>
-<tr>
-<td>stm</td>
-<td>Stream</td>
-</tr>
-<tr>
-<td>str</td>
-<td>String</td>
-</tr>
-<tr>
-<td>sub</td>
-<td>Subtract</td>
-</tr>
-<tr>
-<td>sum</td>
-<td>summation</td>
-</tr>
-<tr>
-<td>svr</td>
-<td>Server</td>
-</tr>
-<tr>
-<td>sync</td>
-<td>Synchronization</td>
-</tr>
-<tr>
-<td>sys</td>
-<td>System</td>
-</tr>
-<tr>
-<td>tbl</td>
-<td>Table</td>
-</tr>
-<tr>
-<td>temp / tmp</td>
-<td>Temporary</td>
-</tr>
-<tr>
-<td>tran / trans</td>
-<td>translate/transation/transparent</td>
-</tr>
-<tr>
-<td>tst</td>
-<td>Test</td>
-</tr>
-<tr>
-<td>txt</td>
-<td>text</td>
-</tr>
-<tr>
-<td>unk</td>
-<td>Unknown</td>
-</tr>
-<tr>
-<td>upd</td>
-<td>Update</td>
-</tr>
-<tr>
-<td>upg</td>
-<td>Upgrade</td>
-</tr>
-<tr>
-<td>util</td>
-<td>Utility</td>
-</tr>
-<tr>
-<td>var</td>
-<td>Variable</td>
-</tr>
-<tr>
-<td>ver</td>
-<td>Version</td>
-</tr>
-<tr>
-<td>vert</td>
-<td>Vertical</td>
-</tr>
-<tr>
-<td>vir</td>
-<td>Virus</td>
-</tr>
-<tr>
-<td>wnd</td>
-<td>Window</td>
-</tr>
-</tbody></table>
+            <ul>
+<li><p>攻克服务中高并发、高稳定性，业务模型复杂等带来的各种挑战及技术难关；</p>
+</li>
+<li><p>熟悉高性能、高并发、高可用性分布式系统设计</p>
+</li>
+<li><p>Java基础扎实，熟悉JVM，包括内存模型、类加载机制以及性能优化经验；</p>
+</li>
+<li><p>熟悉多线程网络编程、分布式缓存、系列化、NIO及相关框架netty\mina等，有相关实践经验；</p>
+</li>
+<li><p>熟练掌握MySQL，有数据库调优经验</p>
+</li>
+<li><p>熟练掌握MQ、Cache、NoSQL应用及原理</p>
+</li>
+<li><p>熟悉Linux/Unix系统，熟悉Maven、Git使用</p>
+</li>
+<li><p>较强自学能力，同时掌握Scala、GoLang、Python、Node.js选其一者更佳</p>
+</li>
+<li><p>算法基础比较好，熟悉经典的算法并有一定的了解，比如LR、KM、SVM、GBDT、Reinforcement Learning、Deep Learning等有其中一种算法工程化研发经验者优先；</p>
+</li>
+<li><p>有技术热情和较强的学习能力，对于新技术有浓烈的好奇心，有很好的问题分析和技术攻关能力，具有良好的团队合作能力、沟通能力、抗压能力，具有GitHub开源项目者优先，对代码洁癖者优先；</p>
+</li>
+<li><p>Java基础扎实，理解io、多线程、集合等基础框架，对JVM原理有一定的了解； </p>
+</li>
+<li><p>对于你用过的开源框架，能了解到它的原理和机制；对Spring、ibatis开源框架熟悉； </p>
+</li>
+<li><p>掌握多线程及高性能的设计与编码及性能调优；有高并发应用开发经验； </p>
+</li>
+<li><p>对技术有浓厚兴趣，学习能力强，适应能力好，抗压能力强；</p>
+</li>
+<li><p>熟悉Java EE规范，Java技术基础扎实，熟悉IO、多线程、异步处理等基础架构，熟悉缓存、搜索等机制，在可扩展、高性能、高稳定性系统的设计、开发、调优等方面有实际经验； </p>
+</li>
+<li><p>对数据库的基本理论和内部实现机制有深刻的理解，能够熟练应用MySQL/NoSQL，有实际大数据量的数据库设计经验； </p>
+</li>
+<li><p>具有良好的逻辑思维能力，熟悉业务抽象和数据模型设计，具有很强的分析问题和解决问题的能力，对解决具有挑战性问题充满激情； </p>
+</li>
+<li><p>知识面广，思路开阔，创新能力强，对新技术持有敏感性并愿意致力于新技术的探索和研究。</p>
+</li>
+</ul>
 
           
         
@@ -2270,7 +1920,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/27/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><span class="page-number current">28</span><a class="page-number" href="/page/29/">29</a><span class="space">&hellip;</span><a class="page-number" href="/page/50/">50</a><a class="extend next" rel="next" href="/page/29/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/27/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><span class="page-number current">28</span><a class="page-number" href="/page/29/">29</a><span class="space">&hellip;</span><a class="page-number" href="/page/46/">46</a><a class="extend next" rel="next" href="/page/29/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
   </nav>
 
 
@@ -2320,7 +1970,7 @@
               
                 <a href="/archives/%20%7C%7C%20archive">
               
-                  <span class="site-state-item-count">491</span>
+                  <span class="site-state-item-count">460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -2333,7 +1983,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">99</span>
+                  <span class="site-state-item-count">98</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -2350,6 +2000,22 @@
             </div>
           
 
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/gaohanghang" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/gao-xing-68-15/activities" target="_blank" title="zhihu">
+                      
+                        <i class="fa fa-fw fa-globe"></i>zhihu</a>
+                  </span>
+                
+            </div>
           
 
           

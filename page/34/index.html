@@ -272,7 +272,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/04/14/%E5%B9%B6%E5%8F%91%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%9ACAS-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FJava8%E6%98%AF%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96-CAS-%E7%9A%84%EF%BC%9F/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/28/String-StringBuilder-StringBuffer%E7%9A%84%E5%8C%BA%E5%88%AB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -291,7 +291,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/04/14/%E5%B9%B6%E5%8F%91%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%9ACAS-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FJava8%E6%98%AF%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96-CAS-%E7%9A%84%EF%BC%9F/" itemprop="url">并发的核心：CAS 是什么？Java8是如何优化 CAS 的？</a></h1>
+                <a class="post-title-link" href="/2019/01/28/String-StringBuilder-StringBuffer%E7%9A%84%E5%8C%BA%E5%88%AB/" itemprop="url">String StringBuilder StringBuffer的区别?</a></h1>
         
 
         <div class="post-meta">
@@ -303,8 +303,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-04-14T11:20:03+08:00">
-                2019-04-14
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-28T11:57:02+08:00">
+                2019-01-28
               </time>
             
 
@@ -322,8 +322,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/04/14/%E5%B9%B6%E5%8F%91%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%9ACAS-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FJava8%E6%98%AF%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96-CAS-%E7%9A%84%EF%BC%9F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/04/14/并发的核心：CAS-是什么？Java8是如何优化-CAS-的？/" itemprop="commentCount"></span>
+                <a href="/2019/01/28/String-StringBuilder-StringBuffer%E7%9A%84%E5%8C%BA%E5%88%AB/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/28/String-StringBuilder-StringBuffer的区别/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -331,7 +331,166 @@
 
           
           
-             <span id="/2019/04/14/%E5%B9%B6%E5%8F%91%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%9ACAS-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FJava8%E6%98%AF%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96-CAS-%E7%9A%84%EF%BC%9F/" class="leancloud_visitors" data-flag-title="并发的核心：CAS 是什么？Java8是如何优化 CAS 的？">
+             <span id="/2019/01/28/String-StringBuilder-StringBuffer%E7%9A%84%E5%8C%BA%E5%88%AB/" class="leancloud_visitors" data-flag-title="String StringBuilder StringBuffer的区别?">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>三者都是用来对字符串进行操作，String通常用来定义一个变量，而StringBuilder StringBuffer则通常用来对字符串进行拼接等操作。但其实String同样的可以用来拼接字符串，可我们为什么很少使用呢，这样从三者的底层代码说起。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fzm60mvtt2j30hs02s3yy.jpg" alt=""></p>
+<p>String的底层代码为一个用final修饰的char数组，这意味着定义一个String变量以后，该变量的内容是不可变的。</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fzm611tso3j30hr08hdgz.jpg" alt=""></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fzm616x93vj30hq03lgm3.jpg" alt=""></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fzm616x93vj30hq03lgm3.jpg" alt=""></p>
+<p>StringBuilder 与StringBuffer都继承自AbstractStringBuilder，该类的char数组并没有用final修饰，内容是可变的，这个是什么意思呢。</p>
+<p>比如：</p>
+<p>String s1= “a”;</p>
+<p>String s2 = new String(“b”) ;</p>
+<p>String s3 = s1+s2;</p>
+<p>如果这样，我们得到“ab”这个字符串，因为String底层为不可变的字符串，所以会创建三个对象，都会占用内存，而这三个对象一直都未失去引用，所以jvm无法垃圾回收，造成内存资源的大量浪费，这在我们开发中是不推崇的，而StringBuilder 与StringBuffer则不存在这样的问题。</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fzm61vod3wj30hs06vt9l.jpg" alt=""></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fzm6216m9hj30hq04ajrz.jpg" alt=""></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fzm625qtrxj30hs03hjrz.jpg" alt=""></p>
+<p>通过底层代码我们可以看到StringBuilder 与StringBuffer在拼接字符串时，通过判断字符串长度是否足够，从而创建一个新的数组用来封装数据，而原来的对象被放弃引用，等待垃圾回收，从而减少内存的浪费，因此在拼接字符串等操作时，我们通常使用StringBuilder 与StringBuffer，但两者在执行效率上又有不同，StringBuilder的执行效率较高，这是为什么呢？</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fzm625qtrxj30hs03hjrz.jpg" alt=""></p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fzm62t6vo7j30hs04aq3c.jpg" alt=""></p>
+<p>通过底层源码，可以发现StringBuffer在拼接字符串时，使用了同步锁，安全性提高，而StringBuilder未使用同步锁，故效率提高。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/28/JDBC%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8PreparedStatement%E8%80%8C%E4%B8%8D%E6%98%AFStatement/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/28/JDBC%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8PreparedStatement%E8%80%8C%E4%B8%8D%E6%98%AFStatement/" itemprop="url">JDBC为什么要使用PreparedStatement而不是Statement</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-28T09:58:10+08:00">
+                2019-01-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/28/JDBC%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8PreparedStatement%E8%80%8C%E4%B8%8D%E6%98%AFStatement/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/28/JDBC为什么要使用PreparedStatement而不是Statement/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/01/28/JDBC%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8PreparedStatement%E8%80%8C%E4%B8%8D%E6%98%AFStatement/" class="leancloud_visitors" data-flag-title="JDBC为什么要使用PreparedStatement而不是Statement">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -364,37 +523,32 @@
       
         
           <blockquote>
-<p> 本文转载自微信公众号：苦逼的码农</p>
+<p>本文由 <a href="http://www.importnew.com/" target="_blank" rel="noopener">ImportNew</a> - <a href="http://www.importnew.com/author/liuzhijun" target="_blank" rel="noopener">刘志军</a> 翻译自 <a href="http://javarevisited.blogspot.com/2012/03/why-use-preparedstatement-in-java-jdbc.html#ixzz2YjEhPIis" target="_blank" rel="noopener">Javarevisited</a>。欢迎加入<a href="http://group.jobbole.com/category/feedback/trans-team/" target="_blank" rel="noopener">翻译小组</a>。转载请见文末要求。</p>
 </blockquote>
-<p>大家可能都听说说 Java 中的并发包，如果想要读懂 Java 中的并发包，其核心就是要先读懂 CAS 机制，因为 CAS 可以说是并发包的底层实现原理。</p>
-<p>今天就带大家读懂 CAS 是如何保证操作的原子性的，以及 Java8 对 CAS 进行了哪些优化。</p>
-<h3 id="synchronized：大材小用"><a href="#synchronized：大材小用" class="headerlink" title="synchronized：大材小用"></a>synchronized：大材小用</h3><p>我们先来看几行代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CASTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        i++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>PreparedStatement是用来执行SQL查询语句的API之一，Java提供了 Statement、PreparedStatement 和 CallableStatement三种方式来执行查询语句，其中 Statement 用于通用查询， PreparedStatement 用于执行参数化查询，而 CallableStatement则是用于存储过程。同时PreparedStatement还经常会在Java面试被提及，譬如：Statement与PreparedStatement的区别以及如何避免SQL注入式攻击？这篇教程中我们会讨论为什么要用PreparedStatement？使用PreparedStatement有什么样的优势？PreparedStatement又是如何避免SQL注入攻击的？</p>
+<h2 id="PreparedStatement是什么？"><a href="#PreparedStatement是什么？" class="headerlink" title="PreparedStatement是什么？"></a>PreparedStatement是什么？</h2><p>PreparedStatement是java.sql包下面的一个接口，用来执行SQL语句查询，通过调用connection.preparedStatement(sql)方法可以获得PreparedStatment对象。数据库系统会对sql语句进行预编译处理（如果JDBC驱动支持的话），预处理语句将被预先编译好，这条预编译的sql查询语句能在将来的查询中重用，这样一来，它比Statement对象生成的查询速度更快。下面是一个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PreparedStmtExample</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> <span class="keyword">throws</span> SQLException </span>&#123;</span><br><span class="line">        Connection conn = DriverManager.getConnection(<span class="string">"mysql:\\localhost:1520"</span>, <span class="string">"root"</span>, <span class="string">"root"</span>);</span><br><span class="line">        PreparedStatement preStatement = conn.prepareStatement(<span class="string">"select distinct loan_type from loan where bank=?"</span>);</span><br><span class="line">        preStatement.setString(<span class="number">1</span>, <span class="string">"Citibank"</span>);</span><br><span class="line"> </span><br><span class="line">        ResultSet result = preStatement.executeQuery();</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">while</span>(result.next())&#123;</span><br><span class="line">            System.out.println(<span class="string">"Loan Type: "</span> + result.getString(<span class="string">"loan_type"</span>));</span><br><span class="line">        &#125;       </span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br><span class="line">Output:</span><br><span class="line">Loan Type: Personal Loan</span><br><span class="line">Loan Type: Auto Loan</span><br><span class="line">Loan Type: Home Loan</span><br><span class="line">Loan Type: Gold Loan</span><br></pre></td></tr></table></figure>
 
-<p>假如有100个线程同时调用 increment() 方法对 i 进行自增操作，i 的结果会是 100 吗？</p>
-<p>学会多线程的同学应该都知道，这个方法是线程不安全的，由于 i++ 不是一个<strong>原子操作</strong>，所以是很难得到 100 的。</p>
-<blockquote>
-<p>这里稍微解释下为啥会得不到 100(知道的可直接跳过)， i++ 这个操作，计算机需要分成三步来执行。<br>1、读取 i 的值。<br>2、把 i 加 1.<br>3、把 最终 i 的结果写入内存之中。</p>
-<p>所以，（1）、假如线程 A 读取了 i 的值为 i = 0，（2）、这个时候线程 B 也读取了 i 的值 i = 0。（3）、接着 A把 i 加 1，然后写入内存，此时 i = 1。（4）、紧接着，B也把 i 加 1，此时线程B中的 i = 1，然后线程 B 把 i 写入内存，此时内存中的 i = 1。也就是说，线程 A, B 都对 i 进行了自增，但最终的结果却是 1，不是 2.</p>
-</blockquote>
-<p>那该怎么办呢？解决的策略一般都是给这个方法加个锁，如下</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CASTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        i++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个例子中，如果还是用 <strong>PreparedStatement</strong> 做同样的查询，哪怕参数值不一样，比如：”Standard Chated” 或者”HSBC”作为参数值，数据库系统还是会去调用之前编译器编译好的执行语句（系统库系统初次会对查询语句做最大的性能优化）。默认会返回”TYPE_FORWARD_ONLY”类型的结果集（ <strong>ResultSet</strong> ）,当然你也可以使用preparedstatment()的重载方法返回不同类型的结果集。</p>
+<h2 id="预处理语句的优势"><a href="#预处理语句的优势" class="headerlink" title="预处理语句的优势"></a>预处理语句的优势</h2><p><strong>PreparedStatement</strong>提供了诸多好处，企业级应用开发中强烈推荐使用PreparedStatement来做SQL查询，下面列出PreparedStatement的几点优势。</p>
+<p><strong>1. PreparedStatement</strong>可以写动态参数化的查询</p>
+<p>用PreparedStatement你可以写带参数的sql查询语句，通过使用相同的sql语句和不同的参数值来做查询比创建一个不同的查询语句要好，下面是一个参数化查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> interest_rate <span class="keyword">FROM</span> loan <span class="keyword">WHERE</span> loan_type=?</span><br></pre></td></tr></table></figure>
 
-<p>加了 synchronized 之后，就最多只能有一个线程能够进入这个 increment() 方法了。这样，就不会出现线程不安全了。</p>
-<p>然而，一个简简单单的自增操作，就加了 synchronized 进行同步，好像有点大材小用的感觉，加了 synchronized 关键词之后，当有很多线程去竞争 increment 这个方法的时候，拿不到锁的方法是会被<strong>阻塞</strong>在方法外面的，最后再来唤醒他们，而阻塞/唤醒这些操作，是非常消耗时间的。</p>
-<blockquote>
-<p>这里可能有人会说，synchronized 到了JDK1.6之后不是做了很多优化吗？是的，确实做了很多优化，增加了偏向锁、轻量级锁等，  但是，就算增加了这些，当很多线程来竞争的时候，开销依然很多，</p>
-</blockquote>
-<h3 id="CAS-：这种小事交给我"><a href="#CAS-：这种小事交给我" class="headerlink" title="CAS ：这种小事交给我"></a>CAS ：这种小事交给我</h3><p>那有没有其他方法来代替 synchronized 对方法的加锁，并且保证 increment() 方法是线程安全呢？</p>
-<p>大家看一下，如果我采用下面这种方式，能否保证 increment 是线程安全的呢？步骤如下：</p>
-<p>1、线程从内存中读取 i 的值，假如此时 i 的值为 0，我们把这个值称为 k 吧，即此时 k = 0。</p>
-<p>2、令 j = k + 1。</p>
-<p>3、用 k 的值与内存中i的值相比，如果相等，这意味着没有其他线程修改过 i 的值，我们就把 j（此时为1） 的值写入内存；如果不相等（意味着i的值被其他线程修改过），我们就不把j的值写入内存，而是重新跳回步骤 1，继续这三个操作。</p>
-<p>翻译成代码的话就是这样：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">do</span>&#123;</span><br><span class="line">        <span class="keyword">int</span> k = i;</span><br><span class="line">        <span class="keyword">int</span> j = k + <span class="number">1</span>;</span><br><span class="line">    &#125;<span class="keyword">while</span> (compareAndSet(i, k, j))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>2. PreparedStatement</strong>比 <strong>Statement</strong> 更快</p>
+<p>使用 <strong>PreparedStatement</strong> 最重要的一点好处是它拥有更佳的性能优势，SQL语句会预编译在数据库系统中。执行计划同样会被缓存起来，它允许数据库做参数化查询。使用预处理语句比普通的查询更快，因为它做的工作更少（数据库对SQL语句的分析，编译，优化已经在第一次查询前完成了）。为了减少数据库的负载，生产环境中德JDBC代码你应该总是使用<strong>PreparedStatement</strong> 。值得注意的一点是：为了获得性能上的优势，应该使用参数化sql查询而不是字符串追加的方式。下面两个SELECT 查询，第一个SELECT查询就没有任何性能优势。</p>
+<p>SQL Query 1:字符串追加形式的PreparedStatement</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String loanType = getLoanType();</span><br><span class="line">PreparedStatement prestmt = conn.prepareStatement(<span class="string">"select banks from loan where loan_type="</span> + loanType);</span><br></pre></td></tr></table></figure>
+
+<p>SQL Query 2：使用参数化查询的PreparedStatement</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PreparedStatement prestmt = conn.prepareStatement(<span class="string">"select banks from loan where loan_type=?"</span>);</span><br><span class="line">prestmt.setString(<span class="number">1</span>,loanType);</span><br></pre></td></tr></table></figure>
+
+<p>第二个查询就是正确使用PreparedStatement的查询，它比SQL1能获得更好的性能。</p>
+<p><strong>3. PreparedStatement</strong>可以防止SQL注入式攻击</p>
+<p>如果你是做Java web应用开发的，那么必须熟悉那声名狼藉的SQL注入式攻击。去年Sony就遭受了SQL注入攻击，被盗用了一些Sony play station（PS机）用户的数据。在SQL注入攻击里，恶意用户通过SQL元数据绑定输入，比如：某个网站的登录验证SQL查询代码为：</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/04/14/%E5%B9%B6%E5%8F%91%E7%9A%84%E6%A0%B8%E5%BF%83%EF%BC%9ACAS-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9FJava8%E6%98%AF%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96-CAS-%E7%9A%84%EF%BC%9F/#more" rel="contents">
+            <a class="btn" href="/2019/01/28/JDBC%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8PreparedStatement%E8%80%8C%E4%B8%8D%E6%98%AFStatement/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -445,7 +599,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/04/07/MySQL-%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C%EF%BC%9F/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/24/spring-boot%E5%B7%A5%E7%A8%8B%E4%B8%AD%EF%BC%8Cjpa%E4%B8%8Bhibernate%E7%9A%84ddl-auto%E7%9A%84%E5%90%84%E7%A7%8D%E5%B1%9E%E6%80%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -464,7 +618,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/04/07/MySQL-%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C%EF%BC%9F/" itemprop="url">MySQL 如何查找删除重复行？</a></h1>
+                <a class="post-title-link" href="/2019/01/24/spring-boot%E5%B7%A5%E7%A8%8B%E4%B8%AD%EF%BC%8Cjpa%E4%B8%8Bhibernate%E7%9A%84ddl-auto%E7%9A%84%E5%90%84%E7%A7%8D%E5%B1%9E%E6%80%A7/" itemprop="url">spring-boot工程中，jpa下hibernate的ddl-auto的各种属性</a></h1>
         
 
         <div class="post-meta">
@@ -476,8 +630,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-04-07T18:32:31+08:00">
-                2019-04-07
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-24T22:19:32+08:00">
+                2019-01-24
               </time>
             
 
@@ -495,8 +649,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/04/07/MySQL-%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C%EF%BC%9F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/04/07/MySQL-如何查找删除重复行？/" itemprop="commentCount"></span>
+                <a href="/2019/01/24/spring-boot%E5%B7%A5%E7%A8%8B%E4%B8%AD%EF%BC%8Cjpa%E4%B8%8Bhibernate%E7%9A%84ddl-auto%E7%9A%84%E5%90%84%E7%A7%8D%E5%B1%9E%E6%80%A7/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/24/spring-boot工程中，jpa下hibernate的ddl-auto的各种属性/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -504,7 +658,7 @@
 
           
           
-             <span id="/2019/04/07/MySQL-%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C%EF%BC%9F/" class="leancloud_visitors" data-flag-title="MySQL 如何查找删除重复行？">
+             <span id="/2019/01/24/spring-boot%E5%B7%A5%E7%A8%8B%E4%B8%AD%EF%BC%8Cjpa%E4%B8%8Bhibernate%E7%9A%84ddl-auto%E7%9A%84%E5%90%84%E7%A7%8D%E5%B1%9E%E6%80%A7/" class="leancloud_visitors" data-flag-title="spring-boot工程中，jpa下hibernate的ddl-auto的各种属性">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -536,27 +690,215 @@
 
       
         
-          <h2 id="如何查找重复行"><a href="#如何查找重复行" class="headerlink" title="如何查找重复行"></a>如何查找重复行</h2><p>第一步是定义什么样的行才是重复行。多数情况下很简单：它们某一列具有相同的值。本文采用这一定义，或许你对“重复”的定义比这复杂，你需要对sql做些修改。本文要用到的数据样本：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> <span class="keyword">test</span>(<span class="keyword">id</span> <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span> primary <span class="keyword">key</span>, <span class="keyword">day</span> <span class="built_in">date</span> <span class="keyword">not</span> <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">test</span>(<span class="keyword">id</span>, <span class="keyword">day</span>) <span class="keyword">values</span>(<span class="number">1</span>, <span class="string">'2006-10-08'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">test</span>(<span class="keyword">id</span>, <span class="keyword">day</span>) <span class="keyword">values</span>(<span class="number">2</span>, <span class="string">'2006-10-08'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> <span class="keyword">test</span>(<span class="keyword">id</span>, <span class="keyword">day</span>) <span class="keyword">values</span>(<span class="number">3</span>, <span class="string">'2006-10-09'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">test</span>;</span><br><span class="line">+<span class="comment">----+------------+</span></span><br><span class="line">| id | day        |</span><br><span class="line">+<span class="comment">----+------------+</span></span><br><span class="line">|  1 | 2006-10-08 |</span><br><span class="line">|  2 | 2006-10-08 |</span><br><span class="line">|  3 | 2006-10-09 |</span><br><span class="line">+<span class="comment">----+------------+</span></span><br></pre></td></tr></table></figure>
+          
+            <figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">jpa:</span></span><br><span class="line">    <span class="attr">hibernate:</span></span><br><span class="line">      <span class="attr">ddl-auto:</span> <span class="string">update</span></span><br></pre></td></tr></table></figure>
 
-<p>前面两行在day字段具有相同的值，因此如何我将他们当做重复行，这里有一查询语句可以查找。查询语句使用GROUP BY子句把具有相同字段值的行归为一组，然后计算组的大小。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">day</span>, <span class="keyword">count</span>(*) <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">GROUP</span> <span class="keyword">BY</span> <span class="keyword">day</span>;</span><br><span class="line">+<span class="comment">------------+----------+</span></span><br><span class="line">| day        | count(*) |</span><br><span class="line">+<span class="comment">------------+----------+</span></span><br><span class="line">| 2006-10-08 |        2 |</span><br><span class="line">| 2006-10-09 |        1 |</span><br><span class="line">+<span class="comment">------------+----------+</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th align="center">选项</th>
+<th align="center">解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">create</td>
+<td align="center">Database dropping will be generated followed by database creation.</td>
+</tr>
+<tr>
+<td align="center">create-drop</td>
+<td align="center">Drop the schema and recreate it on SessionFactory startup. Additionally, drop the schema on SessionFactory shutdown.</td>
+</tr>
+<tr>
+<td align="center">validate</td>
+<td align="center">Validate the database schema</td>
+</tr>
+<tr>
+<td align="center">update</td>
+<td align="center">Update the database schema</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="center">选项</th>
+<th align="center">解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">create</td>
+<td align="center">在新数据库创建的时候原有数据库会被删除</td>
+</tr>
+<tr>
+<td align="center">create-drop</td>
+<td align="center">在SessionFactory启动的时候删除原有表并重建它，此外，在SessionFactory关闭的时候删除表</td>
+</tr>
+<tr>
+<td align="center">validate</td>
+<td align="center">验证数据库的表</td>
+</tr>
+<tr>
+<td align="center">update</td>
+<td align="center">更新数据库表</td>
+</tr>
+</tbody></table>
 
-<p>重复行的组大小大于1。如何希望只显示重复行，必须使用HAVING子句，比如</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">day</span>, <span class="keyword">count</span>(*) <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">day</span> <span class="keyword">HAVING</span> <span class="keyword">count</span>(*) &gt; <span class="number">1</span>;</span><br><span class="line">+<span class="comment">------------+----------+</span></span><br><span class="line">| day        | count(*) |</span><br><span class="line">+<span class="comment">------------+----------+</span></span><br><span class="line">| 2006-10-08 |        2 |</span><br><span class="line">+<span class="comment">------------+----------+</span></span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
 
-<p>这是基本的技巧：根据具有相同值的字段分组，然后知显示大小大于1的组。</p>
-<p>为什么不能使用WHERE子句？因为WHERE子句过滤的是分组之前的行，HAVING子句过滤的是分组之后的行。</p>
-<h2 id="如何删除重复行"><a href="#如何删除重复行" class="headerlink" title="如何删除重复行"></a>如何删除重复行</h2><p>一个相关的问题是如何删除重复行。一个常见的任务是，重复行只保留一行，其他删除，然后你可以创建适当的索引，防止以后再有重复的行写入数据库。</p>
-<p>同样，首先是弄清楚重复行的定义。你要保留的是哪一行呢？第一行，或者某个字段具有最大值的行？本文中，假设要保留的是第一行——id字段具有最小值的行，意味着你要删除其他的行。</p>
-<p>也许最简单的方法是通过临时表。尤其对于MYSQL，有些限制是不能在一个查询语句中select的同时update一个表。简单起见，这里只用到了临时表的方法。</p>
-<p>我们的任务是：删除所有重复行，除了分组中id字段具有最小值的行。因此，需要找出大小大于1的分组，以及希望保留的行。你可以使用MIN()函数。这里的语句是创建临时表，以及查找需要用DELETE删除的行。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">temporary</span> <span class="keyword">table</span> to_delete (<span class="keyword">day</span> <span class="built_in">date</span> <span class="keyword">not</span> <span class="literal">null</span>, min_id <span class="built_in">int</span> <span class="keyword">not</span> <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> to_delete(<span class="keyword">day</span>, min_id)</span><br><span class="line">  <span class="keyword">select</span> <span class="keyword">day</span>, <span class="keyword">MIN</span>(<span class="keyword">id</span>) <span class="keyword">from</span> <span class="keyword">test</span> <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">day</span> <span class="keyword">having</span> <span class="keyword">count</span>(*) &gt; <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> to_delete;</span><br><span class="line">+<span class="comment">------------+--------+</span></span><br><span class="line">| day        | min_id |</span><br><span class="line">+<span class="comment">------------+--------+</span></span><br><span class="line">| 2006-10-08 |      1 |</span><br><span class="line">+<span class="comment">------------+--------+</span></span><br></pre></td></tr></table></figure>
+    
 
-<p>有了这些数据，你可以开始删除“脏数据”行了。可以有几种方法，各有优劣（详见我的文章many-to-one problems in SQL），但这里不做详细比较，只是说明在支持查询子句的关系数据库中，使用的标准方法。</p>
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/22/SpringBoot%E4%B8%8EShiro%E6%95%B4%E5%90%88%E9%A1%B9%E7%9B%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/22/SpringBoot%E4%B8%8EShiro%E6%95%B4%E5%90%88%E9%A1%B9%E7%9B%AE/" itemprop="url">SpringBoot与Shiro整合项目</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-22T10:07:54+08:00">
+                2019-01-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/22/SpringBoot%E4%B8%8EShiro%E6%95%B4%E5%90%88%E9%A1%B9%E7%9B%AE/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/22/SpringBoot与Shiro整合项目/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/01/22/SpringBoot%E4%B8%8EShiro%E6%95%B4%E5%90%88%E9%A1%B9%E7%9B%AE/" class="leancloud_visitors" data-flag-title="SpringBoot与Shiro整合项目">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h2 id="Shiro的核心API"><a href="#Shiro的核心API" class="headerlink" title="Shiro的核心API"></a>Shiro的核心API</h2><p>Subject: 用户主体（把操作交给SecurityManager）</p>
+<p>SecurityManager: 安全管理器 (关联 Realm)</p>
+<p>Realm: Shiro连接数据的桥梁</p>
+<p>Spring boot 整合Shiro</p>
+<blockquote>
+<p>项目来自<a href="https://www.bilibili.com/video/av37984279/?p=12" target="_blank" rel="noopener">Springboot+Shiro 实现认证和授权</a></p>
+</blockquote>
+<h3 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h3><ul>
+<li>认证(登录)功能</li>
+<li>授权功能</li>
+<li>Thymeleaf整合权限标签，登录后只显示拥有有权限的功能</li>
+</ul>
+<h3 id="test1用户"><a href="#test1用户" class="headerlink" title="test1用户"></a>test1用户</h3><blockquote>
+<p>test1用户登录后只有用户添加功能显示</p>
+</blockquote>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fzfei1tqoqj30g60b8wer.jpg" alt=""><br><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fzfekz1gsdj30fn09hglx.jpg" alt=""></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/04/07/MySQL-%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C%EF%BC%9F/#more" rel="contents">
+            <a class="btn" href="/2019/01/22/SpringBoot%E4%B8%8EShiro%E6%95%B4%E5%90%88%E9%A1%B9%E7%9B%AE/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -607,7 +949,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/04/07/IntelliJ-IDEA-2019-1-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83%EF%BC%8C%E2%80%9CJetBrains-%E5%85%A8%E5%AE%B6%E6%A1%B6%E2%80%9D%E9%BD%90%E6%9B%B4%E6%96%B0/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/21/TOP-K%E9%97%AE%E9%A2%98%E7%9A%84%E5%87%A0%E7%A7%8D%E8%A7%A3%E6%B3%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -626,7 +968,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/04/07/IntelliJ-IDEA-2019-1-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83%EF%BC%8C%E2%80%9CJetBrains-%E5%85%A8%E5%AE%B6%E6%A1%B6%E2%80%9D%E9%BD%90%E6%9B%B4%E6%96%B0/" itemprop="url">IntelliJ IDEA 2019.1 正式发布，“JetBrains 全家桶”齐更新</a></h1>
+                <a class="post-title-link" href="/2019/01/21/TOP-K%E9%97%AE%E9%A2%98%E7%9A%84%E5%87%A0%E7%A7%8D%E8%A7%A3%E6%B3%95/" itemprop="url">TOP-K问题的几种解法</a></h1>
         
 
         <div class="post-meta">
@@ -638,8 +980,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-04-07T17:17:14+08:00">
-                2019-04-07
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-21T20:53:44+08:00">
+                2019-01-21
               </time>
             
 
@@ -657,8 +999,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/04/07/IntelliJ-IDEA-2019-1-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83%EF%BC%8C%E2%80%9CJetBrains-%E5%85%A8%E5%AE%B6%E6%A1%B6%E2%80%9D%E9%BD%90%E6%9B%B4%E6%96%B0/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/04/07/IntelliJ-IDEA-2019-1-正式发布，“JetBrains-全家桶”齐更新/" itemprop="commentCount"></span>
+                <a href="/2019/01/21/TOP-K%E9%97%AE%E9%A2%98%E7%9A%84%E5%87%A0%E7%A7%8D%E8%A7%A3%E6%B3%95/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/21/TOP-K问题的几种解法/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -666,7 +1008,361 @@
 
           
           
-             <span id="/2019/04/07/IntelliJ-IDEA-2019-1-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83%EF%BC%8C%E2%80%9CJetBrains-%E5%85%A8%E5%AE%B6%E6%A1%B6%E2%80%9D%E9%BD%90%E6%9B%B4%E6%96%B0/" class="leancloud_visitors" data-flag-title="IntelliJ IDEA 2019.1 正式发布，“JetBrains 全家桶”齐更新">
+             <span id="/2019/01/21/TOP-K%E9%97%AE%E9%A2%98%E7%9A%84%E5%87%A0%E7%A7%8D%E8%A7%A3%E6%B3%95/" class="leancloud_visitors" data-flag-title="TOP-K问题的几种解法">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h1 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a><strong>解法一</strong></h1><p>最简单且最容易想到的算法是对数组进行排序（快速排序），然后取最大或最小的K个元素。总的时间复杂度为O(N<em>logN)+O(K)=O(N</em>logN)。该算法存在以下问题：</p>
+<ol>
+<li>快速排序的平均复杂度为O(N*logN)，但最坏时间复杂度为O(n2)，不能始终保证较好的复杂度</li>
+<li>只需要前k大或k小的数,，实际对其余不需要的数也进行了排序，浪费了大量排序时间</li>
+</ol>
+<p><strong>总结</strong>：通常不会采取该方案。</p>
+<h1 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a><strong>解法二</strong></h1><ul>
+<li>若Sa中元素的个数大于或等于k，则在Sa中查找最大的k个数</li>
+<li>若Sa中元素的个数小于k，其个数为len，则在Sb中查找k-len个数字</li>
+</ul>
+<p>如此递归下去，不断把问题分解为更小的问题，直到求出结果。</p>
+<p>该算法的平均时间复杂度为O(N * logk)。以求K大的数为例，算法实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FindTopK</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">findTopK</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span> lo, <span class="keyword">int</span> hi, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> index = -<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (lo &lt; hi) &#123; <span class="comment">// 如果lo &lt; hi直接返回-1</span></span><br><span class="line">            <span class="keyword">int</span> j = partition(a, lo, hi);</span><br><span class="line">            <span class="keyword">int</span> len = j - lo + <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span> (len == k) &#123;</span><br><span class="line">                index = j;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (len &lt; k) &#123; <span class="comment">// Sa中元素个数小于K，到Sb中查找k-len个数字</span></span><br><span class="line">                index = findTopK(a, j + <span class="number">1</span>, hi, k - len);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123; <span class="comment">//Sa中元素的个数大于或等于k</span></span><br><span class="line">                index = findTopK(a, lo, j - <span class="number">1</span>, k);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> index;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 按切分元素划分数组，左边的元素大于切分元素，右边的元素小于切分元素</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span> lo, <span class="keyword">int</span> hi)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 将数组切分为a[lo..i-1], a[i], a[i+1..hi]</span></span><br><span class="line">        <span class="keyword">int</span> i = lo, j = hi + <span class="number">1</span>; <span class="comment">// 左右扫描指针</span></span><br><span class="line">        <span class="keyword">int</span> v = a[lo];          <span class="comment">// 切分元素</span></span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="comment">// 扫描左右，检查扫描是否结束并交换元素</span></span><br><span class="line">            <span class="keyword">while</span> (less(v, a[++i])) <span class="keyword">if</span> (i == hi) <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">while</span> (less(a[--j], v)) <span class="keyword">if</span> (j == lo) <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">if</span> (i &gt;= j) <span class="keyword">break</span>;</span><br><span class="line">            exch(a, i, j);</span><br><span class="line">        &#125;</span><br><span class="line">        exch(a, lo, j);         <span class="comment">// 将v = a[j]放入正确的位置</span></span><br><span class="line">        <span class="keyword">return</span> j;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">less</span><span class="params">(<span class="keyword">int</span> v, <span class="keyword">int</span> w)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> v &lt; w;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">exch</span><span class="params">(<span class="keyword">int</span>[] a, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> t = a[i];</span><br><span class="line">        a[i] = a[j];</span><br><span class="line">        a[j] = t;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">(<span class="keyword">int</span>[] a)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 在单行中打印数组</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; a.length; i++)</span><br><span class="line">            System.out.print(a[i] + <span class="string">" "</span>);</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[] a = &#123;<span class="number">20</span>, <span class="number">100</span>, <span class="number">4</span>, <span class="number">2</span>, <span class="number">87</span>, <span class="number">9</span>, <span class="number">8</span>, <span class="number">5</span>, <span class="number">46</span>, <span class="number">26</span>, <span class="number">100</span>&#125;;</span><br><span class="line">        <span class="keyword">int</span> k = <span class="number">100</span>;</span><br><span class="line">        findTopK(a, <span class="number">0</span>, a.length - <span class="number">1</span>, k);</span><br><span class="line">        show(a);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/01/21/TOP-K%E9%97%AE%E9%A2%98%E7%9A%84%E5%87%A0%E7%A7%8D%E8%A7%A3%E6%B3%95/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/20/Java%E6%8A%BD%E8%B1%A1%E7%B1%BB%E4%B8%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%8C%BA%E5%88%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/20/Java%E6%8A%BD%E8%B1%A1%E7%B1%BB%E4%B8%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%8C%BA%E5%88%AB/" itemprop="url">Java抽象类与接口的区别</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-20T19:08:32+08:00">
+                2019-01-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/20/Java%E6%8A%BD%E8%B1%A1%E7%B1%BB%E4%B8%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%8C%BA%E5%88%AB/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/20/Java抽象类与接口的区别/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/01/20/Java%E6%8A%BD%E8%B1%A1%E7%B1%BB%E4%B8%8E%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%8C%BA%E5%88%AB/" class="leancloud_visitors" data-flag-title="Java抽象类与接口的区别">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>原文链接 <a href="http://www.importnew.com/12399.html" target="_blank" rel="noopener">Java抽象类与接口的区别</a></p>
+</blockquote>
+<h3 id="抽象类和接口的对比"><a href="#抽象类和接口的对比" class="headerlink" title="抽象类和接口的对比"></a>抽象类和接口的对比</h3><table>
+<thead>
+<tr>
+<th><strong>参数</strong></th>
+<th><strong>抽象类</strong></th>
+<th><strong>接口</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>默认的方法实现</td>
+<td>它可以有默认的方法实现</td>
+<td>接口完全是抽象的。它根本不存在方法的实现</td>
+</tr>
+<tr>
+<td>实现</td>
+<td>子类使用<strong>extends</strong>关键字来继承抽象类。如果子类不是抽象类的话，它需要提供抽象类中所有声明的方法的实现。</td>
+<td>子类使用关键字<strong>implements</strong>来实现接口。它需要提供接口中所有声明的方法的实现</td>
+</tr>
+<tr>
+<td>构造器</td>
+<td>抽象类可以有构造器</td>
+<td>接口不能有构造器</td>
+</tr>
+<tr>
+<td>与正常Java类的区别</td>
+<td>除了你不能实例化抽象类之外，它和普通Java类没有任何区别</td>
+<td>接口是完全不同的类型</td>
+</tr>
+<tr>
+<td>访问修饰符</td>
+<td>抽象方法可以有<strong>public</strong>、<strong>protected</strong>和<strong>default</strong>这些修饰符</td>
+<td>接口方法默认修饰符是<strong>public</strong>。你不可以使用其它修饰符。</td>
+</tr>
+<tr>
+<td>main方法</td>
+<td>抽象方法可以有main方法并且我们可以运行它</td>
+<td>接口没有main方法，因此我们不能运行它。</td>
+</tr>
+<tr>
+<td>多继承</td>
+<td>抽象方法可以继承一个类和实现多个接口</td>
+<td>接口只可以继承一个或多个其它接口</td>
+</tr>
+<tr>
+<td>速度</td>
+<td>它比接口速度要快</td>
+<td>接口是稍微有点慢的，因为它需要时间去寻找在类中实现的方法。</td>
+</tr>
+<tr>
+<td>添加新方法</td>
+<td>如果你往抽象类中添加新的方法，你可以给它提供默认的实现。因此你不需要改变你现在的代码。</td>
+<td>如果你往接口中添加方法，那么你必须改变实现该接口的类。</td>
+</tr>
+</tbody></table>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/17/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E4%B8%AD%E7%9A%84final%E5%85%B3%E9%94%AE%E5%AD%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/01/17/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E4%B8%AD%E7%9A%84final%E5%85%B3%E9%94%AE%E5%AD%97/" itemprop="url">深入理解Java中的final关键字</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-17T19:11:15+08:00">
+                2019-01-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/01/17/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E4%B8%AD%E7%9A%84final%E5%85%B3%E9%94%AE%E5%AD%97/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/17/深入理解Java中的final关键字/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/01/17/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E4%B8%AD%E7%9A%84final%E5%85%B3%E9%94%AE%E5%AD%97/" class="leancloud_visitors" data-flag-title="深入理解Java中的final关键字">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -699,29 +1395,21 @@
       
         
           <blockquote>
-<p>作者：局长</p>
-<p><a href="https://www.oschina.net/news/105472" target="_blank" rel="noopener">https://www.oschina.net/news/105472</a></p>
+<p>原文链接 <a href="http://www.importnew.com/7553.html" target="_blank" rel="noopener">深入理解Java中的final关键字</a></p>
 </blockquote>
-<p>IntelliJ IDEA 2019.1 现已正式发布，作为今年的首个重大更新版本，2019.1 带来了许多新功能和改进，下面不妨来看看主要概述。</p>
-<p>可通过官网下载 IntelliJ IDEA 2019.1 的最新安装包来升级，也可以使用 Toolbox App 进行更新。</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1g1u6wr6fmij30m80b4wff.jpg" alt=""></p>
-<p>最值得关注的新特性包括：支持定制主题、支持 Java 12 Switch 表达式、在 Docker 容器内调试 Java 应用等。</p>
-<h2 id="定制主题"><a href="#定制主题" class="headerlink" title="定制主题"></a>定制主题</h2><p>此前，IntelliJ IDEA 官方只提供黑白两种主题供开发者使用，久而久之自然会审美疲劳。但从 2019.1 版本开始，IntelliJ IDEA 支持自定义 UI 主题。自定义 UI 主题使用户能够控制内置 IntelliJ IDEA UI 元素的外观。具体来说，用户可以：</p>
-<ul>
-<li>替换图标</li>
-<li>改变图标和 UI 控件的颜色</li>
-<li>改变 UI 控件的边框和 insets</li>
-<li>使用自定义的编辑器方案</li>
-<li>添加背景图片</li>
-</ul>
-<p>查看有关该功能的详细介绍，或下载新的主题来感受一番：</p>
-<blockquote>
-<p><a href="http://www.jetbrains.org/intellij/sdk/docs/reference_guide/ui_themes/themes_intro.html" target="_blank" rel="noopener">http://www.jetbrains.org/intellij/sdk/docs/reference_guide/ui_themes/themes_intro.html</a></p>
-</blockquote>
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1g1u6xcyfruj30u00i00xa.jpg" alt=""></p>
+<p>Java中的final关键字非常重要，它可以应用于类、方法以及变量。这篇文章中我将带你看看什么是final关键字？将变量，方法和类声明为final代表了什么？使用final的好处是什么？最后也有一些使用final关键字的实例。final经常和static一起使用来声明常量，你也会看到final是如何改善应用性能的。</p>
+<h3 id="final关键字的含义"><a href="#final关键字的含义" class="headerlink" title="final关键字的含义?"></a>final关键字的含义?</h3><p>final在Java中是一个保留的关键字，可以声明成员变量、方法、类以及本地变量。一旦你将引用声明作final，你将不能改变这个引用了，编译器会检查代码，如果你试图将变量再次初始化的话，编译器会报编译错误。</p>
+<h3 id="什么是final变量？"><a href="#什么是final变量？" class="headerlink" title="什么是final变量？"></a>什么是final变量？</h3><p>凡是对成员变量或者本地变量(在方法中的或者代码块中的变量称为本地变量)声明为final的都叫作final变量。final变量经常和static关键字一起使用，作为常量。下面是final变量的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String LOAN = <span class="string">"loan"</span>;</span><br><span class="line">LOAN = <span class="keyword">new</span> String(<span class="string">"loan"</span>) <span class="comment">//invalid compilation error</span></span><br></pre></td></tr></table></figure>
+
+<p>final变量是只读的。</p>
+<h3 id="什么是final方法"><a href="#什么是final方法" class="headerlink" title="什么是final方法?"></a>什么是final方法?</h3><p>final也可以声明方法。方法前面加上final关键字，代表这个方法不可以被子类的方法重写。如果你认为一个方法的功能已经足够完整了，子类中不需要改变的话，你可以声明此方法为final。final方法比非final方法要快，因为在编译的时候已经静态绑定了，不需要在运行时再动态绑定。下面是final方法的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PersonalLoan</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> String <span class="title">getName</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"personal loan"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CheapPersonalLoan</span> <span class="keyword">extends</span> <span class="title">PersonalLoan</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> String <span class="title">getName</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"cheap personal loan"</span>; <span class="comment">//compilation error: overridden method is final</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="什么是final类？"><a href="#什么是final类？" class="headerlink" title="什么是final类？"></a>什么是final类？</h3><p>使用final来修饰的类叫作final类。final类通常功能是完整的，它们不能被继承。Java中有许多类是final的，譬如String, Interger以及其他包装类。下面是final类的实例：</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/04/07/IntelliJ-IDEA-2019-1-%E6%AD%A3%E5%BC%8F%E5%8F%91%E5%B8%83%EF%BC%8C%E2%80%9CJetBrains-%E5%85%A8%E5%AE%B6%E6%A1%B6%E2%80%9D%E9%BD%90%E6%9B%B4%E6%96%B0/#more" rel="contents">
+            <a class="btn" href="/2019/01/17/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E4%B8%AD%E7%9A%84final%E5%85%B3%E9%94%AE%E5%AD%97/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -772,7 +1460,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/03/30/Top-K%E9%97%AE%E9%A2%98%E7%9A%84%E4%B8%A4%E7%A7%8D%E8%A7%A3%E5%86%B3%E6%80%9D%E8%B7%AF/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/17/final%E5%85%B3%E9%94%AE%E5%AD%97%E8%AF%A6%E8%A7%A3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -791,7 +1479,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/30/Top-K%E9%97%AE%E9%A2%98%E7%9A%84%E4%B8%A4%E7%A7%8D%E8%A7%A3%E5%86%B3%E6%80%9D%E8%B7%AF/" itemprop="url">Top K问题的两种解决思路</a></h1>
+                <a class="post-title-link" href="/2019/01/17/final%E5%85%B3%E9%94%AE%E5%AD%97%E8%AF%A6%E8%A7%A3/" itemprop="url">final关键字详解</a></h1>
         
 
         <div class="post-meta">
@@ -803,8 +1491,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-30T17:47:51+08:00">
-                2019-03-30
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-17T16:29:12+08:00">
+                2019-01-17
               </time>
             
 
@@ -822,8 +1510,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/03/30/Top-K%E9%97%AE%E9%A2%98%E7%9A%84%E4%B8%A4%E7%A7%8D%E8%A7%A3%E5%86%B3%E6%80%9D%E8%B7%AF/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/03/30/Top-K问题的两种解决思路/" itemprop="commentCount"></span>
+                <a href="/2019/01/17/final%E5%85%B3%E9%94%AE%E5%AD%97%E8%AF%A6%E8%A7%A3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/17/final关键字详解/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -831,7 +1519,7 @@
 
           
           
-             <span id="/2019/03/30/Top-K%E9%97%AE%E9%A2%98%E7%9A%84%E4%B8%A4%E7%A7%8D%E8%A7%A3%E5%86%B3%E6%80%9D%E8%B7%AF/" class="leancloud_visitors" data-flag-title="Top K问题的两种解决思路">
+             <span id="/2019/01/17/final%E5%85%B3%E9%94%AE%E5%AD%97%E8%AF%A6%E8%A7%A3/" class="leancloud_visitors" data-flag-title="final关键字详解">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -864,23 +1552,21 @@
       
         
           
-            <p>Top K问题在数据分析中非常普遍的一个问题（在面试中也经常被问到），比如：</p>
+            <h2 id="什么是final变量-类-方法？"><a href="#什么是final变量-类-方法？" class="headerlink" title="什么是final变量 / 类 / 方法？"></a>什么是final变量 / 类 / 方法？</h2><p>任何变量前被 final 修饰就是 final 变量，定义的类前被 final 修饰就是 final 类，任何方法前被 final 修饰就是final方法。</p>
+<p>当用final修饰一个类时，表明这个类不能被继承。</p>
+<p>下面这段话摘自《Java编程思想》第四版第143页：</p>
 <blockquote>
-<p>从20亿个数字的文本中，找出最大的前100个。</p>
+<p>“使用 final 方法的原因有两个。第一个原因是把方法锁定，以防任何继承类修改它的含义；第二个原因是效率。在早期的Java实现版本中，会将final方法转为内嵌调用。但是如果方法过于庞大，可能看不到内嵌调用带来的任何性能提升。在最近的 Java 版本中，不需要使用 final 方法进行这些优化了。“</p>
 </blockquote>
-<p>解决Top K问题有两种思路，</p>
-<ul>
-<li>最直观：小顶堆（大顶堆 -&gt; 最小100个数）；</li>
-<li>较高效：Quick Select算法。</li>
+<p>意思就是说如果认为方法足够完整，子类不需要修改就可以用final方法，避免子类去修改。</p>
+<p>final方法是静态绑定的，在编译时候就确定好是哪个类的方法，所以 final 方法比非 final 方法快一些。</p>
+<h2 id="final修饰变量和修饰引用变量到底有啥不同？"><a href="#final修饰变量和修饰引用变量到底有啥不同？" class="headerlink" title="final修饰变量和修饰引用变量到底有啥不同？"></a>final修饰变量和修饰引用变量到底有啥不同？</h2><p><strong>简单来讲，就是final修饰的常量普通变量不可改变，修饰的引用变量引用不可变，引用对象的内容可以改变！</strong></p>
+<h2 id="final关键字有啥好处？"><a href="#final关键字有啥好处？" class="headerlink" title="final关键字有啥好处？"></a>final关键字有啥好处？</h2><ul>
+<li>final方法比非final快一些</li>
+<li>final关键字提高了性能。JVM和Java应用都会缓存final变量。</li>
+<li>final变量可以安全的在多线程环境下进行共享，而不需要额外的同步开销。</li>
+<li>使用final关键字，JVM会对方法、变量及类进行优化。</li>
 </ul>
-<p>LeetCode上有一个问题<a href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank" rel="noopener">215. Kth Largest Element in an Array</a>，类似于Top K问题。</p>
-<h2 id="1-堆"><a href="#1-堆" class="headerlink" title="1. 堆"></a>1. 堆</h2><p>小顶堆（min-heap）有个重要的性质——每个结点的值均不大于其左右孩子结点的值，则堆顶元素即为整个堆的最小值。JDK中<code>PriorityQueue</code>实现了数据结构堆，通过指定<code>comparator</code>字段来表示小顶堆或大顶堆，默认为null，表示自然序（natural ordering）。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">findKthLargest</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        PriorityQueue&lt;Integer&gt; minQueue = <span class="keyword">new</span> PriorityQueue&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> num : nums) &#123;</span><br><span class="line">            <span class="keyword">if</span> (minQueue.size() &lt; k || num &gt; minQueue.peek())</span><br><span class="line">                minQueue.offer(num);</span><br><span class="line">            <span class="keyword">if</span> (minQueue.size() &gt; k)</span><br><span class="line">                minQueue.poll();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> minQueue.peek();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-Quick-Select算法"><a href="#2-Quick-Select算法" class="headerlink" title="2. Quick Select算法"></a>2. Quick Select算法</h2><blockquote>
-<p><a href="https://leetcode.com/problems/kth-largest-element-in-an-array/discuss/264553/Java-3-solutions-explain" target="_blank" rel="noopener">https://leetcode.com/problems/kth-largest-element-in-an-array/discuss/264553/Java-3-solutions-explain</a></p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="comment">//Quickselect</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">findKthLargest</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> l = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> r = nums.length - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> left = k - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (l &lt;= r) &#123;</span><br><span class="line">            <span class="keyword">int</span> p = partition(l, r, nums);</span><br><span class="line">            <span class="keyword">if</span> (p == left) &#123;</span><br><span class="line">                <span class="keyword">return</span> nums[p];</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (p &gt; left) &#123;</span><br><span class="line">                r = p - <span class="number">1</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                l = p + <span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> nums[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="keyword">int</span> l, <span class="keyword">int</span> r, <span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> pivot = nums[l];</span><br><span class="line">        <span class="keyword">int</span> j = l + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = l + <span class="number">1</span>; i &lt;= r; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[i] &gt; pivot) &#123;</span><br><span class="line">                <span class="comment">//swap[i, j]</span></span><br><span class="line">                swap(i, j, nums);</span><br><span class="line">                j++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        swap(l, j - <span class="number">1</span>, nums);</span><br><span class="line">        <span class="keyword">return</span> j - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span> i, <span class="keyword">int</span> j, <span class="keyword">int</span>[] nums)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> temp = nums[i];</span><br><span class="line">        nums[i] = nums[j];</span><br><span class="line">        nums[j] = temp;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 
           
         
@@ -929,7 +1615,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/03/29/%E4%BD%BF%E7%94%A8%E5%AE%98%E6%96%B9GitLab%E5%AD%98%E5%82%A8%E5%BA%93%E5%AE%89%E8%A3%85GitLab-Runner/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/17/Git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -948,7 +1634,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/29/%E4%BD%BF%E7%94%A8%E5%AE%98%E6%96%B9GitLab%E5%AD%98%E5%82%A8%E5%BA%93%E5%AE%89%E8%A3%85GitLab-Runner/" itemprop="url">使用官方GitLab存储库安装GitLab Runner</a></h1>
+                <a class="post-title-link" href="/2019/01/17/Git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8/" itemprop="url">Git常用命令速查表</a></h1>
         
 
         <div class="post-meta">
@@ -960,8 +1646,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-29T22:48:48+08:00">
-                2019-03-29
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-17T16:22:29+08:00">
+                2019-01-17
               </time>
             
 
@@ -979,8 +1665,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/03/29/%E4%BD%BF%E7%94%A8%E5%AE%98%E6%96%B9GitLab%E5%AD%98%E5%82%A8%E5%BA%93%E5%AE%89%E8%A3%85GitLab-Runner/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/03/29/使用官方GitLab存储库安装GitLab-Runner/" itemprop="commentCount"></span>
+                <a href="/2019/01/17/Git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/17/Git常用命令速查表/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -988,208 +1674,7 @@
 
           
           
-             <span id="/2019/03/29/%E4%BD%BF%E7%94%A8%E5%AE%98%E6%96%B9GitLab%E5%AD%98%E5%82%A8%E5%BA%93%E5%AE%89%E8%A3%85GitLab-Runner/" class="leancloud_visitors" data-flag-title="使用官方GitLab存储库安装GitLab Runner">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <ol>
-<li>添加GitLab的官方存储库：</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># For Debian&#x2F;Ubuntu&#x2F;Mint</span><br><span class="line">curl -L https:&#x2F;&#x2F;packages.gitlab.com&#x2F;install&#x2F;repositories&#x2F;runner&#x2F;gitlab-runner&#x2F;script.deb.sh | sudo bash</span><br><span class="line"></span><br><span class="line"># For RHEL&#x2F;CentOS&#x2F;Fedora</span><br><span class="line">curl -L https:&#x2F;&#x2F;packages.gitlab.com&#x2F;install&#x2F;repositories&#x2F;runner&#x2F;gitlab-runner&#x2F;script.rpm.sh | sudo bash</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>安装最新版本的GitLab Runner，或跳到下一步安装特定版本：</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> For Debian/Ubuntu/Mint</span></span><br><span class="line">sudo apt-get install gitlab-runner</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> For RHEL/CentOS/Fedora</span></span><br><span class="line">sudo yum install gitlab-runner</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>要安装特定版本的GitLab Runner：</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> <span class="keyword">for</span> DEB based systems</span></span><br><span class="line">apt-cache madison gitlab-runner</span><br><span class="line">sudo apt-get install gitlab-runner=10.0.0</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="keyword">for</span> RPM based systems</span></span><br><span class="line">yum list gitlab-runner --showduplicates | sort -r</span><br><span class="line">sudo yum install gitlab-runner-10.0.0-1</span><br></pre></td></tr></table></figure>
-
-<ol start="4">
-<li><a href="https://docs.gitlab.com/runner/register/index.html" target="_blank" rel="noopener">注册Runner</a></li>
-</ol>
-<p>完成上述步骤后，应该启动Runner已准备好供您的项目使用！</p>
-<h2 id="注册Runner"><a href="#注册Runner" class="headerlink" title="注册Runner"></a>注册Runner</h2><p>注册Runner是将Runner与GitLab实例绑定的过程。</p>
-<p>在注册Runner之前，您需要先：</p>
-<ul>
-<li>将其安装在与安装GitLab的位置不同的服务器上</li>
-<li>通过GitLab的界面获取共享或特定Runner 的令牌</li>
-</ul>
-<h2 id="GNU-Linux的"><a href="#GNU-Linux的" class="headerlink" title="GNU / Linux的"></a>GNU / Linux的</h2><p>要在GNU / Linux下注册Runner：</p>
-<ol>
-<li><p>运行以下命令：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gitlab-runner register</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>输入您的GitLab实例URL：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Please enter the gitlab-ci coordinator URL (e.g. https://gitlab.com )</span><br><span class="line">https://gitlab.com</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1g1k2bogy0zj30l30ey0u3.jpg" alt=""></p>
-</li>
-<li><p>输入您获得的令牌以注册Runner：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Please enter the gitlab-ci token for this runner</span><br><span class="line">xxx</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>输入Runner的描述，您可以稍后在GitLab的UI中更改：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Please enter the gitlab-ci description for this runner</span><br><span class="line">[hostame] my-runner</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>输入<a href="https://docs.gitlab.com/ee/ci/runners/#using-tags" target="_blank" rel="noopener">与Runner关联</a>的<a href="https://docs.gitlab.com/ee/ci/runners/#using-tags" target="_blank" rel="noopener">标签</a>，您可以稍后在GitLab的UI中更改：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Please enter the gitlab-ci tags for this runner (comma separated):</span><br><span class="line">my-tag,another-tag</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>输入<a href="https://docs.gitlab.com/runner/executors/README.html" target="_blank" rel="noopener">Runner执行程序</a>：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Please enter the executor: ssh, docker+machine, docker-ssh+machine, kubernetes, docker, parallels, virtualbox, docker-ssh, shell:</span><br><span class="line">docker</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>如果您选择Docker作为执行程序，则会要求您将默认图像用于未在其中定义的项目<code>.gitlab-ci.yml</code>：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Please enter the Docker image (eg. ruby:2.1):</span><br><span class="line">alpine:latest</span><br></pre></td></tr></table></figure>
-
-
-
-</li>
-</ol>
-<p>运行gitlab-runner</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo  gitlab-ci-multi-runner start</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>成功后的效果</p>
-</blockquote>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1g1k2lacgyxj30l30g2gn6.jpg" alt=""></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/03/17/Java-8%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%8B%BC%E6%8E%A5%E6%96%B0%E5%A7%BF%E5%8A%BF%EF%BC%9AStringJoiner/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/17/Java-8%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%8B%BC%E6%8E%A5%E6%96%B0%E5%A7%BF%E5%8A%BF%EF%BC%9AStringJoiner/" itemprop="url">Java 8中字符串拼接新姿势：StringJoiner</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-17T12:39:32+08:00">
-                2019-03-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/03/17/Java-8%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%8B%BC%E6%8E%A5%E6%96%B0%E5%A7%BF%E5%8A%BF%EF%BC%9AStringJoiner/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/03/17/Java-8中字符串拼接新姿势：StringJoiner/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/03/17/Java-8%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%8B%BC%E6%8E%A5%E6%96%B0%E5%A7%BF%E5%8A%BF%EF%BC%9AStringJoiner/" class="leancloud_visitors" data-flag-title="Java 8中字符串拼接新姿势：StringJoiner">
+             <span id="/2019/01/17/Git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8/" class="leancloud_visitors" data-flag-title="Git常用命令速查表">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1222,26 +1707,27 @@
       
         
           <blockquote>
-<p><a href="https://www.hollischuang.com/archives/3283" target="_blank" rel="noopener">Java 8中字符串拼接新姿势：StringJoiner</a></p>
+<p>master: 默认开发分支</p>
+<p>origin: 默认远程版本库</p>
+<p>Head: 默认开发分支</p>
+<p>Head^: Head 的父提交</p>
 </blockquote>
-<p>在<a href="https://www.hollischuang.com/archives/3186" target="_blank" rel="noopener">为什么阿里巴巴不建议在for循环中使用”+”进行字符串拼接</a>一文中，我们介绍了几种Java中字符串拼接的方式，以及优缺点。其中还有一个重要的拼接方式我没有介绍，那就是Java 8中提供的StringJoiner ，本文就来介绍一下这个字符串拼接的新兵。</p>
-<p>如果你想知道一共有多少种方法可以进行字符串拼接，教你一个简单的办法，在Intellij IDEA中，定义一个Java Bean，然后尝试使用快捷键自动生成一个toString方法，IDEA会提示多种toString生成策略可供选择。</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1g1u7b4opxgj309p061js7.jpg" alt="img"></p>
-<p>目前我使用的IDEA的toString生成策略默认的是使用JDK 1.8提供的StringJoiner。</p>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>StringJoiner是java.util包中的一个类，用于构造一个由分隔符分隔的字符序列（可选），并且可以从提供的前缀开始并以提供的后缀结尾。虽然这也可以在StringBuilder类的帮助下在每个字符串之后附加分隔符，但StringJoiner提供了简单的方法来实现，而无需编写大量代码。</p>
-<p>StringJoiner类共有2个构造函数，5个公有方法。其中最常用的方法就是add方法和toString方法，类似于StringBuilder中的append方法和toString方法。</p>
-<h3 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h3><p>StringJoiner的用法比较简单，下面的代码中，我们使用StringJoiner进行了字符串拼接。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringJoinerTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        StringJoiner sj = <span class="keyword">new</span> StringJoiner(<span class="string">"Hollis"</span>);</span><br><span class="line"></span><br><span class="line">        sj.add(<span class="string">"hollischuang"</span>);</span><br><span class="line">        sj.add(<span class="string">"Java干货"</span>);</span><br><span class="line">        System.out.println(sj.toString());</span><br><span class="line"></span><br><span class="line">        StringJoiner sj1 = <span class="keyword">new</span> StringJoiner(<span class="string">":"</span>,<span class="string">"["</span>,<span class="string">"]"</span>);</span><br><span class="line"></span><br><span class="line">        sj1.add(<span class="string">"Hollis"</span>).add(<span class="string">"hollischuang"</span>).add(<span class="string">"Java干货"</span>);</span><br><span class="line">        System.out.println(sj1.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="创建版本库"><a href="#创建版本库" class="headerlink" title="创建版本库"></a>创建版本库</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git clone 	# 克隆远程版本库</span><br><span class="line"></span><br><span class="line">git init   	# 初始化本地版本库</span><br></pre></td></tr></table></figure>
 
-<p>以上代码输出结果：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hollischuangHollisJava干货</span><br><span class="line">[Hollis:hollischuang:Java干货]</span><br></pre></td></tr></table></figure>
+<h2 id="修改和提交"><a href="#修改和提交" class="headerlink" title="修改和提交"></a>修改和提交</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">git status 						# 查看状态</span><br><span class="line"></span><br><span class="line">git diff						# 查看变更内容</span><br><span class="line"></span><br><span class="line">git add							# 跟踪所有改动过的文件</span><br><span class="line"></span><br><span class="line">git add &lt;file&gt; 					# 跟踪指定的文件</span><br><span class="line"></span><br><span class="line">git mv &lt;ole&gt; &lt;new&gt; 				# 文件改名</span><br><span class="line"></span><br><span class="line">git rm &lt;file&gt; 					# 删除文件</span><br><span class="line"></span><br><span class="line">git rm --cached &lt;file&gt; 			# 停止跟踪文件但不删除</span><br><span class="line"></span><br><span class="line">git commit -m "commit message" 	# 提交所有更新过的文件</span><br><span class="line"></span><br><span class="line">git commit --amend				# 修改最后一个提交</span><br></pre></td></tr></table></figure>
 
-<p>值得注意的是，当我们<code>StringJoiner(CharSequence delimiter)</code>初始化一个<code>StringJoiner</code>的时候，这个<code>delimiter</code>其实是分隔符，并不是可变字符串的初始值。</p>
-<p><code>StringJoiner(CharSequence delimiter,CharSequence prefix,CharSequence suffix)</code>的第二个和第三个参数分别是拼接后的字符串的前缀和后缀。</p>
-<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3>
+<h2 id="查看提交历史"><a href="#查看提交历史" class="headerlink" title="查看提交历史"></a>查看提交历史</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git log 						# 查看提交历史</span><br><span class="line"></span><br><span class="line">git log -p &lt;file&gt;  				# 查看指定文件的提交历史</span><br><span class="line"></span><br><span class="line">git blame &lt;file&gt;				# 以列表方式查看指定文件的提交历史</span><br></pre></td></tr></table></figure>
+
+<h2 id="撤销"><a href="#撤销" class="headerlink" title="撤销"></a>撤销</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard HEAD			# 撤销工作目录中所有未提交文件的修改内容</span><br><span class="line"></span><br><span class="line">git checkout HEAD &lt;file&gt;		# 撤销指定的未提交文件的修改内容</span><br><span class="line"></span><br><span class="line">git revert &lt;commit&gt; 			# 撤销指定的提交</span><br></pre></td></tr></table></figure>
+
+<h3 id="revert与reset的区别"><a href="#revert与reset的区别" class="headerlink" title="revert与reset的区别"></a>revert与reset的区别</h3><p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fz9oscea97j30hq09z0sv.jpg" alt=""></p>
+<p>git revert是用一次新的commit来回滚之前的commit，git reset是直接删除指定的commit。</p>
+<h2 id="分支与比标签"><a href="#分支与比标签" class="headerlink" title="分支与比标签"></a>分支与比标签</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git branch 						# 显示所有的本地分支</span><br><span class="line">git checkout &lt;branch/tag&gt; 		# 切换到指定分支或标签</span><br><span class="line">git branch &lt;new-branch&gt;			# 创建新分支</span><br><span class="line">git tag							# 列出所有本地标签</span><br><span class="line">git tag &lt;tagname&gt;				# 基于最新提交创建标签</span><br><span class="line">git tag -d &lt;tagname&gt; 			# 删除标签</span><br></pre></td></tr></table></figure>
+
+<h2 id="合并与衍合"><a href="#合并与衍合" class="headerlink" title="合并与衍合"></a>合并与衍合</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git merge &lt;branch&gt;				# 合并指定分支到当前分支</span><br><span class="line">git rebase &lt;branch&gt;				# 衍合指定分支到当前分支</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/03/17/Java-8%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%8B%BC%E6%8E%A5%E6%96%B0%E5%A7%BF%E5%8A%BF%EF%BC%9AStringJoiner/#more" rel="contents">
+            <a class="btn" href="/2019/01/17/Git%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -1292,7 +1778,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/03/16/HTTP3%E5%B7%B2%E7%BB%8F%E7%AE%AD%E5%9C%A8%E5%BC%A6%E4%B8%8A%EF%BC%8C%E4%BD%A0%E5%87%86%E5%A4%87%E5%A5%BD%E4%BA%86%E5%90%97%EF%BC%9F/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/01/17/%E5%B8%AE%E4%BD%A0%E4%BD%93%E7%B3%BB%E5%8C%96%E7%9A%84%E5%AD%A6%E4%B9%A0Git/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -1311,7 +1797,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/03/16/HTTP3%E5%B7%B2%E7%BB%8F%E7%AE%AD%E5%9C%A8%E5%BC%A6%E4%B8%8A%EF%BC%8C%E4%BD%A0%E5%87%86%E5%A4%87%E5%A5%BD%E4%BA%86%E5%90%97%EF%BC%9F/" itemprop="url">HTTP3已经箭在弦上，你准备好了吗？</a></h1>
+                <a class="post-title-link" href="/2019/01/17/%E5%B8%AE%E4%BD%A0%E4%BD%93%E7%B3%BB%E5%8C%96%E7%9A%84%E5%AD%A6%E4%B9%A0Git/" itemprop="url">帮你体系化的学习Git</a></h1>
         
 
         <div class="post-meta">
@@ -1323,8 +1809,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-16T16:40:46+08:00">
-                2019-03-16
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-01-17T15:40:29+08:00">
+                2019-01-17
               </time>
             
 
@@ -1342,8 +1828,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/03/16/HTTP3%E5%B7%B2%E7%BB%8F%E7%AE%AD%E5%9C%A8%E5%BC%A6%E4%B8%8A%EF%BC%8C%E4%BD%A0%E5%87%86%E5%A4%87%E5%A5%BD%E4%BA%86%E5%90%97%EF%BC%9F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/03/16/HTTP3已经箭在弦上，你准备好了吗？/" itemprop="commentCount"></span>
+                <a href="/2019/01/17/%E5%B8%AE%E4%BD%A0%E4%BD%93%E7%B3%BB%E5%8C%96%E7%9A%84%E5%AD%A6%E4%B9%A0Git/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/01/17/帮你体系化的学习Git/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1351,7 +1837,7 @@
 
           
           
-             <span id="/2019/03/16/HTTP3%E5%B7%B2%E7%BB%8F%E7%AE%AD%E5%9C%A8%E5%BC%A6%E4%B8%8A%EF%BC%8C%E4%BD%A0%E5%87%86%E5%A4%87%E5%A5%BD%E4%BA%86%E5%90%97%EF%BC%9F/" class="leancloud_visitors" data-flag-title="HTTP3已经箭在弦上，你准备好了吗？">
+             <span id="/2019/01/17/%E5%B8%AE%E4%BD%A0%E4%BD%93%E7%B3%BB%E5%8C%96%E7%9A%84%E5%AD%A6%E4%B9%A0Git/" class="leancloud_visitors" data-flag-title="帮你体系化的学习Git">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1383,556 +1869,43 @@
 
       
         
-          
-            <p>去年的这个时候，国内的 web 网络环境开始普及和部署 HTTP/2. 时隔一年，HTTP/2 的普及程度有了显著提升，而各大CDN厂商普及的广度和速度一直走在行业前列。甚至有不少CDN厂商在直播以及部分HTTP场景还引入了 QUIC.</p>
-<p>在拙文《当我们在谈论HTTP队头阻塞时，我们在谈论什么？》中，我们提到，HTTP/2 over QUIC 是当前唯一应用落地解决了传输层队头阻塞问题的HTTP实现。那个时候，无论是 HTTP/2 over TCP 还是 HTTP/2 over QUIC(UDP) 都被我们认为是 HTTP/2，只是传输层使用的协议不一样。这种略带暧昧的模糊叫法在2018年11月成为了历史：</p>
-<blockquote>
-<p>在2018年10月28日的邮件列表讨论中，互联网工程任务组（IETF） HTTP和QUIC工作组主席Mark Nottingham提出了将HTTP-over-QUIC更名为HTTP/3的正式请求，以“明确地将其标识为HTTP语义的另一个绑定……使人们理解它与QUIC的不同”，并在最终确定并发布草案后，将QUIC工作组继承到HTTP工作组。在随后的几天讨论中，Mark Nottingham的提议得到了IETF成员的接受，他们在2018年11月给出了官方批准，认可HTTP-over-QUIC成为HTTP/3。</p>
+          <blockquote>
+<p>原文 <a href="https://mp.weixin.qq.com/s/baCSBOg30uQfIPXSDQkAuQ" target="_blank" rel="noopener">帮你体系化的学习Git</a></p>
 </blockquote>
-<p>虽然看起来像是之前的 HTTP/2 over QUIC 换了一个名称（从我个人角度理解，取名为 HTTP/2.1也许更合适），但是其背后却体现了 IETF 对 HTTP 未来标准的态度和方向，也许几年以后来看这次名称的确立会更加明白其重要意义。</p>
-<h1 id="HTTP-3-与-HTTP-2-over-QUIC-的区别"><a href="#HTTP-3-与-HTTP-2-over-QUIC-的区别" class="headerlink" title="HTTP/3 与 HTTP/2 over QUIC 的区别"></a>HTTP/3 与 HTTP/2 over QUIC 的区别</h1><h2 id="QUIC-将成为一个通用安全传输层协议"><a href="#QUIC-将成为一个通用安全传输层协议" class="headerlink" title="QUIC 将成为一个通用安全传输层协议"></a>QUIC 将成为一个通用安全传输层协议</h2><p>当前阶段，Google 实现的 QUIC 与 IETF 实现的 QUIC 是不兼容的。Google 版 QUIC 只能用于 HTTP/2，且在协议层面与 HTTP/2 有一些强绑定。如 QUIC 帧映射 HTTP/2 frame. 这就导致很多大厂都没有跟进 QUIC，使得 HTTP/2 over QUIC 基本只能在 Google 自家的 Chrome, Gmail 等软件中普及使用，一度给行业造成“只有Google在弄”的错觉。</p>
-<p>纳入 IETF 以后，显然 Google 就不能这么玩了。QUIC 定位为一个通用安全传输层协议：</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1g14qc7xj7pj30u00c0q3c.jpg" alt=""></p>
-<p>可以近似的认为 QUIC over UDP 将成为下一代（或替代）TLS over TCP. 也就是说， QUIC 将能应用于任何应用层协议中，只是当前阶段将优先在 HTTP 中进行应用和验证。</p>
-<h2 id="统一使用-TLS-1-3-作为安全协议"><a href="#统一使用-TLS-1-3-作为安全协议" class="headerlink" title="统一使用 TLS 1.3 作为安全协议"></a>统一使用 TLS 1.3 作为安全协议</h2><p>2018年，有几个重要的WEB标准终于尘埃落定，其中一个便是 RFC 8446 TLS 1.3. 这个标准对于降低延迟，改善用户体验，尤其是移动端的体验有非常重要的意义。在拙文《TLS1.3/QUIC 是怎样做到 0-RTT 的》中，我们提到 虽然 TLS 1.3和 QUIC 都能做到 0-RTT，从而降低延迟，但是 QUIC 却自顾自地实现了一套安全协议。主要是因为当时 TLS 1.3 标准还没有发布，而 QUIC 又需要一套安全协议：</p>
-<blockquote>
-<p>The QUIC crypto protocol is the part of QUIC that provides transport security to a connection. The QUIC crypto protocol is destined to die. It will be replaced by TLS 1.3 in the future, but QUIC needed a crypto protocol before TLS 1.3 was even started.</p>
-</blockquote>
-<p>如今，TLS 1.3 标准已经发布，而 HTTP/3 也纳入 IETF，因此 QUIC 也就顺理成章的使用 TLS 1.3 作为其安全协议。Google 在这些方面倒是从来都不鸡贼和墨迹，点赞。</p>
-<h2 id="使用-QHPACK-头部压缩代替-HPACK"><a href="#使用-QHPACK-头部压缩代替-HPACK" class="headerlink" title="使用 QHPACK 头部压缩代替 HPACK"></a>使用 QHPACK 头部压缩代替 HPACK</h2><p>其实，QPACK与HPACK的设计非常类似，单独提出QPACK主要是更好的适配QUIC，同时也是 Google 将 QUIC 从与 HTTP/2 的耦合中抽离出来，与 IETF 标准完成统一的必要一步。</p>
-<h1 id="HTTP-3-问题与挑战"><a href="#HTTP-3-问题与挑战" class="headerlink" title="HTTP/3 问题与挑战"></a>HTTP/3 问题与挑战</h1><h2 id="UDP-连通性问题"><a href="#UDP-连通性问题" class="headerlink" title="UDP 连通性问题"></a>UDP 连通性问题</h2><p>几乎所有的电信运营商都会“歧视” UDP 数据包，原因也很容易理解，毕竟历史上几次臭名昭著的 DDoS 攻击都是基于 UDP 的。国内某城宽带在某些区域更是直接禁止了非53端口的UDP数据包，而其他运营商及IDC即使没有封禁UDP，也是对UDP进行严格限流的。这点上不太乐观，但是我们相信随着标准的普及和推广落地，运营商会逐步改变对UDP流量的歧视策略。国外的情况会稍好一些，根据Google的数据，他们部署的QUIC降级的比例不到10%。</p>
-<h2 id="QUIC-不支持明文传输"><a href="#QUIC-不支持明文传输" class="headerlink" title="QUIC 不支持明文传输"></a>QUIC 不支持明文传输</h2><p>对于用户来说，这是一个优势，并不是问题。对于国内内容审查环境来说是个不可忽视的坎。但QUIC以后毕竟也是基于TLS协议的，国内HTTPS都能普及下来，QUIC的普及也许会更乐观一些。</p>
-<h2 id="UDP-消耗资源多"><a href="#UDP-消耗资源多" class="headerlink" title="UDP 消耗资源多"></a>UDP 消耗资源多</h2><p>当前阶段，UDP消耗的CPU资源多，且处理速度慢。这是不争的事实，但是我相信随着UDP应用的增多，内核和硬件的优化一定会跟上，直至达到或超过TCP的性能。而 QUIC 因为实在应用层实现，因此迭代速度更快，部署和更新难度和代价更小，能够一定程度缓解如TCP那样的协议僵化问题。</p>
-<h1 id="进一步了解-HTTP-3"><a href="#进一步了解-HTTP-3" class="headerlink" title="进一步了解 HTTP/3"></a>进一步了解 HTTP/3</h1><p>如果希望全面的了解 HTTP/3，推荐 Daniel Stenberg （CURL 作者）的 HTTP/3 explained, 如果不想看英文，可以翻阅 Yi Bai 同学翻译了中文版本HTTP/3详解。</p>
-<p>–EOF–</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/03/14/ik%E5%88%86%E8%AF%8D%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/14/ik%E5%88%86%E8%AF%8D%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8/" itemprop="url">ik分词器的使用</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-14T19:50:49+08:00">
-                2019-03-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/03/14/ik%E5%88%86%E8%AF%8D%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/03/14/ik分词器的使用/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/03/14/ik%E5%88%86%E8%AF%8D%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8/" class="leancloud_visitors" data-flag-title="ik分词器的使用">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="1-使用es默认分词"><a href="#1-使用es默认分词" class="headerlink" title="1. 使用es默认分词"></a>1. 使用es默认分词</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET 请求，body为json</span><br><span class="line">http:&#x2F;&#x2F;127.0.0.1:9200&#x2F;_analyze</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  &quot;analyzer&quot;: &quot;chinese&quot;,</span><br><span class="line"></span><br><span class="line">  &quot;text&quot;: &quot;我是程序员&quot;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-使用ik分词器"><a href="#2-使用ik分词器" class="headerlink" title="2. 使用ik分词器"></a>2. 使用ik分词器</h3><p>分词器下载地址 </p>
-<p><a href="https://github.com/medcl/elasticsearch-analysis-ik/releases" target="_blank" rel="noopener">https://github.com/medcl/elasticsearch-analysis-ik/releases</a></p>
-<p>(1)先将其解压，将解压后的elasticsearch文件夹重命名文件夹为ik<br>(2)将ik文件夹拷贝到elasticsearch/plugins 目录下。<br>(3)重新启动，即可加载IK分词器</p>
-<blockquote>
-<p>最小切分</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">GET请求 body内容如下.</span><br><span class="line"></span><br><span class="line">http:&#x2F;&#x2F;127.0.0.1:9200&#x2F;_analyze</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  &quot;analyzer&quot;: &quot;ik_smart&quot;,</span><br><span class="line"></span><br><span class="line">  &quot;text&quot;: &quot;我是程序员&quot;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">响应结果为：</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;tokens&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;token&quot;: &quot;我&quot;,</span><br><span class="line">            &quot;start_offset&quot;: 0,</span><br><span class="line">            &quot;end_offset&quot;: 1,</span><br><span class="line">            &quot;type&quot;: &quot;CN_CHAR&quot;,</span><br><span class="line">            &quot;position&quot;: 0</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;token&quot;: &quot;是&quot;,</span><br><span class="line">            &quot;start_offset&quot;: 1,</span><br><span class="line">            &quot;end_offset&quot;: 2,</span><br><span class="line">            &quot;type&quot;: &quot;CN_CHAR&quot;,</span><br><span class="line">            &quot;position&quot;: 1</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;token&quot;: &quot;程序员&quot;,</span><br><span class="line">            &quot;start_offset&quot;: 2,</span><br><span class="line">            &quot;end_offset&quot;: 5,</span><br><span class="line">            &quot;type&quot;: &quot;CN_WORD&quot;,</span><br><span class="line">            &quot;position&quot;: 2</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>最细切分</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:9200&#x2F;_analyze</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  &quot;analyzer&quot;: &quot;ik_max_word&quot;,</span><br><span class="line"></span><br><span class="line">  &quot;text&quot;: &quot;我是程序员&quot;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">响应结果为：</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;tokens&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;token&quot;: &quot;我&quot;,</span><br><span class="line">            &quot;start_offset&quot;: 0,</span><br><span class="line">            &quot;end_offset&quot;: 1,</span><br><span class="line">            &quot;type&quot;: &quot;CN_CHAR&quot;,</span><br><span class="line">            &quot;position&quot;: 0</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;token&quot;: &quot;是&quot;,</span><br><span class="line">            &quot;start_offset&quot;: 1,</span><br><span class="line">            &quot;end_offset&quot;: 2,</span><br><span class="line">            &quot;type&quot;: &quot;CN_CHAR&quot;,</span><br><span class="line">            &quot;position&quot;: 1</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;token&quot;: &quot;程序员&quot;,</span><br><span class="line">            &quot;start_offset&quot;: 2,</span><br><span class="line">            &quot;end_offset&quot;: 5,</span><br><span class="line">            &quot;type&quot;: &quot;CN_WORD&quot;,</span><br><span class="line">            &quot;position&quot;: 2</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;token&quot;: &quot;程序&quot;,</span><br><span class="line">            &quot;start_offset&quot;: 2,</span><br><span class="line">            &quot;end_offset&quot;: 4,</span><br><span class="line">            &quot;type&quot;: &quot;CN_WORD&quot;,</span><br><span class="line">            &quot;position&quot;: 3</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;token&quot;: &quot;员&quot;,</span><br><span class="line">            &quot;start_offset&quot;: 4,</span><br><span class="line">            &quot;end_offset&quot;: 5,</span><br><span class="line">            &quot;type&quot;: &quot;CN_CHAR&quot;,</span><br><span class="line">            &quot;position&quot;: 4</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="3-自定义词库"><a href="#3-自定义词库" class="headerlink" title="3. 自定义词库"></a>3. 自定义词库</h3><p>我们现在测试”传智播客”，浏览器的测试效果如下:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;127.0.0.1:9200&#x2F;_analyze</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">  &quot;analyzer&quot;: &quot;ik_smart&quot;,</span><br><span class="line"></span><br><span class="line">  &quot;text&quot;: &quot;传智播客&quot;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">响应结果：</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">&quot;tokens&quot; : [ &#123;</span><br><span class="line">&quot;token&quot; : &quot;传&quot;, &quot;start_offset&quot; : 0, &quot;end_offset&quot; : 1, &quot;type&quot; : &quot;CN_CHAR&quot;, &quot;position&quot; : 0</span><br><span class="line">&#125;, &#123;</span><br><span class="line">&quot;token&quot; : &quot;智&quot;, &quot;start_offset&quot; : 1, &quot;end_offset&quot; : 2, &quot;type&quot; : &quot;CN_CHAR&quot;, &quot;position&quot; : 1</span><br><span class="line">&#125;, &#123;</span><br><span class="line">&quot;token&quot; : &quot;播&quot;, &quot;start_offset&quot; : 2, &quot;end_offset&quot; : 3, &quot;type&quot; : &quot;CN_CHAR&quot;, &quot;position&quot; : 2</span><br><span class="line">&#125;, &#123;</span><br><span class="line">&quot;token&quot; : &quot;客&quot;, &quot;start_offset&quot; : 3, &quot;end_offset&quot; : 4, &quot;type&quot; : &quot;CN_CHAR&quot;, &quot;position&quot; : 3</span><br><span class="line">&#125; ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>默认的分词并没有识别“传智播客”是一个词。如果我们想让系统识别“传智播客”是一个<br>词，需要编辑自定义词库。</p>
-<p>步骤:<br>(1)进入elasticsearch/plugins/ik/config目录<br>(2)新建一个my.dic文件，编辑内容:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">传智播客</span><br></pre></td></tr></table></figure>
-
-<p>修改IKAnalyzer.cfg.xml(在ik/config目录下)</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">properties</span> <span class="meta-keyword">SYSTEM</span> <span class="meta-string">"http://java.sun.com/dtd/properties.dtd"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">comment</span>&gt;</span>IK Analyzer 扩展配置<span class="tag">&lt;/<span class="name">comment</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!--用户可以在这里配置自己的扩展字典 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">"ext_dict"</span>&gt;</span>my.dic<span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">	 <span class="comment">&lt;!--用户可以在这里配置自己的扩展停止词字典--&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">entry</span> <span class="attr">key</span>=<span class="string">"ext_stopwords"</span>&gt;</span><span class="tag">&lt;/<span class="name">entry</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!--用户可以在这里配置远程扩展字典 --&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- &lt;entry key="remote_ext_dict"&gt;words_location&lt;/entry&gt; --&gt;</span></span><br><span class="line">	<span class="comment">&lt;!--用户可以在这里配置远程扩展停止词字典--&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- &lt;entry key="remote_ext_stopwords"&gt;words_location&lt;/entry&gt; --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>重新启动elasticsearch,通过浏览器测试分词效果</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"tokens"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"token"</span>: <span class="string">"传智播客"</span>,</span><br><span class="line">            <span class="attr">"start_offset"</span>: <span class="number">0</span>,</span><br><span class="line">            <span class="attr">"end_offset"</span>: <span class="number">4</span>,</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"CN_WORD"</span>,</span><br><span class="line">            <span class="attr">"position"</span>: <span class="number">0</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/03/13/windows%E4%B8%8B%E6%90%AD%E5%BB%BAgitbook%E5%B9%B3%E5%8F%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/13/windows%E4%B8%8B%E6%90%AD%E5%BB%BAgitbook%E5%B9%B3%E5%8F%B0/" itemprop="url">windows下搭建gitbook平台</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-13T17:33:23+08:00">
-                2019-03-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/03/13/windows%E4%B8%8B%E6%90%AD%E5%BB%BAgitbook%E5%B9%B3%E5%8F%B0/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/03/13/windows下搭建gitbook平台/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/03/13/windows%E4%B8%8B%E6%90%AD%E5%BB%BAgitbook%E5%B9%B3%E5%8F%B0/" class="leancloud_visitors" data-flag-title="windows下搭建gitbook平台">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="1-安装node-js"><a href="#1-安装node-js" class="headerlink" title="1. 安装node.js"></a>1. 安装node.js</h2><p>中文官网：<a href="http://nodejs.cn/download/" target="_blank" rel="noopener">http://nodejs.cn/download/</a></p>
-<p>下载后直接安装即可</p>
-<h2 id="2-搭建gitbook平台"><a href="#2-搭建gitbook平台" class="headerlink" title="2. 搭建gitbook平台"></a>2. 搭建gitbook平台</h2><p>输入命令，全局安装gitbook。</p>
-<p>npm install gitbook-cli -g</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1g11apauecdj30hw03t74m.jpg" alt=""></p>
-<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1g11apgam17j30cu0b4abb.jpg" alt=""></p>
-<p>在CMD窗口中输入</p>
-<p>   mkdir   gitbook                            创建文件夹</p>
-<p>切换到目录下.</p>
-<p>切换文件夹后在当前文件目录下的在窗口中输入如下命令</p>
-<blockquote>
-<p>gitbook init      //初始化目录文件</p>
-</blockquote>
-<p>初始化之后，进行markdown文件编写</p>
-<blockquote>
-<p>gitbook serve 之后可以在本地浏览（也就是上面讲述的方法）</p>
-</blockquote>
-<blockquote>
-<p>gtibook build 生成html静态文件，可以本地打开浏览</p>
-</blockquote>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/03/12/%E6%B5%85%E6%9E%90Servlet%E6%89%A7%E8%A1%8C%E5%8E%9F%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/03/12/%E6%B5%85%E6%9E%90Servlet%E6%89%A7%E8%A1%8C%E5%8E%9F%E7%90%86/" itemprop="url">浅析Servlet执行原理</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-12T20:43:53+08:00">
-                2019-03-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/03/12/%E6%B5%85%E6%9E%90Servlet%E6%89%A7%E8%A1%8C%E5%8E%9F%E7%90%86/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/03/12/浅析Servlet执行原理/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/03/12/%E6%B5%85%E6%9E%90Servlet%E6%89%A7%E8%A1%8C%E5%8E%9F%E7%90%86/" class="leancloud_visitors" data-flag-title="浅析Servlet执行原理">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p><img src="/Users/gaohanghang/Downloads/spencer-davis-1428323-unsplash.jpg" alt="spencer-davis-1428323-unsplash"></p>
-<blockquote>
-<p>原文链接<a href="cnblogs.com/wangjiming/p/10360327.html">浅析Servlet执行原理</a></p>
-</blockquote>
-<p>在JavaWeb学习研究中，Servlet扮演重要的作用，学好它，是后续JavaWeb学习的良好基础。无论是SSH，还是SSM，微服务JavaWeb技术，都应先学好Servlet，从而达到事半功倍的效果，本篇将主要分析Servlet的运行原理。</p>
-<p><strong>一、UML</strong></p>
-<p>下图为Servlet UML关系图。</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1g10arwaew7j30u00iaae9.jpg" alt=""></p>
-<p>从图中，可以看出：</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>在日常工作中，经常会用到Git操作。但是对于新人来讲，刚上来对Git很陌生，操作起来也很懵逼。本篇文章主要针对刚开始接触Git的新人，理解Git的基本原理，掌握常用的一些命令。</p>
+<h2 id="1-Git工作流程"><a href="#1-Git工作流程" class="headerlink" title="1.Git工作流程"></a>1.Git工作流程</h2><p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fz9ntcae88j30hs056t91.jpg" alt=""></p>
+<p>以上包括一些简单而常用的命令，但是先不关心这些，先来了解下面这4个专有名词。</p>
+<ul>
+<li>Workspace: 工作区</li>
+<li>Index / Stage: 暂存区</li>
+<li>Repository: 仓库区（或本地仓库）</li>
+<li>Remote: 远程仓库</li>
+</ul>
+<p><strong>工作区</strong></p>
+<p>程序员进行开发改动的地方，是你当前看到的，也是最新的。平常我们开发就是拷贝远程仓库中的一个分支，基于该分支进行开发。在开发过程中就是对工作区的操作。</p>
+<p><strong>暂存区</strong></p>
+<p>.git目录下的index文件, 暂存区会记录<code>git add</code>添加文件的相关信息(文件名、大小、timestamp…)，不保存文件实体, 通过id指向每个文件实体。可以使用<code>git status</code>查看暂存区的状态。暂存区标记了你当前工作区中，哪些内容是被git管理的。</p>
+<p>当你完成某个需求或功能后需要提交到远程仓库，那么第一步就是通过<code>git add</code>先提交到暂存区，被git管理。</p>
+<p><strong>本地仓库</strong></p>
+<p>保存了对象被提交 过的各个版本，比起工作区和暂存区的内容，它要更旧一些。<code>git commit</code>后同步index的目录树到本地仓库，方便从下一步通过<code>git push</code>同步本地仓库与远程仓库的同步。</p>
+<p><strong>远程仓库</strong></p>
+<p>远程仓库的内容可能被分布在多个地点的处于协作关系的本地仓库修改，因此它可能与本地仓库同步，也可能不同步，但是它的内容是最旧的。</p>
+<p><strong>小结</strong></p>
 <ol>
-<li><p>抽象类HttpServlet继承抽象类GenericServlet，其有两个比较关键的方法，doGet()和doPost()</p>
-</li>
-<li><p>GenericServlet实现接口Servlet,ServletConfig,Serializable</p>
-</li>
-<li><p>MyServlet(用户自定义Servlet类)继承HttpServlet，重写抽象类HttpServlet的doGet()和doPost()方法</p>
-</li>
+<li>任何对象都是在工作区中诞生和被修改；</li>
+<li>任何修改都是从进入index区才开始被版本控制；</li>
+<li>只有把修改提交到本地仓库，该修改才能在仓库中留下痕迹；</li>
+<li>与协作者分享本地的修改，可以把它们push到远程仓库来共享。</li>
 </ol>
-<p>注：任何一个用户自定义Servlet，只需重写抽象类HttpServlet的doPost()和doGet()即可，如上图的MyServlet</p>
-<p><strong>二、Servlet在容器中的执行过程</strong></p>
-<p>Servlet只有放在容器中，方可执行，且Servlet容器种类较多，如Tomcat,WebLogic等。下图为简单的 请求响应 模型。</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1g10atq2kuaj30u00h2wg3.jpg" alt=""></p>
-<p>分析：</p>
-<ol>
-<li>浏览器向服务器发出GET请求(请求服务器ServletA)</li>
-<li>服务器上的容器逻辑接收到该url,根据该url判断为Servlet请求，此时容器逻辑将产生两个对象：请求对象(HttpServletRequest)和响应对象(HttpServletResponce)</li>
-<li>容器逻辑根据url找到目标Servlet(本示例目标Servlet为ServletA),且创建一个线程A</li>
-<li>容器逻辑将刚才创建的请求对象和响应对象传递给线程A</li>
-<li>容器逻辑调用Servlet的service()方法</li>
-<li>service()方法根据请求类型(本示例为GET请求)调用doGet()(本示例调用doGet())或doPost()方法</li>
-<li>doGet()执行完后，将结果返回给容器逻辑</li>
-<li>线程A被销毁或被放在线程池中</li>
-</ol>
-<p>注意：</p>
-<p>1.在容器中的每个Servlet原则上只有一个实例</p>
-<p>2.每个请求对应一个线程</p>
-<p>3.多个线程可作用于同一个Servlet(这是造成Servlet线程不安全的根本原因)</p>
-<p>4.每个线程一旦执行完任务，就被销毁或放在线程池中等待回收</p>
-<p><strong>三、Servlet在JavaWeb中扮演的角色</strong></p>
-<p>Servlet在JavaWeb中，扮演两个角色：页面角色和控制器角色。</p>
-<p>有了jsp等动态页面技术后，Servlet更侧重于控制器角色，jsp+servlert+model 形成基本的三层架构</p>
-<p>（一）页面Page角色</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">       request.setCharacterEncoding(<span class="string">"UTF-8"</span>);</span><br><span class="line">       response.setContentType(<span class="string">"text/html;charset=utf-8"</span>);</span><br><span class="line">       PrintWriter out=response.getWriter();</span><br><span class="line">       out.println(<span class="string">"Hello!Servlet."</span>);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
-
-<p>（二）控制器角色</p>
-<p>jsp充当页面角色，Servlet扮演控制器角色，两者组合构建基本的MVC三层架构模式</p>
-<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1g10b0i0uh8j30hc0b1wew.jpg" alt=""></p>
-<p><strong>四、Servlet在容器中的生命周期</strong></p>
-<p>下图为Servlet生命周期简要概图</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1g10b0x8unwj30pk0hlwfr.jpg" alt=""></p>
-<p>分析：</p>
-<p>第一步：容器先加载Servlet类</p>
-<p>第二步：容器实例化Servlet(Servlet无参构造函数执行)</p>
-<p>第三步：执行init()方法（在Servlet生命周期中，只执行一次，且在service()方法执行前执行）</p>
-<p>第四步：执行service()方法，处理客户请求，doPost()或doGet()</p>
-<p>第五步：执行destroy()，销毁线程</p>
-<p><strong>（完）</strong></p>
-
-          
+<p>下面这幅图更加直接阐述了四个区域之间的关系，可能有些命令不太清楚，没关系，下部分会详细介绍。</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fz9mnorqugj30e40bpjs5.jpg" alt=""></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/01/17/%E5%B8%AE%E4%BD%A0%E4%BD%93%E7%B3%BB%E5%8C%96%E7%9A%84%E5%AD%A6%E4%B9%A0Git/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1970,7 +1943,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/33/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><span class="page-number current">34</span><a class="page-number" href="/page/35/">35</a><span class="space">&hellip;</span><a class="page-number" href="/page/50/">50</a><a class="extend next" rel="next" href="/page/35/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/33/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/33/">33</a><span class="page-number current">34</span><a class="page-number" href="/page/35/">35</a><span class="space">&hellip;</span><a class="page-number" href="/page/46/">46</a><a class="extend next" rel="next" href="/page/35/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
   </nav>
 
 
@@ -2020,7 +1993,7 @@
               
                 <a href="/archives/%20%7C%7C%20archive">
               
-                  <span class="site-state-item-count">491</span>
+                  <span class="site-state-item-count">460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -2033,7 +2006,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">99</span>
+                  <span class="site-state-item-count">98</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -2050,6 +2023,22 @@
             </div>
           
 
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/gaohanghang" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/gao-xing-68-15/activities" target="_blank" title="zhihu">
+                      
+                        <i class="fa fa-fw fa-globe"></i>zhihu</a>
+                  </span>
+                
+            </div>
           
 
           

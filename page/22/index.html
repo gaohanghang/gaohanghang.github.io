@@ -272,7 +272,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/05/%E5%AE%9E%E4%BD%93%E7%BB%A7%E6%89%BF%E4%B8%8E-Builder%E6%B3%A8%E8%A7%A3%E5%85%B1%E5%AD%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -291,7 +291,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/" itemprop="url">CentOS 安装 Docker CE</a></h1>
+                <a class="post-title-link" href="/2019/07/05/%E5%AE%9E%E4%BD%93%E7%BB%A7%E6%89%BF%E4%B8%8E-Builder%E6%B3%A8%E8%A7%A3%E5%85%B1%E5%AD%98/" itemprop="url">实体继承与@Builder注解共存</a></h1>
         
 
         <div class="post-meta">
@@ -303,8 +303,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-03T14:00:22+08:00">
-                2019-08-03
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-05T16:32:04+08:00">
+                2019-07-05
               </time>
             
 
@@ -322,8 +322,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/03/CentOS-安装-Docker-CE/" itemprop="commentCount"></span>
+                <a href="/2019/07/05/%E5%AE%9E%E4%BD%93%E7%BB%A7%E6%89%BF%E4%B8%8E-Builder%E6%B3%A8%E8%A7%A3%E5%85%B1%E5%AD%98/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/05/实体继承与-Builder注解共存/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -331,178 +331,7 @@
 
           
           
-             <span id="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/" class="leancloud_visitors" data-flag-title="CentOS 安装 Docker CE">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="CentOS-安装-Docker-CE"><a href="#CentOS-安装-Docker-CE" class="headerlink" title="CentOS 安装 Docker CE"></a>CentOS 安装 Docker CE</h2><blockquote>
-<p>警告：切勿在没有配置 Docker YUM 源的情况下直接使用 yum 命令安装 Docker.</p>
-</blockquote>
-<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><h4 id="系统要求"><a href="#系统要求" class="headerlink" title="系统要求"></a>系统要求</h4><p>Docker CE 支持 64 位版本 CentOS 7，并且要求内核版本不低于 3.10。 CentOS 7 满足最低内核的要求，但由于内核版本比较低，部分功能（如 <code>overlay2</code> 存储层驱动）无法使用，并且部分功能可能不太稳定。</p>
-<h4 id="卸载旧版本"><a href="#卸载旧版本" class="headerlink" title="卸载旧版本"></a>卸载旧版本</h4><p>旧版本的 Docker 称为 <code>docker</code> 或者 <code>docker-engine</code>，使用以下命令卸载旧版本：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ sudo yum remove docker \</span><br><span class="line">                  docker-client \</span><br><span class="line">                  docker-client-latest \</span><br><span class="line">                  docker-common \</span><br><span class="line">                  docker-latest \</span><br><span class="line">                  docker-latest-logrotate \</span><br><span class="line">                  docker-logrotate \</span><br><span class="line">                  docker-selinux \</span><br><span class="line">                  docker-engine-selinux \</span><br><span class="line">                  docker-engine</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用-yum-安装"><a href="#使用-yum-安装" class="headerlink" title="使用 yum 安装"></a>使用 yum 安装</h3><p>执行以下命令安装依赖包：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sudo yum install -y yum-utils \</span><br><span class="line">           device-mapper-persistent-data \</span><br><span class="line">           lvm2</span><br></pre></td></tr></table></figure>
-
-<p>鉴于国内网络问题，强烈建议使用国内源，官方源请在注释中查看。</p>
-<p>执行下面的命令添加 <code>yum</code> 软件源：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ sudo yum-config-manager \</span><br><span class="line">    --add-repo \</span><br><span class="line">    https://mirrors.ustc.edu.cn/docker-ce/linux/centos/docker-ce.repo</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 官方源</span></span><br><span class="line"><span class="comment"># $ sudo yum-config-manager \</span></span><br><span class="line"><span class="comment">#     --add-repo \</span></span><br><span class="line"><span class="comment">#     https://download.docker.com/linux/centos/docker-ce.repo</span></span><br></pre></td></tr></table></figure>
-
-<p>如果需要测试版本的 Docker CE 请使用以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo yum-config-manager --<span class="built_in">enable</span> docker-ce-test</span><br></pre></td></tr></table></figure>
-
-<p>如果需要每日构建版本的 Docker CE 请使用以下命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo yum-config-manager --<span class="built_in">enable</span> docker-ce-nightly</span><br></pre></td></tr></table></figure>
-
-<h4 id="安装-Docker-CE"><a href="#安装-Docker-CE" class="headerlink" title="安装 Docker CE"></a>安装 Docker CE</h4><p>更新 <code>yum</code> 软件源缓存，并安装 <code>docker-ce</code>。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo yum makecache fast</span><br><span class="line">$ sudo yum install docker-ce</span><br></pre></td></tr></table></figure>
-
-<h3 id="使用脚本自动安装"><a href="#使用脚本自动安装" class="headerlink" title="使用脚本自动安装"></a>使用脚本自动安装</h3><p>在测试或开发环境中 Docker 官方为了简化安装流程，提供了一套便捷的安装脚本，CentOS 系统上可以使用这套脚本安装：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ curl -fsSL get.docker.com -o get-docker.sh</span><br><span class="line">$ sudo sh get-docker.sh --mirror Aliyun</span><br></pre></td></tr></table></figure>
-
-<p>执行这个命令后，脚本就会自动的将一切准备工作做好，并且把 Docker CE 的 Edge 版本安装在系统中。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/03/Dockerization-Do-more-with-Docke/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/03/Dockerization-Do-more-with-Docke/" itemprop="url">Dockerization - Do more with Docke</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-03T01:27:24+08:00">
-                2019-08-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/08/03/Dockerization-Do-more-with-Docke/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/03/Dockerization-Do-more-with-Docke/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/08/03/Dockerization-Do-more-with-Docke/" class="leancloud_visitors" data-flag-title="Dockerization - Do more with Docke">
+             <span id="/2019/07/05/%E5%AE%9E%E4%BD%93%E7%BB%A7%E6%89%BF%E4%B8%8E-Builder%E6%B3%A8%E8%A7%A3%E5%85%B1%E5%AD%98/" class="leancloud_visitors" data-flag-title="实体继承与@Builder注解共存">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -536,848 +365,25 @@
         
           
             <blockquote>
-<p>视频地址 <a href="https://subscription.packtpub.com/video/cloud_and_networking/9781838827946" target="_blank" rel="noopener">https://subscription.packtpub.com/video/cloud_and_networking/9781838827946</a></p>
+<p>原文地址 <a href="https://www.cnblogs.com/lori/p/10266508.html" target="_blank" rel="noopener">https://www.cnblogs.com/lori/p/10266508.html</a></p>
 </blockquote>
-<h2 id="Docker网络入门"><a href="#Docker网络入门" class="headerlink" title="Docker网络入门"></a>Docker网络入门</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190803012916.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190803012955.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190803013058.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190803013141.png" alt=""></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/" itemprop="url">8 种常被忽视的 SQL 错误用法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-02T21:54:16+08:00">
-                2019-08-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/02/8-种常被忽视的-SQL-错误用法/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/" class="leancloud_visitors" data-flag-title="8 种常被忽视的 SQL 错误用法">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>原文地址: <a href="https://yq.aliyun.com/articles/72501" target="_blank" rel="noopener">https://yq.aliyun.com/articles/72501</a></p>
-</blockquote>
-<ul>
-<li>1、LIMIT 语句</li>
-<li>2、隐式转换</li>
-<li>3、关联更新、删除</li>
-<li>4、混合排序</li>
-<li>5、EXISTS语句</li>
-<li>6、条件下推</li>
-<li>7、提前缩小范围</li>
-<li>8、中间结果集下推</li>
-<li>总结</li>
-</ul>
-<p><strong>sql语句的执行顺序：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">FROM </span><br><span class="line">&lt;left_table&gt;</span><br><span class="line"></span><br><span class="line">ON </span><br><span class="line">&lt;join_condition&gt;</span><br><span class="line"></span><br><span class="line">&lt;join_type&gt;</span><br><span class="line"> JOIN </span><br><span class="line">&lt;right_table&gt;</span><br><span class="line"></span><br><span class="line">WHERE </span><br><span class="line">&lt;where_condition&gt;</span><br><span class="line"></span><br><span class="line">GROUP BY </span><br><span class="line">&lt;group_by_list&gt;</span><br><span class="line"></span><br><span class="line">HAVING </span><br><span class="line">&lt;having_condition&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">DISTINCT</span> </span><br><span class="line">&lt;select_list&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> </span><br><span class="line">&lt;order_by_condition&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">LIMIT</span> </span><br><span class="line">&lt;limit_number&gt;</span><br></pre></td></tr></table></figure>
-
-<h1 id="1、LIMIT-语句"><a href="#1、LIMIT-语句" class="headerlink" title="1、LIMIT 语句"></a>1、LIMIT 语句</h1><p>分页查询是最常用的场景之一，但也通常也是最容易出问题的地方。比如对于下面简单的语句，一般 DBA 想到的办法是在 type, name, create_time 字段上加组合索引。这样条件排序都能有效的利用到索引，性能迅速提升。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * </span><br><span class="line"><span class="keyword">FROM</span>   operation </span><br><span class="line"><span class="keyword">WHERE</span>  <span class="keyword">type</span> = <span class="string">'SQLStats'</span> </span><br><span class="line">       <span class="keyword">AND</span> <span class="keyword">name</span> = <span class="string">'SlowLog'</span> </span><br><span class="line"><span class="keyword">ORDER</span>  <span class="keyword">BY</span> create_time </span><br><span class="line"><span class="keyword">LIMIT</span>  <span class="number">1000</span>, <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
-
-<p>好吧，可能90%以上的 DBA 解决该问题就到此为止。但当 LIMIT 子句变成 “LIMIT 1000000,10” 时，程序员仍然会抱怨：我只取10条记录为什么还是慢？</p>
-<p>要知道数据库也并不知道第1000000条记录从什么地方开始，即使有索引也需要从头计算一次。出现这种性能问题，多数情形下是程序员偷懒了。</p>
-<p>在前端数据浏览翻页，或者大数据分批导出等场景下，是可以将上一页的最大值当成参数作为查询条件的。SQL 重新设计如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SELECT   * </span><br><span class="line">FROM     operation </span><br><span class="line">WHERE    type &#x3D; &#39;SQLStats&#39; </span><br><span class="line">AND      name &#x3D; &#39;SlowLog&#39; </span><br><span class="line">AND      create_time &gt; &#39;2017-03-16 14:00:00&#39; </span><br><span class="line">ORDER BY create_time limit 10;</span><br></pre></td></tr></table></figure>
-
-<p>在新设计下查询时间基本固定，不会随着数据量的增长而发生变化。</p>
-<h1 id="2、隐式转换"><a href="#2、隐式转换" class="headerlink" title="2、隐式转换"></a>2、隐式转换</h1><p>SQL语句中查询变量和字段定义类型不匹配是另一个常见的错误。比如下面的语句：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain extended SELECT * </span><br><span class="line">     &gt; FROM   my_balance b </span><br><span class="line">     &gt; WHERE  b.bpn = 14000000123 </span><br><span class="line">     &gt;       AND b.isverified IS NULL ;</span><br><span class="line">mysql&gt; show warnings;</span><br><span class="line">| Warning | 1739 | Cannot <span class="keyword">use</span> <span class="keyword">ref</span> <span class="keyword">access</span> <span class="keyword">on</span> <span class="keyword">index</span> <span class="string">'bpn'</span> due <span class="keyword">to</span> <span class="keyword">type</span> <span class="keyword">or</span> <span class="keyword">collation</span> conversion <span class="keyword">on</span> <span class="keyword">field</span> <span class="string">'bpn'</span></span><br></pre></td></tr></table></figure>
-
-<p>其中字段 bpn 的定义为 varchar(20)，MySQL 的策略是将字符串转换为数字之后再比较。函数作用于表字段，索引失效。</p>
-<p>上述情况可能是应用程序框架自动填入的参数，而不是程序员的原意。现在应用框架很多很繁杂，使用方便的同时也小心它可能给自己挖坑。</p>
-<h1 id="3、关联更新、删除"><a href="#3、关联更新、删除" class="headerlink" title="3、关联更新、删除"></a>3、关联更新、删除</h1><p>虽然 MySQL5.6 引入了物化特性，但需要特别注意它目前仅仅针对查询语句的优化。对于更新或删除需要手工重写成 JOIN。</p>
-<p>比如下面 UPDATE 语句，MySQL 实际执行的是循环/嵌套子查询（DEPENDENT SUBQUERY)，其执行时间可想而知。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> operation o </span><br><span class="line"><span class="keyword">SET</span>    <span class="keyword">status</span> = <span class="string">'applying'</span> </span><br><span class="line"><span class="keyword">WHERE</span>  o.id <span class="keyword">IN</span> (<span class="keyword">SELECT</span> <span class="keyword">id</span> </span><br><span class="line">                <span class="keyword">FROM</span>   (<span class="keyword">SELECT</span> o.id, </span><br><span class="line">                               o.status </span><br><span class="line">                        <span class="keyword">FROM</span>   operation o </span><br><span class="line">                        <span class="keyword">WHERE</span>  o.group = <span class="number">123</span> </span><br><span class="line">                               <span class="keyword">AND</span> o.status <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="string">'done'</span> ) </span><br><span class="line">                        <span class="keyword">ORDER</span>  <span class="keyword">BY</span> o.parent, </span><br><span class="line">                                  o.id </span><br><span class="line">                        <span class="keyword">LIMIT</span>  <span class="number">1</span>) t);</span><br></pre></td></tr></table></figure>
-
-<p>执行计划：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| id | select_type        | table | type  | possible_keys | key     | key_len | ref   | rows | Extra                                               |</span><br><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| 1  | PRIMARY            | o     | index |               | PRIMARY | 8       |       | 24   | Using where; Using temporary                        |</span><br><span class="line">| 2  | DEPENDENT SUBQUERY |       |       |               |         |         |       |      | Impossible WHERE noticed after reading const tables |</span><br><span class="line">| 3  | DERIVED            | o     | ref   | idx_2,idx_5   | idx_5   | 8       | const | 1    | Using where; Using filesort                         |</span><br><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br></pre></td></tr></table></figure>
-
-<p>重写为 JOIN 之后，子查询的选择模式从 DEPENDENT SUBQUERY 变成 DERIVED，执行速度大大加快，从7秒降低到2毫秒。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/30/6%E4%B8%AA%E6%9C%88%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%BC%9A%E8%8B%B1%E8%AF%AD/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/30/6%E4%B8%AA%E6%9C%88%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%BC%9A%E8%8B%B1%E8%AF%AD/" itemprop="url">6个月从零学会英语</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-30T00:48:06+08:00">
-                2019-07-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/30/6%E4%B8%AA%E6%9C%88%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%BC%9A%E8%8B%B1%E8%AF%AD/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/30/6个月从零学会英语/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/07/30/6%E4%B8%AA%E6%9C%88%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%BC%9A%E8%8B%B1%E8%AF%AD/" class="leancloud_visitors" data-flag-title="6个月从零学会英语">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>视频地址: <a href="https://www.bilibili.com/video/av33345933/?p=1" target="_blank" rel="noopener">https://www.bilibili.com/video/av33345933/?p=1</a></p>
-</blockquote>
-<h2 id="01-宏观篇"><a href="#01-宏观篇" class="headerlink" title="01 宏观篇"></a>01 宏观篇</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730005020.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730005054.png" alt=""></p>
-<h2 id="02-下意识对英语学习的重要帮助"><a href="#02-下意识对英语学习的重要帮助" class="headerlink" title="02 下意识对英语学习的重要帮助"></a>02 下意识对英语学习的重要帮助</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730005251.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730005447.png" alt=""></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/30/%E5%9C%A8%E5%AE%B6%E8%87%AA%E5%BE%8B%E6%80%A7%E9%83%BD%E8%83%BD%E6%9A%B4%E6%B6%A8200-%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/30/%E5%9C%A8%E5%AE%B6%E8%87%AA%E5%BE%8B%E6%80%A7%E9%83%BD%E8%83%BD%E6%9A%B4%E6%B6%A8200-%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB/" itemprop="url">在家自律性都能暴涨200%的小技巧分享</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-30T00:22:19+08:00">
-                2019-07-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/30/%E5%9C%A8%E5%AE%B6%E8%87%AA%E5%BE%8B%E6%80%A7%E9%83%BD%E8%83%BD%E6%9A%B4%E6%B6%A8200-%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/30/在家自律性都能暴涨200-的小技巧分享/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/07/30/%E5%9C%A8%E5%AE%B6%E8%87%AA%E5%BE%8B%E6%80%A7%E9%83%BD%E8%83%BD%E6%9A%B4%E6%B6%A8200-%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB/" class="leancloud_visitors" data-flag-title="在家自律性都能暴涨200%的小技巧分享">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <blockquote>
-<p>视频地址: <a href="https://www.bilibili.com/video/av41654978" target="_blank" rel="noopener">https://www.bilibili.com/video/av41654978</a></p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730002329.png" alt=""></p>
+<p>在面向对象的设计里，继承是非常必要的，我们会把共有的属性和方法抽象到父类中，由它统一去实现，而在进行lombok时代之后，更多的打法是使用@Builder来进行对象赋值，我们直接在类上加@Builder之后，我们的继承就被无情的屏蔽了，这主要是由于构造方法与父类冲突的问题导致的，事实上，<code>我们可以把@Builder注解加到子类的全参构造方法</code>上就可以了！</p>
 <blockquote>
-<p>《单核工作法》-升级版的时间管理方法</p>
-<p>本期目标<br>防止走神 提升专注 善用手机 增强自律</p>
+<p>下面做一个Jpa实体的例子</p>
 </blockquote>
-<h2 id="一、恶性反馈循环：揭露走神的生理原因"><a href="#一、恶性反馈循环：揭露走神的生理原因" class="headerlink" title="一、恶性反馈循环：揭露走神的生理原因"></a>一、恶性反馈循环：揭露走神的生理原因</h2><p>我们学习时容易走神，搞小动作，但请别太自责，这不是你一个人的问题，本书指出这是生理本能的锅。</p>
-<h3 id="1-让人无奈的本能：多巴胺会鼓励你走神"><a href="#1-让人无奈的本能：多巴胺会鼓励你走神" class="headerlink" title="1.让人无奈的本能：多巴胺会鼓励你走神"></a>1.让人无奈的本能：多巴胺会鼓励你走神</h3><p>当我们完成走神行为时，大脑就会获得一份多巴胺奖励。然后进入走神→爽→走神→爽→走神……的恶性反馈循环，这使走神成为一件上瘾的事。<br>所以每当你学习时，就蠢蠢欲动，总想再做点什么来消遣一下，作者倡导“单核”的原因就在于此。<br>小妙招：</p>
-<h4 id="⑴-手边管理法：把你的学习区域划分成-高危区-中危区-低危区-三个区域依次远离你的“手边”"><a href="#⑴-手边管理法：把你的学习区域划分成-高危区-中危区-低危区-三个区域依次远离你的“手边”" class="headerlink" title="⑴ 手边管理法：把你的学习区域划分成 高危区 中危区 低危区 三个区域依次远离你的“手边”"></a>⑴ 手边管理法：把你的学习区域划分成 高危区 中危区 低危区 三个区域依次远离你的“手边”</h4><p>①高危区只能存放当前任务必要的用品<br>②中危区是你站起来才能触达的区域，存放当前不太需要的用品<br>③低危区是离你最远的区域，需要走很多步才能拿到的(手机 电脑等高诱惑物品要放在这个区域)<br>④“手边管理”的本质：提高屈服诱惑的成本。<br>(手机放在手边肯定动不动就看一眼，但是如果把手机放在离你10米远的地方充电，就可以大大降低你玩它的频率</p>
-<h4 id="⑵-化“被动推送”为“主动收取”"><a href="#⑵-化“被动推送”为“主动收取”" class="headerlink" title="⑵ 化“被动推送”为“主动收取”"></a>⑵ 化“被动推送”为“主动收取”</h4><p>为了避免诱惑，我们可以将“被动推送”的逻辑转换成“主动收取”，关掉所以的手机推送消息，掌握主动权，你自己决定什么时候去查看app消息，而不是接受被动轰炸</p>
-<h2 id="二、“时间错觉”：你总觉得当下是最忙的"><a href="#二、“时间错觉”：你总觉得当下是最忙的" class="headerlink" title="二、“时间错觉”：你总觉得当下是最忙的"></a>二、“时间错觉”：你总觉得当下是最忙的</h2><p>研究显示 人们对时间的判断都存在一种错觉，给事情安排时间的时候，总觉得当下很忙没空做，未来很闲有空做，实际上这是一种是误区，未来也许会更忙，只是因为未来还没有来到，让你误以为未来的时间多的是，这也是造成拖延的心理因素之一<br>当我们遇到重要的事情时候，总会想着以后有时间再做，结果往往是未来也没有空做，拖延拖到死。<br>启示：对于重要的事现在就做不要等，否则你就做好事情“泡汤”的准备吧</p>
-<h2 id="三、学习时要不要听音乐"><a href="#三、学习时要不要听音乐" class="headerlink" title="三、学习时要不要听音乐"></a>三、学习时要不要听音乐</h2><p>①对于学习和工作这种“认知活动”来讲，可能安静环境是最佳选择<br>②不具备安静环境时，听音乐确实可以帮你起到隔绝喧嚣，提高专注力<br>③音乐的类型很重要：<br>不会调动情绪的熟悉的纯音乐更好<br>安静的比聒噪的好 熟悉的比陌生的好 没歌词的比有歌词的好<br>▲up主建议⊂(˃̶͈̀㉨ ˂̶͈́ ⊂ )))≡=─<br>①音乐能提高你的效率吗？<br>↓<br>↓﹉﹉﹉﹉﹉﹉﹉﹉↓<br>不能 能<br>↓ ↓<br>不听 ②音乐消失，效率会不会随之消失<br>↓<br>↓﹉﹉﹉﹉﹉﹉﹉↓<br>会 不会<br>↓ ↓<br>不听 听</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730002749.png" alt=""></p>
-<h2 id="四、服务生效应：害人匪浅的的生理本能"><a href="#四、服务生效应：害人匪浅的的生理本能" class="headerlink" title="四、服务生效应：害人匪浅的的生理本能"></a>四、服务生效应：害人匪浅的的生理本能</h2><h3 id="1-什么是服务生效应？"><a href="#1-什么是服务生效应？" class="headerlink" title="1. 什么是服务生效应？"></a>1. 什么是服务生效应？</h3><p>人类对于”还没完成的任务”记得特别清楚，催促你去完成它</p>
-<h3 id="2-如何妙用”服务生效应”缓解拖延"><a href="#2-如何妙用”服务生效应”缓解拖延" class="headerlink" title="2. 如何妙用”服务生效应”缓解拖延?"></a>2. 如何妙用”服务生效应”缓解拖延?</h3><p>学习留两个步骤</p>
-<h2 id="3-如何规避”服务生效应”的消极作用？"><a href="#3-如何规避”服务生效应”的消极作用？" class="headerlink" title="3. 如何规避”服务生效应”的消极作用？"></a>3. 如何规避”服务生效应”的消极作用？</h2><p>可以先记下来，放一边</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730003537.png" alt=""></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/" itemprop="url">在工作中常用到的SQL</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-30T00:12:35+08:00">
-                2019-07-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/30/在工作中常用到的SQL/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/" class="leancloud_visitors" data-flag-title="在工作中常用到的SQL">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>最近在公司做了几张报表，还记得刚开始要做报表的时候都快把SQL给忘光了（当时在广州休假了1个月多，在实习期间也没咋写过SQL），回到公司的第一个需求就是做报表。</p>
-<p>于是我很不要脸地跟带我的学长说：“SQL我好像忘光了，group 分组查询好像都忘得差不多了，我得复习一下”。</p>
-<p>这篇文章来记录一下我曾经<strong>忘掉</strong>的group查询、join查询等一些比较<strong>实用/常用</strong>的SQL</p>
-<ul>
-<li>本文主打<strong>通俗易懂</strong>，不涵盖任何优化(适合新手观看)</li>
-</ul>
-<h2 id="一、回顾group-查询"><a href="#一、回顾group-查询" class="headerlink" title="一、回顾group 查询"></a>一、回顾group 查询</h2><p><code>group</code>查询就是分组查询，为什么要分组查询？因为我们想按某个维度进行统计。下面来看个图：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001326.png" alt=""></p>
-<p>比如说，我想知道：<code>每天Java3y这个公众号的点击量是多少。</code>按我们人工而言，思路很简单：把相同的天数以及公众号名称为Java3y的数据找出来，再将每个点击量相加，就得出了结果了。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001348.png" alt=""></p>
-<p>用上SQL我们可能会这样写：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">name</span>,<span class="built_in">time</span>,<span class="keyword">sum</span>(pv) <span class="keyword">as</span> pv  </span><br><span class="line"><span class="keyword">from</span> xxx_table </span><br><span class="line"><span class="keyword">where</span> <span class="keyword">name</span> = <span class="string">'Java3y'</span> <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">name</span>,<span class="built_in">time</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="1-1-group-查询可能存在的误解"><a href="#1-1-group-查询可能存在的误解" class="headerlink" title="1.1 group 查询可能存在的误解"></a>1.1 group 查询可能存在的误解</h3><p>记得有一天，有个群友在群上问了一个问题：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001431.png" alt=""></p>
-<p>其实他的需求很简单：检索出数据分组后时间最高的记录。但他是这样干的：</p>
-<ol>
-<li>把先按照时间 <code>order by</code></li>
-<li>对<code>order by</code>后的记录进行分组</li>
-</ol>
-<p>示例图：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001503.png" alt=""></p>
-<h3 id="1-2-造成这个误解的可能原因"><a href="#1-2-造成这个误解的可能原因" class="headerlink" title="1.2 造成这个误解的可能原因"></a>1.2 造成这个误解的可能原因</h3><p>有的工具可以支持这种的写法：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> xxx_table <span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">name</span></span><br></pre></td></tr></table></figure>
-
-<p>这种写法没有被禁止，并可以得出结果，比如得到的结果是：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Java4y    20  7月15号</span><br><span class="line">Java3y    30  7月15号</span><br></pre></td></tr></table></figure>
-
-<p>这种写法其实是不合理的，要知道的是：使用<code>group by</code>分组统计之后，我们的select 后面只能跟着group by 的字段，或者是聚合函数。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001543.png" alt=""></p>
-<p>因为，我们对数据进行了分组查询，<strong>数据的分布情况，我们是不关心的</strong>。</p>
-<p>记住：<strong>先分组，后统计</strong>(先把数据归类后，再对相同的数据进行统计)</p>
-<h3 id="1-3-group查询最常用的SQL"><a href="#1-3-group查询最常用的SQL" class="headerlink" title="1.3 group查询最常用的SQL"></a>1.3 group查询最常用的SQL</h3><p><strong>去重</strong>是我们经常会遇到的问题，打个比方说，由于各种原因（不管是业务上还是说是脏数据），现在我有两条重复的数据（除了ID，其余的字段都是相同的）：</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/" itemprop="url">优秀的代码都是如何分层的？</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-29T22:27:04+08:00">
-                2019-07-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/29/优秀的代码都是如何分层的？/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/" class="leancloud_visitors" data-flag-title="优秀的代码都是如何分层的？">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>原文地址: <a href="https://mp.weixin.qq.com/s/YrTU-ZRYo7h2MN0GC6HdSQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/YrTU-ZRYo7h2MN0GC6HdSQ</a></p>
+<h3 id="一个基类"><a href="#一个基类" class="headerlink" title="一个基类"></a>一个基类</h3><p>它一般有统一的id,createdOn,updatedOn等字段 ，在基类中统一去维护。</p>
+<blockquote>
+<p>注意：父类中的属性需要子数去访问，所以需要被声明为protected，如果是private，那在赋值时将是不被允许的。</p>
 </blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222736.png" alt=""></p>
-<h2 id="1、背景"><a href="#1、背景" class="headerlink" title="1、背景"></a><strong>1、背景</strong></h2><p>说起应用分层，大部分人都会认为这个不是很简单嘛 就controller，service, mapper三层。看起来简单，很多人其实并没有把他们职责划分开，在很多代码中,controller做的逻辑比service还多,service往往当成透传了，这其实是很多人开发代码都没有注意到的地方，反正功能也能用，至于放哪无所谓呗。这样往往造成后面代码无法复用，层级关系混乱，对后续代码的维护非常麻烦。</p>
-<p>的确在这些人眼中分层只是一个形式，前辈们的代码这么写的，其他项目代码这么写的，那么我也这么跟着写。但是在真正的团队开发中每个人的习惯都不同，写出来的代码必然带着自己的标签，有的人习惯controller写大量的业务逻辑，有的人习惯在service中之间调用远程服务，这样就导致了每个人的开发代码风格完全不同，后续其他人修改的时候，一看，我靠这个人写的代码和我平常的习惯完全不同，修改的时候到底是按着自己以前的习惯改，还是跟着前辈们走，这又是个艰难的选择，选择一旦有偏差，你的后辈又维护你的代码的时候，恐怕就要骂人了。</p>
-<p>所以一个好的应用分层需要具备以下几点: </p>
-<ul>
-<li>方便后续代码进行维护扩展；</li>
-<li>分层的效果需要让整个团队都接受；</li>
-<li>各个层职责边界清晰。</li>
-</ul>
-<h2 id="2、如何进行分层"><a href="#2、如何进行分层" class="headerlink" title="2、如何进行分层"></a>2、如何进行分层</h2><h3 id="2-1、阿里规范"><a href="#2-1、阿里规范" class="headerlink" title="2.1、阿里规范"></a>2.1、阿里规范</h3><p>在阿里的编码规范中约束的分层如下:</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222826.png" alt=""></p>
-<p><strong>开放接口层</strong>：可直接封装 Service 方法暴露成 RPC 接口;通过 Web 封装成 http 接口;进行 网关安全控制、流量控制等。</p>
-<p><strong>终端显示层</strong>：各个端的模板渲染并执行显示的层。当前主要是 velocity 渲染，JS 渲染， JSP 渲染，移动端展示等。</p>
-<p><strong>Web 层</strong>：主要是对访问控制进行转发，各类基本参数校验，或者不复用的业务简单处理等。</p>
-<p><strong>Service 层</strong>：相对具体的业务逻辑服务层。</p>
-<p><strong>Manager 层</strong>：通用业务处理层，它有如下特征:1. 对第三方平台封装的层，预处理返回结果及转化异常信息;2. 对Service层通用能力的下沉，如缓存方案、中间件通用处理;3. 与DAO层交互，对多个DAO的组合复用。</p>
-<p><strong>DAO 层</strong>：数据访问层，与底层 MySQL、Oracle、Hbase 进行数据交互。</p>
-<p>阿里巴巴规约中的分层比较清晰简单明了，但是描述得还是过于简单了，以及service层和manager层有很多同学还是有点分不清楚之间的关系，就导致了很多项目中根本没有Manager层的存在。下面介绍一下具体业务中应该如何实现分层。</p>
-<h3 id="2-2、优化分层"><a href="#2-2、优化分层" class="headerlink" title="2.2、优化分层"></a>2.2、优化分层</h3><p>从我们的业务开发中总结了一个较为的理想模型,这里要先说明一下由于我们的rpc框架选用的是thrift可能会比其他的一些rpc框架例如dubbo会多出一层,作用和controller层类似 </p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222858.png" alt=""></p>
-<p>最上层controller和TService是我们阿里分层规范里面的第一层：<strong>轻业务逻辑，参数校验，异常兜底</strong>。通常这种接口可以轻易更换接口类型，所以业务逻辑必须要轻，甚至不做具体逻辑。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@MappedSuperclass</span>是一个标识，不会生成这张数据表,子类的<span class="doctag">@Builder</span>注解需要加在重写的构造方法上.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@ToString</span>(callSuper = <span class="keyword">true</span>)</span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@MappedSuperclass</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">EntityBase</span> </span>&#123;</span><br><span class="line">  <span class="meta">@Id</span></span><br><span class="line">  <span class="meta">@GeneratedValue</span>(strategy = GenerationType.AUTO)</span><br><span class="line">  <span class="keyword">protected</span> Long id;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="meta">@JsonFormat</span>(pattern = <span class="string">"yyyy-MM-dd HH:mm:ss"</span>, timezone = <span class="string">"GMT+8"</span>)</span><br><span class="line">  <span class="meta">@Column</span>(name = <span class="string">"created_on"</span>)</span><br><span class="line">  <span class="keyword">protected</span> LocalDateTime createdOn;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@JsonFormat</span>(pattern = <span class="string">"yyyy-MM-dd HH:mm:ss"</span>, timezone = <span class="string">"GMT+8"</span>)</span><br><span class="line">  <span class="meta">@Column</span>(name = <span class="string">"updated_on"</span>)</span><br><span class="line">  <span class="keyword">protected</span> LocalDateTime updatedOn;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Sets createdAt before insert</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="meta">@PrePersist</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setCreationDate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.createdOn = LocalDateTime.now();</span><br><span class="line">    <span class="keyword">this</span>.updatedOn = LocalDateTime.now();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Sets updatedAt before update</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="meta">@PreUpdate</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setChangeDate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.updatedOn = LocalDateTime.now();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="一个实现类"><a href="#一个实现类" class="headerlink" title="一个实现类"></a>一个实现类</h3><blockquote>
+<p>注意，需要重写全参数的构造方法，否则父数中的属性不能被赋值。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@ToString</span>(callSuper = <span class="keyword">true</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestEntityBuilder</span> <span class="keyword">extends</span> <span class="title">EntityBase</span> </span>&#123;</span><br><span class="line">  <span class="keyword">private</span> String title;</span><br><span class="line">  <span class="keyword">private</span> String description;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Builder</span>(toBuilder = <span class="keyword">true</span>)</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">TestEntityBuilder</span><span class="params">(Long id, LocalDateTime createdOn, LocalDateTime updatedOn,</span></span></span><br><span class="line"><span class="function"><span class="params">                           String title, String description)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(id, createdOn, updatedOn);</span><br><span class="line">    <span class="keyword">this</span>.title = title;</span><br><span class="line">    <span class="keyword">this</span>.description = description;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 测试：在实体使用继承时，如何使用<span class="doctag">@Builder</span>注解.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"> <span class="meta">@Test</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertBuilderAndInherit</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   TestEntityBuilder testEntityBuilder = TestEntityBuilder.builder()</span><br><span class="line">       .title(<span class="string">"lind"</span>)</span><br><span class="line">       .description(<span class="string">"lind is @builder and inherit"</span>)</span><br><span class="line">       .build();</span><br><span class="line">   testBuilderEntityRepository.save(testEntityBuilder);</span><br><span class="line">   TestEntityBuilder entity = testBuilderEntityRepository.findById(</span><br><span class="line">       testEntityBuilder.getId()).orElse(<span class="keyword">null</span>);</span><br><span class="line">   System.out.println(<span class="string">"userinfo:"</span> + entity.toString());</span><br><span class="line"></span><br><span class="line">   entity = entity.toBuilder().description(<span class="string">"修改了"</span>).build();</span><br><span class="line">   testBuilderEntityRepository.save(entity);</span><br><span class="line">   System.out.println(<span class="string">"userinfo:"</span> + entity.toString());</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+          
         
       
     </div>
@@ -1424,7 +430,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/29/e-printStackTrace-%E4%BC%9A%E5%AF%BC%E8%87%B4%E9%94%81%E6%AD%BB%EF%BC%9F%E8%BF%99%E4%BB%85%E4%BB%85%E6%98%AF%E6%89%93%E5%8D%B0%EF%BC%8C%E6%80%8E%E4%B9%88%E5%8F%AF%E8%83%BD%EF%BC%9F/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -1443,7 +449,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/07/29/e-printStackTrace-%E4%BC%9A%E5%AF%BC%E8%87%B4%E9%94%81%E6%AD%BB%EF%BC%9F%E8%BF%99%E4%BB%85%E4%BB%85%E6%98%AF%E6%89%93%E5%8D%B0%EF%BC%8C%E6%80%8E%E4%B9%88%E5%8F%AF%E8%83%BD%EF%BC%9F/" itemprop="url">e.printStackTrace()会导致锁死？这仅仅是打印，怎么可能？</a></h1>
+                <a class="post-title-link" href="/2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/" itemprop="url">Swagger java.lang.NumberFormatException:For input string:"" 解决办法</a></h1>
         
 
         <div class="post-meta">
@@ -1455,8 +461,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-29T20:47:34+08:00">
-                2019-07-29
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-05T14:32:03+08:00">
+                2019-07-05
               </time>
             
 
@@ -1474,8 +480,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/07/29/e-printStackTrace-%E4%BC%9A%E5%AF%BC%E8%87%B4%E9%94%81%E6%AD%BB%EF%BC%9F%E8%BF%99%E4%BB%85%E4%BB%85%E6%98%AF%E6%89%93%E5%8D%B0%EF%BC%8C%E6%80%8E%E4%B9%88%E5%8F%AF%E8%83%BD%EF%BC%9F/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/29/e-printStackTrace-会导致锁死？这仅仅是打印，怎么可能？/" itemprop="commentCount"></span>
+                <a href="/2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1483,7 +489,7 @@
 
           
           
-             <span id="/2019/07/29/e-printStackTrace-%E4%BC%9A%E5%AF%BC%E8%87%B4%E9%94%81%E6%AD%BB%EF%BC%9F%E8%BF%99%E4%BB%85%E4%BB%85%E6%98%AF%E6%89%93%E5%8D%B0%EF%BC%8C%E6%80%8E%E4%B9%88%E5%8F%AF%E8%83%BD%EF%BC%9F/" class="leancloud_visitors" data-flag-title="e.printStackTrace()会导致锁死？这仅仅是打印，怎么可能？">
+             <span id="/2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/" class="leancloud_visitors" data-flag-title="Swagger java.lang.NumberFormatException:For input string:"" 解决办法">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1517,35 +523,15 @@
         
           
             <blockquote>
-<p>原文地址: <a href="https://mp.weixin.qq.com/s/A7SFmijk4_NZEG1HMkizhA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/A7SFmijk4_NZEG1HMkizhA</a></p>
+<p>原文地址 <a href="https://doc.xiaominfo.com/guide/format-exception.html" target="_blank" rel="noopener">https://doc.xiaominfo.com/guide/format-exception.html</a></p>
 </blockquote>
-<p>先别惊呼不可能，听我细细道来。</p>
-<p>先看截图1：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729204813.png" alt=""></p>
-<p>注意右下角区域，红框部分。这块内存是什么呢？非堆！那么，左边是代码缓存区内存，右边红框就是字符串池，常量，基本类型数据的内存区。然后呢？已经满了。什么原因呢？</p>
-<p><strong>e.printStackTrace()！</strong></p>
-<p>满了的后果呢？整个web服务，访问之后，没响应了，就当是卡死掉了。</p>
-<p>再来看截图2：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729204900.png" alt=""></p>
-<p>看看有多少web的请求线程，被卡住在打印这一步！原因呢？要打印字符串输出到控制台上，那你字符串常量池所在的内存块要有空间啊。然而，因为e.printStackTrace() 语句要产生的字符串记录的是堆栈信息，太长太多，内存被填满了！注意 上面代码语句：4208行！</p>
-<p>来看图3：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729204949.png" alt=""></p>
-<p>没毛病，没没事儿找事儿冤枉谁。就是这句代码惹的祸！当然，我承认，被 try 住的代码本身就有问题，导致很多调用都会抛异常。</p>
-<p>那么，让我们再来理理整个事件产生的经过：</p>
-<ul>
-<li>短时间内大量请求访问此接口</li>
-<li>代码本身有问题，很多情况下抛异常</li>
-<li>e.printStackTrace() 来打印异常到控制台</li>
-<li>产生错误堆栈字符串到字符串池内存空间</li>
-<li>此内存空间一下子被占满了</li>
-<li>开始在此内存空间产出字符串的线程还没完全生产完整，就没空间了</li>
-<li>大量线程产出字符串产出到一半，等在这儿（等有内存了继续搞啊）</li>
-<li>相互等待，等内存，锁死了，整个应用挂掉了。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总结当然重要，有3点：</p>
-<p>1.代码质量啊亲，代码不抛异常咱不就能愉快的继续浪么？</p>
-<p>2.不要使用 <code>e.printStackTrace()</code>啊，这玩意儿，在项目发布后，除过不断的刷控制台，并没用什么卵用啊，您到是用log对象输出到日志文件里面啊。</p>
-<p>3.推及开来，在java中，会产生大量字符串的方法，使用时，一定得悠着点，别一不小心撑到肚子（字符串池所属的那么点非堆内存空间），撑到肚子了，会死的啊。</p>
+<p>很多朋友在升级Springfox-Swagger到2.9.2版本后会碰见NumberFormatException异常<strong>java.lang.NumberFormatException: For input string: “”</strong></p>
+<p>异常信息如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">java.lang.NumberFormatException: For input string: <span class="string">""</span></span><br><span class="line">	at java.lang.NumberFormatException.forInputString(NumberFormatException.java:<span class="number">65</span>) ~[na:<span class="number">1.8</span><span class="number">.0_111</span>]</span><br><span class="line">	at java.lang.Long.parseLong(Long.java:<span class="number">601</span>) ~[na:<span class="number">1.8</span><span class="number">.0_111</span>]</span><br><span class="line">	at java.lang.Long.valueOf(Long.java:<span class="number">803</span>) ~[na:<span class="number">1.8</span><span class="number">.0_111</span>]</span><br><span class="line">	at  </span><br><span class="line">	<span class="comment">//more....</span></span><br></pre></td></tr></table></figure>
+
+<p>解决办法是在pom.xml中排除Springfox-Swagger的Swagger-Models的jar包,重新引入，如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- https:<span class="comment">//mvnrepository.com/artifact/io.springfox/springfox-swagger2 --&gt;</span></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;io.springfox&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;springfox-swagger2&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;2.9.2&lt;/version&gt;</span><br><span class="line">    &lt;exclusions&gt;</span><br><span class="line">        &lt;exclusion&gt;</span><br><span class="line">            &lt;groupId&gt;io.swagger&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;swagger-models&lt;/artifactId&gt;</span><br><span class="line">        &lt;/exclusion&gt;</span><br><span class="line">    &lt;/exclusions&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- https:<span class="comment">//mvnrepository.com/artifact/io.swagger/swagger-models --&gt;</span></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;io.swagger&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;swagger-models&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;1.5.21&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
 
           
         
@@ -1594,7 +580,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/26/%E9%80%9A%E8%BF%87%E5%AE%9E%E4%BE%8B%E7%90%86%E8%A7%A3-JDK8-%E7%9A%84-CompletableFuture/">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/05/%E4%B8%83%E6%88%90%E6%AF%95%E4%B8%9A%E7%94%9F%E6%9C%88%E8%96%AA%E4%B8%8D%E8%B6%B36000%EF%BC%9A%E9%99%A4%E4%BA%86%E5%B7%A5%E8%B5%84%EF%BC%8C%E7%AC%AC%E4%B8%80%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%BF%98%E5%BA%94%E8%AF%A5%E7%9C%8B%E9%87%8D%E4%BB%80%E4%B9%88%EF%BC%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="高行行">
@@ -1613,7 +599,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/07/26/%E9%80%9A%E8%BF%87%E5%AE%9E%E4%BE%8B%E7%90%86%E8%A7%A3-JDK8-%E7%9A%84-CompletableFuture/" itemprop="url">通过实例理解 JDK8 的 CompletableFuture</a></h1>
+                <a class="post-title-link" href="/2019/07/05/%E4%B8%83%E6%88%90%E6%AF%95%E4%B8%9A%E7%94%9F%E6%9C%88%E8%96%AA%E4%B8%8D%E8%B6%B36000%EF%BC%9A%E9%99%A4%E4%BA%86%E5%B7%A5%E8%B5%84%EF%BC%8C%E7%AC%AC%E4%B8%80%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%BF%98%E5%BA%94%E8%AF%A5%E7%9C%8B%E9%87%8D%E4%BB%80%E4%B9%88%EF%BC%9F/" itemprop="url">七成毕业生月薪不足6000：除了工资，第一份工作还应该看重什么？</a></h1>
         
 
         <div class="post-meta">
@@ -1625,8 +611,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-26T22:15:03+08:00">
-                2019-07-26
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-05T00:23:57+08:00">
+                2019-07-05
               </time>
             
 
@@ -1644,8 +630,8 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2019/07/26/%E9%80%9A%E8%BF%87%E5%AE%9E%E4%BE%8B%E7%90%86%E8%A7%A3-JDK8-%E7%9A%84-CompletableFuture/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/26/通过实例理解-JDK8-的-CompletableFuture/" itemprop="commentCount"></span>
+                <a href="/2019/07/05/%E4%B8%83%E6%88%90%E6%AF%95%E4%B8%9A%E7%94%9F%E6%9C%88%E8%96%AA%E4%B8%8D%E8%B6%B36000%EF%BC%9A%E9%99%A4%E4%BA%86%E5%B7%A5%E8%B5%84%EF%BC%8C%E7%AC%AC%E4%B8%80%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%BF%98%E5%BA%94%E8%AF%A5%E7%9C%8B%E9%87%8D%E4%BB%80%E4%B9%88%EF%BC%9F/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/05/七成毕业生月薪不足6000：除了工资，第一份工作还应该看重什么？/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1653,161 +639,7 @@
 
           
           
-             <span id="/2019/07/26/%E9%80%9A%E8%BF%87%E5%AE%9E%E4%BE%8B%E7%90%86%E8%A7%A3-JDK8-%E7%9A%84-CompletableFuture/" class="leancloud_visitors" data-flag-title="通过实例理解 JDK8 的 CompletableFuture">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Java 5 并发库主要关注于异步任务的处理，它采用了这样一种模式，producer 线程创建任务并且利用阻塞队列将其传递给任务的 consumer。这种模型在 Java 7 和 8 中进一步发展，并且开始支持另外一种风格的任务执行，那就是将任务的数据集分解为子集，每个子集都可以由独立且同质的子任务来负责处理。</p>
-<p>这种风格的基础库也就是 fork/join 框架，它允许程序员规定数据集该如何进行分割，并且支持将子任务提交到默认的标准线程池中，也就是”通用的”ForkJoinPool。Java 8 中，fork/join 并行功能借助并行流的机制变得更加具有可用性。但是，不是所有的问题都适合这种风格的并行处理：所处理的元素必须是独立的，数据集要足够大，并且在并行加速方面，每个元素的处理成本要足够高，这样才能补偿建立 fork/join 框架所消耗的成本。CompletableFuture 类则是 Java 8 在并行流方面的创新。</p>
-<h2 id="准备知识"><a href="#准备知识" class="headerlink" title="准备知识"></a>准备知识</h2><h3 id="异步计算"><a href="#异步计算" class="headerlink" title="异步计算"></a>异步计算</h3><p>所谓异步调用其实就是实现一个可无需等待被调用函数的返回值而让操作继续运行的方法。在 Java 语言中，简单的讲就是另启一个线程来完成调用中的部分计算，使调用继续运行或返回，而不需要等待计算结果。但调用者仍需要取线程的计算结果。</p>
-<h3 id="回调函数"><a href="#回调函数" class="headerlink" title="回调函数"></a>回调函数</h3><p>回调函数比较通用的解释是，它是一个通过函数指针调用的函数。如果你把函数的指针（地址）作为参数传递给另一个函数，当这个指针被用为调用它所指向的函数时，我们就说这是回调函数。回调函数不是由该函数的实现方直接调用，而是在特定的事件或条件发生时由另外一方调用的，用于对该事件或条件进行响应。</p>
-<p>回调函数的机制：</p>
-<ol>
-<li>定义一个回调函数；</li>
-<li>提供函数实现的一方在初始化时候，将回调函数的函数指针注册给调用者；</li>
-<li>当特定的事件或条件发生的时候，调用者使用函数指针调用回调函数对事件进行处理。</li>
-</ol>
-<p>回调函数通常与原始调用者处于同一层次，如图 1 所示：</p>
-<h5 id="图-1-回调函数示例图"><a href="#图-1-回调函数示例图" class="headerlink" title="图 1. 回调函数示例图"></a>图 1. 回调函数示例图</h5><p><img src="https://www.ibm.com/developerworks/cn/java/j-cf-of-jdk8/image001.png" alt=""></p>
-<h3 id="Future-接口介绍"><a href="#Future-接口介绍" class="headerlink" title="Future 接口介绍"></a>Future 接口介绍</h3><p>JDK5 新增了 Future 接口，用于描述一个异步计算的结果。虽然 Future 以及相关使用方法提供了异步执行任务的能力，但是对于结果的获取却是很不方便，只能通过阻塞或者轮询的方式得到任务的结果。阻塞的方式显然和我们的异步编程的初衷相违背，轮询的方式又会耗费无谓的 CPU 资源，而且也不能及时地得到计算结果，为什么不能用观察者设计模式呢？即当计算结果完成及时通知监听者。</p>
-<p>有一些开源框架实现了我们的设想，例如 Netty 的 ChannelFuture 类扩展了 Future 接口，通过提供 addListener 方法实现支持回调方式的异步编程。Netty 中所有的 I/O 操作都是异步的,这意味着任何的 I/O 调用都将立即返回，而不保证这些被请求的 I/O 操作在调用结束的时候已经完成。取而代之地，你会得到一个返回的 ChannelFuture 实例，这个实例将给你一些关于 I/O 操作结果或者状态的信息。当一个 I/O 操作开始的时候，一个新的 Future 对象就会被创建。在开始的时候，新的 Future 是未完成的状态－－它既非成功、失败，也非被取消，因为 I/O 操作还没有结束。如果 I/O 操作以成功、失败或者被取消中的任何一种状态结束了，那么这个 Future 将会被标记为已完成，并包含更多详细的信息（例如：失败的原因）。请注意，即使是失败和被取消的状态，也是属于已完成的状态。阻塞方式的示例代码如清单 1 所示。</p>
-<h5 id="清单-1-阻塞方式示例代码"><a href="#清单-1-阻塞方式示例代码" class="headerlink" title="清单 1. 阻塞方式示例代码"></a>清单 1. 阻塞方式示例代码</h5>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/24/RecursiveTask%E5%92%8CRecursiveAction%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%BB%A5%E5%8F%8Ajava-8-%E5%B9%B6%E8%A1%8C%E6%B5%81%E5%92%8C%E9%A1%BA%E5%BA%8F%E6%B5%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/24/RecursiveTask%E5%92%8CRecursiveAction%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%BB%A5%E5%8F%8Ajava-8-%E5%B9%B6%E8%A1%8C%E6%B5%81%E5%92%8C%E9%A1%BA%E5%BA%8F%E6%B5%81/" itemprop="url">RecursiveTask和RecursiveAction的使用 以及java 8 并行流和顺序流</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-24T23:29:48+08:00">
-                2019-07-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/07/24/RecursiveTask%E5%92%8CRecursiveAction%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%BB%A5%E5%8F%8Ajava-8-%E5%B9%B6%E8%A1%8C%E6%B5%81%E5%92%8C%E9%A1%BA%E5%BA%8F%E6%B5%81/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/24/RecursiveTask和RecursiveAction的使用-以及java-8-并行流和顺序流/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/07/24/RecursiveTask%E5%92%8CRecursiveAction%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%BB%A5%E5%8F%8Ajava-8-%E5%B9%B6%E8%A1%8C%E6%B5%81%E5%92%8C%E9%A1%BA%E5%BA%8F%E6%B5%81/" class="leancloud_visitors" data-flag-title="RecursiveTask和RecursiveAction的使用 以及java 8 并行流和顺序流">
+             <span id="/2019/07/05/%E4%B8%83%E6%88%90%E6%AF%95%E4%B8%9A%E7%94%9F%E6%9C%88%E8%96%AA%E4%B8%8D%E8%B6%B36000%EF%BC%9A%E9%99%A4%E4%BA%86%E5%B7%A5%E8%B5%84%EF%BC%8C%E7%AC%AC%E4%B8%80%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%BF%98%E5%BA%94%E8%AF%A5%E7%9C%8B%E9%87%8D%E4%BB%80%E4%B9%88%EF%BC%9F/" class="leancloud_visitors" data-flag-title="七成毕业生月薪不足6000：除了工资，第一份工作还应该看重什么？">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1840,40 +672,1168 @@
       
         
           <blockquote>
-<p>原文地址: <a href="https://blog.csdn.net/weixin_41404773/article/details/80733324" target="_blank" rel="noopener">https://blog.csdn.net/weixin_41404773/article/details/80733324</a></p>
+<p>原文地址 <a href="https://mp.weixin.qq.com/s/0dn2DnEJT1T7ajr2BPYG8w" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/0dn2DnEJT1T7ajr2BPYG8w</a></p>
 </blockquote>
-<h2 id="什么是Fork-Join框架"><a href="#什么是Fork-Join框架" class="headerlink" title="什么是Fork/Join框架"></a>什么是Fork/Join框架</h2><p>Fork/Join框架是Java7提供了的一个用于并行执行任务的框架， 是一个把大任务分割成若干个小任务，最终汇总每个小任务结果后得到大任务结果的框架。</p>
-<p>我们再通过Fork和Join这两个单词来理解下Fork/Join框架，Fork就是把一个大任务切分为若干子任务并行的执行，Join就是合并这些子任务的执行结果，最后得到这个大任务的结果。比如计算1+2+。。＋10000，可以分割成10个子任务，每个子任务分别对1000个数进行求和，最终汇总这10个子任务的结果。Fork/Join的运行流程图如下：</p>
-<h2 id="工作窃取算法"><a href="#工作窃取算法" class="headerlink" title="工作窃取算法"></a>工作窃取算法</h2><p>工作窃取（work-stealing）算法是指某个线程从其他队列里窃取任务来执行。工作窃取的运行流程图如下：</p>
-<p> 那么为什么需要使用工作窃取算法呢？假如我们需要做一个比较大的任务，我们可以把这个任务分割为若干互不依赖的子任务，为了减少线程间的竞争，于是把这些子任务分别放到不同的队列里，并为每个队列创建一个单独的线程来执行队列里的任务，线程和队列一一对应，比如A线程负责处理A队列里的任务。但是有的线程会先把自己队列里的任务干完，而其他线程对应的队列里还有任务等待处理。干完活的线程与其等着，不如去帮其他线程干活，于是它就去其他线程的队列里窃取一个任务来执行。而在这时它们会访问同一个队列，所以为了减少窃取任务线程和被窃取任务线程之间的竞争，通常会使用双端队列，被窃取任务线程永远从双端队列的头部拿任务执行，而窃取任务的线程永远从双端队列的尾部拿任务执行。        </p>
-<p>工作窃取算法的优点是充分利用线程进行并行计算，并减少了线程间的竞争，其缺点是在某些情况下还是存在竞争，比如双端队列里只有一个任务时。并且消耗了更多的系统资源，比如创建多个线程和多个双端队列。</p>
-<h3 id="ForkJoinPool"><a href="#ForkJoinPool" class="headerlink" title="ForkJoinPool"></a>ForkJoinPool</h3><p>Java提供了ForkJoinPool来支持将一个任务拆分成多个“小任务”并行计算，再把多个“小任务”的结果合成总的计算结果。</p>
-<p>ForkJoinPool是ExecutorService的实现类，因此是一种特殊的线程池。ForkJoinPool提供了如下两个常用的构造器。</p>
-<ul>
-<li><p>public ForkJoinPool(int parallelism)：创建一个包含parallelism个并行线程的ForkJoinPool</p>
-</li>
-<li><p>public ForkJoinPool() ：以Runtime.getRuntime().availableProcessors()的返回值作为parallelism来创建ForkJoinPool</p>
-</li>
-</ul>
-<p>创建ForkJoinPool实例后，可以调用ForkJoinPool的submit(ForkJoinTask<T> task)或者invoke(ForkJoinTask<T> task)来执行指定任务。其中ForkJoinTask代表一个可以并行、合并的任务。ForkJoinTask是一个抽象类，它有两个抽象子类：RecursiveAction和RecursiveTask。</p>
-<ul>
-<li>RecursiveTask代表有返回值的任务</li>
-<li>RecursiveAction代表没有返回值的任务。</li>
-</ul>
-<h3 id="RecursiveAction"><a href="#RecursiveAction" class="headerlink" title="RecursiveAction"></a>RecursiveAction</h3><p>下面以一个没有返回值的大任务为例，介绍一下RecursiveAction的用法。</p>
-<p>大任务是：打印0-100的数值。</p>
-<p>小任务是：每次只能打印20个数值。</p>
-<p>代码执行</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.jedis.test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.RecursiveAction;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> : Wukn</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span> : 2018/2/5</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RaskDemo</span> <span class="keyword">extends</span> <span class="title">RecursiveAction</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     *  每个"小任务"最多只打印20个数</span></span><br><span class="line"><span class="comment">      */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX = <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> start;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> end;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RaskDemo</span><span class="params">(<span class="keyword">int</span> start, <span class="keyword">int</span> end)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.start = start;</span><br><span class="line">        <span class="keyword">this</span>.end = end;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">compute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//当end-start的值小于MAX时，开始打印</span></span><br><span class="line">        <span class="keyword">if</span>((end-start) &lt; MAX) &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i= start; i&lt;end;i++) &#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getName()+<span class="string">"i的值"</span>+i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 将大任务分解成两个小任务</span></span><br><span class="line">            <span class="keyword">int</span> middle = (start + end) / <span class="number">2</span>;</span><br><span class="line">            RaskDemo left = <span class="keyword">new</span> RaskDemo(start, middle);</span><br><span class="line">            RaskDemo right = <span class="keyword">new</span> RaskDemo(middle, end);</span><br><span class="line">            left.fork();</span><br><span class="line">            right.fork();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception</span>&#123;</span><br><span class="line">    <span class="comment">// 创建包含Runtime.getRuntime().availableProcessors()返回值作为个数的并行线程的ForkJoinPool</span></span><br><span class="line">    ForkJoinPool forkJoinPool = <span class="keyword">new</span> ForkJoinPool();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 提交可分解的PrintTask任务</span></span><br><span class="line">    forkJoinPool.submit(<span class="keyword">new</span> RaskDemo(<span class="number">0</span>, <span class="number">1000</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">//阻塞当前线程直到 ForkJoinPool 中所有的任务都执行结束</span></span><br><span class="line">    forkJoinPool.awaitTermination(<span class="number">2</span>, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭线程池</span></span><br><span class="line">    forkJoinPool.shutdown();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>运行结果</p>
-<p>从上面结果来看，ForkJoinPool启动了四个线程来执行这个打印任务，我的计算机的CPU是四核的。大家还可以看到程序虽然打印了0-999这一千个数字，但是并不是连续打印的，这是因为程序将这个打印任务进行了分解，分解后的任务会并行执行，所以不会按顺序打印。</p>
-<h3 id="RecursiveTask"><a href="#RecursiveTask" class="headerlink" title="RecursiveTask"></a>RecursiveTask</h3><p>下面以一个有返回值的大任务为例，介绍一下RecursiveTask的用法。</p>
+<p>昨天关于毕业生薪酬的数据上了微博热搜，戳中了很多年轻人的痛点：七成毕业生月薪不足6000。</p>
+<p>根据《2019年大学生求职指南》数据显示，从实际签约月薪来看，<strong>有七成应届毕业生的签约月薪在6000元以内，4000元以下占比为35.77%。</strong></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190705002456.png" alt=""></p>
+<p>毕业生薪酬不高带来的是签约难。应届生尚未签约的原因中，“薪水/待遇未达到期望值”仍是首要因素，比例达到38.23%。</p>
+<p>毕竟是人生的第一份工作，很多毕业生都心怀期望慎之又慎，可是有时候，走走停停找来找去，却发现现实远比想象更残酷。一边是需求降低，一边是薪资减少，很多年轻人忍不住会纠结，第一份工作到底要不要在意薪酬。</p>
+<p>年轻人到底要不要在意薪酬，其实不能一概而论，毕竟比起薪水，还有很多其他方面值得考虑。</p>
+<h2 id="1"><a href="#1" class="headerlink" title="1"></a>1</h2><p>首先，要考虑行业发展。</p>
+<p>数据显示，在所有的招聘行业中，就业形势最好的行业依然是中介服务，今年该行业的企业招聘需求同比增长25%。</p>
+<p>需求上涨的同时，在这个行业求职的大学生数量却在减少，2019届应届生投递中介服务行业的人数同比减少21%。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190705002541.png" alt=""></p>
+<p>很多毕业生在职业选择上喜欢随大流，盲目涌向热门行业。</p>
+<p>但是衡量一个行业，热门与否不应该是主要考量因素。有些热门行业本身并不具备长期发展，比如马云曾经举的一个例子，数据分析是热门职业，但是十年后，可能会被AI取代。</p>
+<p>而且由于竞争激烈，人才辈出，你能谈判的资本并不多。反倒是冷门行业，由于招聘需求大，年轻人更容易谈出好条件。</p>
+<p>宁向东曾经做过这样的比喻，选择行业其实就等于是选择投资。</p>
+<p>当年，有一家投资机构，他们在选择是否要投资高铁行业的时候，首先问自己的就是，高铁在中国有没有前途？</p>
+<p>选行业，其实也可以参考这个思路。选择一家公司，要看行业发展。它们做的事，是不是符合未来发展需要，只有在人们的生活息息相关的行业里，你才会找到未来事业发展的机会和希望。</p>
+<h2 id="2"><a href="#2" class="headerlink" title="2"></a>2</h2><p>其次，要考虑个人职业发展空间。</p>
+<p>所谓个人职业发展空间，其实就是成长性。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/07/24/RecursiveTask%E5%92%8CRecursiveAction%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%BB%A5%E5%8F%8Ajava-8-%E5%B9%B6%E8%A1%8C%E6%B5%81%E5%92%8C%E9%A1%BA%E5%BA%8F%E6%B5%81/#more" rel="contents">
+            <a class="btn" href="/2019/07/05/%E4%B8%83%E6%88%90%E6%AF%95%E4%B8%9A%E7%94%9F%E6%9C%88%E8%96%AA%E4%B8%8D%E8%B6%B36000%EF%BC%9A%E9%99%A4%E4%BA%86%E5%B7%A5%E8%B5%84%EF%BC%8C%E7%AC%AC%E4%B8%80%E4%BB%BD%E5%B7%A5%E4%BD%9C%E8%BF%98%E5%BA%94%E8%AF%A5%E7%9C%8B%E9%87%8D%E4%BB%80%E4%B9%88%EF%BC%9F/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/04/%E9%9D%A2%E8%AF%95%EF%BC%9A%E4%B8%80%E4%B8%AAJava%E5%AF%B9%E8%B1%A1%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E5%A4%A7%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/04/%E9%9D%A2%E8%AF%95%EF%BC%9A%E4%B8%80%E4%B8%AAJava%E5%AF%B9%E8%B1%A1%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E5%A4%A7%EF%BC%9F/" itemprop="url">面试：一个Java对象到底有多大？</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-04T20:28:51+08:00">
+                2019-07-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/04/%E9%9D%A2%E8%AF%95%EF%BC%9A%E4%B8%80%E4%B8%AAJava%E5%AF%B9%E8%B1%A1%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E5%A4%A7%EF%BC%9F/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/04/面试：一个Java对象到底有多大？/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/07/04/%E9%9D%A2%E8%AF%95%EF%BC%9A%E4%B8%80%E4%B8%AAJava%E5%AF%B9%E8%B1%A1%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E5%A4%A7%EF%BC%9F/" class="leancloud_visitors" data-flag-title="面试：一个Java对象到底有多大？">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>出处：<a href="http://u6.gg/swLPg" target="_blank" rel="noopener">http://u6.gg/swLPg</a></p>
+<blockquote>
+<p>编写Java代码的时候，大多数情况下，我们很少关注一个Java对象究竟有多大(占据多少内存)，更多的是关注业务与逻辑。但是殊不知，在我们不经意间，大量的内存被无形地浪费了。</p>
+<p>这也是一个很基础的 java 面试考点</p>
+</blockquote>
+<h2 id="一个Java对象到底有多大？"><a href="#一个Java对象到底有多大？" class="headerlink" title="一个Java对象到底有多大？"></a>一个Java对象到底有多大？</h2><p>想要精确计算一个Java对象占用的内存，首先要了解Java对象的结构表示。</p>
+<h2 id="Java对象结构"><a href="#Java对象结构" class="headerlink" title="Java对象结构"></a>Java对象结构</h2><p>一个Java对象在Heap的表示，可以分为三部分：</p>
+<ul>
+<li>Object Header</li>
+<li>Class Pointer</li>
+<li>Fields</li>
+</ul>
+<p>每个普通Java对象在堆(heap)中都有一个头信息(object header)，头信息是必不可少的，记录着对象的状态。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190704203105.png" alt=""></p>
+<p>32位与64位占用空间不同，在32位中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash(25)+age(4)+lock(3)&#x3D;32bit</span><br></pre></td></tr></table></figure>
+
+<p>32位与64位占用空间不同，在32位中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash(25)+age(4)+lock(3)&#x3D;32bit</span><br></pre></td></tr></table></figure>
+
+<p>64位中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unused(25+1)+hash(31)+age(4)+lock(3)&#x3D;64bit</span><br></pre></td></tr></table></figure>
+
+<p>我们知道，在Java中，一切皆对象；每个类都有一个父类， <code>ClassPointer</code>就是当前对象父类的一个指针，在32位系统中，这个指针为4byte；在64位系统中，如果开启指针压缩(-XX:+UseCompressedOops)或者JVM堆的最大值小于32G，这个指针也是4byte，否则是8byte。</p>
+<p>关于字段(Fields)，这里指的是类的实例字段；也就是说不包括静态字段，因为这个字段是共享内存的，只会存在一份。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/07/04/%E9%9D%A2%E8%AF%95%EF%BC%9A%E4%B8%80%E4%B8%AAJava%E5%AF%B9%E8%B1%A1%E5%88%B0%E5%BA%95%E6%9C%89%E5%A4%9A%E5%A4%A7%EF%BC%9F/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/03/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3JVM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/03/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3JVM/" itemprop="url">深入理解JVM</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-03T23:27:21+08:00">
+                2019-07-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/03/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3JVM/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/03/深入理解JVM/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/07/03/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3JVM/" class="leancloud_visitors" data-flag-title="深入理解JVM">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>视频地址 <a href="https://www.youtube.com/watch?v=wBR1w3kSBhE&amp;list=PL9avoKyUyEuzk6yl5X20r2SYRUcXcw-zs" target="_blank" rel="noopener">https://www.youtube.com/watch?v=wBR1w3kSBhE&amp;list=PL9avoKyUyEuzk6yl5X20r2SYRUcXcw-zs</a></p>
+</blockquote>
+<h2 id="01-学习方法论与高效学习方式演进"><a href="#01-学习方法论与高效学习方式演进" class="headerlink" title="01 学习方法论与高效学习方式演进"></a>01 学习方法论与高效学习方式演进</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190703233759.png" alt=""></p>
+<p>向事情学习</p>
+<p>向人学习</p>
+<p>输出</p>
+<p>后会无期</p>
+<p>知道很多道理，确过不好这一生</p>
+<p>需要持久化，需要输出。一定要吐出来</p>
+<p>输出，输出，输出，输出！</p>
+<p>刻意练习。</p>
+<h2 id="02-JVM学习曲线与疑难点剖析"><a href="#02-JVM学习曲线与疑难点剖析" class="headerlink" title="02 JVM学习曲线与疑难点剖析"></a>02 JVM学习曲线与疑难点剖析</h2><p>1 模仿，不管底层</p>
+<p>有节奏，有计划的去学习</p>
+<h2 id="03-深入理解JVM课程大纲分析与工具使用"><a href="#03-深入理解JVM课程大纲分析与工具使用" class="headerlink" title="03 深入理解JVM课程大纲分析与工具使用"></a>03 深入理解JVM课程大纲分析与工具使用</h2><p><strong>JVM</strong></p>
+<p><strong>介绍：</strong>JVM是一个令人望而却步的领域，因为它博大精深，涉及到的内容与知识点非常之多。虽然Java开发者每天都在使用JVM，但对其有所研究并且研究深入的人却少之又少。然而，JVM的重要性却又是不言而喻的。基于JVM的各种动态与静态语言生态圈已经异常繁荣了，对JVM的运行机制有一定的了解不但可以提升我们的竞争力，还可以让我们在面对问题时能够沉着应对，加速问题的解决速度；同时还能够增强我们的自信心，让我们更加游刃有余。</p>
+<ul>
+<li>JVM介绍</li>
+<li>HotSpot虚拟机讲解</li>
+<li>垃圾收集方式详解</li>
+<li></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/03/%E3%80%90TED%E6%BC%94%E8%AE%B2%E3%80%91%E4%B8%8D%E8%A6%81%E4%B8%BA%E4%BA%86%E5%90%8E%E6%82%94%E8%80%8C%E5%90%8E%E6%82%94/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/03/%E3%80%90TED%E6%BC%94%E8%AE%B2%E3%80%91%E4%B8%8D%E8%A6%81%E4%B8%BA%E4%BA%86%E5%90%8E%E6%82%94%E8%80%8C%E5%90%8E%E6%82%94/" itemprop="url">【TED演讲】不要为了后悔而后悔</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-03T22:58:13+08:00">
+                2019-07-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/03/%E3%80%90TED%E6%BC%94%E8%AE%B2%E3%80%91%E4%B8%8D%E8%A6%81%E4%B8%BA%E4%BA%86%E5%90%8E%E6%82%94%E8%80%8C%E5%90%8E%E6%82%94/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/03/【TED演讲】不要为了后悔而后悔/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/07/03/%E3%80%90TED%E6%BC%94%E8%AE%B2%E3%80%91%E4%B8%8D%E8%A6%81%E4%B8%BA%E4%BA%86%E5%90%8E%E6%82%94%E8%80%8C%E5%90%8E%E6%82%94/" class="leancloud_visitors" data-flag-title="【TED演讲】不要为了后悔而后悔">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190703225843.png" alt=""></p>
+<ul>
+<li>教育</li>
+<li>事业</li>
+<li>爱情</li>
+<li>子女教育</li>
+<li>对自身的决定</li>
+<li>闲暇时间</li>
+<li>表现执拗</li>
+</ul>
+<p>面对后悔的建议</p>
+<ol>
+<li><p>意识到后悔的普遍性</p>
+</li>
+<li><p>学会自嘲</p>
+</li>
+<li><p>通过时间的流逝慢慢地平和面对遗憾</p>
+</li>
+<li><p>有时候你后悔的东西不像你原想的那样糟糕</p>
+</li>
+</ol>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/03/restful-%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%A4%BA%E4%BE%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/03/restful-%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%A4%BA%E4%BE%8B/" itemprop="url">restful 接口设计示例</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-03T22:42:16+08:00">
+                2019-07-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/03/restful-%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%A4%BA%E4%BE%8B/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/03/restful-接口设计示例/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/07/03/restful-%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%A4%BA%E4%BE%8B/" class="leancloud_visitors" data-flag-title="restful 接口设计示例">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190703224305.png" alt=""></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/" itemprop="url">天天用Synchronized，底层原理是个啥?</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-02T19:56:26+08:00">
+                2019-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/02/天天用Synchronized，底层原理是个啥/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/" class="leancloud_visitors" data-flag-title="天天用Synchronized，底层原理是个啥?">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>作者：liuxiaopeng</p>
+<p>原文地址:：<a href="https://www.cnblogs.com/paddix/p/5367116.html" target="_blank" rel="noopener">https://www.cnblogs.com/paddix/p/5367116.html</a></p>
+</blockquote>
+<p><strong>Synchronized 的基本使用</strong></p>
+<p>Synchronized 的作用主要有三个：</p>
+<ul>
+<li>确保线程互斥的访问同步代码</li>
+<li>保证共享变量的修改能够及时可见</li>
+<li>有效解决重排序问题</li>
+</ul>
+<p>从语法上讲，Synchronized 总共有三种用法：</p>
+<ul>
+<li>修饰普通方法</li>
+<li>修饰静态方法</li>
+<li>修饰代码块</li>
+</ul>
+<p>接下来我就通过几个例子程序来说明一下这三种使用方式（为了便于比较，三段代码除了 Synchronized 的使用方式不同以外，其他基本保持一致）。</p>
+<p><strong>没有同步的情况</strong></p>
+<p>代码段 1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.paddx.test.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedTest</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">"Method 1 start"</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">"Method 1 execute"</span>);</span><br><span class="line">      Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">       e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">"Method 1 end"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"Method 2 start"</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">"Method 2 execute"</span>);</span><br><span class="line">      Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">"Method 2 end"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> SynchronizedTest test = <span class="keyword">new</span> SynchronizedTest();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        test.method1();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        test.method2();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下，线程 1 和线程 2 同时进入执行状态，线程 2 执行速度比线程 1 快，所以线程 2 先执行完成。推荐阅读：<a href="http://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247487589&idx=2&sn=bc7398739f7153e5cf9a9f0241b0cb5b&chksm=eb539553dc241c45b28c0ccf217359c17ccce4ae34e3c13f4c7a2555f108247ea3d54902a88c&scene=21#wechat_redirect" target="_blank" rel="noopener">多线程 start 和 run 方法到底有什么区别？</a></p>
+<p>这个过程中线程 1 和线程 2 是同时执行的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Method <span class="number">1</span> start</span><br><span class="line">Method <span class="number">1</span> execute</span><br><span class="line">Method <span class="number">2</span> start</span><br><span class="line">Method <span class="number">2</span> execute</span><br><span class="line">Method <span class="number">2</span> end</span><br><span class="line">Method <span class="number">1</span> end</span><br></pre></td></tr></table></figure>
+
+<p><strong>对普通方法同步</strong></p>
+<p>代码段 2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.paddx.test.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SynchronizedTest</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"Method 1 start"</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">"Method 1 execute"</span>);</span><br><span class="line">      Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">"Method 1 end"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span></span>&#123;</span><br><span class="line">    System.out.println(<span class="string">"Method 2 start"</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">"Method 2 execute"</span>);</span><br><span class="line">      Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">"Method 2 end"</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> SynchronizedTest test = <span class="keyword">new</span> SynchronizedTest();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        test.method1();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        test.method2();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下，跟代码段 1 比较，可以很明显的看出，线程 2 需要等待线程 1 的 Method1 执行完成才能开始执行 Method2 方法。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/02/%E3%80%8AJava%E9%AB%98%E7%BA%A7%E5%BC%80%E5%8F%91%E5%B7%A5%E7%A8%8B%E5%B8%88%E3%80%8B%E7%9B%B4%E6%92%AD%E8%AF%BE%E2%85%A6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/02/%E3%80%8AJava%E9%AB%98%E7%BA%A7%E5%BC%80%E5%8F%91%E5%B7%A5%E7%A8%8B%E5%B8%88%E3%80%8B%E7%9B%B4%E6%92%AD%E8%AF%BE%E2%85%A6/" itemprop="url">《Java高级开发工程师》直播课Ⅶ</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-02T19:21:02+08:00">
+                2019-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/02/%E3%80%8AJava%E9%AB%98%E7%BA%A7%E5%BC%80%E5%8F%91%E5%B7%A5%E7%A8%8B%E5%B8%88%E3%80%8B%E7%9B%B4%E6%92%AD%E8%AF%BE%E2%85%A6/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/02/《Java高级开发工程师》直播课Ⅶ/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/07/02/%E3%80%8AJava%E9%AB%98%E7%BA%A7%E5%BC%80%E5%8F%91%E5%B7%A5%E7%A8%8B%E5%B8%88%E3%80%8B%E7%9B%B4%E6%92%AD%E8%AF%BE%E2%85%A6/" class="leancloud_visitors" data-flag-title="《Java高级开发工程师》直播课Ⅶ">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>视频地址 <a href="https://www.youtube.com/watch?v=g31E6LI6pfY&amp;list=PLStUqVcO94bhQrlAUYOTxFIjVpwjYYeUb" target="_blank" rel="noopener">https://www.youtube.com/watch?v=g31E6LI6pfY&amp;list=PLStUqVcO94bhQrlAUYOTxFIjVpwjYYeUb</a></p>
+</blockquote>
+<h2 id="课时1：互联网分布式系统核心组件-详解ELK日志管理体系"><a href="#课时1：互联网分布式系统核心组件-详解ELK日志管理体系" class="headerlink" title="课时1：互联网分布式系统核心组件 详解ELK日志管理体系"></a>课时1：互联网分布式系统核心组件 详解ELK日志管理体系</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190702192252.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190702192318.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190702192429.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190702193033.png" alt=""></p>
+<p>一个完整的集中式日系统，需要包含以下几个主要特点</p>
+<ul>
+<li>收集 - 能够采集多种来源的日志数据</li>
+<li>传输 - 能够稳定的把日志数据传输到中央系统</li>
+<li>转换 - 能够对收集的日志数据进行转换处理</li>
+<li>存储 - 如何存储日志数据</li>
+<li>分析 - 可以支持UI分析</li>
+<li>告警 - 能够提供错误报告，监控机制</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190702193417.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190702193545.png" alt=""></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/07/02/%E3%80%8AJava%E9%AB%98%E7%BA%A7%E5%BC%80%E5%8F%91%E5%B7%A5%E7%A8%8B%E5%B8%88%E3%80%8B%E7%9B%B4%E6%92%AD%E8%AF%BE%E2%85%A6/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/07/02/%E4%BB%80%E4%B9%88%E8%83%BD%E5%8A%9B%E5%BE%88%E9%87%8D%E8%A6%81%EF%BC%8C%E4%BD%86%E5%A4%A7%E5%A4%9A%E6%95%B0%E4%BA%BA%E5%8D%B4%E6%B2%A1%E6%9C%89%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高行行">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar1.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="高行行的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/07/02/%E4%BB%80%E4%B9%88%E8%83%BD%E5%8A%9B%E5%BE%88%E9%87%8D%E8%A6%81%EF%BC%8C%E4%BD%86%E5%A4%A7%E5%A4%9A%E6%95%B0%E4%BA%BA%E5%8D%B4%E6%B2%A1%E6%9C%89%EF%BC%9F/" itemprop="url">什么能力很重要，但大多数人却没有？</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-02T18:38:40+08:00">
+                2019-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/02/%E4%BB%80%E4%B9%88%E8%83%BD%E5%8A%9B%E5%BE%88%E9%87%8D%E8%A6%81%EF%BC%8C%E4%BD%86%E5%A4%A7%E5%A4%9A%E6%95%B0%E4%BA%BA%E5%8D%B4%E6%B2%A1%E6%9C%89%EF%BC%9F/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/07/02/什么能力很重要，但大多数人却没有？/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+             <span id="/2019/07/02/%E4%BB%80%E4%B9%88%E8%83%BD%E5%8A%9B%E5%BE%88%E9%87%8D%E8%A6%81%EF%BC%8C%E4%BD%86%E5%A4%A7%E5%A4%9A%E6%95%B0%E4%BA%BA%E5%8D%B4%E6%B2%A1%E6%9C%89%EF%BC%9F/" class="leancloud_visitors" data-flag-title="什么能力很重要，但大多数人却没有？">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">Visitors&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>原文地址 <a href="https://www.zhihu.com/question/305507128/answer/651372493" target="_blank" rel="noopener">https://www.zhihu.com/question/305507128/answer/651372493</a></p>
+</blockquote>
+<h2 id="可以接受快感被延迟的能力。-90-的废人，根本原因在于这项能力的缺失，耐不住寂寞啊！"><a href="#可以接受快感被延迟的能力。-90-的废人，根本原因在于这项能力的缺失，耐不住寂寞啊！" class="headerlink" title="可以接受快感被延迟的能力。** 90%的废人，根本原因在于这项能力的缺失，耐不住寂寞啊！"></a>可以接受快感被延迟的能力。** 90%的废人，根本原因在于这项能力的缺失，耐不住寂寞啊！</h2><p>每天刷短视频和公众号停不下来、一直穷的很稳定、买来的书没有好好读完过、做事三分钟热度、每天感觉迷茫、老跟爱人吵架，要是有人问起，道理都懂，你为什么一直就做不好呢？</p>
+<p>我听过最多的回答是：</p>
+<ul>
+<li>我这人就是自制力差点，其实我很有潜力的，我知道我很聪明；</li>
+<li>我知道我应该好好的爱你，我该对你好，可是，我就是控制不住自己，就是不想去做；</li>
+<li>我努力也就是这样，不努力也就是这样，我出生就是个下层人；</li>
+<li>我怎么就这么拖延呢，我得去学学如何克制自己的拖延症了；</li>
+<li>我弄几下就觉得很烦，没耐心，就走神搞别的去了；</li>
+</ul>
+<p>没错，很小的时候，我也这样安慰自己。考试成绩不理想找原因，好多人和我一样在每学期开始的学期计划里写上要提高自制力，其实我们也不知道啥叫自制力，就听老师每次骂我们是最差的一届时，最后都会带一句“真是一点自制力都没有，我一走你们就放羊了。”，所以我们应景的以为“考试不咋地都是自制力的麻烦”，写完学期计划为了向逼着要成绩的老爸老妈表忠心，也为了应付班主任的暴力催收，还煞有其事的列了一个学习计划，写明自己每天的时间要如何安排。</p>
+<p>老爸老妈一签字，老师朱笔一挥潇洒的写个阅，短则三天长则两周，这张纸就夹在某本习题集的附页里跟那些旧卷子堆在一块，再也没被翻动过了。当时踌躇满志仔细推敲过可行性的计划，还用透明尺子仔细画了表格对仗工整，包括跟老师和父母打的包票，也跟着一块消失掉，直到学期末想起来，才觉这学期也没干啥。</p>
+<p>好像看多了言情小说情节异界大魔王爱上平胸邋遢女的小女孩每次难过都要喊“我一定要坚强！”</p>
+<p>我贱兮兮的问她“什么叫坚强？”</p>
+<p>她闷住一把鼻涕哭声中断好一会儿才接上“我不知道！我只知道我还有很多要学习！我要坚强”</p>
+<p>我目光坚定的搂着她的肩膀告诉她“坚强是你能不断咽下眼前的苟且，始终充满希望和干劲，努力到曙光降临的那一刻！”</p>
+<p>…………………………………………………………………………………………</p>
+<p>好吧，这是十年之后我回想起当时那个姑娘，想对她说的话。十年前我一直在劝她不要哭了，乖宝宝。当时，我觉得坚强的概念等于不哭。</p>
+<p><strong>我当时没想明白，为什么我们明知道这样下去多半是个废柴，却还是不会努力去做那些被老师和父母指出的正确的路。哪怕是谈个恋爱，明知道对对方好一点少计较一点就能和和美美，但多半没少闹脾气把关系搞僵。</strong></p>
+<p>少数勇争上游的，理由五花八门，有的是学士世家，一家人本科起步最高是博士后，从小的教育就是看书和学习，为了优秀而学习；有的是家里太穷了，不上学就得回去种地，上的不好就有理由被抓回去了，上的好以后还有赚大钱的希望；有的是家里逼得太紧，各种给压力威胁，给甜枣诱惑，我妹妹舍友某人后半夜突然爬起来在被窝里背单词到第二天早上，众人才发现她已经语无伦次彻底疯了；有的是政府大院的，整体成绩都好，你成绩不好小时候的玩伴面前抬不起头。</p>
+<p>不管是为了美好生活还是为了以后赚大钱做高官，成为学者还是超过同伴有面子，哪怕是被父母逼着来的，反正大家都在父母的安排下进入学校把书给念了，一边念书一边在计算放假日期，在放假前的最后一个下午个个笑的合不拢嘴，盼着开学的时候再来一次非典那样的大事件，这样就不用来学校了。</p>
+<p>我们就这样从初高中上到大学，到大学毕业进社会了，依旧没什么长进。</p>
+<p>看起来我们学历更高了，技能更多了，工资在逐年提升，想换工作找一找总是有的，也能坐办公室了，随时上网获取各种各样的信息和知识，大多数的课程都不贵，少则几块钱多则几千块，狠狠心万把块的课也能报。比起上一代在阳光下和酒桌上讨食，我们在办公室看起来要高级许多。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/07/02/%E4%BB%80%E4%B9%88%E8%83%BD%E5%8A%9B%E5%BE%88%E9%87%8D%E8%A6%81%EF%BC%8C%E4%BD%86%E5%A4%A7%E5%A4%9A%E6%95%B0%E4%BA%BA%E5%8D%B4%E6%B2%A1%E6%9C%89%EF%BC%9F/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -1915,7 +1875,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/21/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span><a class="page-number" href="/page/23/">23</a><span class="space">&hellip;</span><a class="page-number" href="/page/50/">50</a><a class="extend next" rel="next" href="/page/23/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/21/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><span class="page-number current">22</span><a class="page-number" href="/page/23/">23</a><span class="space">&hellip;</span><a class="page-number" href="/page/46/">46</a><a class="extend next" rel="next" href="/page/23/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
   </nav>
 
 
@@ -1965,7 +1925,7 @@
               
                 <a href="/archives/%20%7C%7C%20archive">
               
-                  <span class="site-state-item-count">491</span>
+                  <span class="site-state-item-count">460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -1978,7 +1938,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">99</span>
+                  <span class="site-state-item-count">98</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -1995,6 +1955,22 @@
             </div>
           
 
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/gaohanghang" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.zhihu.com/people/gao-xing-68-15/activities" target="_blank" title="zhihu">
+                      
+                        <i class="fa fa-fw fa-globe"></i>zhihu</a>
+                  </span>
+                
+            </div>
           
 
           
