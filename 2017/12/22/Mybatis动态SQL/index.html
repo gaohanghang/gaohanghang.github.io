@@ -1,379 +1,429 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
 
-
-  
-
-
-<html class="theme-next mist use-motion" lang="zh-CN">
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+    <meta charset="utf-8">
+    <meta name="keywords" content="Mybatis动态SQL, 高行行的个人博客">
+    <meta name="description" content="
+转载自 Mybatis动态SQL
+
+1. Mybatis    if如果Product的字段比较多的话，为了应付各个字段的查询，那么就需要写多条sql语句，这样就变得难以维护。
+这个时候，就可以使用Mybatis 动态SQL里的if标签
+">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Mybatis动态SQL | 高行行的个人博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
 
 
+<body>
 
-  
-  
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">高行行的个人博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
     
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
     
-  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
-  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
-
-
-
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
-
-
-
-
-
-  <meta name="keywords" content="Mybatis," />
-
-
-
-
-  
-
-
-  <link rel="alternate" href="/atom.xml" title="高行行的个人博客" type="application/atom+xml" />
-
-
-
-
-
-
-<meta name="description" content="转载自 Mybatis动态SQL  1. Mybatis    if如果Product的字段比较多的话，为了应付各个字段的查询，那么就需要写多条sql语句，这样就变得难以维护。 这个时候，就可以使用Mybatis 动态SQL里的if标签 123456&lt;select id&#x3D;&quot;listProduct&quot; resultType&#x3D;&quot;Product&quot;&gt;	select * from product">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Mybatis动态SQL">
-<meta property="og:url" content="http://ghang.top/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/index.html">
-<meta property="og:site_name" content="高行行的个人博客">
-<meta property="og:description" content="转载自 Mybatis动态SQL  1. Mybatis    if如果Product的字段比较多的话，为了应付各个字段的查询，那么就需要写多条sql语句，这样就变得难以维护。 这个时候，就可以使用Mybatis 动态SQL里的if标签 123456&lt;select id&#x3D;&quot;listProduct&quot; resultType&#x3D;&quot;Product&quot;&gt;	select * from product">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://stepimagewm.how2j.cn/4267.png">
-<meta property="og:image" content="http://stepimagewm.how2j.cn/4270.png">
-<meta property="og:image" content="http://stepimagewm.how2j.cn/4274.png">
-<meta property="og:image" content="http://stepimagewm.how2j.cn/4279.png">
-<meta property="article:published_time" content="2017-12-22T09:22:22.000Z">
-<meta property="article:modified_time" content="2018-02-06T02:46:13.000Z">
-<meta property="article:author" content="高行行">
-<meta property="article:tag" content="Mybatis">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://stepimagewm.how2j.cn/4267.png">
-
-
-
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '/',
-    scheme: 'Mist',
-    version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    duoshuo: {
-      userId: '0',
-      author: 'Author'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
-
-
-
-  <link rel="canonical" href="http://ghang.top/2017/12/22/Mybatis动态SQL/"/>
-
-
-
-
-
-  <title>Mybatis动态SQL | 高行行的个人博客</title>
-  
-
-
-
-
-
-
-
-
-<meta name="generator" content="Hexo 4.2.1"></head>
-
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-
-  
-  
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
     
-  
-
-  <div class="container sidebar-position-left page-post-detail">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
     
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
 
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">高行行的个人博客</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">高行行的个人博客</div>
+        <div class="logo-desc">
+            
+            个人公众号《骇客与画家》
+            
+        </div>
     </div>
-      
-        <p class="site-subtitle">有诗有远方</p>
-      
-  </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
-  </div>
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
 </div>
 
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            Home
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            About
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            Tags
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            Categories
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            Archives
-          </a>
-        </li>
-      
-
-      
-    </ul>
-  
-
-  
-</nav>
-
-
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
-
-  <div id="posts" class="posts-expand">
-    
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">Mybatis动态SQL</h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-12-22T17:22:22+08:00">
-                2017-12-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/12/22/Mybatis动态SQL/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/" class="leancloud_visitors" data-flag-title="Mybatis动态SQL">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        Mybatis动态SQL
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
 
-      
-      
+    #articleContent :focus {
+        outline: none;
+    }
 
-      
-        <blockquote>
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Mybatis/" target="_blank">
+                                <span class="chip bg-color">Mybatis</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2017-12-22
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
 <p>转载自 <a href="http://how2j.cn/k/mybatis/mybatis-if/1112.html" target="_blank" rel="noopener">Mybatis动态SQL</a></p>
 </blockquote>
 <h1 id="1-Mybatis-if"><a href="#1-Mybatis-if" class="headerlink" title="1. Mybatis    if"></a>1. Mybatis    if</h1><p>如果Product的字段比较多的话，为了应付各个字段的查询，那么就需要写多条sql语句，这样就变得难以维护。</p>
 <p>这个时候，就可以使用Mybatis 动态SQL里的if标签</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id=<span class="string">"listProduct"</span> resultType=<span class="string">"Product"</span>&gt;</span><br><span class="line">	select * from product_</span><br><span class="line">	&lt;<span class="keyword">if</span> test=<span class="string">"name!=null"</span>&gt;</span><br><span class="line">		<span class="function">where name like <span class="title">concat</span><span class="params">(<span class="string">'%'</span>,#&#123;name&#125;,<span class="string">'%'</span>)</span></span></span><br><span class="line"><span class="function">	&lt;/<span class="keyword">if</span>&gt;                         </span></span><br><span class="line"><span class="function">&lt;/select&gt;</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span>select id<span class="token operator">=</span><span class="token string">"listProduct"</span> resultType<span class="token operator">=</span><span class="token string">"Product"</span><span class="token operator">></span>
+    select <span class="token operator">*</span> from product_
+    <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"name!=null"</span><span class="token operator">></span>
+        where name like <span class="token function">concat</span><span class="token punctuation">(</span><span class="token string">'%'</span><span class="token punctuation">,</span>#<span class="token punctuation">{</span>name<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token string">'%'</span><span class="token punctuation">)</span>
+    <span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>                         
+<span class="token operator">&lt;</span><span class="token operator">/</span>select<span class="token operator">></span></code></pre>
 <p>如果没有传参数name,那么就查询所有，如果有name参数，那么就进行模糊查询。</p>
 <a id="more"></a>
 
@@ -382,656 +432,1002 @@
 <blockquote>
 <p>Product.xml</p>
 </blockquote>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">    <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span></span><br><span class="line"><span class="meta">    <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.how2java.pojo"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"listProduct"</span> <span class="attr">resultType</span>=<span class="string">"Product"</span>&gt;</span></span><br><span class="line">            select * from product_</span><br><span class="line">            <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"name!=null"</span>&gt;</span></span><br><span class="line">                where name like concat('%',#&#123;name&#125;,'%')</span><br><span class="line">            <span class="tag">&lt;/<span class="name">if</span>&gt;</span>        </span><br><span class="line">        <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">         </span><br><span class="line">    <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token doctype">&lt;!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">namespace</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>com.how2java.pojo<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>listProduct<span class="token punctuation">"</span></span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Product<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+            select * from product_
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>if</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name!<span class="token punctuation">=</span>null<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+                where name like concat('%',#{name},'%')
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>if</span><span class="token punctuation">></span></span>        
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span>
 
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mapper</span><span class="token punctuation">></span></span></code></pre>
 <blockquote>
 <p>TestMybatis.java</p>
 </blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestMybatis</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">        InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">        SqlSessionFactory sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line">        SqlSession session = sqlSessionFactory.openSession();</span><br><span class="line">  </span><br><span class="line">        System.out.println(<span class="string">"查询所有的"</span>);</span><br><span class="line">        List&lt;Product&gt; ps = session.selectList(<span class="string">"listProduct"</span>);</span><br><span class="line">        <span class="keyword">for</span> (Product p : ps) &#123;</span><br><span class="line">            System.out.println(p);</span><br><span class="line">        &#125;</span><br><span class="line">         </span><br><span class="line">        System.out.println(<span class="string">"模糊查询"</span>);</span><br><span class="line">        Map&lt;String,Object&gt; params = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        params.put(<span class="string">"name"</span>,<span class="string">"a"</span>);</span><br><span class="line">        List&lt;Product&gt; ps2 = session.selectList(<span class="string">"listProduct"</span>,params);</span><br><span class="line">        <span class="keyword">for</span> (Product p : ps2) &#123;</span><br><span class="line">            System.out.println(p);</span><br><span class="line">        &#125;      </span><br><span class="line">         </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>HashMap<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Map<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>io<span class="token punctuation">.</span>Resources<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSession<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactory<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactoryBuilder<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>Product<span class="token punctuation">;</span>
 
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TestMybatis</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        String resource <span class="token operator">=</span> <span class="token string">"mybatis-config.xml"</span><span class="token punctuation">;</span>
+        InputStream inputStream <span class="token operator">=</span> Resources<span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSessionFactory sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSession session <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"查询所有的"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        List<span class="token operator">&lt;</span>Product<span class="token operator">></span> ps <span class="token operator">=</span> session<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span><span class="token string">"listProduct"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>Product p <span class="token operator">:</span> ps<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"模糊查询"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span>Object<span class="token operator">></span> params <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        params<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">,</span><span class="token string">"a"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        List<span class="token operator">&lt;</span>Product<span class="token operator">></span> ps2 <span class="token operator">=</span> session<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span><span class="token string">"listProduct"</span><span class="token punctuation">,</span>params<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>Product p <span class="token operator">:</span> ps2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>      
+
+        session<span class="token punctuation">.</span><span class="token function">commit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        session<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
 <h1 id="2-Mybatis-where"><a href="#2-Mybatis-where" class="headerlink" title="2. Mybatis where"></a>2. Mybatis where</h1><h2 id="1-1-多条件的矛盾"><a href="#1-1-多条件的矛盾" class="headerlink" title="1.1 多条件的矛盾"></a>1.1 多条件的矛盾</h2><p>如果要进行多条件判断，就会写成这样：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"listProduct"</span> <span class="attr">resultType</span>=<span class="string">"Product"</span>&gt;</span></span><br><span class="line">	select * from product_</span><br><span class="line">	<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"name!=null"</span>&gt;</span></span><br><span class="line">		where name like concat('%',#&#123;name&#125;,'%')</span><br><span class="line">	<span class="tag">&lt;/<span class="name">if</span>&gt;</span>		 	</span><br><span class="line">	<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"price!=0"</span>&gt;</span></span><br><span class="line">		and price &gt; #&#123;price&#125;</span><br><span class="line">	<span class="tag">&lt;/<span class="name">if</span>&gt;</span>		 	</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>listProduct<span class="token punctuation">"</span></span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Product<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    select * from product_
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>if</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name!<span class="token punctuation">=</span>null<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+        where name like concat('%',#{name},'%')
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>if</span><span class="token punctuation">></span></span>             
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>if</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>price!<span class="token punctuation">=</span>0<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+        and price > #{price}
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>if</span><span class="token punctuation">></span></span>             
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span></code></pre>
 <p>这么写的问题是：当没有name参数，却有price参数的时候，执行的sql语句就会是：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> product_ <span class="keyword">and</span> price &gt; <span class="number">10.</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> product_ <span class="token operator">and</span> price <span class="token operator">></span> <span class="token number">10</span><span class="token punctuation">.</span></code></pre>
 <p>这样执行就会报错</p>
 <p><img src="http://stepimagewm.how2j.cn/4270.png" alt="多条件的矛盾"></p>
 <blockquote>
 <p>Product.xml</p>
 </blockquote>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">    <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span></span><br><span class="line"><span class="meta">    <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.how2java.pojo"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"listProduct"</span> <span class="attr">resultType</span>=<span class="string">"Product"</span>&gt;</span></span><br><span class="line">        select * from product_</span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"name!=null"</span>&gt;</span></span><br><span class="line">            where name like concat('%',#&#123;name&#125;,'%')</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span>        </span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"price!=0"</span>&gt;</span></span><br><span class="line">            and price &gt; #&#123;price&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span>        </span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">         </span><br><span class="line">    <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token doctype">&lt;!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">namespace</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>com.how2java.pojo<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>listProduct<span class="token punctuation">"</span></span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Product<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+        select * from product_
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>if</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name!<span class="token punctuation">=</span>null<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+            where name like concat('%',#{name},'%')
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>if</span><span class="token punctuation">></span></span>        
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>if</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>price!<span class="token punctuation">=</span>0<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+            and price > #{price}
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>if</span><span class="token punctuation">></span></span>        
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span>
 
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mapper</span><span class="token punctuation">></span></span></code></pre>
 <blockquote>
 <p>TestMybatis.java</p>
 </blockquote>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">    PUBLIC <span class="string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span><br><span class="line">    <span class="string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span><br><span class="line">    &lt;mapper namespace=<span class="string">"com.how2java.pojo"</span>&gt;</span><br><span class="line">    &lt;select id=<span class="string">"listProduct"</span> resultType=<span class="string">"Product"</span>&gt;</span><br><span class="line">        select * from product_</span><br><span class="line">        &lt;<span class="keyword">if</span> test=<span class="string">"name!=null"</span>&gt;</span><br><span class="line">            <span class="function">where name like <span class="title">concat</span><span class="params">(<span class="string">'%'</span>,#&#123;name&#125;,<span class="string">'%'</span>)</span></span></span><br><span class="line"><span class="function">        &lt;/<span class="keyword">if</span>&gt;        </span></span><br><span class="line"><span class="function">        &lt;<span class="keyword">if</span> test</span>=<span class="string">"price!=0"</span>&gt;</span><br><span class="line">            and price &gt; #&#123;price&#125;</span><br><span class="line">        &lt;/if&gt;        </span><br><span class="line">    &lt;/select&gt;</span><br><span class="line">         </span><br><span class="line">    &lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span><span class="token operator">?</span>xml version<span class="token operator">=</span><span class="token string">"1.0"</span> encoding<span class="token operator">=</span><span class="token string">"UTF-8"</span><span class="token operator">?</span><span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">!</span>DOCTYPE mapper
+    PUBLIC <span class="token string">"-//mybatis.org//DTD Mapper 3.0//EN"</span>
+    <span class="token string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span><span class="token operator">></span>
+    <span class="token operator">&lt;</span>mapper namespace<span class="token operator">=</span><span class="token string">"com.how2java.pojo"</span><span class="token operator">></span>
+    <span class="token operator">&lt;</span>select id<span class="token operator">=</span><span class="token string">"listProduct"</span> resultType<span class="token operator">=</span><span class="token string">"Product"</span><span class="token operator">></span>
+        select <span class="token operator">*</span> from product_
+        <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"name!=null"</span><span class="token operator">></span>
+            where name like <span class="token function">concat</span><span class="token punctuation">(</span><span class="token string">'%'</span><span class="token punctuation">,</span>#<span class="token punctuation">{</span>name<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token string">'%'</span><span class="token punctuation">)</span>
+        <span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>        
+        <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"price!=0"</span><span class="token operator">></span>
+            and price <span class="token operator">></span> #<span class="token punctuation">{</span>price<span class="token punctuation">}</span>
+        <span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>        
+    <span class="token operator">&lt;</span><span class="token operator">/</span>select<span class="token operator">></span>
 
+    <span class="token operator">&lt;</span><span class="token operator">/</span>mapper<span class="token operator">></span></code></pre>
 <h2 id="1-2-where标签"><a href="#1-2-where标签" class="headerlink" title="1.2 where标签"></a>1.2 where标签</h2><p>这个问题可以通过<where>标签来解决，如代码所示</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"listProduct"</span> <span class="attr">resultType</span>=<span class="string">"Product"</span>&gt;</span></span><br><span class="line">	select * from product_</span><br><span class="line">	<span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"name!=null"</span>&gt;</span></span><br><span class="line">			and name like concat('%',#&#123;name&#125;,'%')</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span>		 	</span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"price!=null and price!=0"</span>&gt;</span></span><br><span class="line">			and price &gt; #&#123;price&#125;</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span>	</span><br><span class="line">	<span class="tag">&lt;/<span class="name">where</span>&gt;</span>	 	</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>listProduct<span class="token punctuation">"</span></span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Product<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    select * from product_
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>where</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>if</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name!<span class="token punctuation">=</span>null<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+            and name like concat('%',#{name},'%')
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>if</span><span class="token punctuation">></span></span>             
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>if</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>price!<span class="token punctuation">=</span>null and price!<span class="token punctuation">=</span>0<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+            and price > #{price}
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>if</span><span class="token punctuation">></span></span>    
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>where</span><span class="token punctuation">></span></span>         
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span></code></pre>
 <p><where>标签会进行自动判断</p>
 <p>如果任何条件都不成立，那么就在sql语句里就不会出现where关键字</p>
 <p>如果有任何条件成立，会自动去掉多出来的 and 或者 or。</p>
 <p>所以在测试代码里</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String,Object&gt; params = <span class="keyword">new</span> HashMap&lt;&gt;(); </span><br><span class="line"><span class="comment">//params.put("name","a");</span></span><br><span class="line">params.put(<span class="string">"price"</span>,<span class="string">"10"</span>);</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-java"><code class="language-java">Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span>Object<span class="token operator">></span> params <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+<span class="token comment" spellcheck="true">//params.put("name","a");</span>
+params<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"price"</span><span class="token punctuation">,</span><span class="token string">"10"</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
 <p>这个参数map，无论是否提供值否都可以正常执行</p>
 <blockquote>
 <p>Product.xml</p>
 </blockquote>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">    PUBLIC <span class="string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span><br><span class="line">    <span class="string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span><br><span class="line">    &lt;mapper namespace=<span class="string">"com.how2java.pojo"</span>&gt;</span><br><span class="line">    &lt;select id=<span class="string">"listProduct"</span> resultType=<span class="string">"Product"</span>&gt;</span><br><span class="line">        select * from product_</span><br><span class="line">        &lt;where&gt;</span><br><span class="line">            &lt;<span class="keyword">if</span> test=<span class="string">"name!=null"</span>&gt;</span><br><span class="line">                <span class="function">and name like <span class="title">concat</span><span class="params">(<span class="string">'%'</span>,#&#123;name&#125;,<span class="string">'%'</span>)</span></span></span><br><span class="line"><span class="function">            &lt;/<span class="keyword">if</span>&gt;        </span></span><br><span class="line"><span class="function">            &lt;<span class="keyword">if</span> test</span>=<span class="string">"price!=null and price!=0"</span>&gt;</span><br><span class="line">                and price &gt; #&#123;price&#125;</span><br><span class="line">            &lt;/if&gt;</span><br><span class="line">        &lt;/where&gt;     </span><br><span class="line">    &lt;/select&gt;</span><br><span class="line">         </span><br><span class="line">    &lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span><span class="token operator">?</span>xml version<span class="token operator">=</span><span class="token string">"1.0"</span> encoding<span class="token operator">=</span><span class="token string">"UTF-8"</span><span class="token operator">?</span><span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">!</span>DOCTYPE mapper
+    PUBLIC <span class="token string">"-//mybatis.org//DTD Mapper 3.0//EN"</span>
+    <span class="token string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span><span class="token operator">></span>
+    <span class="token operator">&lt;</span>mapper namespace<span class="token operator">=</span><span class="token string">"com.how2java.pojo"</span><span class="token operator">></span>
+    <span class="token operator">&lt;</span>select id<span class="token operator">=</span><span class="token string">"listProduct"</span> resultType<span class="token operator">=</span><span class="token string">"Product"</span><span class="token operator">></span>
+        select <span class="token operator">*</span> from product_
+        <span class="token operator">&lt;</span>where<span class="token operator">></span>
+            <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"name!=null"</span><span class="token operator">></span>
+                and name like <span class="token function">concat</span><span class="token punctuation">(</span><span class="token string">'%'</span><span class="token punctuation">,</span>#<span class="token punctuation">{</span>name<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token string">'%'</span><span class="token punctuation">)</span>
+            <span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>        
+            <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"price!=null and price!=0"</span><span class="token operator">></span>
+                and price <span class="token operator">></span> #<span class="token punctuation">{</span>price<span class="token punctuation">}</span>
+            <span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>
+        <span class="token operator">&lt;</span><span class="token operator">/</span>where<span class="token operator">></span>     
+    <span class="token operator">&lt;</span><span class="token operator">/</span>select<span class="token operator">></span>
 
+    <span class="token operator">&lt;</span><span class="token operator">/</span>mapper<span class="token operator">></span></code></pre>
 <blockquote>
 <p>TestMybatis.java</p>
 </blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestMybatis</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">        InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">        SqlSessionFactory sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line">        SqlSession session = sqlSessionFactory.openSession();</span><br><span class="line">  </span><br><span class="line">        System.out.println(<span class="string">"多条件查询"</span>);</span><br><span class="line">        Map&lt;String,Object&gt; params = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"><span class="comment">//        params.put("name","a");</span></span><br><span class="line">        params.put(<span class="string">"price"</span>,<span class="string">"10"</span>);</span><br><span class="line">        List&lt;Product&gt; ps2 = session.selectList(<span class="string">"listProduct"</span>,params);</span><br><span class="line">        <span class="keyword">for</span> (Product p : ps2) &#123;</span><br><span class="line">            System.out.println(p);</span><br><span class="line">        &#125;      </span><br><span class="line">         </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>HashMap<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Map<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>io<span class="token punctuation">.</span>Resources<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSession<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactory<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactoryBuilder<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>Product<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TestMybatis</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        String resource <span class="token operator">=</span> <span class="token string">"mybatis-config.xml"</span><span class="token punctuation">;</span>
+        InputStream inputStream <span class="token operator">=</span> Resources<span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSessionFactory sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSession session <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"多条件查询"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span>Object<span class="token operator">></span> params <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//        params.put("name","a");</span>
+        params<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"price"</span><span class="token punctuation">,</span><span class="token string">"10"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        List<span class="token operator">&lt;</span>Product<span class="token operator">></span> ps2 <span class="token operator">=</span> session<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span><span class="token string">"listProduct"</span><span class="token punctuation">,</span>params<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>Product p <span class="token operator">:</span> ps2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>      
+
+        session<span class="token punctuation">.</span><span class="token function">commit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        session<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
 <h2 id="1-3-set标签"><a href="#1-3-set标签" class="headerlink" title="1.3 set标签"></a>1.3 set标签</h2><p>与where标签类似的，在update语句里也会碰到多个字段相关的问题。 在这种情况下，就可以使用set标签：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">与where标签类似的，在update语句里也会碰到多个字段相关的问题。 在这种情况下，就可以使用set标签：</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-java"><code class="language-java">与where标签类似的，在update语句里也会碰到多个字段相关的问题。 在这种情况下，就可以使用set标签：</code></pre>
 <p>其效果与where标签类似，有数据的时候才进行设置。</p>
 <p><img src="http://stepimagewm.how2j.cn/4274.png" alt="set标签"></p>
 <blockquote>
 <p>Product.xml</p>
 </blockquote>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">    PUBLIC <span class="string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span><br><span class="line">    <span class="string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span><br><span class="line">    &lt;mapper namespace=<span class="string">"com.how2java.pojo"</span>&gt;</span><br><span class="line">    &lt;select id=<span class="string">"listProduct"</span> resultType=<span class="string">"Product"</span>&gt;</span><br><span class="line">        select * from product_</span><br><span class="line">        &lt;where&gt;</span><br><span class="line">            &lt;<span class="keyword">if</span> test=<span class="string">"name!=null"</span>&gt;</span><br><span class="line">                <span class="function">and name like <span class="title">concat</span><span class="params">(<span class="string">'%'</span>,#&#123;name&#125;,<span class="string">'%'</span>)</span></span></span><br><span class="line"><span class="function">            &lt;/<span class="keyword">if</span>&gt;        </span></span><br><span class="line"><span class="function">            &lt;<span class="keyword">if</span> test</span>=<span class="string">"price!=null and price!=0"</span>&gt;</span><br><span class="line">                and price &gt; #&#123;price&#125;</span><br><span class="line">            &lt;/if&gt;</span><br><span class="line">        &lt;/where&gt;     </span><br><span class="line">    &lt;/select&gt;</span><br><span class="line">     </span><br><span class="line">    &lt;update id=<span class="string">"updateProduct"</span> parameterType=<span class="string">"Product"</span> &gt;</span><br><span class="line">        update product_</span><br><span class="line">        &lt;set&gt;</span><br><span class="line">            &lt;if test="name != null"&gt;name=#&#123;name&#125;,&lt;/if&gt;</span><br><span class="line">            &lt;if test="price != null"&gt;price=#&#123;price&#125;&lt;/if&gt;</span><br><span class="line">              </span><br><span class="line">        &lt;/set&gt;</span><br><span class="line">         </span><br><span class="line">         where id=#&#123;id&#125;   </span><br><span class="line">    &lt;/update&gt;</span><br><span class="line">         </span><br><span class="line">    &lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span><span class="token operator">?</span>xml version<span class="token operator">=</span><span class="token string">"1.0"</span> encoding<span class="token operator">=</span><span class="token string">"UTF-8"</span><span class="token operator">?</span><span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">!</span>DOCTYPE mapper
+    PUBLIC <span class="token string">"-//mybatis.org//DTD Mapper 3.0//EN"</span>
+    <span class="token string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span><span class="token operator">></span>
+    <span class="token operator">&lt;</span>mapper namespace<span class="token operator">=</span><span class="token string">"com.how2java.pojo"</span><span class="token operator">></span>
+    <span class="token operator">&lt;</span>select id<span class="token operator">=</span><span class="token string">"listProduct"</span> resultType<span class="token operator">=</span><span class="token string">"Product"</span><span class="token operator">></span>
+        select <span class="token operator">*</span> from product_
+        <span class="token operator">&lt;</span>where<span class="token operator">></span>
+            <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"name!=null"</span><span class="token operator">></span>
+                and name like <span class="token function">concat</span><span class="token punctuation">(</span><span class="token string">'%'</span><span class="token punctuation">,</span>#<span class="token punctuation">{</span>name<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token string">'%'</span><span class="token punctuation">)</span>
+            <span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>        
+            <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"price!=null and price!=0"</span><span class="token operator">></span>
+                and price <span class="token operator">></span> #<span class="token punctuation">{</span>price<span class="token punctuation">}</span>
+            <span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>
+        <span class="token operator">&lt;</span><span class="token operator">/</span>where<span class="token operator">></span>     
+    <span class="token operator">&lt;</span><span class="token operator">/</span>select<span class="token operator">></span>
 
+    <span class="token operator">&lt;</span>update id<span class="token operator">=</span><span class="token string">"updateProduct"</span> parameterType<span class="token operator">=</span><span class="token string">"Product"</span> <span class="token operator">></span>
+        update product_
+        <span class="token operator">&lt;</span>set<span class="token operator">></span>
+            <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"name != null"</span><span class="token operator">></span>name<span class="token operator">=</span>#<span class="token punctuation">{</span>name<span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>
+            <span class="token operator">&lt;</span><span class="token keyword">if</span> test<span class="token operator">=</span><span class="token string">"price != null"</span><span class="token operator">></span>price<span class="token operator">=</span>#<span class="token punctuation">{</span>price<span class="token punctuation">}</span><span class="token operator">&lt;</span><span class="token operator">/</span><span class="token keyword">if</span><span class="token operator">></span>
+
+        <span class="token operator">&lt;</span><span class="token operator">/</span>set<span class="token operator">></span>
+
+         where id<span class="token operator">=</span>#<span class="token punctuation">{</span>id<span class="token punctuation">}</span>   
+    <span class="token operator">&lt;</span><span class="token operator">/</span>update<span class="token operator">></span>
+
+    <span class="token operator">&lt;</span><span class="token operator">/</span>mapper<span class="token operator">></span></code></pre>
 <blockquote>
 <p>TestMybatis.java</p>
 </blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestMybatis</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">        InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">        SqlSessionFactory sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line">        SqlSession session = sqlSessionFactory.openSession();</span><br><span class="line"> </span><br><span class="line">        Product p = <span class="keyword">new</span> Product();</span><br><span class="line">        p.setId(<span class="number">6</span>);</span><br><span class="line">        p.setName(<span class="string">"product zz"</span>);</span><br><span class="line">        p.setPrice(<span class="number">99.99f</span>);</span><br><span class="line">        session.update(<span class="string">"updateProduct"</span>,p);</span><br><span class="line">         </span><br><span class="line">        listAll(session);</span><br><span class="line"> </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">listAll</span><span class="params">(SqlSession session)</span> </span>&#123;</span><br><span class="line">        Map&lt;String,Object&gt; params = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"><span class="comment">//        params.put("name","a");</span></span><br><span class="line"><span class="comment">//        params.put("price","10");</span></span><br><span class="line">        List&lt;Product&gt; ps2 = session.selectList(<span class="string">"listProduct"</span>,params);</span><br><span class="line">        <span class="keyword">for</span> (Product p : ps2) &#123;</span><br><span class="line">            System.out.println(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">;</span>
 
-<h2 id="1-4-trim标签"><a href="#1-4-trim标签" class="headerlink" title="1.4 trim标签"></a>1.4 trim标签</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">trim</span> <span class="attr">prefix</span>=<span class="string">"WHERE"</span> <span class="attr">prefixOverrides</span>=<span class="string">"AND |OR "</span>&gt;</span></span><br><span class="line">  ... </span><br><span class="line"><span class="tag">&lt;/<span class="name">trim</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>HashMap<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Map<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>io<span class="token punctuation">.</span>Resources<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSession<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactory<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactoryBuilder<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>Product<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TestMybatis</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        String resource <span class="token operator">=</span> <span class="token string">"mybatis-config.xml"</span><span class="token punctuation">;</span>
+        InputStream inputStream <span class="token operator">=</span> Resources<span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSessionFactory sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSession session <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Product p <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Product</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        p<span class="token punctuation">.</span><span class="token function">setId</span><span class="token punctuation">(</span><span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        p<span class="token punctuation">.</span><span class="token function">setName</span><span class="token punctuation">(</span><span class="token string">"product zz"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        p<span class="token punctuation">.</span><span class="token function">setPrice</span><span class="token punctuation">(</span><span class="token number">99.99f</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        session<span class="token punctuation">.</span><span class="token function">update</span><span class="token punctuation">(</span><span class="token string">"updateProduct"</span><span class="token punctuation">,</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token function">listAll</span><span class="token punctuation">(</span>session<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        session<span class="token punctuation">.</span><span class="token function">commit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        session<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">listAll</span><span class="token punctuation">(</span>SqlSession session<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span>Object<span class="token operator">></span> params <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//        params.put("name","a");</span>
+<span class="token comment" spellcheck="true">//        params.put("price","10");</span>
+        List<span class="token operator">&lt;</span>Product<span class="token operator">></span> ps2 <span class="token operator">=</span> session<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span><span class="token string">"listProduct"</span><span class="token punctuation">,</span>params<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>Product p <span class="token operator">:</span> ps2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<h2 id="1-4-trim标签"><a href="#1-4-trim标签" class="headerlink" title="1.4 trim标签"></a>1.4 trim标签</h2><pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>trim</span> <span class="token attr-name">prefix</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>WHERE<span class="token punctuation">"</span></span> <span class="token attr-name">prefixOverrides</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>AND |OR <span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+  ... 
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>trim</span><span class="token punctuation">></span></span></code></pre>
 <p>来替换</p>
 <p>set标签就可以用</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;trim prefix=<span class="string">"SET"</span> suffixOverrides=<span class="string">","</span>&gt;</span><br><span class="line">  ...</span><br><span class="line">&lt;/trim&gt;</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span>trim prefix<span class="token operator">=</span><span class="token string">"SET"</span> suffixOverrides<span class="token operator">=</span><span class="token string">","</span><span class="token operator">></span>
+  <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>trim<span class="token operator">></span></code></pre>
 <p>来替换<br>运行<a href="http://how2j.cn/k/mybatis/mybatis-where/1114.html#step4274" target="_blank" rel="noopener">set标签</a>中的代码，其效果是一样的。</p>
 <h1 id="3-choose"><a href="#3-choose" class="headerlink" title="3. choose"></a>3. choose</h1><h2 id="3-1-if-else"><a href="#3-1-if-else" class="headerlink" title="3.1 if else"></a>3.1 if else</h2><p>Mybatis里面没有else标签，但是可以使用when otherwise标签来达到这样的效果。</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"listProduct"</span> <span class="attr">resultType</span>=<span class="string">"Product"</span>&gt;</span></span><br><span class="line">	  SELECT * FROM product_ </span><br><span class="line">	  <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">	  	<span class="tag">&lt;<span class="name">choose</span>&gt;</span></span><br><span class="line">		  <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">"name != null"</span>&gt;</span></span><br><span class="line">		    and name like concat('%',#&#123;name&#125;,'%')</span><br><span class="line">		  <span class="tag">&lt;/<span class="name">when</span>&gt;</span>			  </span><br><span class="line">		  <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">"price !=null and price != 0"</span>&gt;</span></span><br><span class="line">		    and price &gt; #&#123;price&#125;</span><br><span class="line">		  <span class="tag">&lt;/<span class="name">when</span>&gt;</span>			  		</span><br><span class="line">	  	  <span class="tag">&lt;<span class="name">otherwise</span>&gt;</span></span><br><span class="line">	  	  	and id &gt;1</span><br><span class="line">	  	  <span class="tag">&lt;/<span class="name">otherwise</span>&gt;</span></span><br><span class="line">	  	<span class="tag">&lt;/<span class="name">choose</span>&gt;</span></span><br><span class="line">	  <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>listProduct<span class="token punctuation">"</span></span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Product<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+      SELECT * FROM product_ 
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>where</span><span class="token punctuation">></span></span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>choose</span><span class="token punctuation">></span></span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>when</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name !<span class="token punctuation">=</span> null<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+            and name like concat('%',#{name},'%')
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>when</span><span class="token punctuation">></span></span>              
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>when</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>price !<span class="token punctuation">=</span>null and price !<span class="token punctuation">=</span> 0<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+            and price > #{price}
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>when</span><span class="token punctuation">></span></span>                      
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>otherwise</span><span class="token punctuation">></span></span>
+                and id >1
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>otherwise</span><span class="token punctuation">></span></span>
+          <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>choose</span><span class="token punctuation">></span></span>
+      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>where</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span></code></pre>
 <p>起作用是： 提供了任何条件，就进行条件查询，否则就使用id&gt;1这个条件。</p>
 <blockquote>
 <p>Product.xml</p>
 </blockquote>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">    <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span></span><br><span class="line"><span class="meta">    <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.how2java.pojo"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"listProduct"</span> <span class="attr">resultType</span>=<span class="string">"Product"</span>&gt;</span></span><br><span class="line">              SELECT * FROM product_</span><br><span class="line">              <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">choose</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">"name != null"</span>&gt;</span></span><br><span class="line">                    and name like concat('%',#&#123;name&#125;,'%')</span><br><span class="line">                  <span class="tag">&lt;/<span class="name">when</span>&gt;</span>          </span><br><span class="line">                  <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">"price !=null and price != 0"</span>&gt;</span></span><br><span class="line">                    and price &gt; #&#123;price&#125;</span><br><span class="line">                  <span class="tag">&lt;/<span class="name">when</span>&gt;</span>                </span><br><span class="line">                  <span class="tag">&lt;<span class="name">otherwise</span>&gt;</span></span><br><span class="line">                    and id &gt;1</span><br><span class="line">                  <span class="tag">&lt;/<span class="name">otherwise</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">choose</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token doctype">&lt;!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">namespace</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>com.how2java.pojo<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>listProduct<span class="token punctuation">"</span></span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Product<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+              SELECT * FROM product_
+              <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>where</span><span class="token punctuation">></span></span>
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>choose</span><span class="token punctuation">></span></span>
+                  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>when</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>name !<span class="token punctuation">=</span> null<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+                    and name like concat('%',#{name},'%')
+                  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>when</span><span class="token punctuation">></span></span>          
+                  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>when</span> <span class="token attr-name">test</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>price !<span class="token punctuation">=</span>null and price !<span class="token punctuation">=</span> 0<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+                    and price > #{price}
+                  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>when</span><span class="token punctuation">></span></span>                
+                  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>otherwise</span><span class="token punctuation">></span></span>
+                    and id >1
+                  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>otherwise</span><span class="token punctuation">></span></span>
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>choose</span><span class="token punctuation">></span></span>
+              <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>where</span><span class="token punctuation">></span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mapper</span><span class="token punctuation">></span></span></code></pre>
 <blockquote>
 <p>ThesMybatis.java</p>
 </blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestMybatis</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">        InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">        SqlSessionFactory sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line">        SqlSession session = sqlSessionFactory.openSession();</span><br><span class="line"> </span><br><span class="line">        Map&lt;String,Object&gt; params = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"><span class="comment">//      params.put("name","a");</span></span><br><span class="line"><span class="comment">//      params.put("price","10");</span></span><br><span class="line">      List&lt;Product&gt; ps = session.selectList(<span class="string">"listProduct"</span>,params);</span><br><span class="line">      <span class="keyword">for</span> (Product p : ps) &#123;</span><br><span class="line">          System.out.println(p);</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">listAll</span><span class="params">(SqlSession session)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">;</span>
 
-<h1 id="4-foreach标签"><a href="#4-foreach标签" class="headerlink" title="4. foreach标签"></a>4. foreach标签</h1><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM product_ </span><br><span class="line">	WHERE ID in</span><br><span class="line">		&lt;foreach item=<span class="string">"item"</span> index=<span class="string">"index"</span> collection=<span class="string">"list"</span></span><br><span class="line">   			open=<span class="string">"("</span> separator=<span class="string">","</span> close=<span class="string">")"</span>&gt;</span><br><span class="line">     		             #&#123;item&#125;</span><br><span class="line">		&lt;/foreach&gt;</span><br></pre></td></tr></table></figure>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>HashMap<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Map<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>io<span class="token punctuation">.</span>Resources<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSession<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactory<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactoryBuilder<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>Product<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TestMybatis</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        String resource <span class="token operator">=</span> <span class="token string">"mybatis-config.xml"</span><span class="token punctuation">;</span>
+        InputStream inputStream <span class="token operator">=</span> Resources<span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSessionFactory sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSession session <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span>Object<span class="token operator">></span> params <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//      params.put("name","a");</span>
+<span class="token comment" spellcheck="true">//      params.put("price","10");</span>
+      List<span class="token operator">&lt;</span>Product<span class="token operator">></span> ps <span class="token operator">=</span> session<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span><span class="token string">"listProduct"</span><span class="token punctuation">,</span>params<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">for</span> <span class="token punctuation">(</span>Product p <span class="token operator">:</span> ps<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+
+        session<span class="token punctuation">.</span><span class="token function">commit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        session<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">listAll</span><span class="token punctuation">(</span>SqlSession session<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<h1 id="4-foreach标签"><a href="#4-foreach标签" class="headerlink" title="4. foreach标签"></a>4. foreach标签</h1><pre class=" language-java"><code class="language-java"> SELECT <span class="token operator">*</span> FROM product_ 
+     WHERE ID in
+            <span class="token operator">&lt;</span>foreach item<span class="token operator">=</span><span class="token string">"item"</span> index<span class="token operator">=</span><span class="token string">"index"</span> collection<span class="token operator">=</span><span class="token string">"list"</span>
+                open<span class="token operator">=</span><span class="token string">"("</span> separator<span class="token operator">=</span><span class="token string">","</span> close<span class="token operator">=</span><span class="token string">")"</span><span class="token operator">></span>
+                           #<span class="token punctuation">{</span>item<span class="token punctuation">}</span>
+            <span class="token operator">&lt;</span><span class="token operator">/</span>foreach<span class="token operator">></span></code></pre>
 <p>foreach标签通常用于in 这样的语法里，参考 Oracle的in语法 。<br>如例，如图查询出id等于1,3,5的数据出来。</p>
 <p><img src="http://stepimagewm.how2j.cn/4279.png" alt="foreach标签"></p>
 <blockquote>
 <p>Product.xml</p>
 </blockquote>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span></span></span><br><span class="line"><span class="meta">    <span class="meta-keyword">PUBLIC</span> <span class="meta-string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span></span><br><span class="line"><span class="meta">    <span class="meta-string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">"com.how2java.pojo"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">"listProduct"</span> <span class="attr">resultType</span>=<span class="string">"Product"</span>&gt;</span></span><br><span class="line">          SELECT * FROM product_</span><br><span class="line">            WHERE ID in</span><br><span class="line">                <span class="tag">&lt;<span class="name">foreach</span> <span class="attr">item</span>=<span class="string">"item"</span> <span class="attr">index</span>=<span class="string">"index"</span> <span class="attr">collection</span>=<span class="string">"list"</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">open</span>=<span class="string">"("</span> <span class="attr">separator</span>=<span class="string">","</span> <span class="attr">close</span>=<span class="string">")"</span>&gt;</span></span><br><span class="line">                    #&#123;item&#125;</span><br><span class="line">                <span class="tag">&lt;/<span class="name">foreach</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-xml"><code class="language-xml"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8"?></span>
+<span class="token doctype">&lt;!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd"></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">namespace</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>com.how2java.pojo<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>select</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>listProduct<span class="token punctuation">"</span></span> <span class="token attr-name">resultType</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>Product<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+          SELECT * FROM product_
+            WHERE ID in
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>foreach</span> <span class="token attr-name">item</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>item<span class="token punctuation">"</span></span> <span class="token attr-name">index</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>index<span class="token punctuation">"</span></span> <span class="token attr-name">collection</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>list<span class="token punctuation">"</span></span>
+                    <span class="token attr-name">open</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>(<span class="token punctuation">"</span></span> <span class="token attr-name">separator</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>,<span class="token punctuation">"</span></span> <span class="token attr-name">close</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>)<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+                    #{item}
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>foreach</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>select</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mapper</span><span class="token punctuation">></span></span></code></pre>
 <blockquote>
 <p>TestMybatis.java</p>
 </blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestMybatis</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">        InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">        SqlSessionFactory sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line">        SqlSession session = sqlSessionFactory.openSession();</span><br><span class="line"> </span><br><span class="line">        List&lt;Integer&gt; ids = <span class="keyword">new</span> ArrayList();</span><br><span class="line">        ids.add(<span class="number">1</span>);</span><br><span class="line">        ids.add(<span class="number">3</span>);</span><br><span class="line">        ids.add(<span class="number">5</span>);</span><br><span class="line">         </span><br><span class="line">      List&lt;Product&gt; ps = session.selectList(<span class="string">"listProduct"</span>,ids);</span><br><span class="line">      <span class="keyword">for</span> (Product p : ps) &#123;</span><br><span class="line">          System.out.println(p);</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>ArrayList<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>io<span class="token punctuation">.</span>Resources<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSession<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactory<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactoryBuilder<span class="token punctuation">;</span>
+
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>Product<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TestMybatis</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        String resource <span class="token operator">=</span> <span class="token string">"mybatis-config.xml"</span><span class="token punctuation">;</span>
+        InputStream inputStream <span class="token operator">=</span> Resources<span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSessionFactory sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSession session <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        List<span class="token operator">&lt;</span>Integer<span class="token operator">></span> ids <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ids<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ids<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        ids<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      List<span class="token operator">&lt;</span>Product<span class="token operator">></span> ps <span class="token operator">=</span> session<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span><span class="token string">"listProduct"</span><span class="token punctuation">,</span>ids<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">for</span> <span class="token punctuation">(</span>Product p <span class="token operator">:</span> ps<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span>
+
+        session<span class="token punctuation">.</span><span class="token function">commit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        session<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token punctuation">}</span></code></pre>
 <h1 id="5-bind标签"><a href="#5-bind标签" class="headerlink" title="5. bind标签"></a>5. bind标签</h1><p>bind标签就像是再做一次字符串拼接，方便后续使用<br>如本例，在<a href="http://how2j.cn/k/mybatis/mybatis-query/1107.html#step4221" target="_blank" rel="noopener">模糊查询</a>的基础上，把模糊查询改为bind标签。</p>
 <blockquote>
 <p>Product.xml</p>
 </blockquote>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">    PUBLIC <span class="string">"-//mybatis.org//DTD Mapper 3.0//EN"</span></span><br><span class="line">    <span class="string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span>&gt;</span><br><span class="line">    &lt;mapper namespace=<span class="string">"com.how2java.pojo"</span>&gt;</span><br><span class="line">        &lt;!-- 本来的模糊查询方式 --&gt;</span><br><span class="line">&lt;!--         &lt;select id=<span class="string">"listProduct"</span> resultType=<span class="string">"Product"</span>&gt; --&gt;</span><br><span class="line">&lt;!--             select * <span class="function">from   product_  where name like <span class="title">concat</span><span class="params">(<span class="string">'%'</span>,#&#123;<span class="number">0</span>&#125;,<span class="string">'%'</span>)</span> --&gt;</span></span><br><span class="line"><span class="function">&lt;!--         &lt;/select&gt; --&gt;</span></span><br><span class="line"><span class="function">             </span></span><br><span class="line"><span class="function">        &lt;select id</span>=<span class="string">"listProduct"</span> resultType=<span class="string">"Product"</span>&gt;</span><br><span class="line">        	&lt;!-- bind标签作用是 ,创建一个变量并将其绑定到上下文.--&gt;</span><br><span class="line">            &lt;bind name=<span class="string">"likename"</span> value=<span class="string">"'%' + name + '%'"</span> /&gt;</span><br><span class="line">            select * from   product_  where name like #&#123;likename&#125;</span><br><span class="line">        &lt;/select&gt;</span><br><span class="line">         </span><br><span class="line">    &lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span><span class="token operator">?</span>xml version<span class="token operator">=</span><span class="token string">"1.0"</span> encoding<span class="token operator">=</span><span class="token string">"UTF-8"</span><span class="token operator">?</span><span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">!</span>DOCTYPE mapper
+    PUBLIC <span class="token string">"-//mybatis.org//DTD Mapper 3.0//EN"</span>
+    <span class="token string">"http://mybatis.org/dtd/mybatis-3-mapper.dtd"</span><span class="token operator">></span>
+    <span class="token operator">&lt;</span>mapper namespace<span class="token operator">=</span><span class="token string">"com.how2java.pojo"</span><span class="token operator">></span>
+        <span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span> 本来的模糊查询方式 <span class="token operator">--</span><span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>         <span class="token operator">&lt;</span>select id<span class="token operator">=</span><span class="token string">"listProduct"</span> resultType<span class="token operator">=</span><span class="token string">"Product"</span><span class="token operator">></span> <span class="token operator">--</span><span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>             select <span class="token operator">*</span> from   product_  where name like <span class="token function">concat</span><span class="token punctuation">(</span><span class="token string">'%'</span><span class="token punctuation">,</span>#<span class="token punctuation">{</span><span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">,</span><span class="token string">'%'</span><span class="token punctuation">)</span> <span class="token operator">--</span><span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span>         <span class="token operator">&lt;</span><span class="token operator">/</span>select<span class="token operator">></span> <span class="token operator">--</span><span class="token operator">></span>
 
+        <span class="token operator">&lt;</span>select id<span class="token operator">=</span><span class="token string">"listProduct"</span> resultType<span class="token operator">=</span><span class="token string">"Product"</span><span class="token operator">></span>
+            <span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span> bind标签作用是 <span class="token punctuation">,</span>创建一个变量并将其绑定到上下文<span class="token punctuation">.</span>-<span class="token operator">-</span><span class="token operator">></span>
+            <span class="token operator">&lt;</span>bind name<span class="token operator">=</span><span class="token string">"likename"</span> value<span class="token operator">=</span><span class="token string">"'%' + name + '%'"</span> <span class="token operator">/</span><span class="token operator">></span>
+            select <span class="token operator">*</span> from   product_  where name like #<span class="token punctuation">{</span>likename<span class="token punctuation">}</span>
+        <span class="token operator">&lt;</span><span class="token operator">/</span>select<span class="token operator">></span>
+
+    <span class="token operator">&lt;</span><span class="token operator">/</span>mapper<span class="token operator">></span></code></pre>
 <blockquote>
 <p>TestMybatis.java</p>
 </blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestMybatis</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        String resource = <span class="string">"mybatis-config.xml"</span>;</span><br><span class="line">        InputStream inputStream = Resources.getResourceAsStream(resource);</span><br><span class="line">        SqlSessionFactory sqlSessionFactory = <span class="keyword">new</span> SqlSessionFactoryBuilder().build(inputStream);</span><br><span class="line">        SqlSession session = sqlSessionFactory.openSession();</span><br><span class="line"> </span><br><span class="line">        Map&lt;String, String&gt; params =<span class="keyword">new</span> HashMap();</span><br><span class="line">        params.put(<span class="string">"name"</span>, <span class="string">"product"</span>);</span><br><span class="line">         </span><br><span class="line">          List&lt;Product&gt; ps = session.selectList(<span class="string">"listProduct"</span>,params);</span><br><span class="line">          <span class="keyword">for</span> (Product p : ps) &#123;</span><br><span class="line">              System.out.println(p);</span><br><span class="line">          &#125;</span><br><span class="line"> </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>IOException<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>InputStream<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>HashMap<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>Map<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>io<span class="token punctuation">.</span>Resources<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSession<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactory<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>ibatis<span class="token punctuation">.</span>session<span class="token punctuation">.</span>SqlSessionFactoryBuilder<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>how2java<span class="token punctuation">.</span>pojo<span class="token punctuation">.</span>Product<span class="token punctuation">;</span>
 
-      
-    </div>
-    
-    
-    
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TestMybatis</span> <span class="token punctuation">{</span>
 
-    
-      <div>
-        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
-    <img id="wechat_subscriber_qcode" src="/uploads/wechat-qcode.jpg" alt="高行行 wechat" style="width: 200px; max-width: 100%;"/>
-    <div>欢迎您扫一扫上面的微信公众号，订阅我的博客！</div>
-</div>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> IOException <span class="token punctuation">{</span>
+        String resource <span class="token operator">=</span> <span class="token string">"mybatis-config.xml"</span><span class="token punctuation">;</span>
+        InputStream inputStream <span class="token operator">=</span> Resources<span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSessionFactory sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        SqlSession session <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-      </div>
-    
+        Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> String<span class="token operator">></span> params <span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        params<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">,</span> <span class="token string">"product"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    
+          List<span class="token operator">&lt;</span>Product<span class="token operator">></span> ps <span class="token operator">=</span> session<span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span><span class="token string">"listProduct"</span><span class="token punctuation">,</span>params<span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token keyword">for</span> <span class="token punctuation">(</span>Product p <span class="token operator">:</span> ps<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+              System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>p<span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token punctuation">}</span>
 
-    
+        session<span class="token punctuation">.</span><span class="token function">commit</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        session<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/Mybatis/" rel="tag"><i class="fa fa-tag"></i> Mybatis</a>
-          
-        </div>
-      
+    <span class="token punctuation">}</span>
 
-      
-      
-      
+<span class="token punctuation">}</span></code></pre>
 
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2017/12/20/JSON%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8(Java%E7%89%88%E6%9C%AC)/" rel="next" title="JSON快速入门(Java版本)">
-                <i class="fa fa-chevron-left"></i> JSON快速入门(Java版本)
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/12/26/MyBatis%E6%89%B9%E9%87%8F%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5%E6%93%8D%E4%BD%9C/" rel="prev" title="MyBatis批量增删改查操作">
-                MyBatis批量增删改查操作 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-    </div>
-  </div>
-
-
-          </div>
-          
-
-
-          
-
-  
-    <div class="comments" id="comments">
-      <div class="ds-thread" data-thread-key="2017/12/22/Mybatis动态SQL/"
-           data-title="Mybatis动态SQL" data-url="http://ghang.top/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/">
-      </div>
-    </div>
-
-  
-
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            Table of Contents
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            Overview
-          </li>
-        </ul>
-      
-
-      <section class="site-overview-wrap sidebar-panel">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <img class="site-author-image" itemprop="image"
-                src="/uploads/avatar1.png"
-                alt="高行行" />
-            
-              <p class="site-author-name" itemprop="name">高行行</p>
-              <p class="site-description motion-element" itemprop="description">个人公众号《骇客与画家》</p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives/%20%7C%7C%20archive">
-              
-                  <span class="site-state-item-count">460</span>
-                  <span class="site-state-item-name">posts</span>
-                </a>
-              </div>
-            
-
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">98</span>
-                  <span class="site-state-item-name">tags</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-            <div class="feed-link motion-element">
-              <a href="/atom.xml" rel="alternate">
-                <i class="fa fa-rss"></i>
-                RSS
-              </a>
             </div>
-          
-
-          
-            <div class="links-of-author motion-element">
-                
-                  <span class="links-of-author-item">
-                    <a href="https://github.com/gaohanghang" target="_blank" title="GitHub">
-                      
-                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
-                  </span>
-                
-                  <span class="links-of-author-item">
-                    <a href="https://www.zhihu.com/people/gao-xing-68-15/activities" target="_blank" title="zhihu">
-                      
-                        <i class="fa fa-fw fa-globe"></i>zhihu</a>
-                  </span>
-                
-            </div>
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
+            <hr/>
 
             
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Mybatis-if"><span class="nav-number">1.</span> <span class="nav-text">1. Mybatis    if</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Mybatis-where"><span class="nav-number">2.</span> <span class="nav-text">2. Mybatis where</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-多条件的矛盾"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 多条件的矛盾</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-where标签"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 where标签</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-set标签"><span class="nav-number">2.3.</span> <span class="nav-text">1.3 set标签</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-trim标签"><span class="nav-number">2.4.</span> <span class="nav-text">1.4 trim标签</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-choose"><span class="nav-number">3.</span> <span class="nav-text">3. choose</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-if-else"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 if else</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-foreach标签"><span class="nav-number">4.</span> <span class="nav-text">4. foreach标签</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-bind标签"><span class="nav-number">5.</span> <span class="nav-text">5. bind标签</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">高行行</span>
-
-  
-</div>
-
-
-  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
-
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
-
-
-
-
-        
-
-
-
-
-
-
-
-        
-      </div>
-    </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-          <span id="scrollpercent"><span>0</span>%</span>
-        
-      </div>
-    
-
-    
-
-  </div>
-
-  
-
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
-  }
-</script>
-
-
-
-
-
-
-
-
-
-  
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
-  
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
-
-
-
-  
-
-  
-    
-  
-
-  <script type="text/javascript">
-    var duoshuoQuery = {short_name:"gaohanghang"};
-    (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';ds.async = true;
-      ds.id = 'duoshuo-script';
-      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0]
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
-  </script>
-
-  
-    
-    
-    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
-    <script src="/js/src/hook-duoshuo.js"></script>
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-  
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
-  <script>AV.initialize("XFAiiy5gLPazUfl9i49I8oLS-gzGzoHsz", "KbGsyVfKgDIi6WTWAR93B3Ff");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
     }
 
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
+    #reward .reward-link {
+        font-size: 1.88rem;
     }
 
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
     });
-  </script>
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《Mybatis动态SQL》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                高行行
+            </a> 采用
+            <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2017/12/26/MyBatis%E6%89%B9%E9%87%8F%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5%E6%93%8D%E4%BD%9C/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="MyBatis批量增删改查操作">
+                        
+                        <span class="card-title">MyBatis批量增删改查操作</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+转载自 MyBatis批量增删改查操作
+
+1. 批量增加操作步骤
+在接口UserMapper中添加批量增加方法。
+
+/** 
+    * 批量增加操作 
+    * @param users 
+    */  
+   public voi
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2017-12-26
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Mybatis/" target="_blank">
+                        <span class="chip bg-color">Mybatis</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2017/12/20/JSON%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8(Java%E7%89%88%E6%9C%AC)/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="JSON快速入门(Java版本)">
+                        
+                        <span class="card-title">JSON快速入门(Java版本)</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+内容from
+B站 JSON快速入门(Java版本)
+蚂蚁课堂-JSON快速入门(Java版本)
+
+1、    什么是JSON2、    介绍JSON应用场景3、    如何封装JSON及常用框架介绍4、    通过Map转JSON5、 
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2017-12-20
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Java/" target="_blank">
+                        <span class="chip bg-color">Java</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
 
 
 
-  
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
 
-  
+<!-- TOC 悬浮按钮. -->
 
-  
-  
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
 
-  
 
-  
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
 
-  
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+
+
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
 
 </body>
 </html>

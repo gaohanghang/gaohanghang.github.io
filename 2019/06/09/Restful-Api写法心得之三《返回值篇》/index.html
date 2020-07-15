@@ -1,373 +1,474 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
 
-
-  
-
-
-<html class="theme-next mist use-motion" lang="zh-CN">
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+    <meta charset="utf-8">
+    <meta name="keywords" content="Restful Api写法心得之三《返回值篇》, 高行行的个人博客">
+    <meta name="description" content="这是关于api基础写法的第三篇文章了，这里给下前两篇连接《路径定义篇》 《参数接收篇》 ，对于本篇文章我们主要说下接口的数据返回值的问题。
+格式选择返回格式目前主流的应该只有XML、JSON两种吧，这里我们不做对比，我们使用JSON作为接口">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Restful Api写法心得之三《返回值篇》 | 高行行的个人博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
 
 
+<body>
 
-  
-  
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">高行行的个人博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
     
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
     
-  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
-  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
-
-
-
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
-
-
-
-
-
-  <meta name="keywords" content="restful," />
-
-
-
-
-  
-
-
-  <link rel="alternate" href="/atom.xml" title="高行行的个人博客" type="application/atom+xml" />
-
-
-
-
-
-
-<meta name="description" content="这是关于api基础写法的第三篇文章了，这里给下前两篇连接《路径定义篇》 《参数接收篇》 ，对于本篇文章我们主要说下接口的数据返回值的问题。 格式选择返回格式目前主流的应该只有XML、JSON两种吧，这里我们不做对比，我们使用JSON作为接口的返回格式。 数据返回格式数据的返回格式其实是个比较纠结的问题，在restful风格中很多文章都讲解使用的是http状态码控制请求的结果状态，例如：http状态">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Restful Api写法心得之三《返回值篇》">
-<meta property="og:url" content="http://ghang.top/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%89%E3%80%8A%E8%BF%94%E5%9B%9E%E5%80%BC%E7%AF%87%E3%80%8B/index.html">
-<meta property="og:site_name" content="高行行的个人博客">
-<meta property="og:description" content="这是关于api基础写法的第三篇文章了，这里给下前两篇连接《路径定义篇》 《参数接收篇》 ，对于本篇文章我们主要说下接口的数据返回值的问题。 格式选择返回格式目前主流的应该只有XML、JSON两种吧，这里我们不做对比，我们使用JSON作为接口的返回格式。 数据返回格式数据的返回格式其实是个比较纠结的问题，在restful风格中很多文章都讲解使用的是http状态码控制请求的结果状态，例如：http状态">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2019-06-09T13:40:23.000Z">
-<meta property="article:modified_time" content="2019-06-09T13:50:56.422Z">
-<meta property="article:author" content="高行行">
-<meta property="article:tag" content="restful">
-<meta name="twitter:card" content="summary">
-
-
-
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '/',
-    scheme: 'Mist',
-    version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    duoshuo: {
-      userId: '0',
-      author: 'Author'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
-
-
-
-  <link rel="canonical" href="http://ghang.top/2019/06/09/Restful-Api写法心得之三《返回值篇》/"/>
-
-
-
-
-
-  <title>Restful Api写法心得之三《返回值篇》 | 高行行的个人博客</title>
-  
-
-
-
-
-
-
-
-
-<meta name="generator" content="Hexo 4.2.1"></head>
-
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-
-  
-  
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
     
-  
-
-  <div class="container sidebar-position-left page-post-detail">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
     
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
 
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">高行行的个人博客</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">高行行的个人博客</div>
+        <div class="logo-desc">
+            
+            个人公众号《骇客与画家》
+            
+        </div>
     </div>
-      
-        <p class="site-subtitle">有诗有远方</p>
-      
-  </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
-  </div>
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
 </div>
 
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            Home
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            About
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            Tags
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            Categories
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            Archives
-          </a>
-        </li>
-      
-
-      
-    </ul>
-  
-
-  
-</nav>
-
-
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
-
-  <div id="posts" class="posts-expand">
-    
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%89%E3%80%8A%E8%BF%94%E5%9B%9E%E5%80%BC%E7%AF%87%E3%80%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">Restful Api写法心得之三《返回值篇》</h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-09T21:40:23+08:00">
-                2019-06-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%89%E3%80%8A%E8%BF%94%E5%9B%9E%E5%80%BC%E7%AF%87%E3%80%8B/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/06/09/Restful-Api写法心得之三《返回值篇》/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%89%E3%80%8A%E8%BF%94%E5%9B%9E%E5%80%BC%E7%AF%87%E3%80%8B/" class="leancloud_visitors" data-flag-title="Restful Api写法心得之三《返回值篇》">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/21.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        Restful Api写法心得之三《返回值篇》
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
 
-      
-      
+    #articleContent :focus {
+        outline: none;
+    }
 
-      
-        <p>这是关于api基础写法的第三篇文章了，这里给下前两篇连接<br>《路径定义篇》 《参数接收篇》 ，对于本篇文章我们主要说下接口的数据返回值的问题。</p>
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/restful/" target="_blank">
+                                <span class="chip bg-color">restful</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-06-09
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p>这是关于api基础写法的第三篇文章了，这里给下前两篇连接<br>《路径定义篇》 《参数接收篇》 ，对于本篇文章我们主要说下接口的数据返回值的问题。</p>
 <h2 id="格式选择"><a href="#格式选择" class="headerlink" title="格式选择"></a>格式选择</h2><p>返回格式目前主流的应该只有XML、JSON两种吧，这里我们不做对比，我们使用JSON作为接口的返回格式。</p>
 <h2 id="数据返回格式"><a href="#数据返回格式" class="headerlink" title="数据返回格式"></a>数据返回格式</h2><p>数据的返回格式其实是个比较纠结的问题，在restful风格中很多文章都讲解使用的是http状态码控制请求的结果状态，例如：http状态码为200~300的时候，为正常状态，response响应体即为所需要返回的数据，404时代表没有查询到数据，响应体即为空，500为系统错误，响应体也为空等等，但是这种方式也是存在很大问题的，一是http状态码是有限的，而且每个状态码都已经被赋予特殊的含义，在企业开发中当接口遇到错误的时候，我们可能更希望将结果状态码标记的更为详细，更利于前端开发者使用，毕竟写接口的目的也是方便前端使用，这样也可以降低前后端开发人员沟通成本。 </p>
 <p>下面给出我们在实际开发中使用的返回值统一格式：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuma.demo.comm.result;</span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"><span class="keyword">import</span> com.zhuma.demo.comm.enums.ResultCode;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by zhumaer on 17/5/24.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> <span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Result</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = -<span class="number">3948389268046368059L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer code;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String msg;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Object data;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Result</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Result</span><span class="params">(Integer code, String msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.code = code;</span><br><span class="line">        <span class="keyword">this</span>.msg = msg;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Result <span class="title">success</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Result result = <span class="keyword">new</span> Result();</span><br><span class="line">        result.setResultCode(ResultCode.SUCCESS);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Result <span class="title">success</span><span class="params">(Object data)</span> </span>&#123;</span><br><span class="line">        Result result = <span class="keyword">new</span> Result();</span><br><span class="line">        result.setResultCode(ResultCode.SUCCESS);</span><br><span class="line">        result.setData(data);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Result <span class="title">failure</span><span class="params">(ResultCode resultCode)</span> </span>&#123;</span><br><span class="line">        Result result = <span class="keyword">new</span> Result();</span><br><span class="line">        result.setResultCode(resultCode);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Result <span class="title">failure</span><span class="params">(ResultCode resultCode, Object data)</span> </span>&#123;</span><br><span class="line">        Result result = <span class="keyword">new</span> Result();</span><br><span class="line">        result.setResultCode(resultCode);</span><br><span class="line">        result.setData(data);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setResultCode</span><span class="params">(ResultCode code)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.code = code.code();</span><br><span class="line">        <span class="keyword">this</span>.msg = code.message();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>zhuma<span class="token punctuation">.</span>demo<span class="token punctuation">.</span>comm<span class="token punctuation">.</span>result<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>io<span class="token punctuation">.</span>Serializable<span class="token punctuation">;</span>
+<span class="token keyword">import</span> com<span class="token punctuation">.</span>zhuma<span class="token punctuation">.</span>demo<span class="token punctuation">.</span>comm<span class="token punctuation">.</span>enums<span class="token punctuation">.</span>ResultCode<span class="token punctuation">;</span>
 
+<span class="token comment" spellcheck="true">/**
+ * Created by zhumaer on 17/5/24.
+ */</span>
+ <span class="token annotation punctuation">@Data</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Result</span> <span class="token keyword">implements</span> <span class="token class-name">Serializable</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token keyword">long</span> serialVersionUID <span class="token operator">=</span> <span class="token operator">-</span>3948389268046368059L<span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> Integer code<span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> String msg<span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> Object data<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token function">Result</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token function">Result</span><span class="token punctuation">(</span>Integer code<span class="token punctuation">,</span> String msg<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>code <span class="token operator">=</span> code<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>msg <span class="token operator">=</span> msg<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Result <span class="token function">success</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Result result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Result</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setResultCode</span><span class="token punctuation">(</span>ResultCode<span class="token punctuation">.</span>SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Result <span class="token function">success</span><span class="token punctuation">(</span>Object data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Result result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Result</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setResultCode</span><span class="token punctuation">(</span>ResultCode<span class="token punctuation">.</span>SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setData</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Result <span class="token function">failure</span><span class="token punctuation">(</span>ResultCode resultCode<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Result result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Result</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setResultCode</span><span class="token punctuation">(</span>resultCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Result <span class="token function">failure</span><span class="token punctuation">(</span>ResultCode resultCode<span class="token punctuation">,</span> Object data<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Result result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Result</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setResultCode</span><span class="token punctuation">(</span>resultCode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        result<span class="token punctuation">.</span><span class="token function">setData</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setResultCode</span><span class="token punctuation">(</span>ResultCode code<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>code <span class="token operator">=</span> code<span class="token punctuation">.</span><span class="token function">code</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>msg <span class="token operator">=</span> code<span class="token punctuation">.</span><span class="token function">message</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
 <p>备注</p>
 <ul>
 <li>上面代码我们注意到其中引入了一个ResultCode枚举类，该类也是我们后面紧接着要说的，全局统一返回状态码。</li>
@@ -376,566 +477,675 @@
 <a id="more"></a>
 
 <h2 id="全局状态码"><a href="#全局状态码" class="headerlink" title="全局状态码"></a>全局状态码</h2><p>当你发现你的系统中错误码随意定义，没有任何规范的时候，你应该考虑下使用一个枚举全局管理下你的状态码，这对线上环境定位错误问题和后续接口文档的维护都是很有帮助的。<br>下面我们在给出一个完整版代码示例，用于参考：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.zhuma.demo.comm.enums;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * API 统一返回状态码</span></span><br><span class="line"><span class="comment"> * Created by zhumaer on 17/5/24.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> ResultCode &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 成功状态码 */</span></span><br><span class="line">    SUCCESS(<span class="number">1</span>, <span class="string">"成功"</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 参数错误：10001-19999 */</span></span><br><span class="line">    PARAM_IS_INVALID(<span class="number">10001</span>, <span class="string">"参数无效"</span>),</span><br><span class="line">    PARAM_IS_BLANK(<span class="number">10002</span>, <span class="string">"参数为空"</span>),</span><br><span class="line">    PARAM_TYPE_BIND_ERROR(<span class="number">10003</span>, <span class="string">"参数类型错误"</span>),</span><br><span class="line">    PARAM_NOT_COMPLETE(<span class="number">10004</span>, <span class="string">"参数缺失"</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 用户错误：20001-29999*/</span></span><br><span class="line">    USER_NOT_LOGGED_IN(<span class="number">20001</span>, <span class="string">"用户未登录"</span>),</span><br><span class="line">    USER_LOGIN_ERROR(<span class="number">20002</span>, <span class="string">"账号不存在或密码错误"</span>),</span><br><span class="line">    USER_ACCOUNT_FORBIDDEN(<span class="number">20003</span>, <span class="string">"账号已被禁用"</span>),</span><br><span class="line">    USER_NOT_EXIST(<span class="number">20004</span>, <span class="string">"用户不存在"</span>),</span><br><span class="line">    USER_HAS_EXISTED(<span class="number">20005</span>, <span class="string">"用户已存在"</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 业务错误：30001-39999 */</span></span><br><span class="line">    SPECIFIED_QUESTIONED_USER_NOT_EXIST(<span class="number">30001</span>, <span class="string">"某业务出现问题"</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 系统错误：40001-49999 */</span></span><br><span class="line">    SYSTEM_INNER_ERROR(<span class="number">40001</span>, <span class="string">"系统繁忙，请稍后重试"</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 数据错误：50001-599999 */</span></span><br><span class="line">    RESULE_DATA_NONE(<span class="number">50001</span>, <span class="string">"数据未找到"</span>),</span><br><span class="line">    DATA_IS_WRONG(<span class="number">50002</span>, <span class="string">"数据有误"</span>),</span><br><span class="line">    DATA_ALREADY_EXISTED(<span class="number">50003</span>, <span class="string">"数据已存在"</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 接口错误：60001-69999 */</span></span><br><span class="line">    INTERFACE_INNER_INVOKE_ERROR(<span class="number">60001</span>, <span class="string">"内部系统接口调用异常"</span>),</span><br><span class="line">    INTERFACE_OUTTER_INVOKE_ERROR(<span class="number">60002</span>, <span class="string">"外部系统接口调用异常"</span>),</span><br><span class="line">    INTERFACE_FORBID_VISIT(<span class="number">60003</span>, <span class="string">"该接口禁止访问"</span>),</span><br><span class="line">    INTERFACE_ADDRESS_INVALID(<span class="number">60004</span>, <span class="string">"接口地址无效"</span>),</span><br><span class="line">    INTERFACE_REQUEST_TIMEOUT(<span class="number">60005</span>, <span class="string">"接口请求超时"</span>),</span><br><span class="line">    INTERFACE_EXCEED_LOAD(<span class="number">60006</span>, <span class="string">"接口负载过高"</span>),</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 权限错误：70001-79999 */</span></span><br><span class="line">    PERMISSION_NO_ACCESS(<span class="number">70001</span>, <span class="string">"无访问权限"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer code;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String message;</span><br><span class="line"></span><br><span class="line">    ResultCode(Integer code, String message) &#123;</span><br><span class="line">        <span class="keyword">this</span>.code = code;</span><br><span class="line">        <span class="keyword">this</span>.message = message;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">code</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.code;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">message</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.message;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getMessage</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (ResultCode item : ResultCode.values()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (item.name().equals(name)) &#123;</span><br><span class="line">                <span class="keyword">return</span> item.message;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">getCode</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (ResultCode item : ResultCode.values()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (item.name().equals(name)) &#123;</span><br><span class="line">                <span class="keyword">return</span> item.code;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.name();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//校验重复的code值</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ResultCode[] ApiResultCodes = ResultCode.values();</span><br><span class="line">        List&lt;Integer&gt; codeList = <span class="keyword">new</span> ArrayList&lt;Integer&gt;();</span><br><span class="line">        <span class="keyword">for</span> (ResultCode ApiResultCode : ApiResultCodes) &#123;</span><br><span class="line">            <span class="keyword">if</span> (codeList.contains(ApiResultCode.code)) &#123;</span><br><span class="line">                System.out.println(ApiResultCode.code);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                codeList.add(ApiResultCode.code());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> com<span class="token punctuation">.</span>zhuma<span class="token punctuation">.</span>demo<span class="token punctuation">.</span>comm<span class="token punctuation">.</span>enums<span class="token punctuation">;</span>
 
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>ArrayList<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>List<span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">/**
+ * API 统一返回状态码
+ * Created by zhumaer on 17/5/24.
+ */</span>
+<span class="token keyword">public</span> <span class="token keyword">enum</span> ResultCode <span class="token punctuation">{</span>
+
+    <span class="token comment" spellcheck="true">/* 成功状态码 */</span>
+    <span class="token function">SUCCESS</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"成功"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment" spellcheck="true">/* 参数错误：10001-19999 */</span>
+    <span class="token function">PARAM_IS_INVALID</span><span class="token punctuation">(</span><span class="token number">10001</span><span class="token punctuation">,</span> <span class="token string">"参数无效"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">PARAM_IS_BLANK</span><span class="token punctuation">(</span><span class="token number">10002</span><span class="token punctuation">,</span> <span class="token string">"参数为空"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">PARAM_TYPE_BIND_ERROR</span><span class="token punctuation">(</span><span class="token number">10003</span><span class="token punctuation">,</span> <span class="token string">"参数类型错误"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">PARAM_NOT_COMPLETE</span><span class="token punctuation">(</span><span class="token number">10004</span><span class="token punctuation">,</span> <span class="token string">"参数缺失"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment" spellcheck="true">/* 用户错误：20001-29999*/</span>
+    <span class="token function">USER_NOT_LOGGED_IN</span><span class="token punctuation">(</span><span class="token number">20001</span><span class="token punctuation">,</span> <span class="token string">"用户未登录"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">USER_LOGIN_ERROR</span><span class="token punctuation">(</span><span class="token number">20002</span><span class="token punctuation">,</span> <span class="token string">"账号不存在或密码错误"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">USER_ACCOUNT_FORBIDDEN</span><span class="token punctuation">(</span><span class="token number">20003</span><span class="token punctuation">,</span> <span class="token string">"账号已被禁用"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">USER_NOT_EXIST</span><span class="token punctuation">(</span><span class="token number">20004</span><span class="token punctuation">,</span> <span class="token string">"用户不存在"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">USER_HAS_EXISTED</span><span class="token punctuation">(</span><span class="token number">20005</span><span class="token punctuation">,</span> <span class="token string">"用户已存在"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment" spellcheck="true">/* 业务错误：30001-39999 */</span>
+    <span class="token function">SPECIFIED_QUESTIONED_USER_NOT_EXIST</span><span class="token punctuation">(</span><span class="token number">30001</span><span class="token punctuation">,</span> <span class="token string">"某业务出现问题"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment" spellcheck="true">/* 系统错误：40001-49999 */</span>
+    <span class="token function">SYSTEM_INNER_ERROR</span><span class="token punctuation">(</span><span class="token number">40001</span><span class="token punctuation">,</span> <span class="token string">"系统繁忙，请稍后重试"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment" spellcheck="true">/* 数据错误：50001-599999 */</span>
+    <span class="token function">RESULE_DATA_NONE</span><span class="token punctuation">(</span><span class="token number">50001</span><span class="token punctuation">,</span> <span class="token string">"数据未找到"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">DATA_IS_WRONG</span><span class="token punctuation">(</span><span class="token number">50002</span><span class="token punctuation">,</span> <span class="token string">"数据有误"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">DATA_ALREADY_EXISTED</span><span class="token punctuation">(</span><span class="token number">50003</span><span class="token punctuation">,</span> <span class="token string">"数据已存在"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment" spellcheck="true">/* 接口错误：60001-69999 */</span>
+    <span class="token function">INTERFACE_INNER_INVOKE_ERROR</span><span class="token punctuation">(</span><span class="token number">60001</span><span class="token punctuation">,</span> <span class="token string">"内部系统接口调用异常"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">INTERFACE_OUTTER_INVOKE_ERROR</span><span class="token punctuation">(</span><span class="token number">60002</span><span class="token punctuation">,</span> <span class="token string">"外部系统接口调用异常"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">INTERFACE_FORBID_VISIT</span><span class="token punctuation">(</span><span class="token number">60003</span><span class="token punctuation">,</span> <span class="token string">"该接口禁止访问"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">INTERFACE_ADDRESS_INVALID</span><span class="token punctuation">(</span><span class="token number">60004</span><span class="token punctuation">,</span> <span class="token string">"接口地址无效"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">INTERFACE_REQUEST_TIMEOUT</span><span class="token punctuation">(</span><span class="token number">60005</span><span class="token punctuation">,</span> <span class="token string">"接口请求超时"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token function">INTERFACE_EXCEED_LOAD</span><span class="token punctuation">(</span><span class="token number">60006</span><span class="token punctuation">,</span> <span class="token string">"接口负载过高"</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+
+    <span class="token comment" spellcheck="true">/* 权限错误：70001-79999 */</span>
+    <span class="token function">PERMISSION_NO_ACCESS</span><span class="token punctuation">(</span><span class="token number">70001</span><span class="token punctuation">,</span> <span class="token string">"无访问权限"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> Integer code<span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> String message<span class="token punctuation">;</span>
+
+    <span class="token function">ResultCode</span><span class="token punctuation">(</span>Integer code<span class="token punctuation">,</span> String message<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>code <span class="token operator">=</span> code<span class="token punctuation">;</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>message <span class="token operator">=</span> message<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> Integer <span class="token function">code</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>code<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> String <span class="token function">message</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>message<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> String <span class="token function">getMessage</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>ResultCode item <span class="token operator">:</span> ResultCode<span class="token punctuation">.</span><span class="token function">values</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>item<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> item<span class="token punctuation">.</span>message<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> name<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Integer <span class="token function">getCode</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>ResultCode item <span class="token operator">:</span> ResultCode<span class="token punctuation">.</span><span class="token function">values</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>item<span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> item<span class="token punctuation">.</span>code<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> String <span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">name</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">//校验重复的code值</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        ResultCode<span class="token punctuation">[</span><span class="token punctuation">]</span> ApiResultCodes <span class="token operator">=</span> ResultCode<span class="token punctuation">.</span><span class="token function">values</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        List<span class="token operator">&lt;</span>Integer<span class="token operator">></span> codeList <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span>Integer<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>ResultCode ApiResultCode <span class="token operator">:</span> ApiResultCodes<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>codeList<span class="token punctuation">.</span><span class="token function">contains</span><span class="token punctuation">(</span>ApiResultCode<span class="token punctuation">.</span>code<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>ApiResultCode<span class="token punctuation">.</span>code<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                codeList<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>ApiResultCode<span class="token punctuation">.</span><span class="token function">code</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
 <p><strong>备注</strong></p>
 <ul>
 <li>上述例子中我们对状态码做了一个大的类型上的划分，在实际开发中你可以在后面写你更加详细的错误状态</li>
 </ul>
 <h2 id="写一个完整的Controller"><a href="#写一个完整的Controller" class="headerlink" title="写一个完整的Controller"></a>写一个完整的Controller</h2><p>那我们已查询、更新用户为例，看看现在我们写一个完整的controller都需要做什么呢？</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/users"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger LOGGER = LoggerFactory.getLogger(UserController<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserController</span><span class="params">(UserService userService)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userService = userService;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/&#123;userId&#125;"</span>)</span><br><span class="line">    <span class="function">Result <span class="title">getUser</span><span class="params">(@PathVariable(<span class="string">"userId"</span>)</span> Long userId) </span>&#123;</span><br><span class="line">        User user = userService.getUserById(userId);</span><br><span class="line">        <span class="keyword">return</span> Result.success(user);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PutMapping</span>(<span class="string">"/&#123;userId&#125;"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">updateUser</span><span class="params">(@PathVariable(<span class="string">"userId"</span>)</span> Long userId, @RequestBody User user) </span>&#123;</span><br><span class="line">        LOGGER.info(<span class="string">"Call updateUser start, params:&#123;&#125;"</span>, JsonUtil.object2Json(user));<span class="comment">//注意此处打印日志有不合理的地方，user里可能带有pwd密码等明文敏感信息，需要做过滤打印。</span></span><br><span class="line"></span><br><span class="line">        Result result = <span class="keyword">new</span> Result();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//参数校验</span></span><br><span class="line">        <span class="keyword">if</span> (user.getId() == <span class="keyword">null</span> || user.getName == <span class="keyword">null</span>) &#123;</span><br><span class="line">            result.setResultCode(ResultCode.PARAM_IS_INVALID);</span><br><span class="line">            LOGGER.info(<span class="string">"Call updateUser end, result:&#123;&#125;"</span>, JsonUtil.object2Json(result));</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//更新数据</span></span><br><span class="line">            User dbUser = userService.getUserById(user.getId());</span><br><span class="line">            <span class="keyword">if</span> (dbUser == <span class="keyword">null</span>) &#123;</span><br><span class="line">                result.setResultCode(ResultCode.USER_NOT_EXIST);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                User updatedUser = userService.updateDbAndCache(user);</span><br><span class="line">                result.setData(updatedUser);</span><br><span class="line">                result.setResultCode(ResultCode.SUCCESS);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            LOGGER.info(<span class="string">"Call updateUser occurs exception, caused by: "</span>, e);</span><br><span class="line">            result.setResultCode(ResultCode.SYSTEM_INNER_ERROR);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        LOGGER.info(<span class="string">"Call updateUser end, result:&#123;&#125;"</span>, JsonUtil.object2Json(result));</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/users"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">{</span>
 
+    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> Logger LOGGER <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span>UserController<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">private</span> <span class="token keyword">final</span> UserService userService<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">public</span> <span class="token function">UserController</span><span class="token punctuation">(</span>UserService userService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>userService <span class="token operator">=</span> userService<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/{userId}"</span><span class="token punctuation">)</span>
+    Result <span class="token function">getUser</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"userId"</span><span class="token punctuation">)</span> Long userId<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        User user <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">getUserById</span><span class="token punctuation">(</span>userId<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> Result<span class="token punctuation">.</span><span class="token function">success</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@PutMapping</span><span class="token punctuation">(</span><span class="token string">"/{userId}"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> Result <span class="token function">updateUser</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"userId"</span><span class="token punctuation">)</span> Long userId<span class="token punctuation">,</span> <span class="token annotation punctuation">@RequestBody</span> User user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        LOGGER<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Call updateUser start, params:{}"</span><span class="token punctuation">,</span> JsonUtil<span class="token punctuation">.</span><span class="token function">object2Json</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//注意此处打印日志有不合理的地方，user里可能带有pwd密码等明文敏感信息，需要做过滤打印。</span>
+
+        Result result <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Result</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment" spellcheck="true">//参数校验</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>user<span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> null <span class="token operator">||</span> user<span class="token punctuation">.</span>getName <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            result<span class="token punctuation">.</span><span class="token function">setResultCode</span><span class="token punctuation">(</span>ResultCode<span class="token punctuation">.</span>PARAM_IS_INVALID<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            LOGGER<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Call updateUser end, result:{}"</span><span class="token punctuation">,</span> JsonUtil<span class="token punctuation">.</span><span class="token function">object2Json</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">//更新数据</span>
+            User dbUser <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">getUserById</span><span class="token punctuation">(</span>user<span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>dbUser <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                result<span class="token punctuation">.</span><span class="token function">setResultCode</span><span class="token punctuation">(</span>ResultCode<span class="token punctuation">.</span>USER_NOT_EXIST<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                User updatedUser <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">updateDbAndCache</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                result<span class="token punctuation">.</span><span class="token function">setData</span><span class="token punctuation">(</span>updatedUser<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                result<span class="token punctuation">.</span><span class="token function">setResultCode</span><span class="token punctuation">(</span>ResultCode<span class="token punctuation">.</span>SUCCESS<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            LOGGER<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Call updateUser occurs exception, caused by: "</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            result<span class="token punctuation">.</span><span class="token function">setResultCode</span><span class="token punctuation">(</span>ResultCode<span class="token punctuation">.</span>SYSTEM_INNER_ERROR<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        LOGGER<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Call updateUser end, result:{}"</span><span class="token punctuation">,</span> JsonUtil<span class="token punctuation">.</span><span class="token function">object2Json</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span></code></pre>
 <p>我们看下上面的例子，这似乎已经可以满足对用户管理操作的需求，但是对于一个查询用户方法来讲代码量还是可以接受的，但是对于一个简单的更新用户操作，我们却写了一大堆的逻辑，其中包括：① 请求参数、响应结果日志打印 ② 基础参数的校验 ③更新用户业务主逻辑 ④ 全局异常的捕获 ⑤ 对Result结果的封装。这其中貌似一个步骤也不能省略，但却导致我们写代码效率低下，其实最重要的一步仅仅是③，那么我们改如何改进呢？</p>
 <p>① 请求参数、响应结果日志打印 -&gt; 使用在controller方法外对做切面统一打印日志（非GET方法都会打印）<br>② 基础参数的校验 -&gt; 使用hibernate validate做操作校验<br>④ 全局异常的捕获 -&gt; 使用@ControllerAdvice写全局异常处理类控制异常展现方式<br>⑤ 对Result结果的封装 -&gt; 实现ResponseBodyAdvice接口，对接口响应体统一处理</p>
 <p>上面我们只是提供的一个解决问题的思路，但是还没有实际的代码，后面的文章中我们会依次给出解决方案。<br>解决方案(已全部更新)：<br>①请求参数、响应结果日志打印 -&gt; 企业实战之切面编程《统一打印日志》<br>②基础参数的校验 -&gt; 企业实战之Spring项目《参数校验》<br>④全局异常的捕获 -&gt; 企业实战之spring增强器实现《全局异常处理器》<br>⑤ 对Result结果的封装 -&gt;企业实战之spring项目《接口响应体格式统一封装》<br>最后我们期望着写controller方法变为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PutMapping</span>(<span class="string">"/&#123;userId&#125;"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> User <span class="title">updateUser</span><span class="params">(@PathVariable(<span class="string">"userId"</span>)</span> Long userId, @Valid @RequestBody User user) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//更新数据</span></span><br><span class="line">    User dbUser = userService.getUserById(user.getId());</span><br><span class="line">    <span class="keyword">if</span> (dbUser == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BusinessException(ResultCode.USER_NOT_EXIST);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> userService.updateDbAndCache(user);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@PutMapping</span><span class="token punctuation">(</span><span class="token string">"/{userId}"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> User <span class="token function">updateUser</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"userId"</span><span class="token punctuation">)</span> Long userId<span class="token punctuation">,</span> <span class="token annotation punctuation">@Valid</span> <span class="token annotation punctuation">@RequestBody</span> User user<span class="token punctuation">)</span> <span class="token punctuation">{</span>
 
+    <span class="token comment" spellcheck="true">//更新数据</span>
+    User dbUser <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">getUserById</span><span class="token punctuation">(</span>user<span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>dbUser <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BusinessException</span><span class="token punctuation">(</span>ResultCode<span class="token punctuation">.</span>USER_NOT_EXIST<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> userService<span class="token punctuation">.</span><span class="token function">updateDbAndCache</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
 <h2 id="无效数据不返回，必要数据返回"><a href="#无效数据不返回，必要数据返回" class="headerlink" title="无效数据不返回，必要数据返回"></a>无效数据不返回，必要数据返回</h2><p>什么叫无效数据不返回，必要数据返回呢？</p>
 <ol>
 <li>无效数据清理：对于json响应接口，我们需要遵守对所有值为null的字段不做返回，对前端不关心的数据不做返回（合理的定义VO是很有必要的）。<br>对于spring boot 我们可以用下配置，实现字段值为null时不做返回。</li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">spring.jackson.date-format=yyyy-MM-dd HH:mm:ss</span><br><span class="line">spring.jackson.time-zone=Asia/Shanghai</span><br><span class="line">spring.jackson.<span class="keyword">default</span>-property-inclusion= non_null</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-java"><code class="language-java">spring<span class="token punctuation">.</span>jackson<span class="token punctuation">.</span>date<span class="token operator">-</span>format<span class="token operator">=</span>yyyy<span class="token operator">-</span>MM<span class="token operator">-</span>dd HH<span class="token operator">:</span>mm<span class="token operator">:</span>ss
+spring<span class="token punctuation">.</span>jackson<span class="token punctuation">.</span>time<span class="token operator">-</span>zone<span class="token operator">=</span>Asia<span class="token operator">/</span>Shanghai
+spring<span class="token punctuation">.</span>jackson<span class="token punctuation">.</span><span class="token keyword">default</span><span class="token operator">-</span>property<span class="token operator">-</span>inclusion<span class="token operator">=</span> non_null</code></pre>
 <ol start="2">
 <li>必要数据返回：对于添加（POST）、修改（PUT | PATCH）这类方法我们需要立即返回添加或更新后的数据以备前端使用（这是一个约定需要遵守）。</li>
 </ol>
 
-      
-    </div>
-    
-    
-    
-
-    
-      <div>
-        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
-    <img id="wechat_subscriber_qcode" src="/uploads/wechat-qcode.jpg" alt="高行行 wechat" style="width: 200px; max-width: 100%;"/>
-    <div>欢迎您扫一扫上面的微信公众号，订阅我的博客！</div>
-</div>
-
-      </div>
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/restful/" rel="tag"><i class="fa fa-tag"></i> restful</a>
-          
-        </div>
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2019/06/09/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%88%B6%E4%BD%9C%E5%87%BA%E6%BC%82%E4%BA%AE%E7%9A%84%E6%88%AA%E5%9B%BE/" rel="next" title="如何快速制作出漂亮的截图">
-                <i class="fa fa-chevron-left"></i> 如何快速制作出漂亮的截图
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/06/11/%E7%A8%8B%E5%BA%8F%E5%91%98%E9%80%9A%E7%94%A8%E7%AE%80%E5%86%99%E8%A1%A8/" rel="prev" title="程序员通用简写表">
-                程序员通用简写表 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-    </div>
-  </div>
-
-
-          </div>
-          
-
-
-          
-
-  
-    <div class="comments" id="comments">
-      <div class="ds-thread" data-thread-key="2019/06/09/Restful-Api写法心得之三《返回值篇》/"
-           data-title="Restful Api写法心得之三《返回值篇》" data-url="http://ghang.top/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%89%E3%80%8A%E8%BF%94%E5%9B%9E%E5%80%BC%E7%AF%87%E3%80%8B/">
-      </div>
-    </div>
-
-  
-
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            Table of Contents
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            Overview
-          </li>
-        </ul>
-      
-
-      <section class="site-overview-wrap sidebar-panel">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <img class="site-author-image" itemprop="image"
-                src="/uploads/avatar1.png"
-                alt="高行行" />
-            
-              <p class="site-author-name" itemprop="name">高行行</p>
-              <p class="site-description motion-element" itemprop="description">个人公众号《骇客与画家》</p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives/%20%7C%7C%20archive">
-              
-                  <span class="site-state-item-count">460</span>
-                  <span class="site-state-item-name">posts</span>
-                </a>
-              </div>
-            
-
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">98</span>
-                  <span class="site-state-item-name">tags</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-            <div class="feed-link motion-element">
-              <a href="/atom.xml" rel="alternate">
-                <i class="fa fa-rss"></i>
-                RSS
-              </a>
             </div>
-          
-
-          
-            <div class="links-of-author motion-element">
-                
-                  <span class="links-of-author-item">
-                    <a href="https://github.com/gaohanghang" target="_blank" title="GitHub">
-                      
-                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
-                  </span>
-                
-                  <span class="links-of-author-item">
-                    <a href="https://www.zhihu.com/people/gao-xing-68-15/activities" target="_blank" title="zhihu">
-                      
-                        <i class="fa fa-fw fa-globe"></i>zhihu</a>
-                  </span>
-                
-            </div>
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
+            <hr/>
 
             
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#格式选择"><span class="nav-number">1.</span> <span class="nav-text">格式选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据返回格式"><span class="nav-number">2.</span> <span class="nav-text">数据返回格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全局状态码"><span class="nav-number">3.</span> <span class="nav-text">全局状态码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#写一个完整的Controller"><span class="nav-number">4.</span> <span class="nav-text">写一个完整的Controller</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无效数据不返回，必要数据返回"><span class="nav-number">5.</span> <span class="nav-text">无效数据不返回，必要数据返回</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">高行行</span>
-
-  
-</div>
-
-
-  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
-
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
-
-
-
-
-        
-
-
-
-
-
-
-
-        
-      </div>
-    </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-          <span id="scrollpercent"><span>0</span>%</span>
-        
-      </div>
-    
-
-    
-
-  </div>
-
-  
-
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
-  }
-</script>
-
-
-
-
-
-
-
-
-
-  
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
-  
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
-
-
-
-  
-
-  
-    
-  
-
-  <script type="text/javascript">
-    var duoshuoQuery = {short_name:"gaohanghang"};
-    (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';ds.async = true;
-      ds.id = 'duoshuo-script';
-      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0]
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
-  </script>
-
-  
-    
-    
-    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
-    <script src="/js/src/hook-duoshuo.js"></script>
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-  
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
-  <script>AV.initialize("XFAiiy5gLPazUfl9i49I8oLS-gzGzoHsz", "KbGsyVfKgDIi6WTWAR93B3Ff");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
     }
 
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
+    #reward .reward-link {
+        font-size: 1.88rem;
     }
 
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
     });
-  </script>
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《Restful Api写法心得之三《返回值篇》》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%89%E3%80%8A%E8%BF%94%E5%9B%9E%E5%80%BC%E7%AF%87%E3%80%8B/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                高行行
+            </a> 采用
+            <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/06/11/%E7%A8%8B%E5%BA%8F%E5%91%98%E9%80%9A%E7%94%A8%E7%AE%80%E5%86%99%E8%A1%A8/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="程序员通用简写表">
+                        
+                        <span class="card-title">程序员通用简写表</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+ 本文来源于：http://blog.csdn.net/guoxiaoqian8028/article/details/8565889
+
+说明：
+1、本缩写表是《编码命名规范》的附录。
+2、本缩写表中列出的都是通用性缩写，不提供标准缩写，
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-06-11
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/06/09/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%88%B6%E4%BD%9C%E5%87%BA%E6%BC%82%E4%BA%AE%E7%9A%84%E6%88%AA%E5%9B%BE/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="如何快速制作出漂亮的截图">
+                        
+                        <span class="card-title">如何快速制作出漂亮的截图</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+原文地址 : 如何快速制作出漂亮的截图
+
+对于新媒体营销者来说，如果你服务的企业是互联网企业，或者说用户需要在通过电脑来购买或者使用你的服务，那么在文章中通过截图来指导，是一件非常常见的事情。
+可能你经常看到公众号的文章中看到过，类似这样
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-06-09
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E5%B7%A5%E5%85%B7/" target="_blank">
+                        <span class="chip bg-color">工具</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
 
 
 
-  
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
 
-  
+<!-- TOC 悬浮按钮. -->
 
-  
-  
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
 
-  
 
-  
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
 
-  
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+
+
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
 
 </body>
 </html>

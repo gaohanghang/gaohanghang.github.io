@@ -1,368 +1,426 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<html lang="zh-CN">
 
 
-
-  
-
-
-<html class="theme-next mist use-motion" lang="zh-CN">
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="theme-color" content="#222">
+    <meta charset="utf-8">
+    <meta name="keywords" content="8 种常被忽视的 SQL 错误用法, 高行行的个人博客">
+    <meta name="description" content="
+原文地址: https://yq.aliyun.com/articles/72501
 
 
+1、LIMIT 语句
+2、隐式转换
+3、关联更新、删除
+4、混合排序
+5、EXISTS语句
+6、条件下推
+7、提前缩小范围
+8、中间结果集下推
+总结">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>8 种常被忽视的 SQL 错误用法 | 高行行的个人博客</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
 
-  
-  
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+    <style type="text/css">
+        
+    </style>
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+<meta name="generator" content="Hexo 4.2.1"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body>
+
+<header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">高行行的个人博客</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fa fa-navicon"></i></a>
+<ul class="right">
     
+    <li class="hide-on-med-and-down">
+        <a href="/" class="waves-effect waves-light">
+            
+            <i class="fa fa-home"></i>
+            
+            <span>首页</span>
+        </a>
+    </li>
     
-  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
-  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
-
-
-
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
-
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
-
-
-
-
-
-  <meta name="keywords" content="sql," />
-
-
-
-
-  
-
-
-  <link rel="alternate" href="/atom.xml" title="高行行的个人博客" type="application/atom+xml" />
-
-
-
-
-
-
-<meta name="description" content="原文地址: https:&#x2F;&#x2F;yq.aliyun.com&#x2F;articles&#x2F;72501   1、LIMIT 语句 2、隐式转换 3、关联更新、删除 4、混合排序 5、EXISTS语句 6、条件下推 7、提前缩小范围 8、中间结果集下推 总结  sql语句的执行顺序： 1234567891011121314151617181920212223242526272829FROM &lt;left_tab">
-<meta property="og:type" content="article">
-<meta property="og:title" content="8 种常被忽视的 SQL 错误用法">
-<meta property="og:url" content="http://ghang.top/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/index.html">
-<meta property="og:site_name" content="高行行的个人博客">
-<meta property="og:description" content="原文地址: https:&#x2F;&#x2F;yq.aliyun.com&#x2F;articles&#x2F;72501   1、LIMIT 语句 2、隐式转换 3、关联更新、删除 4、混合排序 5、EXISTS语句 6、条件下推 7、提前缩小范围 8、中间结果集下推 总结  sql语句的执行顺序： 1234567891011121314151617181920212223242526272829FROM &lt;left_tab">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2019-08-02T13:54:16.000Z">
-<meta property="article:modified_time" content="2020-06-26T08:47:52.287Z">
-<meta property="article:author" content="高行行">
-<meta property="article:tag" content="sql">
-<meta name="twitter:card" content="summary">
-
-
-
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '/',
-    scheme: 'Mist',
-    version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
-    fancybox: true,
-    tabs: true,
-    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    duoshuo: {
-      userId: '0',
-      author: 'Author'
-    },
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
-
-
-
-  <link rel="canonical" href="http://ghang.top/2019/08/02/8-种常被忽视的-SQL-错误用法/"/>
-
-
-
-
-
-  <title>8 种常被忽视的 SQL 错误用法 | 高行行的个人博客</title>
-  
-
-
-
-
-
-
-
-
-<meta name="generator" content="Hexo 4.2.1"></head>
-
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-
-  
-  
+    <li class="hide-on-med-and-down">
+        <a href="/tags" class="waves-effect waves-light">
+            
+            <i class="fa fa-tags"></i>
+            
+            <span>标签</span>
+        </a>
+    </li>
     
-  
-
-  <div class="container sidebar-position-left page-post-detail">
-    <div class="headband"></div>
-
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
+    <li class="hide-on-med-and-down">
+        <a href="/categories" class="waves-effect waves-light">
+            
+            <i class="fa fa-bookmark"></i>
+            
+            <span>分类</span>
+        </a>
+    </li>
     
+    <li class="hide-on-med-and-down">
+        <a href="/archives" class="waves-effect waves-light">
+            
+            <i class="fa fa-archive"></i>
+            
+            <span>归档</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/about" class="waves-effect waves-light">
+            
+            <i class="fa fa-user-circle-o"></i>
+            
+            <span>关于</span>
+        </a>
+    </li>
+    
+    <li class="hide-on-med-and-down">
+        <a href="/friends" class="waves-effect waves-light">
+            
+            <i class="fa fa-address-book"></i>
+            
+            <span>友情链接</span>
+        </a>
+    </li>
+    
+    <li>
+        <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+            <i id="searchIcon" class="fa fa-search" title="搜索"></i>
+        </a>
+    </li>
+</ul>
 
-    <div class="custom-logo-site-title">
-      <a href="/"  class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">高行行的个人博客</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">高行行的个人博客</div>
+        <div class="logo-desc">
+            
+            个人公众号《骇客与画家》
+            
+        </div>
     </div>
-      
-        <p class="site-subtitle">有诗有远方</p>
-      
-  </div>
 
-  <div class="site-nav-toggle">
-    <button>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
-  </div>
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li>
+            <a href="/" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-home"></i>
+                
+                首页
+            </a>
+        </li>
+        
+        <li>
+            <a href="/tags" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-tags"></i>
+                
+                标签
+            </a>
+        </li>
+        
+        <li>
+            <a href="/categories" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-bookmark"></i>
+                
+                分类
+            </a>
+        </li>
+        
+        <li>
+            <a href="/archives" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-archive"></i>
+                
+                归档
+            </a>
+        </li>
+        
+        <li>
+            <a href="/about" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-user-circle-o"></i>
+                
+                关于
+            </a>
+        </li>
+        
+        <li>
+            <a href="/friends" class="waves-effect waves-light">
+                
+                <i class="fa fa-fw fa-address-book"></i>
+                
+                友情链接
+            </a>
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fa fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
 </div>
 
-<nav class="site-nav">
-  
-
-  
-    <ul id="menu" class="menu">
-      
-        
-        <li class="menu-item menu-item-home">
-          <a href="/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
-            
-            Home
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            About
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
-            
-            Tags
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
-            
-            Categories
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives/%20" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
-            
-            Archives
-          </a>
-        </li>
-      
-
-      
-    </ul>
-  
-
-  
-</nav>
-
-
-
- </div>
-    </header>
-
-    <main id="main" class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          <div id="content" class="content">
-            
-
-  <div id="posts" class="posts-expand">
-    
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://ghang.top/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="高行行">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/avatar1.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="高行行的个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">8 种常被忽视的 SQL 错误用法</h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-02T21:54:16+08:00">
-                2019-08-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                <span class="post-meta-divider">|</span>
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-comment-o"></i>
-                </span>
-                <a href="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2019/08/02/8-种常被忽视的-SQL-错误用法/" itemprop="commentCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-          
-             <span id="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/" class="leancloud_visitors" data-flag-title="8 种常被忽视的 SQL 错误用法">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">Visitors&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/14.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        8 种常被忽视的 SQL 错误用法
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<main class="post-container content">
 
     
-    
-    
-    <div class="post-body" itemprop="articleBody">
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
 
-      
-      
+    #articleContent :focus {
+        outline: none;
+    }
 
-      
-        <blockquote>
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 20px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/sql/" target="_blank">
+                                <span class="chip bg-color">sql</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-08-02
+                </div>
+
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <blockquote>
 <p>原文地址: <a href="https://yq.aliyun.com/articles/72501" target="_blank" rel="noopener">https://yq.aliyun.com/articles/72501</a></p>
 </blockquote>
 <ul>
@@ -377,633 +435,799 @@
 <li>总结</li>
 </ul>
 <p><strong>sql语句的执行顺序：</strong></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">FROM </span><br><span class="line">&lt;left_table&gt;</span><br><span class="line"></span><br><span class="line">ON </span><br><span class="line">&lt;join_condition&gt;</span><br><span class="line"></span><br><span class="line">&lt;join_type&gt;</span><br><span class="line"> JOIN </span><br><span class="line">&lt;right_table&gt;</span><br><span class="line"></span><br><span class="line">WHERE </span><br><span class="line">&lt;where_condition&gt;</span><br><span class="line"></span><br><span class="line">GROUP BY </span><br><span class="line">&lt;group_by_list&gt;</span><br><span class="line"></span><br><span class="line">HAVING </span><br><span class="line">&lt;having_condition&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">DISTINCT</span> </span><br><span class="line">&lt;select_list&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> </span><br><span class="line">&lt;order_by_condition&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">LIMIT</span> </span><br><span class="line">&lt;limit_number&gt;</span><br></pre></td></tr></table></figure>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">FROM</span> 
+<span class="token operator">&lt;</span>left_table<span class="token operator">></span>
 
+<span class="token keyword">ON</span> 
+<span class="token operator">&lt;</span>join_condition<span class="token operator">></span>
+
+<span class="token operator">&lt;</span>join_type<span class="token operator">></span>
+ <span class="token keyword">JOIN</span> 
+<span class="token operator">&lt;</span>right_table<span class="token operator">></span>
+
+<span class="token keyword">WHERE</span> 
+<span class="token operator">&lt;</span>where_condition<span class="token operator">></span>
+
+<span class="token keyword">GROUP</span> <span class="token keyword">BY</span> 
+<span class="token operator">&lt;</span>group_by_list<span class="token operator">></span>
+
+<span class="token keyword">HAVING</span> 
+<span class="token operator">&lt;</span>having_condition<span class="token operator">></span>
+
+<span class="token keyword">SELECT</span>
+
+<span class="token keyword">DISTINCT</span> 
+<span class="token operator">&lt;</span>select_list<span class="token operator">></span>
+
+<span class="token keyword">ORDER</span> <span class="token keyword">BY</span> 
+<span class="token operator">&lt;</span>order_by_condition<span class="token operator">></span>
+
+<span class="token keyword">LIMIT</span> 
+<span class="token operator">&lt;</span>limit_number<span class="token operator">></span></code></pre>
 <h1 id="1、LIMIT-语句"><a href="#1、LIMIT-语句" class="headerlink" title="1、LIMIT 语句"></a>1、LIMIT 语句</h1><p>分页查询是最常用的场景之一，但也通常也是最容易出问题的地方。比如对于下面简单的语句，一般 DBA 想到的办法是在 type, name, create_time 字段上加组合索引。这样条件排序都能有效的利用到索引，性能迅速提升。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * </span><br><span class="line"><span class="keyword">FROM</span>   operation </span><br><span class="line"><span class="keyword">WHERE</span>  <span class="keyword">type</span> = <span class="string">'SQLStats'</span> </span><br><span class="line">       <span class="keyword">AND</span> <span class="keyword">name</span> = <span class="string">'SlowLog'</span> </span><br><span class="line"><span class="keyword">ORDER</span>  <span class="keyword">BY</span> create_time </span><br><span class="line"><span class="keyword">LIMIT</span>  <span class="number">1000</span>, <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> 
+<span class="token keyword">FROM</span>   operation 
+<span class="token keyword">WHERE</span>  <span class="token keyword">type</span> <span class="token operator">=</span> <span class="token string">'SQLStats'</span> 
+       <span class="token operator">AND</span> name <span class="token operator">=</span> <span class="token string">'SlowLog'</span> 
+<span class="token keyword">ORDER</span>  <span class="token keyword">BY</span> create_time 
+<span class="token keyword">LIMIT</span>  <span class="token number">1000</span><span class="token punctuation">,</span> <span class="token number">10</span><span class="token punctuation">;</span> </code></pre>
 <p>好吧，可能90%以上的 DBA 解决该问题就到此为止。但当 LIMIT 子句变成 “LIMIT 1000000,10” 时，程序员仍然会抱怨：我只取10条记录为什么还是慢？</p>
 <p>要知道数据库也并不知道第1000000条记录从什么地方开始，即使有索引也需要从头计算一次。出现这种性能问题，多数情形下是程序员偷懒了。</p>
 <p>在前端数据浏览翻页，或者大数据分批导出等场景下，是可以将上一页的最大值当成参数作为查询条件的。SQL 重新设计如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SELECT   * </span><br><span class="line">FROM     operation </span><br><span class="line">WHERE    type &#x3D; &#39;SQLStats&#39; </span><br><span class="line">AND      name &#x3D; &#39;SlowLog&#39; </span><br><span class="line">AND      create_time &gt; &#39;2017-03-16 14:00:00&#39; </span><br><span class="line">ORDER BY create_time limit 10;</span><br></pre></td></tr></table></figure>
-
-<p>在新设计下查询时间基本固定，不会随着数据量的增长而发生变化。</p>
+<pre><code>SELECT   * 
+FROM     operation 
+WHERE    type = &#39;SQLStats&#39; 
+AND      name = &#39;SlowLog&#39; 
+AND      create_time &gt; &#39;2017-03-16 14:00:00&#39; 
+ORDER BY create_time limit 10;</code></pre><p>在新设计下查询时间基本固定，不会随着数据量的增长而发生变化。</p>
 <h1 id="2、隐式转换"><a href="#2、隐式转换" class="headerlink" title="2、隐式转换"></a>2、隐式转换</h1><p>SQL语句中查询变量和字段定义类型不匹配是另一个常见的错误。比如下面的语句：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain extended SELECT * </span><br><span class="line">     &gt; FROM   my_balance b </span><br><span class="line">     &gt; WHERE  b.bpn = 14000000123 </span><br><span class="line">     &gt;       AND b.isverified IS NULL ;</span><br><span class="line">mysql&gt; show warnings;</span><br><span class="line">| Warning | 1739 | Cannot <span class="keyword">use</span> <span class="keyword">ref</span> <span class="keyword">access</span> <span class="keyword">on</span> <span class="keyword">index</span> <span class="string">'bpn'</span> due <span class="keyword">to</span> <span class="keyword">type</span> <span class="keyword">or</span> <span class="keyword">collation</span> conversion <span class="keyword">on</span> <span class="keyword">field</span> <span class="string">'bpn'</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql">mysql<span class="token operator">></span> <span class="token keyword">explain</span> <span class="token keyword">extended</span> <span class="token keyword">SELECT</span> <span class="token operator">*</span> 
+     <span class="token operator">></span> <span class="token keyword">FROM</span>   my_balance <span class="token number">b</span> 
+     <span class="token operator">></span> <span class="token keyword">WHERE</span>  <span class="token number">b</span><span class="token punctuation">.</span>bpn <span class="token operator">=</span> <span class="token number">14000000123</span> 
+     <span class="token operator">></span>       <span class="token operator">AND</span> <span class="token number">b</span><span class="token punctuation">.</span>isverified <span class="token operator">IS</span> <span class="token boolean">NULL</span> <span class="token punctuation">;</span>
+mysql<span class="token operator">></span> <span class="token keyword">show</span> <span class="token keyword">warnings</span><span class="token punctuation">;</span>
+<span class="token operator">|</span> Warning <span class="token operator">|</span> <span class="token number">1739</span> <span class="token operator">|</span> Cannot <span class="token keyword">use</span> ref access <span class="token keyword">on</span> <span class="token keyword">index</span> <span class="token string">'bpn'</span> due <span class="token keyword">to</span> <span class="token keyword">type</span> <span class="token operator">or</span> collation conversion <span class="token keyword">on</span> field <span class="token string">'bpn'</span></code></pre>
 <p>其中字段 bpn 的定义为 varchar(20)，MySQL 的策略是将字符串转换为数字之后再比较。函数作用于表字段，索引失效。</p>
 <p>上述情况可能是应用程序框架自动填入的参数，而不是程序员的原意。现在应用框架很多很繁杂，使用方便的同时也小心它可能给自己挖坑。</p>
 <h1 id="3、关联更新、删除"><a href="#3、关联更新、删除" class="headerlink" title="3、关联更新、删除"></a>3、关联更新、删除</h1><p>虽然 MySQL5.6 引入了物化特性，但需要特别注意它目前仅仅针对查询语句的优化。对于更新或删除需要手工重写成 JOIN。</p>
 <p>比如下面 UPDATE 语句，MySQL 实际执行的是循环/嵌套子查询（DEPENDENT SUBQUERY)，其执行时间可想而知。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> operation o </span><br><span class="line"><span class="keyword">SET</span>    <span class="keyword">status</span> = <span class="string">'applying'</span> </span><br><span class="line"><span class="keyword">WHERE</span>  o.id <span class="keyword">IN</span> (<span class="keyword">SELECT</span> <span class="keyword">id</span> </span><br><span class="line">                <span class="keyword">FROM</span>   (<span class="keyword">SELECT</span> o.id, </span><br><span class="line">                               o.status </span><br><span class="line">                        <span class="keyword">FROM</span>   operation o </span><br><span class="line">                        <span class="keyword">WHERE</span>  o.group = <span class="number">123</span> </span><br><span class="line">                               <span class="keyword">AND</span> o.status <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="string">'done'</span> ) </span><br><span class="line">                        <span class="keyword">ORDER</span>  <span class="keyword">BY</span> o.parent, </span><br><span class="line">                                  o.id </span><br><span class="line">                        <span class="keyword">LIMIT</span>  <span class="number">1</span>) t);</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">UPDATE</span> operation o 
+<span class="token keyword">SET</span>    <span class="token keyword">status</span> <span class="token operator">=</span> <span class="token string">'applying'</span> 
+<span class="token keyword">WHERE</span>  o<span class="token punctuation">.</span>id <span class="token operator">IN</span> <span class="token punctuation">(</span><span class="token keyword">SELECT</span> id 
+                <span class="token keyword">FROM</span>   <span class="token punctuation">(</span><span class="token keyword">SELECT</span> o<span class="token punctuation">.</span>id<span class="token punctuation">,</span> 
+                               o<span class="token punctuation">.</span><span class="token keyword">status</span> 
+                        <span class="token keyword">FROM</span>   operation o 
+                        <span class="token keyword">WHERE</span>  o<span class="token punctuation">.</span><span class="token keyword">group</span> <span class="token operator">=</span> <span class="token number">123</span> 
+                               <span class="token operator">AND</span> o<span class="token punctuation">.</span><span class="token keyword">status</span> <span class="token operator">NOT</span> <span class="token operator">IN</span> <span class="token punctuation">(</span> <span class="token string">'done'</span> <span class="token punctuation">)</span> 
+                        <span class="token keyword">ORDER</span>  <span class="token keyword">BY</span> o<span class="token punctuation">.</span>parent<span class="token punctuation">,</span> 
+                                  o<span class="token punctuation">.</span>id 
+                        <span class="token keyword">LIMIT</span>  <span class="token number">1</span><span class="token punctuation">)</span> t<span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre>
 <p>执行计划：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| id | select_type        | table | type  | possible_keys | key     | key_len | ref   | rows | Extra                                               |</span><br><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| 1  | PRIMARY            | o     | index |               | PRIMARY | 8       |       | 24   | Using where; Using temporary                        |</span><br><span class="line">| 2  | DEPENDENT SUBQUERY |       |       |               |         |         |       |      | Impossible WHERE noticed after reading const tables |</span><br><span class="line">| 3  | DERIVED            | o     | ref   | idx_2,idx_5   | idx_5   | 8       | const | 1    | Using where; Using filesort                         |</span><br><span class="line">+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</span><br></pre></td></tr></table></figure>
-
-<p>重写为 JOIN 之后，子查询的选择模式从 DEPENDENT SUBQUERY 变成 DERIVED，执行速度大大加快，从7秒降低到2毫秒。</p>
+<pre><code>+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+
+| id | select_type        | table | type  | possible_keys | key     | key_len | ref   | rows | Extra                                               |
++----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+
+| 1  | PRIMARY            | o     | index |               | PRIMARY | 8       |       | 24   | Using where; Using temporary                        |
+| 2  | DEPENDENT SUBQUERY |       |       |               |         |         |       |      | Impossible WHERE noticed after reading const tables |
+| 3  | DERIVED            | o     | ref   | idx_2,idx_5   | idx_5   | 8       | const | 1    | Using where; Using filesort                         |
++----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</code></pre><p>重写为 JOIN 之后，子查询的选择模式从 DEPENDENT SUBQUERY 变成 DERIVED，执行速度大大加快，从7秒降低到2毫秒。</p>
 <a id="more"></a>
 
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> operation o </span><br><span class="line">       <span class="keyword">JOIN</span>  (<span class="keyword">SELECT</span> o.id, </span><br><span class="line">                            o.status </span><br><span class="line">                     <span class="keyword">FROM</span>   operation o </span><br><span class="line">                     <span class="keyword">WHERE</span>  o.group = <span class="number">123</span> </span><br><span class="line">                            <span class="keyword">AND</span> o.status <span class="keyword">NOT</span> <span class="keyword">IN</span> ( <span class="string">'done'</span> ) </span><br><span class="line">                     <span class="keyword">ORDER</span>  <span class="keyword">BY</span> o.parent, </span><br><span class="line">                               o.id </span><br><span class="line">                     <span class="keyword">LIMIT</span>  <span class="number">1</span>) t</span><br><span class="line">         <span class="keyword">ON</span> o.id = t.id </span><br><span class="line"><span class="keyword">SET</span>    <span class="keyword">status</span> = <span class="string">'applying'</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">UPDATE</span> operation o 
+       <span class="token keyword">JOIN</span>  <span class="token punctuation">(</span><span class="token keyword">SELECT</span> o<span class="token punctuation">.</span>id<span class="token punctuation">,</span> 
+                            o<span class="token punctuation">.</span><span class="token keyword">status</span> 
+                     <span class="token keyword">FROM</span>   operation o 
+                     <span class="token keyword">WHERE</span>  o<span class="token punctuation">.</span><span class="token keyword">group</span> <span class="token operator">=</span> <span class="token number">123</span> 
+                            <span class="token operator">AND</span> o<span class="token punctuation">.</span><span class="token keyword">status</span> <span class="token operator">NOT</span> <span class="token operator">IN</span> <span class="token punctuation">(</span> <span class="token string">'done'</span> <span class="token punctuation">)</span> 
+                     <span class="token keyword">ORDER</span>  <span class="token keyword">BY</span> o<span class="token punctuation">.</span>parent<span class="token punctuation">,</span> 
+                               o<span class="token punctuation">.</span>id 
+                     <span class="token keyword">LIMIT</span>  <span class="token number">1</span><span class="token punctuation">)</span> t
+         <span class="token keyword">ON</span> o<span class="token punctuation">.</span>id <span class="token operator">=</span> t<span class="token punctuation">.</span>id 
+<span class="token keyword">SET</span>    <span class="token keyword">status</span> <span class="token operator">=</span> <span class="token string">'applying'</span> </code></pre>
 <p>执行计划简化为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| id | select_type | table | type | possible_keys | key   | key_len | ref   | rows | Extra                                               |</span><br><span class="line">+----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+</span><br><span class="line">| 1  | PRIMARY     |       |      |               |       |         |       |      | Impossible WHERE noticed after reading const tables |</span><br><span class="line">| 2  | DERIVED     | o     | ref  | idx_2,idx_5   | idx_5 | 8       | const | 1    | Using where; Using filesort                         |</span><br><span class="line">+----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+</span><br></pre></td></tr></table></figure>
-
-<h1 id="4、混合排序"><a href="#4、混合排序" class="headerlink" title="4、混合排序**"></a>4、混合排序**</h1><p>MySQL 不能利用索引进行混合排序。但在某些场景，还是有机会使用特殊方法提升性能的。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * </span><br><span class="line"><span class="keyword">FROM</span>   my_order o </span><br><span class="line">       <span class="keyword">INNER</span> <span class="keyword">JOIN</span> my_appraise a <span class="keyword">ON</span> a.orderid = o.id </span><br><span class="line"><span class="keyword">ORDER</span>  <span class="keyword">BY</span> a.is_reply <span class="keyword">ASC</span>, </span><br><span class="line">          a.appraise_time <span class="keyword">DESC</span> </span><br><span class="line"><span class="keyword">LIMIT</span>  <span class="number">0</span>, <span class="number">20</span></span><br></pre></td></tr></table></figure>
-
+<pre><code>+----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+
+| id | select_type | table | type | possible_keys | key   | key_len | ref   | rows | Extra                                               |
++----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+
+| 1  | PRIMARY     |       |      |               |       |         |       |      | Impossible WHERE noticed after reading const tables |
+| 2  | DERIVED     | o     | ref  | idx_2,idx_5   | idx_5 | 8       | const | 1    | Using where; Using filesort                         |
++----+-------------+-------+------+---------------+-------+---------+-------+------+-----------------------------------------------------+</code></pre><h1 id="4、混合排序"><a href="#4、混合排序" class="headerlink" title="4、混合排序**"></a>4、混合排序**</h1><p>MySQL 不能利用索引进行混合排序。但在某些场景，还是有机会使用特殊方法提升性能的。</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> 
+<span class="token keyword">FROM</span>   my_order o 
+       <span class="token keyword">INNER</span> <span class="token keyword">JOIN</span> my_appraise <span class="token number">a</span> <span class="token keyword">ON</span> <span class="token number">a</span><span class="token punctuation">.</span>orderid <span class="token operator">=</span> o<span class="token punctuation">.</span>id 
+<span class="token keyword">ORDER</span>  <span class="token keyword">BY</span> <span class="token number">a</span><span class="token punctuation">.</span>is_reply <span class="token keyword">ASC</span><span class="token punctuation">,</span> 
+          <span class="token number">a</span><span class="token punctuation">.</span>appraise_time <span class="token keyword">DESC</span> 
+<span class="token keyword">LIMIT</span>  <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">20</span> </code></pre>
 <p>执行计划显示为全表扫描：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+----+-------------+-------+--------+-------------+---------+---------+---------------+---------+-+</span><br><span class="line">| id | select_type | table | type   | possible_keys     | key     | key_len | ref      | rows    | Extra    </span><br><span class="line">+----+-------------+-------+--------+-------------+---------+---------+---------------+---------+-+</span><br><span class="line">|  1 | SIMPLE      | a     | ALL    | idx_orderid | NULL    | NULL    | NULL    | 1967647 | Using filesort |</span><br><span class="line">|  1 | SIMPLE      | o     | eq_ref | PRIMARY     | PRIMARY | 122     | a.orderid |       1 | NULL           |</span><br><span class="line">+----+-------------+-------+--------+---------+---------+---------+-----------------+---------+-+</span><br></pre></td></tr></table></figure>
-
-<p>由于 is_reply 只有0和1两种状态，我们按照下面的方法重写后，执行时间从1.58秒降低到2毫秒。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * </span><br><span class="line"><span class="keyword">FROM</span>   ((<span class="keyword">SELECT</span> *</span><br><span class="line">         <span class="keyword">FROM</span>   my_order o </span><br><span class="line">                <span class="keyword">INNER</span> <span class="keyword">JOIN</span> my_appraise a </span><br><span class="line">                        <span class="keyword">ON</span> a.orderid = o.id </span><br><span class="line">                           <span class="keyword">AND</span> is_reply = <span class="number">0</span> </span><br><span class="line">         <span class="keyword">ORDER</span>  <span class="keyword">BY</span> appraise_time <span class="keyword">DESC</span> </span><br><span class="line">         <span class="keyword">LIMIT</span>  <span class="number">0</span>, <span class="number">20</span>) </span><br><span class="line">        <span class="keyword">UNION</span> <span class="keyword">ALL</span> </span><br><span class="line">        (<span class="keyword">SELECT</span> *</span><br><span class="line">         <span class="keyword">FROM</span>   my_order o </span><br><span class="line">                <span class="keyword">INNER</span> <span class="keyword">JOIN</span> my_appraise a </span><br><span class="line">                        <span class="keyword">ON</span> a.orderid = o.id </span><br><span class="line">                           <span class="keyword">AND</span> is_reply = <span class="number">1</span> </span><br><span class="line">         <span class="keyword">ORDER</span>  <span class="keyword">BY</span> appraise_time <span class="keyword">DESC</span> </span><br><span class="line">         <span class="keyword">LIMIT</span>  <span class="number">0</span>, <span class="number">20</span>)) t </span><br><span class="line"><span class="keyword">ORDER</span>  <span class="keyword">BY</span>  is_reply <span class="keyword">ASC</span>, </span><br><span class="line">          appraisetime <span class="keyword">DESC</span> </span><br><span class="line"><span class="keyword">LIMIT</span>  <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
-
+<pre><code>+----+-------------+-------+--------+-------------+---------+---------+---------------+---------+-+
+| id | select_type | table | type   | possible_keys     | key     | key_len | ref      | rows    | Extra    
++----+-------------+-------+--------+-------------+---------+---------+---------------+---------+-+
+|  1 | SIMPLE      | a     | ALL    | idx_orderid | NULL    | NULL    | NULL    | 1967647 | Using filesort |
+|  1 | SIMPLE      | o     | eq_ref | PRIMARY     | PRIMARY | 122     | a.orderid |       1 | NULL           |
++----+-------------+-------+--------+---------+---------+---------+-----------------+---------+-+</code></pre><p>由于 is_reply 只有0和1两种状态，我们按照下面的方法重写后，执行时间从1.58秒降低到2毫秒。</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> 
+<span class="token keyword">FROM</span>   <span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">SELECT</span> <span class="token operator">*</span>
+         <span class="token keyword">FROM</span>   my_order o 
+                <span class="token keyword">INNER</span> <span class="token keyword">JOIN</span> my_appraise <span class="token number">a</span> 
+                        <span class="token keyword">ON</span> <span class="token number">a</span><span class="token punctuation">.</span>orderid <span class="token operator">=</span> o<span class="token punctuation">.</span>id 
+                           <span class="token operator">AND</span> is_reply <span class="token operator">=</span> <span class="token number">0</span> 
+         <span class="token keyword">ORDER</span>  <span class="token keyword">BY</span> appraise_time <span class="token keyword">DESC</span> 
+         <span class="token keyword">LIMIT</span>  <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">)</span> 
+        <span class="token keyword">UNION</span> <span class="token keyword">ALL</span> 
+        <span class="token punctuation">(</span><span class="token keyword">SELECT</span> <span class="token operator">*</span>
+         <span class="token keyword">FROM</span>   my_order o 
+                <span class="token keyword">INNER</span> <span class="token keyword">JOIN</span> my_appraise <span class="token number">a</span> 
+                        <span class="token keyword">ON</span> <span class="token number">a</span><span class="token punctuation">.</span>orderid <span class="token operator">=</span> o<span class="token punctuation">.</span>id 
+                           <span class="token operator">AND</span> is_reply <span class="token operator">=</span> <span class="token number">1</span> 
+         <span class="token keyword">ORDER</span>  <span class="token keyword">BY</span> appraise_time <span class="token keyword">DESC</span> 
+         <span class="token keyword">LIMIT</span>  <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">)</span> t 
+<span class="token keyword">ORDER</span>  <span class="token keyword">BY</span>  is_reply <span class="token keyword">ASC</span><span class="token punctuation">,</span> 
+          appraisetime <span class="token keyword">DESC</span> 
+<span class="token keyword">LIMIT</span>  <span class="token number">20</span><span class="token punctuation">;</span> </code></pre>
 <h1 id="5、EXISTS语句"><a href="#5、EXISTS语句" class="headerlink" title="5、EXISTS语句"></a>5、EXISTS语句</h1><p>MySQL 对待 EXISTS 子句时，仍然采用嵌套子查询的执行方式。如下面的 SQL 语句：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> *</span><br><span class="line"><span class="keyword">FROM</span>   my_neighbor n </span><br><span class="line">       <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_neighbor_apply sra </span><br><span class="line">              <span class="keyword">ON</span> n.id = sra.neighbor_id </span><br><span class="line">                 <span class="keyword">AND</span> sra.user_id = <span class="string">'xxx'</span> </span><br><span class="line"><span class="keyword">WHERE</span>  n.topic_status &lt; <span class="number">4</span> </span><br><span class="line">       <span class="keyword">AND</span> <span class="keyword">EXISTS</span>(<span class="keyword">SELECT</span> <span class="number">1</span> </span><br><span class="line">                  <span class="keyword">FROM</span>   message_info m </span><br><span class="line">                  <span class="keyword">WHERE</span>  n.id = m.neighbor_id </span><br><span class="line">                         <span class="keyword">AND</span> m.inuser = <span class="string">'xxx'</span>) </span><br><span class="line">       <span class="keyword">AND</span> n.topic_type &lt;&gt; <span class="number">5</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span>
+<span class="token keyword">FROM</span>   my_neighbor n 
+       <span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> my_neighbor_apply sra 
+              <span class="token keyword">ON</span> n<span class="token punctuation">.</span>id <span class="token operator">=</span> sra<span class="token punctuation">.</span>neighbor_id 
+                 <span class="token operator">AND</span> sra<span class="token punctuation">.</span>user_id <span class="token operator">=</span> <span class="token string">'xxx'</span> 
+<span class="token keyword">WHERE</span>  n<span class="token punctuation">.</span>topic_status <span class="token operator">&lt;</span> <span class="token number">4</span> 
+       <span class="token operator">AND</span> <span class="token keyword">EXISTS</span><span class="token punctuation">(</span><span class="token keyword">SELECT</span> <span class="token number">1</span> 
+                  <span class="token keyword">FROM</span>   message_info m 
+                  <span class="token keyword">WHERE</span>  n<span class="token punctuation">.</span>id <span class="token operator">=</span> m<span class="token punctuation">.</span>neighbor_id 
+                         <span class="token operator">AND</span> m<span class="token punctuation">.</span>inuser <span class="token operator">=</span> <span class="token string">'xxx'</span><span class="token punctuation">)</span> 
+       <span class="token operator">AND</span> n<span class="token punctuation">.</span>topic_type <span class="token operator">&lt;></span> <span class="token number">5</span> </code></pre>
 <p>执行计划为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+----+--------------------+-------+------+-----+------------------------------------------+---------+-------+---------+ -----+</span><br><span class="line">| id | select_type        | table | type | possible_keys     | key   | key_len | ref   | rows    | Extra   |</span><br><span class="line">+----+--------------------+-------+------+ -----+------------------------------------------+---------+-------+---------+ -----+</span><br><span class="line">|  1 | PRIMARY            | n     | ALL  |  | NULL     | NULL    | NULL  | 1086041 | Using where                   |</span><br><span class="line">|  1 | PRIMARY            | sra   | ref  |  | idx_user_id | 123     | const |       1 | Using where          |</span><br><span class="line">|  2 | DEPENDENT SUBQUERY | m     | ref  |  | idx_message_info   | 122     | const |       1 | Using index condition; Using where |</span><br><span class="line">+----+--------------------+-------+------+ -----+------------------------------------------+---------+-------+---------+ -----+</span><br></pre></td></tr></table></figure>
-
-<p>去掉 exists 更改为 join，能够避免嵌套子查询，将执行时间从1.93秒降低为1毫秒。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> *</span><br><span class="line"><span class="keyword">FROM</span>   my_neighbor n </span><br><span class="line">       <span class="keyword">INNER</span> <span class="keyword">JOIN</span> message_info m </span><br><span class="line">               <span class="keyword">ON</span> n.id = m.neighbor_id </span><br><span class="line">                  <span class="keyword">AND</span> m.inuser = <span class="string">'xxx'</span> </span><br><span class="line">       <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_neighbor_apply sra </span><br><span class="line">              <span class="keyword">ON</span> n.id = sra.neighbor_id </span><br><span class="line">                 <span class="keyword">AND</span> sra.user_id = <span class="string">'xxx'</span> </span><br><span class="line"><span class="keyword">WHERE</span>  n.topic_status &lt; <span class="number">4</span> </span><br><span class="line">       <span class="keyword">AND</span> n.topic_type &lt;&gt; <span class="number">5</span></span><br></pre></td></tr></table></figure>
-
+<pre><code>+----+--------------------+-------+------+-----+------------------------------------------+---------+-------+---------+ -----+
+| id | select_type        | table | type | possible_keys     | key   | key_len | ref   | rows    | Extra   |
++----+--------------------+-------+------+ -----+------------------------------------------+---------+-------+---------+ -----+
+|  1 | PRIMARY            | n     | ALL  |  | NULL     | NULL    | NULL  | 1086041 | Using where                   |
+|  1 | PRIMARY            | sra   | ref  |  | idx_user_id | 123     | const |       1 | Using where          |
+|  2 | DEPENDENT SUBQUERY | m     | ref  |  | idx_message_info   | 122     | const |       1 | Using index condition; Using where |
++----+--------------------+-------+------+ -----+------------------------------------------+---------+-------+---------+ -----+</code></pre><p>去掉 exists 更改为 join，能够避免嵌套子查询，将执行时间从1.93秒降低为1毫秒。</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span>
+<span class="token keyword">FROM</span>   my_neighbor n 
+       <span class="token keyword">INNER</span> <span class="token keyword">JOIN</span> message_info m 
+               <span class="token keyword">ON</span> n<span class="token punctuation">.</span>id <span class="token operator">=</span> m<span class="token punctuation">.</span>neighbor_id 
+                  <span class="token operator">AND</span> m<span class="token punctuation">.</span>inuser <span class="token operator">=</span> <span class="token string">'xxx'</span> 
+       <span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> my_neighbor_apply sra 
+              <span class="token keyword">ON</span> n<span class="token punctuation">.</span>id <span class="token operator">=</span> sra<span class="token punctuation">.</span>neighbor_id 
+                 <span class="token operator">AND</span> sra<span class="token punctuation">.</span>user_id <span class="token operator">=</span> <span class="token string">'xxx'</span> 
+<span class="token keyword">WHERE</span>  n<span class="token punctuation">.</span>topic_status <span class="token operator">&lt;</span> <span class="token number">4</span> 
+       <span class="token operator">AND</span> n<span class="token punctuation">.</span>topic_type <span class="token operator">&lt;></span> <span class="token number">5</span> </code></pre>
 <p>新的执行计划：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+----+-------------+-------+--------+ -----+------------------------------------------+---------+ -----+------+ -----+</span><br><span class="line">| id | select_type | table | type   | possible_keys     | key       | key_len | ref   | rows | Extra                 |</span><br><span class="line">+----+-------------+-------+--------+ -----+------------------------------------------+---------+ -----+------+ -----+</span><br><span class="line">|  1 | SIMPLE      | m     | ref    | | idx_message_info   | 122     | const    |    1 | Using index condition |</span><br><span class="line">|  1 | SIMPLE      | n     | eq_ref | | PRIMARY   | 122     | ighbor_id |    1 | Using where      |</span><br><span class="line">|  1 | SIMPLE      | sra   | ref    | | idx_user_id | 123     | const     |    1 | Using where           |</span><br><span class="line">+----+-------------+-------+--------+ -----+------------------------------------------+---------+ -----+------+ -----+</span><br></pre></td></tr></table></figure>
-
-<h1 id="6、条件下推"><a href="#6、条件下推" class="headerlink" title="6、条件下推"></a>6、条件下推</h1><p>外部查询条件不能够下推到复杂的视图或子查询的情况有：</p>
+<pre><code>+----+-------------+-------+--------+ -----+------------------------------------------+---------+ -----+------+ -----+
+| id | select_type | table | type   | possible_keys     | key       | key_len | ref   | rows | Extra                 |
++----+-------------+-------+--------+ -----+------------------------------------------+---------+ -----+------+ -----+
+|  1 | SIMPLE      | m     | ref    | | idx_message_info   | 122     | const    |    1 | Using index condition |
+|  1 | SIMPLE      | n     | eq_ref | | PRIMARY   | 122     | ighbor_id |    1 | Using where      |
+|  1 | SIMPLE      | sra   | ref    | | idx_user_id | 123     | const     |    1 | Using where           |
++----+-------------+-------+--------+ -----+------------------------------------------+---------+ -----+------+ -----+</code></pre><h1 id="6、条件下推"><a href="#6、条件下推" class="headerlink" title="6、条件下推"></a>6、条件下推</h1><p>外部查询条件不能够下推到复杂的视图或子查询的情况有：</p>
 <p>1、聚合子查询； 2、含有 LIMIT 的子查询； 3、UNION 或 UNION ALL 子查询； 4、输出字段中的子查询；</p>
 <p>如下面的语句，从执行计划可以看出其条件作用于聚合子查询之后：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * </span><br><span class="line"><span class="keyword">FROM</span>   (<span class="keyword">SELECT</span> target, </span><br><span class="line">               <span class="keyword">Count</span>(*) </span><br><span class="line">        <span class="keyword">FROM</span>   operation </span><br><span class="line">        <span class="keyword">GROUP</span>  <span class="keyword">BY</span> target) t </span><br><span class="line"><span class="keyword">WHERE</span>  target = <span class="string">'rm-xxxx'</span> </span><br><span class="line">+<span class="comment">----+-------------+------------+-------+---------------+-------------+---------+-------+------+-------------+</span></span><br><span class="line">| <span class="keyword">id</span> | select_type | <span class="keyword">table</span>      | <span class="keyword">type</span>  | possible_keys | <span class="keyword">key</span>         | key_len | <span class="keyword">ref</span>   | <span class="keyword">rows</span> | Extra       |</span><br><span class="line">+<span class="comment">----+-------------+------------+-------+---------------+-------------+---------+-------+------+-------------+</span></span><br><span class="line">|  <span class="number">1</span> | PRIMARY     | &lt;derived2&gt; | <span class="keyword">ref</span>   | &lt;auto_key0&gt;   | &lt;auto_key0&gt; | <span class="number">514</span>     | const |    <span class="number">2</span> | <span class="keyword">Using</span> <span class="keyword">where</span> |</span><br><span class="line">|  <span class="number">2</span> | DERIVED     | operation  | <span class="keyword">index</span> | idx_4         | idx_4       | <span class="number">519</span>     | <span class="literal">NULL</span>  |   <span class="number">20</span> | <span class="keyword">Using</span> <span class="keyword">index</span> |</span><br><span class="line">+<span class="comment">----+-------------+------------+-------+---------------+-------------+---------+-------+------+-------------+</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> 
+<span class="token keyword">FROM</span>   <span class="token punctuation">(</span><span class="token keyword">SELECT</span> target<span class="token punctuation">,</span> 
+               <span class="token function">Count</span><span class="token punctuation">(</span><span class="token operator">*</span><span class="token punctuation">)</span> 
+        <span class="token keyword">FROM</span>   operation 
+        <span class="token keyword">GROUP</span>  <span class="token keyword">BY</span> target<span class="token punctuation">)</span> t 
+<span class="token keyword">WHERE</span>  target <span class="token operator">=</span> <span class="token string">'rm-xxxx'</span> 
+<span class="token operator">+</span><span class="token comment" spellcheck="true">----+-------------+------------+-------+---------------+-------------+---------+-------+------+-------------+</span>
+<span class="token operator">|</span> id <span class="token operator">|</span> select_type <span class="token operator">|</span> <span class="token keyword">table</span>      <span class="token operator">|</span> <span class="token keyword">type</span>  <span class="token operator">|</span> possible_keys <span class="token operator">|</span> <span class="token keyword">key</span>         <span class="token operator">|</span> key_len <span class="token operator">|</span> ref   <span class="token operator">|</span> <span class="token keyword">rows</span> <span class="token operator">|</span> Extra       <span class="token operator">|</span>
+<span class="token operator">+</span><span class="token comment" spellcheck="true">----+-------------+------------+-------+---------------+-------------+---------+-------+------+-------------+</span>
+<span class="token operator">|</span>  <span class="token number">1</span> <span class="token operator">|</span> <span class="token keyword">PRIMARY</span>     <span class="token operator">|</span> <span class="token operator">&lt;</span>derived2<span class="token operator">></span> <span class="token operator">|</span> ref   <span class="token operator">|</span> <span class="token operator">&lt;</span>auto_key0<span class="token operator">></span>   <span class="token operator">|</span> <span class="token operator">&lt;</span>auto_key0<span class="token operator">></span> <span class="token operator">|</span> <span class="token number">514</span>     <span class="token operator">|</span> const <span class="token operator">|</span>    <span class="token number">2</span> <span class="token operator">|</span> <span class="token keyword">Using</span> <span class="token keyword">where</span> <span class="token operator">|</span>
+<span class="token operator">|</span>  <span class="token number">2</span> <span class="token operator">|</span> DERIVED     <span class="token operator">|</span> operation  <span class="token operator">|</span> <span class="token keyword">index</span> <span class="token operator">|</span> idx_4         <span class="token operator">|</span> idx_4       <span class="token operator">|</span> <span class="token number">519</span>     <span class="token operator">|</span> <span class="token boolean">NULL</span>  <span class="token operator">|</span>   <span class="token number">20</span> <span class="token operator">|</span> <span class="token keyword">Using</span> <span class="token keyword">index</span> <span class="token operator">|</span>
+<span class="token operator">+</span><span class="token comment" spellcheck="true">----+-------------+------------+-------+---------------+-------------+---------+-------+------+-------------+</span></code></pre>
 <p>确定从语义上查询条件可以直接下推后，重写如下：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> target, </span><br><span class="line">       <span class="keyword">Count</span>(*) </span><br><span class="line"><span class="keyword">FROM</span>   operation </span><br><span class="line"><span class="keyword">WHERE</span>  target = <span class="string">'rm-xxxx'</span> </span><br><span class="line"><span class="keyword">GROUP</span>  <span class="keyword">BY</span> target</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> target<span class="token punctuation">,</span> 
+       <span class="token function">Count</span><span class="token punctuation">(</span><span class="token operator">*</span><span class="token punctuation">)</span> 
+<span class="token keyword">FROM</span>   operation 
+<span class="token keyword">WHERE</span>  target <span class="token operator">=</span> <span class="token string">'rm-xxxx'</span> 
+<span class="token keyword">GROUP</span>  <span class="token keyword">BY</span> target</code></pre>
 <p>执行计划变为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+----+-------------+-----------+------+---------------+-------+---------+-------+------+--------------------+</span><br><span class="line">| id | select_type | table | type | possible_keys | key | key_len | ref | rows | Extra |</span><br><span class="line">+----+-------------+-----------+------+---------------+-------+---------+-------+------+--------------------+</span><br><span class="line">| 1 | SIMPLE | operation | ref | idx_4 | idx_4 | 514 | const | 1 | Using where; Using index |</span><br><span class="line">+----+-------------+-----------+------+---------------+-------+---------+-------+------+--------------------+</span><br></pre></td></tr></table></figure>
-
-<p>关于 MySQL 外部条件不能下推的详细解释说明请参考以前文章：MySQL · 性能优化 · 条件下推到物化表 <a href="http://mysql.taobao.org/monthly/2016/07/08" target="_blank" rel="noopener">http://mysql.taobao.org/monthly/2016/07/08</a></p>
+<pre><code>+----+-------------+-----------+------+---------------+-------+---------+-------+------+--------------------+
+| id | select_type | table | type | possible_keys | key | key_len | ref | rows | Extra |
++----+-------------+-----------+------+---------------+-------+---------+-------+------+--------------------+
+| 1 | SIMPLE | operation | ref | idx_4 | idx_4 | 514 | const | 1 | Using where; Using index |
++----+-------------+-----------+------+---------------+-------+---------+-------+------+--------------------+</code></pre><p>关于 MySQL 外部条件不能下推的详细解释说明请参考以前文章：MySQL · 性能优化 · 条件下推到物化表 <a href="http://mysql.taobao.org/monthly/2016/07/08" target="_blank" rel="noopener">http://mysql.taobao.org/monthly/2016/07/08</a></p>
 <h1 id="7、提前缩小范围"><a href="#7、提前缩小范围" class="headerlink" title="7、提前缩小范围"></a>7、提前缩小范围</h1><p>先上初始 SQL 语句：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * </span><br><span class="line"><span class="keyword">FROM</span>   my_order o </span><br><span class="line">       <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_userinfo u </span><br><span class="line">              <span class="keyword">ON</span> o.uid = u.uid</span><br><span class="line">       <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_productinfo p </span><br><span class="line">              <span class="keyword">ON</span> o.pid = p.pid </span><br><span class="line"><span class="keyword">WHERE</span>  ( o.display = <span class="number">0</span> ) </span><br><span class="line">       <span class="keyword">AND</span> ( o.ostaus = <span class="number">1</span> ) </span><br><span class="line"><span class="keyword">ORDER</span>  <span class="keyword">BY</span> o.selltime <span class="keyword">DESC</span> </span><br><span class="line"><span class="keyword">LIMIT</span>  <span class="number">0</span>, <span class="number">15</span></span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> 
+<span class="token keyword">FROM</span>   my_order o 
+       <span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> my_userinfo u 
+              <span class="token keyword">ON</span> o<span class="token punctuation">.</span>uid <span class="token operator">=</span> u<span class="token punctuation">.</span>uid
+       <span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> my_productinfo p 
+              <span class="token keyword">ON</span> o<span class="token punctuation">.</span>pid <span class="token operator">=</span> p<span class="token punctuation">.</span>pid 
+<span class="token keyword">WHERE</span>  <span class="token punctuation">(</span> o<span class="token punctuation">.</span>display <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">)</span> 
+       <span class="token operator">AND</span> <span class="token punctuation">(</span> o<span class="token punctuation">.</span>ostaus <span class="token operator">=</span> <span class="token number">1</span> <span class="token punctuation">)</span> 
+<span class="token keyword">ORDER</span>  <span class="token keyword">BY</span> o<span class="token punctuation">.</span>selltime <span class="token keyword">DESC</span> 
+<span class="token keyword">LIMIT</span>  <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">15</span> </code></pre>
 <p>该SQL语句原意是：先做一系列的左连接，然后排序取前15条记录。从执行计划也可以看出，最后一步估算排序记录数为90万，时间消耗为12秒。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+</span><br><span class="line">| id | select_type | table | type   | possible_keys | key     | key_len | ref             | rows   | Extra                                              |</span><br><span class="line">+----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+</span><br><span class="line">|  1 | SIMPLE      | o     | ALL    | NULL          | NULL    | NULL    | NULL            | 909119 | Using where; Using temporary; Using filesort       |</span><br><span class="line">|  1 | SIMPLE      | u     | eq_ref | PRIMARY       | PRIMARY | 4       | o.uid |      1 | NULL                                               |</span><br><span class="line">|  1 | SIMPLE      | p     | ALL    | PRIMARY       | NULL    | NULL    | NULL            |      6 | Using where; Using join buffer (Block Nested Loop) |</span><br><span class="line">+----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+</span><br></pre></td></tr></table></figure>
-
-<p>由于最后 WHERE 条件以及排序均针对最左主表，因此可以先对 my_order 排序提前缩小数据量再做左连接。SQL 重写后如下，执行时间缩小为1毫秒左右。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * </span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line"><span class="keyword">SELECT</span> * </span><br><span class="line"><span class="keyword">FROM</span>   my_order o </span><br><span class="line"><span class="keyword">WHERE</span>  ( o.display = <span class="number">0</span> ) </span><br><span class="line">       <span class="keyword">AND</span> ( o.ostaus = <span class="number">1</span> ) </span><br><span class="line"><span class="keyword">ORDER</span>  <span class="keyword">BY</span> o.selltime <span class="keyword">DESC</span> </span><br><span class="line"><span class="keyword">LIMIT</span>  <span class="number">0</span>, <span class="number">15</span></span><br><span class="line">) o </span><br><span class="line">     <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_userinfo u </span><br><span class="line">              <span class="keyword">ON</span> o.uid = u.uid </span><br><span class="line">     <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> my_productinfo p </span><br><span class="line">              <span class="keyword">ON</span> o.pid = p.pid </span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span>  o.selltime <span class="keyword">DESC</span></span><br><span class="line"><span class="keyword">limit</span> <span class="number">0</span>, <span class="number">15</span></span><br></pre></td></tr></table></figure>
-
+<pre><code>+----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+
+| id | select_type | table | type   | possible_keys | key     | key_len | ref             | rows   | Extra                                              |
++----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+
+|  1 | SIMPLE      | o     | ALL    | NULL          | NULL    | NULL    | NULL            | 909119 | Using where; Using temporary; Using filesort       |
+|  1 | SIMPLE      | u     | eq_ref | PRIMARY       | PRIMARY | 4       | o.uid |      1 | NULL                                               |
+|  1 | SIMPLE      | p     | ALL    | PRIMARY       | NULL    | NULL    | NULL            |      6 | Using where; Using join buffer (Block Nested Loop) |
++----+-------------+-------+--------+---------------+---------+---------+-----------------+--------+----------------------------------------------------+</code></pre><p>由于最后 WHERE 条件以及排序均针对最左主表，因此可以先对 my_order 排序提前缩小数据量再做左连接。SQL 重写后如下，执行时间缩小为1毫秒左右。</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> 
+<span class="token keyword">FROM</span> <span class="token punctuation">(</span>
+<span class="token keyword">SELECT</span> <span class="token operator">*</span> 
+<span class="token keyword">FROM</span>   my_order o 
+<span class="token keyword">WHERE</span>  <span class="token punctuation">(</span> o<span class="token punctuation">.</span>display <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">)</span> 
+       <span class="token operator">AND</span> <span class="token punctuation">(</span> o<span class="token punctuation">.</span>ostaus <span class="token operator">=</span> <span class="token number">1</span> <span class="token punctuation">)</span> 
+<span class="token keyword">ORDER</span>  <span class="token keyword">BY</span> o<span class="token punctuation">.</span>selltime <span class="token keyword">DESC</span> 
+<span class="token keyword">LIMIT</span>  <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">15</span>
+<span class="token punctuation">)</span> o 
+     <span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> my_userinfo u 
+              <span class="token keyword">ON</span> o<span class="token punctuation">.</span>uid <span class="token operator">=</span> u<span class="token punctuation">.</span>uid 
+     <span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> my_productinfo p 
+              <span class="token keyword">ON</span> o<span class="token punctuation">.</span>pid <span class="token operator">=</span> p<span class="token punctuation">.</span>pid 
+<span class="token keyword">ORDER</span> <span class="token keyword">BY</span>  o<span class="token punctuation">.</span>selltime <span class="token keyword">DESC</span>
+<span class="token keyword">limit</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">15</span></code></pre>
 <p>再检查执行计划：子查询物化后（select_type=DERIVED)参与 JOIN。虽然估算行扫描仍然为90万，但是利用了索引以及 LIMIT 子句后，实际执行时间变得很小。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+</span><br><span class="line">| id | select_type | table      | type   | possible_keys | key     | key_len | ref   | rows   | Extra                                              |</span><br><span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+</span><br><span class="line">|  1 | PRIMARY     | &lt;derived2&gt; | ALL    | NULL          | NULL    | NULL    | NULL  |     15 | Using temporary; Using filesort                    |</span><br><span class="line">|  1 | PRIMARY     | u          | eq_ref | PRIMARY       | PRIMARY | 4       | o.uid |      1 | NULL                                               |</span><br><span class="line">|  1 | PRIMARY     | p          | ALL    | PRIMARY       | NULL    | NULL    | NULL  |      6 | Using where; Using join buffer (Block Nested Loop) |</span><br><span class="line">|  2 | DERIVED     | o          | index  | NULL          | idx_1   | 5       | NULL  | 909112 | Using where                                        |</span><br><span class="line">+----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+</span><br></pre></td></tr></table></figure>
-
-<h1 id="8、中间结果集下推"><a href="#8、中间结果集下推" class="headerlink" title="8、中间结果集下推"></a>8、中间结果集下推</h1><p>再来看下面这个已经初步优化过的例子(左连接中的主表优先作用查询条件)：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span>    a.*, </span><br><span class="line">          c.allocated </span><br><span class="line"><span class="keyword">FROM</span>      ( </span><br><span class="line">              <span class="keyword">SELECT</span>   resourceid </span><br><span class="line">              <span class="keyword">FROM</span>     my_distribute d </span><br><span class="line">                   <span class="keyword">WHERE</span>    isdelete = <span class="number">0</span> </span><br><span class="line">                   <span class="keyword">AND</span>      cusmanagercode = <span class="string">'1234567'</span> </span><br><span class="line">                   <span class="keyword">ORDER</span> <span class="keyword">BY</span> salecode <span class="keyword">limit</span> <span class="number">20</span>) a </span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> </span><br><span class="line">          ( </span><br><span class="line">              <span class="keyword">SELECT</span>   resourcesid， <span class="keyword">sum</span>(<span class="keyword">ifnull</span>(allocation, <span class="number">0</span>) * <span class="number">12345</span>) allocated </span><br><span class="line">              <span class="keyword">FROM</span>     my_resources </span><br><span class="line">                   <span class="keyword">GROUP</span> <span class="keyword">BY</span> resourcesid) c </span><br><span class="line"><span class="keyword">ON</span>        a.resourceid = c.resourcesid</span><br></pre></td></tr></table></figure>
-
+<pre><code>+----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+
+| id | select_type | table      | type   | possible_keys | key     | key_len | ref   | rows   | Extra                                              |
++----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+
+|  1 | PRIMARY     | &lt;derived2&gt; | ALL    | NULL          | NULL    | NULL    | NULL  |     15 | Using temporary; Using filesort                    |
+|  1 | PRIMARY     | u          | eq_ref | PRIMARY       | PRIMARY | 4       | o.uid |      1 | NULL                                               |
+|  1 | PRIMARY     | p          | ALL    | PRIMARY       | NULL    | NULL    | NULL  |      6 | Using where; Using join buffer (Block Nested Loop) |
+|  2 | DERIVED     | o          | index  | NULL          | idx_1   | 5       | NULL  | 909112 | Using where                                        |
++----+-------------+------------+--------+---------------+---------+---------+-------+--------+----------------------------------------------------+</code></pre><h1 id="8、中间结果集下推"><a href="#8、中间结果集下推" class="headerlink" title="8、中间结果集下推"></a>8、中间结果集下推</h1><p>再来看下面这个已经初步优化过的例子(左连接中的主表优先作用查询条件)：</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span>    <span class="token number">a</span><span class="token punctuation">.</span><span class="token operator">*</span><span class="token punctuation">,</span> 
+          <span class="token number">c</span><span class="token punctuation">.</span>allocated 
+<span class="token keyword">FROM</span>      <span class="token punctuation">(</span> 
+              <span class="token keyword">SELECT</span>   resourceid 
+              <span class="token keyword">FROM</span>     my_distribute <span class="token number">d</span> 
+                   <span class="token keyword">WHERE</span>    isdelete <span class="token operator">=</span> <span class="token number">0</span> 
+                   <span class="token operator">AND</span>      cusmanagercode <span class="token operator">=</span> <span class="token string">'1234567'</span> 
+                   <span class="token keyword">ORDER</span> <span class="token keyword">BY</span> salecode <span class="token keyword">limit</span> <span class="token number">20</span><span class="token punctuation">)</span> <span class="token number">a</span> 
+<span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> 
+          <span class="token punctuation">(</span> 
+              <span class="token keyword">SELECT</span>   resourcesid， <span class="token function">sum</span><span class="token punctuation">(</span>ifnull<span class="token punctuation">(</span>allocation<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">12345</span><span class="token punctuation">)</span> allocated 
+              <span class="token keyword">FROM</span>     my_resources 
+                   <span class="token keyword">GROUP</span> <span class="token keyword">BY</span> resourcesid<span class="token punctuation">)</span> <span class="token number">c</span> 
+<span class="token keyword">ON</span>        <span class="token number">a</span><span class="token punctuation">.</span>resourceid <span class="token operator">=</span> <span class="token number">c</span><span class="token punctuation">.</span>resourcesid</code></pre>
 <p>那么该语句还存在其它问题吗？不难看出子查询 c 是全表聚合查询，在表数量特别大的情况下会导致整个语句的性能下降。</p>
 <p>其实对于子查询 c，左连接最后结果集只关心能和主表 resourceid 能匹配的数据。因此我们可以重写语句如下，执行时间从原来的2秒下降到2毫秒。</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span>    a.*, </span><br><span class="line">          c.allocated </span><br><span class="line"><span class="keyword">FROM</span>      ( </span><br><span class="line">                   <span class="keyword">SELECT</span>   resourceid </span><br><span class="line">                   <span class="keyword">FROM</span>     my_distribute d </span><br><span class="line">                   <span class="keyword">WHERE</span>    isdelete = <span class="number">0</span> </span><br><span class="line">                   <span class="keyword">AND</span>      cusmanagercode = <span class="string">'1234567'</span> </span><br><span class="line">                   <span class="keyword">ORDER</span> <span class="keyword">BY</span> salecode <span class="keyword">limit</span> <span class="number">20</span>) a </span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> </span><br><span class="line">          ( </span><br><span class="line">                   <span class="keyword">SELECT</span>   resourcesid， <span class="keyword">sum</span>(<span class="keyword">ifnull</span>(allocation, <span class="number">0</span>) * <span class="number">12345</span>) allocated </span><br><span class="line">                   <span class="keyword">FROM</span>     my_resources r, </span><br><span class="line">                            ( </span><br><span class="line">                                     <span class="keyword">SELECT</span>   resourceid </span><br><span class="line">                                     <span class="keyword">FROM</span>     my_distribute d </span><br><span class="line">                                     <span class="keyword">WHERE</span>    isdelete = <span class="number">0</span> </span><br><span class="line">                                     <span class="keyword">AND</span>      cusmanagercode = <span class="string">'1234567'</span> </span><br><span class="line">                                     <span class="keyword">ORDER</span> <span class="keyword">BY</span> salecode <span class="keyword">limit</span> <span class="number">20</span>) a </span><br><span class="line">                   <span class="keyword">WHERE</span>    r.resourcesid = a.resourcesid </span><br><span class="line">                   <span class="keyword">GROUP</span> <span class="keyword">BY</span> resourcesid) c </span><br><span class="line"><span class="keyword">ON</span>        a.resourceid = c.resourcesid</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span>    <span class="token number">a</span><span class="token punctuation">.</span><span class="token operator">*</span><span class="token punctuation">,</span> 
+          <span class="token number">c</span><span class="token punctuation">.</span>allocated 
+<span class="token keyword">FROM</span>      <span class="token punctuation">(</span> 
+                   <span class="token keyword">SELECT</span>   resourceid 
+                   <span class="token keyword">FROM</span>     my_distribute <span class="token number">d</span> 
+                   <span class="token keyword">WHERE</span>    isdelete <span class="token operator">=</span> <span class="token number">0</span> 
+                   <span class="token operator">AND</span>      cusmanagercode <span class="token operator">=</span> <span class="token string">'1234567'</span> 
+                   <span class="token keyword">ORDER</span> <span class="token keyword">BY</span> salecode <span class="token keyword">limit</span> <span class="token number">20</span><span class="token punctuation">)</span> <span class="token number">a</span> 
+<span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> 
+          <span class="token punctuation">(</span> 
+                   <span class="token keyword">SELECT</span>   resourcesid， <span class="token function">sum</span><span class="token punctuation">(</span>ifnull<span class="token punctuation">(</span>allocation<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">12345</span><span class="token punctuation">)</span> allocated 
+                   <span class="token keyword">FROM</span>     my_resources r<span class="token punctuation">,</span> 
+                            <span class="token punctuation">(</span> 
+                                     <span class="token keyword">SELECT</span>   resourceid 
+                                     <span class="token keyword">FROM</span>     my_distribute <span class="token number">d</span> 
+                                     <span class="token keyword">WHERE</span>    isdelete <span class="token operator">=</span> <span class="token number">0</span> 
+                                     <span class="token operator">AND</span>      cusmanagercode <span class="token operator">=</span> <span class="token string">'1234567'</span> 
+                                     <span class="token keyword">ORDER</span> <span class="token keyword">BY</span> salecode <span class="token keyword">limit</span> <span class="token number">20</span><span class="token punctuation">)</span> <span class="token number">a</span> 
+                   <span class="token keyword">WHERE</span>    r<span class="token punctuation">.</span>resourcesid <span class="token operator">=</span> <span class="token number">a</span><span class="token punctuation">.</span>resourcesid 
+                   <span class="token keyword">GROUP</span> <span class="token keyword">BY</span> resourcesid<span class="token punctuation">)</span> <span class="token number">c</span> 
+<span class="token keyword">ON</span>        <span class="token number">a</span><span class="token punctuation">.</span>resourceid <span class="token operator">=</span> <span class="token number">c</span><span class="token punctuation">.</span>resourcesid</code></pre>
 <p>但是子查询 a 在我们的SQL语句中出现了多次。这种写法不仅存在额外的开销，还使得整个语句显的繁杂。使用 WITH 语句再次重写：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WITH</span> a <span class="keyword">AS</span> </span><br><span class="line">( </span><br><span class="line">         <span class="keyword">SELECT</span>   resourceid </span><br><span class="line">         <span class="keyword">FROM</span>     my_distribute d </span><br><span class="line">         <span class="keyword">WHERE</span>    isdelete = <span class="number">0</span> </span><br><span class="line">         <span class="keyword">AND</span>      cusmanagercode = <span class="string">'1234567'</span> </span><br><span class="line">         <span class="keyword">ORDER</span> <span class="keyword">BY</span> salecode <span class="keyword">limit</span> <span class="number">20</span>)</span><br><span class="line"><span class="keyword">SELECT</span>    a.*, </span><br><span class="line">          c.allocated </span><br><span class="line"><span class="keyword">FROM</span>      a </span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> </span><br><span class="line">          ( </span><br><span class="line">                   <span class="keyword">SELECT</span>   resourcesid， <span class="keyword">sum</span>(<span class="keyword">ifnull</span>(allocation, <span class="number">0</span>) * <span class="number">12345</span>) allocated </span><br><span class="line">                   <span class="keyword">FROM</span>     my_resources r, </span><br><span class="line">                            a </span><br><span class="line">                   <span class="keyword">WHERE</span>    r.resourcesid = a.resourcesid </span><br><span class="line">                   <span class="keyword">GROUP</span> <span class="keyword">BY</span> resourcesid) c </span><br><span class="line"><span class="keyword">ON</span>        a.resourceid = c.resourcesid</span><br></pre></td></tr></table></figure>
-
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">WITH</span> <span class="token number">a</span> <span class="token keyword">AS</span> 
+<span class="token punctuation">(</span> 
+         <span class="token keyword">SELECT</span>   resourceid 
+         <span class="token keyword">FROM</span>     my_distribute <span class="token number">d</span> 
+         <span class="token keyword">WHERE</span>    isdelete <span class="token operator">=</span> <span class="token number">0</span> 
+         <span class="token operator">AND</span>      cusmanagercode <span class="token operator">=</span> <span class="token string">'1234567'</span> 
+         <span class="token keyword">ORDER</span> <span class="token keyword">BY</span> salecode <span class="token keyword">limit</span> <span class="token number">20</span><span class="token punctuation">)</span>
+<span class="token keyword">SELECT</span>    <span class="token number">a</span><span class="token punctuation">.</span><span class="token operator">*</span><span class="token punctuation">,</span> 
+          <span class="token number">c</span><span class="token punctuation">.</span>allocated 
+<span class="token keyword">FROM</span>      <span class="token number">a</span> 
+<span class="token keyword">LEFT</span> <span class="token keyword">JOIN</span> 
+          <span class="token punctuation">(</span> 
+                   <span class="token keyword">SELECT</span>   resourcesid， <span class="token function">sum</span><span class="token punctuation">(</span>ifnull<span class="token punctuation">(</span>allocation<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token operator">*</span> <span class="token number">12345</span><span class="token punctuation">)</span> allocated 
+                   <span class="token keyword">FROM</span>     my_resources r<span class="token punctuation">,</span> 
+                            <span class="token number">a</span> 
+                   <span class="token keyword">WHERE</span>    r<span class="token punctuation">.</span>resourcesid <span class="token operator">=</span> <span class="token number">a</span><span class="token punctuation">.</span>resourcesid 
+                   <span class="token keyword">GROUP</span> <span class="token keyword">BY</span> resourcesid<span class="token punctuation">)</span> <span class="token number">c</span> 
+<span class="token keyword">ON</span>        <span class="token number">a</span><span class="token punctuation">.</span>resourceid <span class="token operator">=</span> <span class="token number">c</span><span class="token punctuation">.</span>resourcesid</code></pre>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>数据库编译器产生执行计划，决定着SQL的实际执行方式。但是编译器只是尽力服务，所有数据库的编译器都不是尽善尽美的。</p>
 <p>上述提到的多数场景，在其它数据库中也存在性能问题。了解数据库编译器的特性，才能避规其短处，写出高性能的SQL语句。</p>
 <p>程序员在设计数据模型以及编写SQL语句时，要把算法的思想或意识带进来。</p>
 <p>编写复杂SQL语句要养成使用 WITH 语句的习惯。简洁且思路清晰的SQL语句也能减小数据库的负担 。</p>
 
-      
-    </div>
-    
-    
-    
-
-    
-      <div>
-        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
-    <img id="wechat_subscriber_qcode" src="/uploads/wechat-qcode.jpg" alt="高行行 wechat" style="width: 200px; max-width: 100%;"/>
-    <div>欢迎您扫一扫上面的微信公众号，订阅我的博客！</div>
-</div>
-
-      </div>
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/sql/" rel="tag"><i class="fa fa-tag"></i> sql</a>
-          
-        </div>
-      
-
-      
-      
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2019/07/30/6%E4%B8%AA%E6%9C%88%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%BC%9A%E8%8B%B1%E8%AF%AD/" rel="next" title="6个月从零学会英语">
-                <i class="fa fa-chevron-left"></i> 6个月从零学会英语
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/08/03/Dockerization-Do-more-with-Docke/" rel="prev" title="Dockerization - Do more with Docke">
-                Dockerization - Do more with Docke <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-
-    <div class="post-spread">
-      
-    </div>
-  </div>
-
-
-          </div>
-          
-
-
-          
-
-  
-    <div class="comments" id="comments">
-      <div class="ds-thread" data-thread-key="2019/08/02/8-种常被忽视的-SQL-错误用法/"
-           data-title="8 种常被忽视的 SQL 错误用法" data-url="http://ghang.top/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/">
-      </div>
-    </div>
-
-  
-
-
-
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            Table of Contents
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            Overview
-          </li>
-        </ul>
-      
-
-      <section class="site-overview-wrap sidebar-panel">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <img class="site-author-image" itemprop="image"
-                src="/uploads/avatar1.png"
-                alt="高行行" />
-            
-              <p class="site-author-name" itemprop="name">高行行</p>
-              <p class="site-description motion-element" itemprop="description">个人公众号《骇客与画家》</p>
-          </div>
-
-          <nav class="site-state motion-element">
-
-            
-              <div class="site-state-item site-state-posts">
-              
-                <a href="/archives/%20%7C%7C%20archive">
-              
-                  <span class="site-state-item-count">460</span>
-                  <span class="site-state-item-name">posts</span>
-                </a>
-              </div>
-            
-
-            
-
-            
-              
-              
-              <div class="site-state-item site-state-tags">
-                <a href="/tags/index.html">
-                  <span class="site-state-item-count">98</span>
-                  <span class="site-state-item-name">tags</span>
-                </a>
-              </div>
-            
-
-          </nav>
-
-          
-            <div class="feed-link motion-element">
-              <a href="/atom.xml" rel="alternate">
-                <i class="fa fa-rss"></i>
-                RSS
-              </a>
             </div>
-          
-
-          
-            <div class="links-of-author motion-element">
-                
-                  <span class="links-of-author-item">
-                    <a href="https://github.com/gaohanghang" target="_blank" title="GitHub">
-                      
-                        <i class="fa fa-fw fa-globe"></i>GitHub</a>
-                  </span>
-                
-                  <span class="links-of-author-item">
-                    <a href="https://www.zhihu.com/people/gao-xing-68-15/activities" target="_blank" title="zhihu">
-                      
-                        <i class="fa fa-fw fa-globe"></i>zhihu</a>
-                  </span>
-                
-            </div>
-          
-
-          
-          
-
-          
-          
-
-          
-
-        </div>
-      </section>
-
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
+            <hr/>
 
             
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1、LIMIT-语句"><span class="nav-number">1.</span> <span class="nav-text">1、LIMIT 语句</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2、隐式转换"><span class="nav-number">2.</span> <span class="nav-text">2、隐式转换</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3、关联更新、删除"><span class="nav-number">3.</span> <span class="nav-text">3、关联更新、删除</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4、混合排序"><span class="nav-number">4.</span> <span class="nav-text">4、混合排序**</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5、EXISTS语句"><span class="nav-number">5.</span> <span class="nav-text">5、EXISTS语句</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6、条件下推"><span class="nav-number">6.</span> <span class="nav-text">6、条件下推</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7、提前缩小范围"><span class="nav-number">7.</span> <span class="nav-text">7、提前缩小范围</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8、中间结果集下推"><span class="nav-number">8.</span> <span class="nav-text">8、中间结果集下推</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
-  <span class="with-love">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">高行行</span>
-
-  
-</div>
-
-
-  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
-
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
-
-
-
-
-        
-
-
-
-
-
-
-
-        
-      </div>
-    </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-          <span id="scrollpercent"><span>0</span>%</span>
-        
-      </div>
-    
-
-    
-
-  </div>
-
-  
-
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
-  }
-</script>
-
-
-
-
-
-
-
-
-
-  
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
-  
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
-
-
-
-  
-  
-
-  
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
-
-
-
-  
-
-  
-    
-  
-
-  <script type="text/javascript">
-    var duoshuoQuery = {short_name:"gaohanghang"};
-    (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';ds.async = true;
-      ds.id = 'duoshuo-script';
-      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0]
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
-  </script>
-
-  
-    
-    
-    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
-    <script src="/js/src/hook-duoshuo.js"></script>
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-  
-  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
-  <script>AV.initialize("XFAiiy5gLPazUfl9i49I8oLS-gzGzoHsz", "KbGsyVfKgDIi6WTWAR93B3Ff");</script>
-  <script>
-    function showTime(Counter) {
-      var query = new AV.Query(Counter);
-      var entries = [];
-      var $visitors = $(".leancloud_visitors");
-
-      $visitors.each(function () {
-        entries.push( $(this).attr("id").trim() );
-      });
-
-      query.containedIn('url', entries);
-      query.find()
-        .done(function (results) {
-          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
-
-          if (results.length === 0) {
-            $visitors.find(COUNT_CONTAINER_REF).text(0);
-            return;
-          }
-
-          for (var i = 0; i < results.length; i++) {
-            var item = results[i];
-            var url = item.get('url');
-            var time = item.get('time');
-            var element = document.getElementById(url);
-
-            $(element).find(COUNT_CONTAINER_REF).text(time);
-          }
-          for(var i = 0; i < entries.length; i++) {
-            var url = entries[i];
-            var element = document.getElementById(url);
-            var countSpan = $(element).find(COUNT_CONTAINER_REF);
-            if( countSpan.text() == '') {
-              countSpan.text(0);
-            }
-          }
-        })
-        .fail(function (object, error) {
-          console.log("Error: " + error.code + " " + error.message);
-        });
+            <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
     }
 
-    function addCount(Counter) {
-      var $visitors = $(".leancloud_visitors");
-      var url = $visitors.attr('id').trim();
-      var title = $visitors.attr('data-flag-title').trim();
-      var query = new AV.Query(Counter);
-
-      query.equalTo("url", url);
-      query.find({
-        success: function(results) {
-          if (results.length > 0) {
-            var counter = results[0];
-            counter.fetchWhenSave(true);
-            counter.increment("time");
-            counter.save(null, {
-              success: function(counter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(counter.get('time'));
-              },
-              error: function(counter, error) {
-                console.log('Failed to save Visitor num, with error message: ' + error.message);
-              }
-            });
-          } else {
-            var newcounter = new Counter();
-            /* Set ACL */
-            var acl = new AV.ACL();
-            acl.setPublicReadAccess(true);
-            acl.setPublicWriteAccess(true);
-            newcounter.setACL(acl);
-            /* End Set ACL */
-            newcounter.set("title", title);
-            newcounter.set("url", url);
-            newcounter.set("time", 1);
-            newcounter.save(null, {
-              success: function(newcounter) {
-                var $element = $(document.getElementById(url));
-                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-              },
-              error: function(newcounter, error) {
-                console.log('Failed to create');
-              }
-            });
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
+    #reward .reward-link {
+        font-size: 1.88rem;
     }
 
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-large waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-close"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
     });
-  </script>
+</script>
+            
+
+            <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    <div class="social-share" data-disabled="qzone" data-wechat-qrcode-helper="<p>微信里点“发现”->“扫一扫”二维码便可查看分享。</p>"></div>
+    
+</div>
+
+<script src="/libs/share/js/social-share.min.js"></script>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        <p class="reprint-tip">
+            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;
+            <span>转载规则</span>
+        </p>
+        
+            <div class="center-align">
+                <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                    <img alt=""
+                         style="border-width:0"
+                         src="https://i.creativecommons.org/l/by/4.0/88x31.png"/>
+                </a>
+            </div>
+            <br/>
+            <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/Text"
+                  property="dct:title" rel="dct:type">
+                    《8 种常被忽视的 SQL 错误用法》
+                </span> 由
+            <a xmlns:cc="http://creativecommons.org/ns#" href="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/" property="cc:attributionName"
+               rel="cc:attributionURL">
+                高行行
+            </a> 采用
+            <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank">
+                知识共享署名 4.0 国际许可协议
+            </a>进行许可。
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2019/08/03/Dockerization-Do-more-with-Docke/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/13.jpg" class="responsive-img" alt="Dockerization - Do more with Docke">
+                        
+                        <span class="card-title">Dockerization - Do more with Docke</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+视频地址 https://subscription.packtpub.com/video/cloud_and_networking/9781838827946
+
+Docker网络入门
 
 
 
-  
 
-  
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2019-08-03
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Packt/" target="_blank">
+                        <span class="chip bg-color">Packt</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/07/30/6%E4%B8%AA%E6%9C%88%E4%BB%8E%E9%9B%B6%E5%AD%A6%E4%BC%9A%E8%8B%B1%E8%AF%AD/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/20.jpg" class="responsive-img" alt="6个月从零学会英语">
+                        
+                        <span class="card-title">6个月从零学会英语</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+视频地址: https://www.bilibili.com/video/av33345933/?p=1
 
-  
-  
+01 宏观篇
 
-  
+02 下意识对英语学习的重要帮助
 
-  
 
-  
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2019-07-30
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fa fa-user fa-fw"></i>
+                            高行行
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/%E5%AD%A6%E4%B9%A0/" target="_blank">
+                        <span class="chip bg-color">学习</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+</div>
+
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fa fa-list"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).slideUp(500);
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).slideDown(500);
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+    
+
+</main>
+
+
+<footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            本站由&copy;<a href="https://blinkfox.github.io/" target="_blank">Blinkfox</a>基于
+            <a href="https://hexo.io/" target="_blank">Hexo</a> 的
+            <a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">hexo-theme-matery</a>主题搭建.
+
+            
+
+            
+			
+                <br>
+                
+                <span id="busuanzi_container_site_pv">
+                    <i class="fa fa-heart-o"></i>
+                    本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+                </span>
+                
+                
+                <span id="busuanzi_container_site_uv">
+                    <i class="fa fa-users"></i>
+                    次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+                </span>
+                
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+
+
+    <a href="mailto:xxx@xx.xx" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fa fa-envelope-open"></i>
+    </a>
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=123123123" class="tooltipped" data-tooltip="QQ联系我: 123123123" data-position="top" data-delay="50">
+        <i class="fa fa-qq"></i>
+    </a>
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fa fa-rss"></i>
+    </a>
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+<!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fa fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+<!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fa fa-angle-up"></i>
+    </a>
+</div>
+
+
+<script src="/libs/materialize/materialize.min.js"></script>
+<script src="/libs/masonry/masonry.pkgd.min.js"></script>
+<script src="/libs/aos/aos.js"></script>
+<script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+<script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+<script src="/js/matery.js"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+
+    <script src="/libs/others/clicklove.js"></script>
+
+
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+
 
 </body>
 </html>
