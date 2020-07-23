@@ -736,7 +736,7 @@ public class Test {
     <div class="article-entry" itemprop="articleBody">
        
   <p>ARTS是由左耳朵耗子陈皓在极客时间专栏《左耳听风》中发起的一个每周学习打卡计划。</p>
-<pre class=" language-java"><code class="language-java">Algorithm：至少做一个 LeetCode 的算法题。主要为了编程训练和学习。
+<pre><code class="java">Algorithm：至少做一个 LeetCode 的算法题。主要为了编程训练和学习。
 
 Review：阅读并点评至少一篇英文技术文章。主要为了学习英文，如果你英文不行，很难成为技术高手。
 
@@ -748,8 +748,8 @@ Share：分享一篇有观点和思考的技术文章。主要为了输出你的
 <p><a href="https://leetcode-cn.com/problems/intersection-of-two-linked-lists/" target="_blank" rel="noopener">160. 相交链表</a></p>
 </blockquote>
 <p><strong>解法1</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">/**
+<pre><code class="java">public class Solution {
+    /**
      * For example, the following two linked lists:
      A:          a1 → a2
      ↘
@@ -762,77 +762,70 @@ Share：分享一篇有观点和思考的技术文章。主要为了输出你的
      * @param headA
      * @param headB
      * @return
-     */</span>
-    <span class="token keyword">public</span> a160_相交链表<span class="token punctuation">.</span>cspiration<span class="token punctuation">.</span>ListNode <span class="token function">getIntersectionNode</span><span class="token punctuation">(</span>a160_相交链表<span class="token punctuation">.</span>cspiration<span class="token punctuation">.</span>ListNode headA<span class="token punctuation">,</span> a160_相交链表<span class="token punctuation">.</span>cspiration<span class="token punctuation">.</span>ListNode headB<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>headA <span class="token operator">==</span> null <span class="token operator">||</span> headB <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+     */
+    public a160_相交链表.cspiration.ListNode getIntersectionNode(a160_相交链表.cspiration.ListNode headA, a160_相交链表.cspiration.ListNode headB) {
+        if (headA == null || headB == null) return null;
 
-        <span class="token comment" spellcheck="true">/* 获取链表长度 */</span>
-        <span class="token keyword">int</span> lenA <span class="token operator">=</span> <span class="token function">len</span><span class="token punctuation">(</span>headA<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">int</span> lenB <span class="token operator">=</span> <span class="token function">len</span><span class="token punctuation">(</span>headB<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        /* 获取链表长度 */
+        int lenA = len(headA);
+        int lenB = len(headB);
 
-        <span class="token comment" spellcheck="true">/* 将较长链表的指针向前移动 */</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>lenA <span class="token operator">></span> lenB<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">while</span> <span class="token punctuation">(</span>lenA <span class="token operator">!=</span> lenB<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                headA <span class="token operator">=</span> headA<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
-                lenA<span class="token operator">--</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-            <span class="token keyword">while</span> <span class="token punctuation">(</span>lenA <span class="token operator">!=</span> lenB<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-                headB <span class="token operator">=</span> headB<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
-                lenB<span class="token operator">--</span><span class="token punctuation">;</span>
-            <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span>
+        /* 将较长链表的指针向前移动 */
+        if (lenA &gt; lenB) {
+            while (lenA != lenB) {
+                headA = headA.next;
+                lenA--;
+            }
+        } else {
+            while (lenA != lenB) {
+                headB = headB.next;
+                lenB--;
+            }
+        }
 
-        <span class="token comment" spellcheck="true">/* 同时移动两个元素，直到遇到相同元素 */</span>
-        <span class="token keyword">while</span> <span class="token punctuation">(</span>headA <span class="token operator">!=</span> headB<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            headA <span class="token operator">=</span> headA<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
-            headB <span class="token operator">=</span> headB<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token keyword">return</span> headA<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
+        /* 同时移动两个元素，直到遇到相同元素 */
+        while (headA != headB) {
+            headA = headA.next;
+            headB = headB.next;
+        }
+        return headA;
+    }
 
-    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">len</span><span class="token punctuation">(</span>ListNode head<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">int</span> len <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
-        <span class="token keyword">while</span> <span class="token punctuation">(</span>head <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            head <span class="token operator">=</span> head<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
-            len<span class="token operator">++</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-        <span class="token keyword">return</span> len<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
+    public int len(ListNode head) {
+        int len = 1;
+        while (head != null) {
+            head = head.next;
+            len++;
+        }
+        return len;
+    }
+}</code></pre>
 <p><strong>解法2</strong></p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> ListNode <span class="token function">getIntersectionNode</span><span class="token punctuation">(</span>ListNode headA<span class="token punctuation">,</span> ListNode headB<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 边界检查</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>headA <span class="token operator">==</span> null <span class="token operator">||</span> headB <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+<pre><code class="java">public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        // 边界检查
+        if (headA == null || headB == null) return null;
 
-        ListNode a <span class="token operator">=</span> headA<span class="token punctuation">;</span>
-        ListNode b <span class="token operator">=</span> headB<span class="token punctuation">;</span>
+        ListNode a = headA;
+        ListNode b = headB;
 
-        <span class="token comment" spellcheck="true">// 如果a＆b有不同的len，那么我们将在第二次迭代后停止循环</span>
-        <span class="token keyword">while</span> <span class="token punctuation">(</span>a <span class="token operator">!=</span> b<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token comment" spellcheck="true">// 对于第一次迭代的结束，我们只是将指针重置为另一个链表的头部</span>
-            a <span class="token operator">=</span> a <span class="token operator">==</span> null <span class="token operator">?</span> headB <span class="token operator">:</span> a<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
-            b <span class="token operator">=</span> b <span class="token operator">==</span> null <span class="token operator">?</span> headA <span class="token operator">:</span> b<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
+        // 如果a＆b有不同的len，那么我们将在第二次迭代后停止循环
+        while (a != b) {
+            // 对于第一次迭代的结束，我们只是将指针重置为另一个链表的头部
+            a = a == null ? headB : a.next;
+            b = b == null ? headA : b.next;
+        }
 
-        <span class="token keyword">return</span> a<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
+        return a;
+    }
+}</code></pre>
 <h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><a href="https://www.youtube.com/watch?v=1bWqD_MwWuw" target="_blank" rel="noopener">https://www.youtube.com/watch?v=1bWqD_MwWuw</a></p>
 <p><a href="https://leetcode-cn.com/problems/intersection-of-two-linked-lists/solution/tu-jie-xiang-jiao-lian-biao-by-user7208t/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/intersection-of-two-linked-lists/solution/tu-jie-xiang-jiao-lian-biao-by-user7208t/</a></p>
-<p>《程序员面试金典（第6版）》</p>
-<h2 id="2-Review-点评"><a href="#2-Review-点评" class="headerlink" title="2. Review(点评)"></a>2. Review(点评)</h2><p><a href="https://dev.to/gemography/common-mistakes-in-dev-cvs-2a17" target="_blank" rel="noopener">程序员简历的常见错误（英文）</a></p>
-<p>这篇文章总结了程序员写简历时的几个注意点，下面是其中几个。</p>
-<h3 id="1-筛选你的技能"><a href="#1-筛选你的技能" class="headerlink" title="1. 筛选你的技能"></a>1. 筛选你的技能</h3><p>不要试图提及你掌握的所有技能，这会给人一种”万事通”的感觉。</p>
-<h3 id="2-按熟练程度分级技能"><a href="#2-按熟练程度分级技能" class="headerlink" title="2. 按熟练程度分级技能"></a>2. 按熟练程度分级技能</h3><p>将你的技能分成三个等级：”精通”（proficient in）、”有实战经验”（experienced with）、”熟悉”（familiar with）。</p>
-<h3 id="3-添加细节"><a href="#3-添加细节" class="headerlink" title="3. 添加细节"></a>3. 添加细节</h3><p>“精通”和”有实战经验”的技能，必须提供细节，要给出项目内容和你的个人成果。</p>
-<h3 id="4-避免拼写和语法错误"><a href="#4-避免拼写和语法错误" class="headerlink" title="4. 避免拼写和语法错误"></a>4. 避免拼写和语法错误</h3><h3 id="5-将“教育”块移到底部"><a href="#5-将“教育”块移到底部" class="headerlink" title="5. 将“教育”块移到底部"></a>5. 将“教育”块移到底部</h3><h3 id="6-保持外观简洁"><a href="#6-保持外观简洁" class="headerlink" title="6. 保持外观简洁"></a>6. 保持外观简洁</h3><h3 id="7-保持在一页上（最好）"><a href="#7-保持在一页上（最好）" class="headerlink" title="7. 保持在一页上（最好）"></a>7. 保持在一页上（最好）</h3><h3 id="8-使其具有相关性（最好）"><a href="#8-使其具有相关性（最好）" class="headerlink" title="8. 使其具有相关性（最好）"></a>8. 使其具有相关性（最好）</h3><p>并不意味着每家公司都有一份简历，但也不必一定要有一张履历表来统治所有的履历表。如果你要申请多个职位或不同行业的公司，创建多个变体可能是一个有趣的想法。</p>
-<h2 id="3-Tip-技巧"><a href="#3-Tip-技巧" class="headerlink" title="3. Tip(技巧)"></a>3. Tip(技巧)</h2><p><a href="https://www.yuque.com/gaohanghang/nfnxhv/nfznl0" target="_blank" rel="noopener">iead 复制代码然后粘贴会自动创建类</a></p>
-<h2 id="4-Share-分享"><a href="#4-Share-分享" class="headerlink" title="4. Share(分享)"></a>4. Share(分享)</h2><p><a href="https://www.notion.so/Notion-Vol-13-89e51bdb621a4e009e7ec60d1cc58c2f" target="_blank" rel="noopener">分享你认为值得订阅的内容  | Notion 小活动 Vol.13</a></p>
-<p><a href="https://wweb.dev/resources/css-separator-generator" target="_blank" rel="noopener">https://wweb.dev/resources/css-separator-generator</a></p>
-<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gg78rkgh85j32220u0n1d.jpg" alt=""></p>
- 
+<p>《程序员面试金典（第6版）》</p> 
+      <a class="article-more-link" href="/2020/06/27/arts-2020-6-22-~-2020-6-28/"
+        >阅读更多...</a
+      >
+       
       <!-- reward -->
       
     </div>
