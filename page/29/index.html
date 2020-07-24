@@ -99,6 +99,113 @@
     
     
     <article
+  id="post-Autowired的使用：推荐对构造函数进行注释"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/06/02/Autowired%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%9A%E6%8E%A8%E8%8D%90%E5%AF%B9%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A/"
+    >@Autowired的使用：推荐对构造函数进行注释</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/02/Autowired%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%9A%E6%8E%A8%E8%8D%90%E5%AF%B9%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A/" class="article-date">
+  <time datetime="2019-06-02T05:04:12.000Z" itemprop="datePublished">2019-06-02</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：阿丙</p>
+<p><a href="http://www.cnblogs.com/acm-bingzi" target="_blank" rel="noopener">www.cnblogs.com/acm-bingzi</a></p>
+</blockquote>
+<p>在编写代码的时候，使用@Autowired注解是，发现IDE报的一个警告，如下：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190602130450.png" alt=""></p>
+<p>Spring Team recommends “Always use constructor based dependency injection in your beans. Always use assertions for mandatory dependencies”.</p>
+<p>翻译：</p>
+<blockquote>
+<p>Spring建议”总是在您的bean中使用构造函数建立依赖注入。总是使用断言强制依赖”。</p>
+</blockquote>
+<p>这段代码警告原来的写法是：</p>
+<pre><code>@Autowired
+private EnterpriseDbService service;</code></pre><p>建议后写成下面的样子：</p>
+<pre><code>private final EnterpriseDbService service;
+
+@Autowired
+public EnterpriseDbController(EnterpriseDbService service) {
+   this.service = service;
+}</code></pre><p>奇怪，为何会有这样的建议。</p>
+<p>我们知道：<strong>@Autowired 可以对成员变量、方法以及构造函数进行注释。</strong>那么对成员变量和构造函数进行注释又有什么区别呢？</p>
+<p>@Autowired注入bean，相当于在配置文件中配置bean，并且使用setter注入。而对构造函数进行注释，就相当于是使用构造函数进行依赖注入了吧。莫非是这两种注入方法的不同。</p>
+<p><strong>以下是：@Autowired和构造方法执行的顺序解析</strong></p>
+<p>先看一段代码，下面的代码能运行成功吗？</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Autowired</span>
+<span class="token keyword">private</span> User user<span class="token punctuation">;</span>
+<span class="token keyword">private</span> String school<span class="token punctuation">;</span>
+
+<span class="token keyword">public</span> <span class="token function">UserAccountServiceImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>school <span class="token operator">=</span> user<span class="token punctuation">.</span><span class="token function">getSchool</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p><strong>答案是不能。</strong></p>
+<p><strong>因为Java类会先执行构造方法，然后再给注解了@Autowired 的user注入值</strong>，所以在执行构造方法的时候，就会报错。</p>
+<p>报错信息可能会像下面：</p>
+<pre><code>Exception in thread &quot;main&quot; 
+org.springframework.beans.factory.BeanCreationException: Error creating 
+bean with name &#39;...&#39; defined in file [....class]: Instantiation of bean 
+failed; nested exception is 
+org.springframework.beans.BeanInstantiationException: Failed to 
+instantiate [...]: Constructor threw exception; nested exception is 
+java.lang.NullPointerException</code></pre><p>报错信息说：创建Bean时出错，出错原因是实例化bean失败，因为bean时构造方法出错，在构造方法里抛出了空指针异常。</p>
+<p>解决办法是，使用构造器注入，如下：</p>
+<pre><code>private User user;
+private String school;
+
+@Autowired
+public UserAccountServiceImpl(User user){
+    this.user = user;
+    this.school = user.getSchool();
+}</code></pre><p>可以看出，使用构造器注入的方法，可以明确成员变量的加载顺序。</p>
+<blockquote>
+<p>PS：Java变量的初始化顺序为：静态变量或静态语句块–&gt;实例变量或初始化语句块–&gt;构造方法–&gt;@Autowired</p>
+<p>参考：<a href="http://blog.csdn.net/ruangong1203/article/details/50992147" target="_blank" rel="noopener">http://blog.csdn.net/ruangong1203/article/details/50992147</a></p>
+</blockquote>
+<p><strong>那么最开始Spring建议，为何要将成员变量加上final类型呢？</strong></p>
+<p>网上有解释如下：spring配置默认的bean的scope是singleton，也就是启动后一直有。通过设置bean的scope属性为prototype来声明该对象为动态创建。但是，如果你的service本身是singleton，注入只执行一次。</p>
+<p>@Autowired本身就是单例模式，只会在程序启动时执行一次，即使不定义final也不会初始化第二次，所以这个final是没有意义的吧。</p>
+<p>可能是为了防止，在程序运行的时候，又执行了一遍构造函数；</p>
+<p>或者是更容易让人理解的意思，加上final只会在程序启动的时候初始化一次，并且在程序运行的时候不会再改变。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-vultr安装ssr"
   class="article article-type-post"
   itemscope
@@ -727,61 +834,6 @@ mysql:5.7</code></pre>
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-PostgreSQL-关闭session链接，删除数据库方法"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/05/24/PostgreSQL-%E5%85%B3%E9%97%ADsession%E9%93%BE%E6%8E%A5%EF%BC%8C%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%E5%BA%93%E6%96%B9%E6%B3%95/"
-    >PostgreSQL关闭session链接，删除数据库方法 </a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/05/24/PostgreSQL-%E5%85%B3%E9%97%ADsession%E9%93%BE%E6%8E%A5%EF%BC%8C%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE%E5%BA%93%E6%96%B9%E6%B3%95/" class="article-date">
-  <time datetime="2019-05-24T03:05:20.000Z" itemprop="datePublished">2019-05-24</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文链接 <a href="https://blog.csdn.net/achang21/article/details/53067945" target="_blank" rel="noopener">PostgreSQL 关闭session链接，删除数据库方法</a></p>
-</blockquote>
-<h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>PostgreSQL 中 有时候想删除数据库（drop database swiftliveqaapi;），发现提示“ERROR:  database “xxxxxx” is being accessed by other users DETAIL:  There are 30 other sessions using the database.”</p>
-<p>意思是 有其他用户在连接数据库，不能删除。</p>
-<h3 id="解决方法："><a href="#解决方法：" class="headerlink" title="解决方法："></a>解决方法：</h3><pre class=" language-sql"><code class="language-sql"> <span class="token keyword">SELECT</span> pg_terminate_backend<span class="token punctuation">(</span>pid<span class="token punctuation">)</span> <span class="token keyword">FROM</span> pg_stat_activity <span class="token keyword">WHERE</span> datname<span class="token operator">=</span><span class="token string">'数据库名'</span> <span class="token operator">AND</span> pid<span class="token operator">&lt;></span>pg_backend_pid<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> </code></pre>
-<p>然后就可以删除数据库了。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PostgreSQL/" rel="tag">PostgreSQL</a></li></ul>
 
     </footer>
   </div>

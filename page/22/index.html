@@ -99,6 +99,117 @@
     
     
     <article
+  id="post-使用-Google-jib-快速构建springboot项目镜像"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/16/%E4%BD%BF%E7%94%A8-Google-jib-%E5%BF%AB%E9%80%9F%E6%9E%84%E5%BB%BAspringboot%E9%A1%B9%E7%9B%AE%E9%95%9C%E5%83%8F/"
+    >使用 Google jib 快速构建springboot项目镜像</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/16/%E4%BD%BF%E7%94%A8-Google-jib-%E5%BF%AB%E9%80%9F%E6%9E%84%E5%BB%BAspringboot%E9%A1%B9%E7%9B%AE%E9%95%9C%E5%83%8F/" class="article-date">
+  <time datetime="2019-07-15T16:16:10.000Z" itemprop="datePublished">2019-07-16</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>google jib 是Google于18年7月发布的一个针对Java应用的构建镜像的工具(支持Maven和Gradle) ，好处是能够复用构建缓存，能够加快构建，减小传输体积（后文会详细讲解），并且让Java工程师不需要理解Docker相关知识就可以简单构建镜像并且发布到指定registry里（不需要docker build , tag, push）</p>
+</blockquote>
+<blockquote>
+<p>项目地址: <a href="https://github.com/hacker-and-painter/springboot-jib-docker" target="_blank" rel="noopener">https://github.com/hacker-and-painter/springboot-jib-docker</a></p>
+</blockquote>
+<h2 id="运行效果"><a href="#运行效果" class="headerlink" title="运行效果"></a>运行效果</h2><pre><code>docker pull gaohanghang/springboot-jib-docker
+
+docker run -p 8080:8080 -t gaohanghang/springboot-jib-docker</code></pre><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190715231430.png" alt=""></p>
+<h2 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h2><ol>
+<li>dockerhub中创建Repository</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190715231800.png" alt=""></p>
+<ol start="2">
+<li>创建springboot项目，添加HelloController.java</li>
+</ol>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HelloController</span> <span class="token punctuation">{</span>
+
+    <span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> String <span class="token function">hello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<ol start="3">
+<li>pom.xml中添加jib plugin</li>
+</ol>
+<pre><code>&lt;plugin&gt;
+    &lt;groupId&gt;com.google.cloud.tools&lt;/groupId&gt;
+    &lt;artifactId&gt;jib-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;1.3.0&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;from&gt;
+            &lt;!--base image--&gt;
+            &lt;image&gt;openjdk:alpine&lt;/image&gt;
+        &lt;/from&gt;
+        &lt;to&gt;
+            &lt;!--&lt;image&gt;registry.cn-hangzhou.aliyuncs.com/m65536/jibtest&lt;/image&gt;--&gt;
+            &lt;!--目标镜像registry地址，为了方便测试，你需要换成自己的地址，如果你的网络不好，可以选用国内加速器，比如阿里云的--&gt;
+            &lt;image&gt;registry.hub.docker.com/gaohanghang/springboot-jib-docker&lt;/image&gt;
+        &lt;/to&gt;
+    &lt;/configuration&gt;
+    &lt;executions&gt;
+        &lt;execution&gt;
+            &lt;phase&gt;package&lt;/phase&gt;
+            &lt;goals&gt;
+                &lt;goal&gt;build&lt;/goal&gt;
+            &lt;/goals&gt;
+        &lt;/execution&gt;
+    &lt;/executions&gt;
+&lt;/plugin&gt;</code></pre><ol start="4">
+<li>将<code>&lt;image&gt;registry.hub.docker.com/gaohanghang/springboot-jib-docker&lt;/image&gt;</code>中的gaohanghang/springboot-jib-docker修改为你在dockerhub中创建的Repository</li>
+</ol>
+<ol start="5">
+<li>使用maven package打包项目，jib会自动构建镜像到dockerhub</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190715232421.png" alt=""></p>
+<ol start="6">
+<li>拉取镜像并运行</li>
+</ol>
+<pre><code>docker pull gaohanghang/springboot-jib-docker
+
+docker run -p 8080:8080 -t gaohanghang/springboot-jib-docker</code></pre><h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a href="https://juejin.im/post/5b4e9c316fb9a04fa01d39d6" target="_blank" rel="noopener">Jib构建你的第一个java镜像</a><br><a href="https://www.infoq.cn/article/2018/07/google-opensource-Jib" target="_blank" rel="noopener">谷歌开源 Java 镜像构建工具 Jib</a><br><a href="[https://juejin.im/post/5c60c021f265da2dd37bf85b]()">加速和简化构建Docker(基于Google jib)</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springboot/" rel="tag">springboot</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-使用vue2-0实现购物车和地址选配功能"
   class="article article-type-post"
   itemscope
@@ -858,103 +969,6 @@ public class MyObject {
     
     <footer class="article-footer">
        
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-变成一个厉害的人，最核心的一点：相信复利效应"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/07/%E5%8F%98%E6%88%90%E4%B8%80%E4%B8%AA%E5%8E%89%E5%AE%B3%E7%9A%84%E4%BA%BA%EF%BC%8C%E6%9C%80%E6%A0%B8%E5%BF%83%E7%9A%84%E4%B8%80%E7%82%B9%EF%BC%9A%E7%9B%B8%E4%BF%A1%E5%A4%8D%E5%88%A9%E6%95%88%E5%BA%94/"
-    >变成一个厉害的人，最核心的一点：相信复利效应</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/07/%E5%8F%98%E6%88%90%E4%B8%80%E4%B8%AA%E5%8E%89%E5%AE%B3%E7%9A%84%E4%BA%BA%EF%BC%8C%E6%9C%80%E6%A0%B8%E5%BF%83%E7%9A%84%E4%B8%80%E7%82%B9%EF%BC%9A%E7%9B%B8%E4%BF%A1%E5%A4%8D%E5%88%A9%E6%95%88%E5%BA%94/" class="article-date">
-  <time datetime="2019-07-07T14:12:30.000Z" itemprop="datePublished">2019-07-07</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址  <a href="https://mp.weixin.qq.com/s/IHruEr-aBKHBeDbfVzjdIA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/IHruEr-aBKHBeDbfVzjdIA</a></p>
-</blockquote>
-<p>我觉得这是一个人能变厉害，最核心的一点就是相信复利效应，希望对你有启发。</p>
-<h1 id="01-什么是复利？"><a href="#01-什么是复利？" class="headerlink" title="01 什么是复利？"></a><strong>01</strong> 什么是复利？</h1><p>爱因斯坦说过：</p>
-<blockquote>
-<p>“Compound interest is the eighth wonder of the world. He who understands it, earns it … he who doesn’t … pays it.”<br>复利是世界第八大奇迹。知之者赚、不知之者被赚。</p>
-</blockquote>
-<p>复利效应在很多领域都能看到，比如：</p>
-<ul>
-<li><strong>银行存款的复利增长曲线</strong></li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707222902.png" alt=""></p>
-<ul>
-<li><strong>道琼斯指数过去两百年的增长曲线</strong></li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707223035.png" alt=""></p>
-<ul>
-<li><strong>世界人口增长曲线</strong></li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707223357.png" alt=""></p>
-<ul>
-<li><strong>明白的爬虫课增长曲线</strong></li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707223412.png" alt=""></p>
-<p>？？？？？？</p>
-<p>别急，后面会讲。</p>
-<p>下面这个公式，你肯定见过 ——</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707223433.png" alt=""></p>
-<p>放到我们身上，还有一句鸡汤：</p>
-<p><strong>如果一个人每天都能进步 1%，一年之后他的能力会提升 38 倍。</strong></p>
-<p>这就是复利的概念，看到这里，你是不是没啥感觉，别急。</p>
-<h1 id="02相信复利效应，对我们什么好处？"><a href="#02相信复利效应，对我们什么好处？" class="headerlink" title="02相信复利效应，对我们什么好处？"></a>02相信复利效应，对我们什么好处？</h1><h2 id="1-相信复利能让你不焦虑"><a href="#1-相信复利能让你不焦虑" class="headerlink" title="1 相信复利能让你不焦虑"></a><strong>1</strong> <strong>相信复利能让你不焦虑</strong></h2><p>我经常焦虑。</p>
-<p>前几天我看到粥左罗老师的一篇文章，感觉写的太好了，我也想写出这样的文章，但是想到自己的能力，我就不由自主开始焦虑。</p>
-<p>你仔细想一下，你上次焦虑的情形，是不是和我很像？</p>
-<p>看到身边优秀的人，他们轻轻松松写出好文章、做出好课程、赚到钱，自己也想和他一样，但发现自己能力不够，好像有种不管怎么努力，都无法做到的感觉。</p>
-<p>于是，强烈的焦虑感产生了。</p>
-<p>但是，如果你相信复利效应，就不会焦虑。</p>
-<p>为什么？</p>
-<p>你看到别人的成绩，觉得自己不可能达到他的高度，因为他「轻轻松松」做到事情，你现在拼尽全力也不到 10 分之 1。</p>
-<p>但你一开始就错了，他看起来现在轻轻松松，是因为他已经到达了「复利拐点」。</p>
-<p>啥是复利拐点？</p>
-<p>再来看一个图：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190708001153.png" alt=""></p>
-<p>我之前有一篇文章，里面写过一句话 ——</p>
-<p><strong>如果一个人到达复利拐点（图中小人站的地方），那他的收益，会急剧增长，可能比之前所有时间的收益总和还要多。</strong></p> 
-      <a class="article-more-link" href="/2019/07/07/%E5%8F%98%E6%88%90%E4%B8%80%E4%B8%AA%E5%8E%89%E5%AE%B3%E7%9A%84%E4%BA%BA%EF%BC%8C%E6%9C%80%E6%A0%B8%E5%BF%83%E7%9A%84%E4%B8%80%E7%82%B9%EF%BC%9A%E7%9B%B8%E4%BF%A1%E5%A4%8D%E5%88%A9%E6%95%88%E5%BA%94/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
-
     </footer>
   </div>
 

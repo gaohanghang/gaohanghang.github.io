@@ -99,6 +99,97 @@
     
     
     <article
+  id="post-小白入门学习打日志"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/13/%E5%B0%8F%E7%99%BD%E5%85%A5%E9%97%A8%E5%AD%A6%E4%B9%A0%E6%89%93%E6%97%A5%E5%BF%97/"
+    >小白入门学习打日志</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/13/%E5%B0%8F%E7%99%BD%E5%85%A5%E9%97%A8%E5%AD%A6%E4%B9%A0%E6%89%93%E6%97%A5%E5%BF%97/" class="article-date">
+  <time datetime="2019-08-13T12:03:08.000Z" itemprop="datePublished">2019-08-13</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://mp.weixin.qq.com/s/jl9Rpr1JFJymWyJj5QK3yA" target="_blank" rel="noopener">小白入门学习打日志</a></p>
+</blockquote>
+<p><strong>前言</strong></p>
+<blockquote>
+<p>只有光头才能变强。</p>
+<p>文本已收录至我的GitHub仓库，欢迎Star：<a href="https://github.com/ZhongFuCheng3y/3y" target="_blank" rel="noopener">https://github.com/ZhongFuCheng3y/3y</a></p>
+</blockquote>
+<p>记得之前写过一篇：<a href="https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247484402&idx=1&sn=786686c4d2abd958c535065de044701d&chksm=ebd742f3dca0cbe5f6f401e38391369f28287858125d52a1a169523dc4f9600e20335446a629&token=620000779&lang=zh_CN&scene=21#wechat_redirect" target="_blank" rel="noopener">《阿里巴巴 Java开发手册》读后感</a>，之前自学时由于没怎么接触过打“日志”，所以《手册》中的“日志规约”我就先放一边去了。</p>
+<p>而之前写了一篇：<a href="https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247485368&idx=1&sn=59742409160a103eddaa6ca187a77256&chksm=ebd746b9dca0cfaffd61b35a810d806f7eea67c5a0dec820ae65be093d81abf49ac19ab1248b&token=2078489135&lang=zh_CN&scene=21#wechat_redirect" target="_blank" rel="noopener">在公司做的项目和自己在学校做的有什么区别？</a>中就有提到：公司的项目不会有<code>e.printStackTrace();</code>这种代码的存在。因为这打印出来的错误信息<strong>没有日期、等级</strong>等等，分析起来不方便。</p>
+<p>在工作中去服务器上查日志又是一个非常非常常见的操作，所以当初我又写了一篇 <a href="https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247485440&idx=1&sn=85b40c173d66b62b3e870dd0e095c72c&chksm=ebd74901dca0c01727ed2cff30acc5d39948eda5bf4252f1d96526f951591f69edcfccbbad29&token=2078489135&lang=zh_CN&scene=21#wechat_redirect" target="_blank" rel="noopener">工作中常用到的Linux命令</a>，里边就谈到了查日志时常用的Linux命令。</p>
+<p>想着，既然接触日志也有一段时间了，不妨在回看《手册》，看看有什么要注意的地方，于是就有了这篇笔记。</p>
+<h2 id="一、Java打日志的基础"><a href="#一、Java打日志的基础" class="headerlink" title="一、Java打日志的基础"></a>一、Java打日志的基础</h2><p>以前自己自学的时候，排查问题只会写下面的代码：</p>
+<pre><code class="java">try {
+   // doSomething
+} catch (Exception e) {
+    e.printStackTrace();
+}
+----------
+// 查看某个数据的值时：
+System.out.println(xxxx);</code></pre>
+<p>去到公司就发现上面的代码全不见了，剩下的是：</p>
+<pre><code class="java">LOGGER.info(&quot;begin to run Java3y:{}&quot;, id);
+----
+LOGGER.error(&quot;excepiton occurs when run Java3y {}, exception{}&quot;, id, e.toString());</code></pre>
+<p>如果使用<code>e.printStackTrace();</code>的话，打印在控制的信息分析不方便：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190813202202.png" alt="打印在控制的信息分析不方便"></p>
+<p>而我们将信息分<strong>等级和时间</strong>记录在服务器的磁盘上，有问题了就可以根据对应的信息去查找相关的日志(这样排查起来是十分方便的)：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190813202315.png" alt="服务器上的日志信息"></p>
+<p>我们再来看一下一般的日志长什么样的：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190813202419.png" alt=""></p>
+<p>例如：现在有人来反馈某某某用户好像收不到短信，给出<strong>发送时间和用户ID</strong>，我们就可以在日志上找出该用户在我们系统的发送状态（例如图上的：state:81，我们就认为是发送成功状态)</p>
+<blockquote>
+<p>谨慎地记录日志。生产环境禁止输出 debug 日志；有选择地输出 info 日志；如果使</p>
+<p>用 warn 来记录刚上线时的业务行为信息，<strong>一定要注意日志输出量的问题，避免把服务器磁盘</strong></p>
+<p><strong>撑爆</strong>，并记得及时删除这些观察日志。</p>
+<p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：<strong>这些</strong></p>
+<p><strong>日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</strong></p>
+</blockquote>
+<h3 id="1-1什么叫做-打点-？"><a href="#1-1什么叫做-打点-？" class="headerlink" title="1.1什么叫做 打点 ？"></a>1.1什么叫做 打点 ？</h3><p>打日志最常见的就是用来打印出<strong>程序执行时的相关信息</strong>，用于快速定位问题和排查问题。我一开始也是这么理解的，但是其实还可以延伸一下。</p> 
+      <a class="article-more-link" href="/2019/08/13/%E5%B0%8F%E7%99%BD%E5%85%A5%E9%97%A8%E5%AD%A6%E4%B9%A0%E6%89%93%E6%97%A5%E5%BF%97/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Spring-data-jpa-query使用原生SQl，需要注意的坑"
   class="article article-type-post"
   itemscope
@@ -794,121 +885,6 @@ docker run -d -p 9000:9000 -v /var/run/docker.sock:/var/run/docker.sock -v porta
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-springboot-jpa分页中给对象添加新属性"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/10/springboot-jpa%E5%88%86%E9%A1%B5%E4%B8%AD%E7%BB%99%E5%AF%B9%E8%B1%A1%E6%B7%BB%E5%8A%A0%E6%96%B0%E5%B1%9E%E6%80%A7/"
-    >springboot jpa分页中给对象添加新属性</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/10/springboot-jpa%E5%88%86%E9%A1%B5%E4%B8%AD%E7%BB%99%E5%AF%B9%E8%B1%A1%E6%B7%BB%E5%8A%A0%E6%96%B0%E5%B1%9E%E6%80%A7/" class="article-date">
-  <time datetime="2019-08-10T06:05:41.000Z" itemprop="datePublished">2019-08-10</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p>在springboot开发中，我们经常会使用到Jpa的Page来进行分页操作。</p>
-<p>通过Jpa的pageable对象可以获取到Page&lt;&gt;列表，这个对象包含了所需要的数据以及分页信息。但是我们可能会遇到这样的问题：</p>
-<p>从数据库中获取到的对象，我们需要给每个对象添加一个属性值，用于在页面中显示。这时就会想到新建一个实体类，用于保存这些数据：</p>
-<p>原始类：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Test</span> <span class="token punctuation">{</span>
-
-    <span class="token keyword">private</span> <span class="token keyword">long</span> id<span class="token punctuation">;</span>
-    <span class="token keyword">private</span> String name<span class="token punctuation">;</span>
-
-    <span class="token keyword">public</span> <span class="token keyword">long</span> <span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">return</span> id<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setId</span> <span class="token punctuation">(</span><span class="token keyword">long</span> id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>id <span class="token operator">=</span> id<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> String <span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">return</span> name<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setName</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>1.创建新的实体类：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TestNew</span> <span class="token punctuation">{</span>
-
-    <span class="token keyword">private</span> <span class="token keyword">long</span> id<span class="token punctuation">;</span>
-    <span class="token keyword">private</span> String name<span class="token punctuation">;</span>
-    <span class="token keyword">private</span> Integer age<span class="token punctuation">;</span>
-
-    <span class="token keyword">public</span> <span class="token keyword">long</span> <span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">return</span> id<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setId</span> <span class="token punctuation">(</span><span class="token keyword">long</span> id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>id <span class="token operator">=</span> id<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> String <span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">return</span> name<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setName</span><span class="token punctuation">(</span>String name<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>name <span class="token operator">=</span> name<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> Integer <span class="token function">getAge</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">return</span> age<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setAge</span><span class="token punctuation">(</span>Integer age<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>age <span class="token operator">=</span> age<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>2.从原有的page中获取content并修改：</p>
-<pre class=" language-java"><code class="language-java">List<span class="token operator">&lt;</span>Test<span class="token operator">></span> testList <span class="token operator">=</span> pageOld<span class="token punctuation">.</span><span class="token function">getContent</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-List<span class="token operator">&lt;</span>TestNew<span class="token operator">></span> testNewList <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span>TestNew<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-<span class="token keyword">for</span> <span class="token punctuation">(</span>Test test <span class="token operator">:</span> testList <span class="token punctuation">)</span> <span class="token punctuation">{</span>
-
-    TestNew testNew <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TestNew</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    testNew<span class="token punctuation">.</span><span class="token function">setId</span><span class="token punctuation">(</span>test<span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    testNew<span class="token punctuation">.</span><span class="token function">setName</span><span class="token punctuation">(</span>test<span class="token punctuation">.</span><span class="token function">getName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    testNew<span class="token punctuation">.</span><span class="token function">setAge</span><span class="token punctuation">(</span><span class="token number">18</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    testNewList<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>testNew<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p>3.构造新的page：</p>
-<pre class=" language-java"><code class="language-java">Page<span class="token operator">&lt;</span>TestNew<span class="token operator">></span> pageNew <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PageImpl</span><span class="token punctuation">(</span>testNewList<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-<p>4.然而，这样构造的page是有问题的：在页面展示的时候，发现只有第一页。于是经过对比排查，发现新构造的page中有个totalElements字段等和原有的值是不一样的。经过查询page类的api发现其还有另一个构造函数，其中就包含了总条数等属性：</p>
-<pre class=" language-java"><code class="language-java">Page<span class="token operator">&lt;</span>TestNew<span class="token operator">></span> pageNew <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PageImpl</span><span class="token punctuation">(</span>testNewList<span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">PageRequest</span><span class="token punctuation">(</span>pageOld<span class="token punctuation">.</span><span class="token function">getNumber</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> pageOld<span class="token punctuation">.</span><span class="token function">getSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span> pageOld<span class="token punctuation">.</span><span class="token function">getTotalElements</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-<p>5.这样才算大功告成了！</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-data-jpa/" rel="tag">spring data jpa</a></li></ul>
 
     </footer>
   </div>

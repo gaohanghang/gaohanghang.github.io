@@ -99,6 +99,178 @@
     
     
     <article
+  id="post-Arrays-sort-vs-Arrays-parallelSort"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/01/12/Arrays-sort-vs-Arrays-parallelSort/"
+    >译|Arrays.sort VS Arrays.parallelSort</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/01/12/Arrays-sort-vs-Arrays-parallelSort/" class="article-date">
+  <time datetime="2020-01-12T12:38:23.000Z" itemprop="datePublished">2020-01-12</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>英文原文地址：<a href="https://www.baeldung.com/java-arrays-sort-vs-parallelsort" target="_blank" rel="noopener" title="Arrays.sort vs Arrays.parallelSort">Arrays.sort vs Arrays.parallelSort</a></p>
+<p>作者：<a href="https://www.baeldung.com/author/baeldung/" target="_blank" rel="noopener" title="baeldung">baeldung</a></p>
+<p>翻译：高行行</p>
+<p>小结：</p>
+<p>当我们要排序的数据集很大时，parallelSort() 可能是更好的选择。但是，在数组较小的情况下，最好使用 sort()，因为它可以提供更好的性能</p>
+</blockquote>
+<h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>我们都使用过 Arrays.sort() 对对象或原始数据类型数组（<code>byte</code>，<code>short</code>，<code>int</code>，<code>long</code>，<code>char</code>，<code>float</code>，<code>double</code>和<code>boolean</code>）进行排序。在 JDK 8 中，创造者增强了 API 以提供一种新方法：_Arrays.parallelSort()_。</p>
+<p>在本教程中，我们将对 sort() 和 parallelSort() 方法进行比较。</p>
+<h2 id="2-Arrays-sort"><a href="#2-Arrays-sort" class="headerlink" title="2. Arrays.sort()"></a>2. Arrays.sort()</h2><p>Arrays.sort() 方法对对象或原始数据类型的数组进行排序。<strong>此方法中使用的排序算法是 Dual-Pivot <a href="https://www.baeldung.com/algorithm-quicksort" target="_blank" rel="noopener" title="Quicksort">Quicksort</a>。</strong> 换句话说，它是快速排序算法的自定义实现，以实现更好的性能。</p>
+<p><strong>此方法是单线程的</strong> ，有两种变体：</p>
+<ul>
+<li>_sort(array)_–将整个数组按升序排序</li>
+<li>_sort(array, fromIndex, toIndex)_–仅将从 fromIndex 到 toIndex 的元素排序</li>
+</ul>
+<p>让我们看一下两种变体的例子：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">givenArrayOfIntegers_whenUsingArraysSortMethod_thenSortFullArrayInAscendingOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> array <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> expected <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">10</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    Arrays<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">assertArrayEquals</span><span class="token punctuation">(</span>expected<span class="token punctuation">,</span> array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+<span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">givenArrayOfIntegers_whenUsingArraysSortMethodWithRange_thenSortRangeOfArrayInAscendingOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> array <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> expected <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    Arrays<span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>array<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">assertArrayEquals</span><span class="token punctuation">(</span>expected<span class="token punctuation">,</span> array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p>让我们总结一下这种方法的优缺点：</p>
+<table>
+<thead>
+<tr>
+<th align="left">优点</th>
+<th align="left">缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">快速处理较小的数据集</td>
+<td align="left">大型数据集的性能下降</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left">没有利用系统的多个核心</td>
+</tr>
+</tbody></table>
+<h2 id="3-Arrays-parallelSort"><a href="#3-Arrays-parallelSort" class="headerlink" title="3. Arrays.parallelSort()"></a>3. Arrays.parallelSort()</h2><p>此方法对对象或原始数据类型的数组进行排序。与 sort() 类似，它也有两个变体来对完整数组和部分数组进行排序：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">givenArrayOfIntegers_whenUsingArraysParallelSortMethod_thenSortFullArrayInAscendingOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> array <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> expected <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">10</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    Arrays<span class="token punctuation">.</span><span class="token function">parallelSort</span><span class="token punctuation">(</span>array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">assertArrayEquals</span><span class="token punctuation">(</span>expected<span class="token punctuation">,</span> array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">givenArrayOfIntegers_whenUsingArraysParallelSortMethodWithRange_thenSortRangeOfArrayInAscendingOrder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> array <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> expected <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">,</span> <span class="token number">7</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">9</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">5</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    Arrays<span class="token punctuation">.</span><span class="token function">parallelSort</span><span class="token punctuation">(</span>array<span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">assertArrayEquals</span><span class="token punctuation">(</span>expected<span class="token punctuation">,</span> array<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p>parallelSort() 在功能上有所不同。与 sort() 使用单个线程对数据进行顺序排序不同，<strong>它使用并行排序-合并排序算法</strong>。它将数组分成子数组，这些子数组本身先进行排序然后合并。</p>
+<p><strong>为了执行并行任务，它使用 ForkJoin 池。</strong></p>
+<p>但是我们需要知道，只有在满足某些条件时，它才会使用并行性。如果数组大小小于或等于 8192，或者处理器只有一个核心，则它将使用顺序的 Dual-Pivot Quicksort 算法。否则，它使用并行排序。</p>
+<p>让我们总结一下使用它的优缺点：</p>
+<table>
+<thead>
+<tr>
+<th align="left">优点</th>
+<th align="left">缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">为大型数据集提供更好的性能</td>
+<td align="left">对于大小较小的数组，处理速度较慢</td>
+</tr>
+<tr>
+<td align="left">利用系统的多个核心</td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<h2 id="4-比较"><a href="#4-比较" class="headerlink" title="4.比较"></a>4.比较</h2><p>现在，让我们看看在不同大小的数据集上两种方法怎样执行。以下数字是使用<a href="https://www.baeldung.com/java-microbenchmark-harness" target="_blank" rel="noopener" title="JMH基准测试">JMH 基准测试</a>得出的。测试环境使用 AMD A10 PRO 2.1Ghz 四核处理器和 JDK 1.8.0_221：</p>
+<table>
+<thead>
+<tr>
+<th align="left">数组大小</th>
+<th align="left"><em>Arrays.sort()</em></th>
+<th align="left"><em>Arrays.parallelSort()</em></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1000</td>
+<td align="left">o.048</td>
+<td align="left">0.054</td>
+</tr>
+<tr>
+<td align="left">10000</td>
+<td align="left">0.847</td>
+<td align="left">0.425</td>
+</tr>
+<tr>
+<td align="left">100000</td>
+<td align="left">7.570</td>
+<td align="left">4.395</td>
+</tr>
+<tr>
+<td align="left">1000000</td>
+<td align="left">65.301</td>
+<td align="left">37.998</td>
+</tr>
+</tbody></table>
+<h2 id="5-结论"><a href="#5-结论" class="headerlink" title="5.结论"></a>5.结论</h2><p>在这篇短篇文章中，我们看到了 sort() 和 parallelSort() 的不同之处。</p>
+<p>根据性能结果，我们可以得出结论，当我们要排序的数据集很大时，parallelSort() 可能是更好的选择。但是，在数组较小的情况下，最好使用 sort()，因为它可以提供更好的性能。</p>
+<p>与往常一样，完整的源代码可以在 <a href="https://github.com/eugenp/tutorials/tree/master/core-java-modules/core-java-arrays-2" target="_blank" rel="noopener" title="GitHub">GitHub</a> 找到。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Synchronized同步静态方法和非静态方法总结"
   class="article article-type-post"
   itemscope
@@ -2092,92 +2264,6 @@ Document doc <span class="token operator">=</span> <span class="token function">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li></ul>
 
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/19/Boss%E7%9B%B4%E8%81%98%E5%8F%91%E5%B8%83%E3%80%8A2020%E4%BA%BA%E6%89%8D%E8%B5%84%E6%9C%AC%E8%B6%8B%E5%8A%BF%E6%8A%A5%E5%91%8A%E3%80%8B%EF%BC%8C%E7%AA%81%E5%8F%98%E6%97%B6%E4%BB%A3%E8%BF%8E%E6%9D%A5%E5%85%AB%E5%A4%A7%E8%B6%8B%E5%8A%BF/"
-    >Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/12/19/Boss%E7%9B%B4%E8%81%98%E5%8F%91%E5%B8%83%E3%80%8A2020%E4%BA%BA%E6%89%8D%E8%B5%84%E6%9C%AC%E8%B6%8B%E5%8A%BF%E6%8A%A5%E5%91%8A%E3%80%8B%EF%BC%8C%E7%AA%81%E5%8F%98%E6%97%B6%E4%BB%A3%E8%BF%8E%E6%9D%A5%E5%85%AB%E5%A4%A7%E8%B6%8B%E5%8A%BF/" class="article-date">
-  <time datetime="2019-12-18T16:41:41.000Z" itemprop="datePublished">2019-12-19</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址：<a href="https://36kr.com/p/5273796" target="_blank" rel="noopener">https://36kr.com/p/5273796</a></p>
-<p>作者：林鲁比@36氪Pro</p>
-</blockquote>
-<p>竞争、分化、抢人…2020年八个人才资本趋势。</p>
-<p>近日，Boss直聘在北京举办了年度合作伙伴大会“ECHO2020”，在活动上发布了《2020人力资本趋势报告》，该报告由Boss直聘职业科学实验室及 Boss直聘研究院制作出品。</p>
-<p>报告数据来源于Boss直聘平台以及《2020求职需求趋势调查》3060份调研问卷，其问卷样本包括23%核心高管、32%部门负责人以及45%的人力资源专员，覆盖互联网/IT/软件、电子通信、教育、金融、房地产、文娱等16个以及行业。</p>
-<p>该报告主题为“突变时代”，突变的概念最早由法国数学家勒内 ▪ 托姆提出，他将系统内部状态的整体性“突跃”称为“突变(Mutation)”，主要用于形容过程连续但是结果不连续的状态。随着当前环境不确定性和市场竞争的加剧，企业为适应环境，其组织架构、人员调度也常常出现“突变”的状态：业务重组、撤销、工作流程设计等等频繁出现。突变理论认为，变革无法被管理，只能被影响，认识到突变时代的到来仅仅是第一步，更重要的是主动应对突变的环境。</p>
-<p>在“就业市场—组织发展—个人发展”的研究视角下，Boss直聘总结出来了2020年的八大人才资本趋势，以下是报告的一些要点：</p>
-<h3 id="趋势一：竞争分化加剧，能力比拼的勇敢者游戏"><a href="#趋势一：竞争分化加剧，能力比拼的勇敢者游戏" class="headerlink" title="趋势一：竞争分化加剧，能力比拼的勇敢者游戏"></a>趋势一：竞争分化加剧，能力比拼的勇敢者游戏</h3><p>报告认为，2019年就业市场的关键词是竞争与分化。</p>
-<p>2019年企业招聘需求同比增加21%，平均招聘薪资为8082元，同比回落0.4%。求职市场竞争激烈主要体现在高校应届生数量增加；雇主对求职者的要求普遍提高；35岁以上主动求职者规模扩大；求职者薪资议价空间缩窄等方面。</p>
-<p>在《2020求职需求趋势调查》中，67.8%的求职者认为今年在求职过程中“明显感到竞争更加激烈”，24.9%认为“有一定感受，但影响不大”，仅有7.3%认为竞争压力没有变化。</p>
-<p>与此同时，企业的人才竞争也在加剧，63.3%的企业认为通过外部招聘补充合适人才的难度“明显变高”，32.9%的企业认为“有一定感受，但影响不大”，仅有3.8%的企业表示“没有类似感受”。</p>
-<p><img src="https://img.36krcdn.com/20191209/v2_719c5d4f90f74bbfa8c311d09f701f5d_img_png" alt="Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势"></p>
-<p>数据显示，2019年招聘薪资分布曲线如上，正偏态分布十分显著，众数为5000元，中位数为6043元，平均薪资为8082元，即5000元是最常出现的月薪水平，有一半的招聘薪资数据低于6043元。</p>
-<p>2019年薪资分布曲线向两端小幅移动，一方面是企业控制人力成本的表现，另一方面还说明求职者内部竞争两极化的加剧。</p>
-<h3 id="趋势二：新兴职业崛起，人才成长追逐的追逐战"><a href="#趋势二：新兴职业崛起，人才成长追逐的追逐战" class="headerlink" title="趋势二：新兴职业崛起，人才成长追逐的追逐战"></a>趋势二：新兴职业崛起，人才成长追逐的追逐战</h3><p>随着各种新兴行业崛起，人工智能、大数据岗位、电竞玩家、无人机飞手、带货主播等岗位从无到有，从有到“热”。新职业发展过程中，学校教育已经落后于行业发展速度，企业人才培训的重要性也愈加凸显。</p>
-<p><img src="https://img.36krcdn.com/20191209/v2_bdc2ffbc7ab3448580f786dfe1773686_img_png" alt="Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势"></p>
-<p>与大数据相关的岗位人才增速开始减缓，对中高端人才能力要求提升。</p>
-<p>人工智能领域人才处于高速增长红利期。</p>
-<p>网络直播、电竞领域人才处于爆发式增长，高度低龄化的阶段。</p>
-<p>云计算、5G领域核心人才尚未迎来增长拐点。</p>
-<h3 id="趋势三：区域化抢人大战升级"><a href="#趋势三：区域化抢人大战升级" class="headerlink" title="趋势三：区域化抢人大战升级"></a>趋势三：区域化抢人大战升级</h3><p>报告指出，当一个城市推出“抢人政策”，其所处区域内其他城市也会竞相推出类似政策，“城市抢人”明显向“区域化抢人”转变。</p>
-<p>2019年一线城市（北上广深）人才持续留至新一线城市和省会城市。报告数据显示，截至2019年11月，一线城市职场人净流出率为0.58%，较2018年同期增加0.05%个百分点。杭州、东莞、武汉、长沙、苏州成为2019年求职者离开一线城市后的首选5大城市。</p>
-<p><img src="https://img.36krcdn.com/20191209/v2_7631244e000347a29035e53579b632fc_img_png" alt="Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势"></p>
-<h3 id="趋势四：定制工作旅程，创造全息式员工体验"><a href="#趋势四：定制工作旅程，创造全息式员工体验" class="headerlink" title="趋势四：定制工作旅程，创造全息式员工体验"></a>趋势四：定制工作旅程，创造全息式员工体验</h3><p>为了吸引人才，许多企业在招聘阶段采用“薪资-文化-愿景”相结合的手段，但在人才入职后仍采用老旧的员工管理系统，先热后冷的处理方式潜藏人才流失风险。</p>
-<p>报告认为，有必要从时间和空间两个维度继续对员工体验流程进行扩充，传统的流程式工作体验正变为旅程式工作体验，由此报告提出了一种新的员工体验图，即全息式员工体验图。</p>
-<p><img src="https://img.36krcdn.com/20191209/v2_96c438f2105f4135b86199a9dfefbd78_img_png" alt="Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势"></p>
-<h3 id="趋势五：重构信息网络，识别“真实组织架构”"><a href="#趋势五：重构信息网络，识别“真实组织架构”" class="headerlink" title="趋势五：重构信息网络，识别“真实组织架构”"></a>趋势五：重构信息网络，识别“真实组织架构”</h3><p>报告认为，真实的组织架构由“解决一个问题应该去哪里、需要几个步骤找到正确的对接人，他们是否在组织中处于合适位置”决定，这是一张充满变化的复杂弹性网络。</p>
-<p>组织网络分析（ONA，Organizational Network Analysis）是一项被证实有效的组织发展工具，其核心目标是刻画组织内的信息流动现状，进而判断信息“能够”如何流通和“应该”如何流通，并做出相应优化动作。</p>
-<h3 id="趋势六：精练技能图谱，为职场竞争力定价"><a href="#趋势六：精练技能图谱，为职场竞争力定价" class="headerlink" title="趋势六：精练技能图谱，为职场竞争力定价"></a>趋势六：精练技能图谱，为职场竞争力定价</h3><p>报告发现，技能在职场中发挥的作用日益明显，更多企业不再单纯依赖求职者的自立，更易核心技能为导向筛选求职者。人工智能、算法类仍然是2019年最吃香的技能。</p>
-<p>除了技术技能，软技能也受到企业关注，并且在某些行业和特定职位中，已经出现软技能等同于硬技能的迹象，企业对求职者创新性、创造力的要求越来越高。其中，时间管理能力、系统性思考能力、解决问题能力这三项软技能的竞争力排名靠前。</p>
-<p>另外，在Boss直聘《2020企业人才需求趋势调查问卷》中，雇主最希望员工和候选人提升的素质能力还包括自主学习、人际沟通与协调、抗压与情绪管理能力。</p>
-<p><img src="https://img.36krcdn.com/20191209/v2_49e1ce433e0e431f99ebf4f85f8393ee_img_png" alt="Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势"></p>
-<h3 id="趋势七：建设职场公平游戏"><a href="#趋势七：建设职场公平游戏" class="headerlink" title="趋势七：建设职场公平游戏"></a>趋势七：建设职场公平游戏</h3><p>近年来随着女性进入职场的比例逐渐升高，职场公平凸显一个窘境，即“大多数女性会停留在无法充分发挥其能力的岗位上”，这种现象被归纳为“宝拉原理（Paula Principle）”，相关现象被描绘为“玻璃天花板”效应和“粘地板”效应。</p>
-<p>报告通过模型计算，探究在排除偏见和刻板印象之后，女性在“公平游戏”中的表现，男女性优于表现稳定程度带来职业发展差异，在一定程度上说明运气正在职业发展中的巨大作用。男性优于运气获得的收益，最终都将转化为组织的成本，使整体产出下降。能够连续获得晋升的女性往往比男性有更高的工作能力，玻璃天花板使得人力资本较高的女性无法充分施展，实际上降低了组织的整体绩效。</p>
-<h3 id="趋势八：超越培训式学习，培养终身学习能力"><a href="#趋势八：超越培训式学习，培养终身学习能力" class="headerlink" title="趋势八：超越培训式学习，培养终身学习能力"></a>趋势八：超越培训式学习，培养终身学习能力</h3><p>格哈德 ▪ 费舍在其研究中指出，学习已经跨越了时间和空间的限制而进入全方位覆盖的阶段，即“终身学习（lifelong learning）”。报告指出，培训和终身学习、学校式学习和工作式学习在不同维度有差别。</p>
-<p>在《2020求职需求趋势调查》中，比起求职者，雇主对学习能力的需求明显更高，这反映出工作化场景和在实践中交互对于终身学习能力培养的必要性。</p>
-<p><img src="https://img.36krcdn.com/20191209/v2_e6dd408002fd40d0b1b9a7cae29f408d_img_png" alt="Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势"></p>
-<p>报告还发现，掌握终身学习能力可以降低转岗难度，也可以使求职者在相同类型的岗位上更容易完成晋升和提升，而且，对学习能力的需求还带动了培训行业的兴起。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
     </footer>
   </div>
 

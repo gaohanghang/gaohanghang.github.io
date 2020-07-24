@@ -99,6 +99,129 @@
     
     
     <article
+  id="post-System.out.printf用法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2018/11/02/System.out.printf%E7%94%A8%E6%B3%95/"
+    >java中输出格式控制详解（System.out.printf用法）</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/11/02/System.out.printf%E7%94%A8%E6%B3%95/" class="article-date">
+  <time datetime="2018-11-02T13:11:22.000Z" itemprop="datePublished">2018-11-02</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>除了System.out.print(ln),java中还有一种输出命令，而且比以上两种更为复杂、强大，那就是System.out.printf</p>
+<p>样例：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Rentcar</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">8</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"%5d"</span><span class="token punctuation">,</span> i<span class="token operator">*</span>j<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>输出结果：</p>
+<pre><code>    0    0    0    0    0    0    0    0    0    0
+    0    1    2    3    4    5    6    7    8    9
+    0    2    4    6    8   10   12   14   16   18
+    0    3    6    9   12   15   18   21   24   27
+    0    4    8   12   16   20   24   28   32   36
+    0    5   10   15   20   25   30   35   40   45
+    0    6   12   18   24   30   36   42   48   54
+    0    7   14   21   28   35   42   49   56   63</code></pre><p>倘若不用System.out.printf ，而是用System.out.print(ln）格式就出现了明显错误，如下：</p>
+<pre class=" language-java"><code class="language-java"><span class="token number">0000000000</span>
+<span class="token number">0123456789</span>
+<span class="token number">024681012141618</span>
+<span class="token number">0369121518212427</span>
+<span class="token number">04812162024283236</span>
+<span class="token number">051015202530354045</span>
+<span class="token number">061218243036424854</span>
+<span class="token number">071421283542495663</span></code></pre>
+<p>好了，开始System.out.printf 详细学习吧</p>
+<p>基本格式：格式控制符以一个%开始，一个字母结束，字母规定了方法按照何种方式打印这个值，例如d表示十进制整数（int）,f表示浮点数（double）.</p>
+<p>例如：int x=12,y=10;</p>
+<p>System.out.printf(“(%d,%d)”,x,y);</p>
+<p>输出结果：</p>
+<pre class=" language-java"><code class="language-java"><span class="token punctuation">(</span><span class="token number">12</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">)</span></code></pre>
+<p>%d代替后面的参数，格式字符串中的格式控制字符的个数必须与后面提供的参数个数相匹配。</p>
+<p>常用格式控制符</p>
+<table>
+<thead>
+<tr>
+<th>格式控制字符</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>%d</td>
+<td>整数</td>
+</tr>
+<tr>
+<td>%8d</td>
+<td>整数，右对齐，输出宽度为8</td>
+</tr>
+<tr>
+<td>-6%</td>
+<td>整数，左对齐，输出宽度为6</td>
+</tr>
+<tr>
+<td>%f</td>
+<td>浮点数</td>
+</tr>
+<tr>
+<td>%8f</td>
+<td>浮点数，右对齐，输出宽度为8</td>
+</tr>
+<tr>
+<td>%.2f</td>
+<td>浮点数，精确到百分位</td>
+</tr>
+<tr>
+<td>%16.3f</td>
+<td>浮点数，精确到千分位，输出到千分位，输出宽度为16</td>
+</tr>
+</tbody></table>
+<p>string同理，只是将d换成s.</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Spring JPA 使用@CreatedDate、@CreatedBy、@LastModifiedDate、@LastModifiedBy 自动生成时间和修改"
   class="article article-type-post"
   itemscope
@@ -835,81 +958,6 @@ System.out.println(l1.getClass() == l2.getClass());</code></pre>
 }</code></pre>
 <p>我们发现，反编译后的代码和之前的代码比较除了多了两行注释以外没有任何区别，那么我们就知道，<strong>switch对int的判断是直接比较整数的值</strong>。</p> 
       <a class="article-more-link" href="/2018/08/21/Java%E4%B8%AD%E7%9A%84Switch%E5%AF%B9%E6%95%B4%E5%9E%8B%E3%80%81%E5%AD%97%E7%AC%A6%E5%9E%8B%E3%80%81%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%9E%8B%E7%9A%84%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Integer用等等于比较时127相等128不相等的原因"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2018/08/20/Integer%E7%94%A8%E7%AD%89%E7%AD%89%E4%BA%8E%E6%AF%94%E8%BE%83%E6%97%B6127%E7%9B%B8%E7%AD%89128%E4%B8%8D%E7%9B%B8%E7%AD%89%E7%9A%84%E5%8E%9F%E5%9B%A0/"
-    >Integer用==比较时127相等128不相等的原因</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2018/08/20/Integer%E7%94%A8%E7%AD%89%E7%AD%89%E4%BA%8E%E6%AF%94%E8%BE%83%E6%97%B6127%E7%9B%B8%E7%AD%89128%E4%B8%8D%E7%9B%B8%E7%AD%89%E7%9A%84%E5%8E%9F%E5%9B%A0/" class="article-date">
-  <time datetime="2018-08-20T11:37:22.000Z" itemprop="datePublished">2018-08-20</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址 <a href="https://www.polarxiong.com/archives/Java-Integer%E7%94%A8-%E6%AF%94%E8%BE%83%E6%97%B6127%E7%9B%B8%E7%AD%89128%E4%B8%8D%E7%9B%B8%E7%AD%89%E7%9A%84%E5%8E%9F%E5%9B%A0.html" target="_blank" rel="noopener">Java: Integer用==比较时127相等128不相等的原因</a></p>
-</blockquote>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这个几乎是Java 5引入自动装箱和自动拆箱后，很多人都会遇到（而且不止一次），而又完全摸不着头脑的坑。虽然已有很多文章分析了原因，但鉴于我这次还差点坑了同学，还是纪录下来长点记性。</p>
-<h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><h3 id="例一"><a href="#例一" class="headerlink" title="例一"></a>例一</h3><p>来个简单点的例子</p>
-<pre><code class="java">public static void main(String[] args) {
-    for (int i = 0; i &lt; 150; i++) {
-        Integer a = i;
-        Integer b = i;
-        System.out.println(i + &quot; &quot; + (a == b));
-    }
-}</code></pre>
-<p><code>i</code>取值从0到150，每次循环<code>a</code>与<code>b</code>的数值均相等，输出<code>a == b</code>。运行结果：</p>
-<pre><code>0 true
-1 true
-2 true
-3 true
-...
-126 true
-127 true
-128 false
-129 false
-130 false
-...</code></pre> 
-      <a class="article-more-link" href="/2018/08/20/Integer%E7%94%A8%E7%AD%89%E7%AD%89%E4%BA%8E%E6%AF%94%E8%BE%83%E6%97%B6127%E7%9B%B8%E7%AD%89128%E4%B8%8D%E7%9B%B8%E7%AD%89%E7%9A%84%E5%8E%9F%E5%9B%A0/"
         >阅读更多...</a
       >
        

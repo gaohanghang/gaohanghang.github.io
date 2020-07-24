@@ -99,6 +99,96 @@
     
     
     <article
+  id="post-Restful-Api写法心得之一《路径定义篇》"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%80%E3%80%8A%E8%B7%AF%E5%BE%84%E5%AE%9A%E4%B9%89%E7%AF%87%E3%80%8B/"
+    >Restful Api写法心得之一《路径定义篇》</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%80%E3%80%8A%E8%B7%AF%E5%BE%84%E5%AE%9A%E4%B9%89%E7%AF%87%E3%80%8B/" class="article-date">
+  <time datetime="2019-06-09T06:20:28.000Z" itemprop="datePublished">2019-06-09</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址 : <a href="https://blog.csdn.net/aiyaya_/article/details/78208420" target="_blank" rel="noopener">Restful Api写法心得之一《路径定义篇》</a></p>
+<p>原文链接：<a href="https://blog.csdn.net/aiyaya_" target="_blank" rel="noopener">筑码-井哥</a></p>
+</blockquote>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h2><p>目前网站上已经有很多关于如何去写restful风格的api的文章，主要说明下我接下来写的关于api写法的连载文章的目的，一个是主要把自己在这方面的心得分享给大家，二是希望大家也能给出更好的意见、建议，欢迎在看文章后讨论。</p>
+<p>本篇文章主要说下接口路径该怎么定义，一个URL地址的可读性对于调用者和维护者都是很重要的，当你规划好URL该怎么定义后，这也决定了java项目中你的controller类的划分，我们知道一个HTTP接口通常主要结构为： 协议://域名/应用content path/自定义路径?查询参数，例如：<a href="https://api.zhuma.com/zm-back/users?pageSize=10&amp;pageNum=1" target="_blank" rel="noopener">https://api.zhuma.com/zm-back/users?pageSize=10&amp;pageNum=1</a> 代表筑码网后台管理用户功能的API。</p>
+<p>那我们到底该怎么定义我们的API URL会更好一些呢？下面给出几点建议。</p>
+<h2 id="2-域名的利用"><a href="#2-域名的利用" class="headerlink" title="2. 域名的利用"></a>2. 域名的利用</h2><p>若域名无法区分出是api还是页面功能的时候，api路径后面统一加/api用于区分是接口服务。</p>
+<ol>
+<li><p><a href="https://back.zhuma.com/api/login" target="_blank" rel="noopener">https://back.zhuma.com/api/login</a></p>
+</li>
+<li><p><a href="https://api-back.zhuma.com/login" target="_blank" rel="noopener">https://api-back.zhuma.com/login</a></p>
+</li>
+</ol>
+<p>上面举例中back代表着后台管理的意思，所以想要进入后台管理页面路径应该为：<a href="https://back.zhuma.com" target="_blank" rel="noopener">https://back.zhuma.com</a> 前台当然要留给<a href="https://www.zhuma.com，在域名使用中我们可以利用三级域名对我们整体系统大的功能或应用进行很好的划分，正是因此，我们看到举例中路径上并没有加上应用的content" target="_blank" rel="noopener">https://www.zhuma.com，在域名使用中我们可以利用三级域名对我们整体系统大的功能或应用进行很好的划分，正是因此，我们看到举例中路径上并没有加上应用的content</a> path。</p>
+<p><strong>★ 备注</strong></p>
+<p>建议通过域名去区分api，也就是举例中2的方式</p>
+<p>在开发中对于多环境开发我们也可以通过域名来区分，例如：</p>
+<p><a href="https://fe-api-back.zhuma.com" target="_blank" rel="noopener">https://fe-api-back.zhuma.com</a> 为联调环境，</p>
+<p><a href="https://qa-api-back.zhuma.com为QA测试环境，" target="_blank" rel="noopener">https://qa-api-back.zhuma.com为QA测试环境，</a></p>
+<p><a href="https://stg-api-back.zhuma.com" target="_blank" rel="noopener">https://stg-api-back.zhuma.com</a> 为仿真环境，</p>
+<p><a href="https://api-back.zhuma.com" target="_blank" rel="noopener">https://api-back.zhuma.com</a> 为生产环境等。</p>
+<h2 id="3-词性使用"><a href="#3-词性使用" class="headerlink" title="3. 词性使用"></a>3. 词性使用</h2><p>定义自定义路径部分时，使用名词的复数形式定义一个资源，如若有动词词性在url中考虑以下划线区分。</p>
+<p><strong>基本操作</strong></p>
+<p>GET /users                    # 获取用户列表</p>
+<p>GET /users/{userId}       # 查看某个具体的用户信息</p>
+<p>POST /users                 # 新建一个用户</p>
+<p>PUT /users/{userId}       # 全量更新某一个用户信息</p>
+<p>PATCH /users/{userId}   # 选择性更新某一个用户信息</p>
+<p>DELETE /users/{userId} # 删除某一个用户</p>
+<p><strong>批量操作</strong></p>
+<p>POST /users/_mget         # 批量获取多个用户</p>
+<p>POST /users/_mcreate    # 批量创建多个用户</p>
+<p>POST /users/_mupdate   # 批量更新多个用户</p>
+<p>POST /users/_mdelete    # 批量删除多个用户</p>
+<p>POST /users/_bulk          # 批量功能组装（后面会讲到）</p>
+<p>动词词性加入url（原则上此种情况是不被推荐的）</p>
+<p>GET /users/_search        # 搜索用户</p>
+<p>POST /users/_init         # 初化所有用户</p> 
+      <a class="article-more-link" href="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%B8%80%E3%80%8A%E8%B7%AF%E5%BE%84%E5%AE%9A%E4%B9%89%E7%AF%87%E3%80%8B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-springBoot注解大全"
   class="article article-type-post"
   itemscope
@@ -1392,113 +1482,6 @@ networks:
 </ol>
 </li>
 </ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Autowired的使用：推荐对构造函数进行注释"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/02/Autowired%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%9A%E6%8E%A8%E8%8D%90%E5%AF%B9%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A/"
-    >@Autowired的使用：推荐对构造函数进行注释</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/06/02/Autowired%E7%9A%84%E4%BD%BF%E7%94%A8%EF%BC%9A%E6%8E%A8%E8%8D%90%E5%AF%B9%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E6%B3%A8%E9%87%8A/" class="article-date">
-  <time datetime="2019-06-02T05:04:12.000Z" itemprop="datePublished">2019-06-02</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>作者：阿丙</p>
-<p><a href="http://www.cnblogs.com/acm-bingzi" target="_blank" rel="noopener">www.cnblogs.com/acm-bingzi</a></p>
-</blockquote>
-<p>在编写代码的时候，使用@Autowired注解是，发现IDE报的一个警告，如下：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190602130450.png" alt=""></p>
-<p>Spring Team recommends “Always use constructor based dependency injection in your beans. Always use assertions for mandatory dependencies”.</p>
-<p>翻译：</p>
-<blockquote>
-<p>Spring建议”总是在您的bean中使用构造函数建立依赖注入。总是使用断言强制依赖”。</p>
-</blockquote>
-<p>这段代码警告原来的写法是：</p>
-<pre><code>@Autowired
-private EnterpriseDbService service;</code></pre><p>建议后写成下面的样子：</p>
-<pre><code>private final EnterpriseDbService service;
-
-@Autowired
-public EnterpriseDbController(EnterpriseDbService service) {
-   this.service = service;
-}</code></pre><p>奇怪，为何会有这样的建议。</p>
-<p>我们知道：<strong>@Autowired 可以对成员变量、方法以及构造函数进行注释。</strong>那么对成员变量和构造函数进行注释又有什么区别呢？</p>
-<p>@Autowired注入bean，相当于在配置文件中配置bean，并且使用setter注入。而对构造函数进行注释，就相当于是使用构造函数进行依赖注入了吧。莫非是这两种注入方法的不同。</p>
-<p><strong>以下是：@Autowired和构造方法执行的顺序解析</strong></p>
-<p>先看一段代码，下面的代码能运行成功吗？</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Autowired</span>
-<span class="token keyword">private</span> User user<span class="token punctuation">;</span>
-<span class="token keyword">private</span> String school<span class="token punctuation">;</span>
-
-<span class="token keyword">public</span> <span class="token function">UserAccountServiceImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>school <span class="token operator">=</span> user<span class="token punctuation">.</span><span class="token function">getSchool</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p><strong>答案是不能。</strong></p>
-<p><strong>因为Java类会先执行构造方法，然后再给注解了@Autowired 的user注入值</strong>，所以在执行构造方法的时候，就会报错。</p>
-<p>报错信息可能会像下面：</p>
-<pre><code>Exception in thread &quot;main&quot; 
-org.springframework.beans.factory.BeanCreationException: Error creating 
-bean with name &#39;...&#39; defined in file [....class]: Instantiation of bean 
-failed; nested exception is 
-org.springframework.beans.BeanInstantiationException: Failed to 
-instantiate [...]: Constructor threw exception; nested exception is 
-java.lang.NullPointerException</code></pre><p>报错信息说：创建Bean时出错，出错原因是实例化bean失败，因为bean时构造方法出错，在构造方法里抛出了空指针异常。</p>
-<p>解决办法是，使用构造器注入，如下：</p>
-<pre><code>private User user;
-private String school;
-
-@Autowired
-public UserAccountServiceImpl(User user){
-    this.user = user;
-    this.school = user.getSchool();
-}</code></pre><p>可以看出，使用构造器注入的方法，可以明确成员变量的加载顺序。</p>
-<blockquote>
-<p>PS：Java变量的初始化顺序为：静态变量或静态语句块–&gt;实例变量或初始化语句块–&gt;构造方法–&gt;@Autowired</p>
-<p>参考：<a href="http://blog.csdn.net/ruangong1203/article/details/50992147" target="_blank" rel="noopener">http://blog.csdn.net/ruangong1203/article/details/50992147</a></p>
-</blockquote>
-<p><strong>那么最开始Spring建议，为何要将成员变量加上final类型呢？</strong></p>
-<p>网上有解释如下：spring配置默认的bean的scope是singleton，也就是启动后一直有。通过设置bean的scope属性为prototype来声明该对象为动态创建。但是，如果你的service本身是singleton，注入只执行一次。</p>
-<p>@Autowired本身就是单例模式，只会在程序启动时执行一次，即使不定义final也不会初始化第二次，所以这个final是没有意义的吧。</p>
-<p>可能是为了防止，在程序运行的时候，又执行了一遍构造函数；</p>
-<p>或者是更容易让人理解的意思，加上final只会在程序启动的时候初始化一次，并且在程序运行的时候不会再改变。</p>
  
       <!-- reward -->
       
