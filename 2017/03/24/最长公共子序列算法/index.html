@@ -98,7 +98,7 @@
     <div class="article-entry" itemprop="articleBody">
        
   <h2 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1.基本概念"></a>1.基本概念</h2><blockquote>
-<p>首先需要科普一下，最长公共子序列（longest common sequence）和最长公共子串（longest common substring）不是一回事儿。什么是子序列呢？即一个给定的序列的子序列，就是将给定序列中零个或多个元素去掉之后得到的结果。什么是子串呢？给定串中任意个连续的字符组成的子序列称为该串的子串。给一个图再解释一下：<br><img src="http://img.blog.csdn.net/20160529225550069?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="这里写图片描述"></p>
+<p>首先需要科普一下，最长公共子序列（longest common sequence）和最长公共子串（longest common substring）不是一回事儿。什么是子序列呢？即一个给定的序列的子序列，就是将给定序列中零个或多个元素去掉之后得到的结果。什么是子串呢？给定串中任意个连续的字符组成的子序列称为该串的子串。给一个图再解释一下：<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fgv46v7j30g90dp0t2.jpg" alt="这里写图片描述"></p>
 </blockquote>
 <p>如上图，给定的字符序列： {a,b,c,d,e,f,g,h}，它的子序列示例： {a,c,e,f} 即元素b,d,g,h被去掉后，保持原有的元素序列所得到的结果就是子序列。同理，{a,h},{c,d,e}等都是它的子序列。<br>它的字串示例：{c,d,e,f} 即连续元素c,d,e,f组成的串是给定序列的字串。同理，{a,b,c,d},{g,h}等都是它的字串。</p>
 <p>这个问题说明白后，最长公共子序列（以下都简称LCS）就很好理解了。</p>
@@ -112,29 +112,29 @@
 <p>如果am!=bn，则若zk!=am，蕴涵“z0，z1，…，zk”是“a0，a1，…，a(m-1)”和“b0，b1，…，bn”的一个最长公共子序列；</p>
 <p>如果am!=bn，则若zk!=bn，蕴涵“z0，z1，…，zk”是“a0，a1，…，am”和“b0，b1，…，b(n-1)”的一个最长公共子序列。</p>
 <p>有些同学，一看性质就容易晕菜，所以我给出一个图来让这些同学理解一下：</p>
-<p><img src="http://img.blog.csdn.net/20160529231235295?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="这里写图片描述"></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fh14px4j30ni0aw74v.jpg" alt="这里写图片描述"></p>
 <a id="more"></a>
 <p>以我在第1小节举的例子（S1={1,3,4,5,6,7,7,8}和S2={3,5,7,4,8,6,7,8,2}），并结合上图来说：</p>
 <p>假如S1的最后一个元素 与 S2的最后一个元素相等，那么S1和S2的LCS就等于 {S1减去最后一个元素} 与 {S2减去最后一个元素} 的 LCS  再加上 S1和S2相等的最后一个元素。</p>
 <p>假如S1的最后一个元素 与 S2的最后一个元素不等（本例子就是属于这种情况），那么S1和S2的LCS就等于 ： {S1减去最后一个元素} 与 S2 的LCS， {S2减去最后一个元素} 与 S1 的LCS 中的最大的那个序列。</p>
 <h2 id="4-递归公式"><a href="#4-递归公式" class="headerlink" title="4.递归公式"></a>4.递归公式</h2><p>第3节说了LCS的特征，我们可以发现，假设我需要求 a1 … am 和 b1 .. b(n-1)的LCS 和 a1 … a(m-1) 和 b1 .. bn的LCS，一定会递归地并且重复地把如a1… a(m-1) 与 b1 … b(n-1) 的 LCS 计算几次。所以我们需要一个数据结构来记录中间结果，避免重复计算。</p>
 <p>假设我们用c[i,j]表示Xi 和 Yj 的LCS的长度（直接保存最长公共子序列的中间结果不现实，需要先借助LCS的长度）。其中X = {x1 … xm}，Y ={y1…yn}，Xi = {x1 … xi}，Yj={y1… yj}。可得递归公式如下：</p>
-<p><img src="http://img.blog.csdn.net/20160529233036349?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="这里写图片描述"></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fh82azdj30mi04yjrj.jpg" alt="这里写图片描述"></p>
 <h2 id="5-计算LCS的长度"><a href="#5-计算LCS的长度" class="headerlink" title="5.计算LCS的长度"></a>5.计算LCS的长度</h2><p>这里我不打算贴出相应的代码，只想把这个过程说明白。还是以s1={1,3,4,5,6,7,7,8},s2={3,5,7,4,8,6,7,8,2}为例。我们借用《算法导论》中的推导图：</p>
-<p><img src="http://img.blog.csdn.net/20160529233732835?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="这里写图片描述"></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fi7m8utj30g60exzkt.jpg" alt="这里写图片描述"></p>
 <p>图中的空白格子需要填上相应的数字（这个数字就是c[i,j]的定义，记录的LCS的长度值）。填的规则依据递归公式，简单来说：如果横竖（i,j）对应的两个元素相等，该格子的值 = c[i-1,j-1] + 1。如果不等，取c[i-1,j] 和 c[i,j-1]的最大值。首先初始化该表：</p>
-<p> <img src="http://img.blog.csdn.net/20160529234238853?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p> <img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhzmhz0j30g10eodgh.jpg" alt=""></p>
 <p> 然后，一行一行地从上往下填：</p>
-<p> <img src="http://img.blog.csdn.net/20160529234622074?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p> <img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhwf0m3j30g40es3z7.jpg" alt=""></p>
 <p>S1的元素3 与 S2的元素3 相等，所以 c[2,1] = c[1,0] + 1。继续填充：</p>
-<p><img src="http://img.blog.csdn.net/20160529234630528?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fi4fibwj30g50evwf8.jpg" alt=""></p>
 <p>S1的元素3 与 S2的元素5 不等，c[2,2] =max(c[1,2],c[2,1])，图中c[1,2] 和 c[2,1] 背景色为浅黄色。</p>
 <p>继续填充：</p>
-<p><img src="http://img.blog.csdn.net/20160529234635745?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
-<p><img src="http://img.blog.csdn.net/20160529234647653?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
-<p><img src="http://img.blog.csdn.net/20160529234655778?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhty9x1j30fy0eodgk.jpg" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhrjkahj30g70eogme.jpg" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhowcbwj30ga0es754.jpg" alt=""></p>
 <p>中间几行填写规则不变，直接跳到最后一行：</p>
-<p><img src="http://img.blog.csdn.net/20160529234714513?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhnftz9j30g90eq757.jpg" alt=""></p>
 <p>至此，该表填完。根据性质，c[8,9] = S1 和 S2 的 LCS的长度，即为5。</p>
 <h2 id="6-构造LCS"><a href="#6-构造LCS" class="headerlink" title="6.构造LCS"></a>6.构造LCS</h2><p>本文S1和S2的最LCS并不是只有1个，本文并不是着重讲输出两个序列的所有LCS，只是介绍如何通过上表，输出其中一个LCS。</p>
 <p>我们根据递归公式构建了上表，我们将从最后一个元素c[8][9]倒推出S1和S2的LCS。</p>
@@ -142,9 +142,9 @@
 <p>c[8][8] = 5,  且S1[8] = S2[8], 所以倒推回去，c[8][8]的值来源于 c[7][7]。</p>
 <p>以此类推，如果遇到S1[i] != S2[j] ，且c[i-1][j] = c[i][j-1] 这种存在分支的情况，这里请都选择一个方向（之后遇到这样的情况，也选择相同的方向）。</p>
 <p>第一种结果为：</p>
-<p><img src="http://img.blog.csdn.net/20160529234721620?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""><br>这就是倒推回去的路径，棕色方格为相等元素，即LCS = {3,4,6,7,8}，这是其中一个结果。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhl4s2fj30gc0f30tp.jpg" alt=""><br>这就是倒推回去的路径，棕色方格为相等元素，即LCS = {3,4,6,7,8}，这是其中一个结果。</p>
 <p>如果如果遇到S1[i] != S2[j] ，且c[i-1][j] = c[i][j-1] 这种存在分支的情况，选择另一个方向，会得到另一个结果。</p>
-<p><img src="http://img.blog.csdn.net/20160529234726935?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhjm5ybj30ga0f0wfg.jpg" alt=""></p>
 <p>即LCS ={3,5,7,7,8}。</p>
 <p>7.关于时间复杂度<br>构建c[i][j]表需要Θ(mn)，输出1个LCS的序列需要Θ(m+n)。</p>
 <p>本文转载自：<br><a href="http://m.blog.csdn.net/article/details?id=51534607" target="_blank" rel="noopener">动态规划 最长公共子序列 过程图解</a></p>
@@ -213,7 +213,7 @@ int main()
    printf(&quot;\n长度为：%d\n&quot;,c[m][n]);  
    return 0;  
 }  </code></pre><p>运行效果：</p>
-<p><img src="http://img.blog.csdn.net/20161113181244127" alt=""></p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gh2fhfz5qgj30it0caaar.jpg" alt=""></p>
  
       <!-- reward -->
       
