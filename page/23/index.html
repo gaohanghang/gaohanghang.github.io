@@ -99,6 +99,117 @@
     
     
     <article
+  id="post-线上环境部署概览"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/08/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E6%A6%82%E8%A7%88/"
+    >线上环境部署概览</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/08/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E6%A6%82%E8%A7%88/" class="article-date">
+  <time datetime="2019-07-08T12:30:07.000Z" itemprop="datePublished">2019-07-08</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：等你归去来</p>
+<p>cnblogs.com/yougewe/p/10327217.html</p>
+</blockquote>
+<p>谈到线上环境，一般开发同学，不太容易接触到。即使接触到，也只是其中的冰山一角！</p>
+<p>所以，其实说起线上环境的部署，咱们好像都有点懂，但是又都不一定完全懂！网上的知识无穷无尽，但往往都是各司一职，对于普通同学，很难窥其全貌！</p>
+<p>所以，我今天就来说说，一些普通的线上环境的部署步骤，和一些脚本小技巧吧。只希望通过这篇文章，能够让大家有一个运维的全局观！</p>
+<blockquote>
+<p>我将会分几条线来整理咱们的运维思路！</p>
+</blockquote>
+<h3 id="一、从理论上讲，我们应该怎么做？"><a href="#一、从理论上讲，我们应该怎么做？" class="headerlink" title="一、从理论上讲，我们应该怎么做？"></a>一、从理论上讲，我们应该怎么做？</h3><p><strong>1.针对的是什么样的用户群体，体量大概会有多少？</strong></p>
+<p>这是一个部署规划的前题。为啥呢？</p>
+<p>一、如果你针对的是后台管理员，人数也不多，那么你可能只需要一个服务器就可以了，前后端也都可以部署在同一台服务器上；如果稍微考虑下单点故障问题，则顶多两台服务器搞定！</p>
+<p>二、如果针对的是前端普通用户，那么，往往就会考虑多机部署，前后端分离，单点问题，负载均衡了；至于具体要部署多少台，则要根据你的用户情况来定了，当然，前期一般没必要部署很多台服务器！更多的考虑是横向扩展的能力。只要能支持横向扩展，则短期内，往往不用担心性能和架构问题！</p>
+<p><strong>2.为支持预估的用户量，大概需要多少的带宽？</strong><br>　　<br>有访问就会有流量产生，而预估的用户量，则是一个带宽资源需求的一个决断依据！</p>
+<p>一般针对前期用户不太确定的场景，可以先买个 10M 左右的共享带宽，基本能够应付；经过一段时间的观察后，再进行带宽的变更也可以；</p>
+<p>当然，考虑带宽，自然也会存在一个公网IP的问题，因为流量是从IP进来的。而在IP之前，则是域名的访问。域名问题则又涉及到DNS，不必细说！</p>
+<p>公网IP可以是直接指向机器的，也可以是指向负载均衡器的。如果想要支持横向扩展，则IP的指向一定是一个负载均衡器。因为只有这样，当遇到流量突增，或者做活动的时候，才能更快速的进行扩容！</p>
+<p><strong>3.数据库规划如何？</strong></p>
+<p>数据在当下时代，算是重中之重了。机器没了可以再买，代码没了可以再写，但是数据没了就完蛋了！</p>
+<p>数据库一般要遵从几个基本原则: 一、带宽要大；二、运算速度要快；三、要能承受足够大的运算空间；（即：带宽足够大/cpu核数够多/内存容量够大/最大并发连接数/…）</p>
+<p>所以，一般不要在数据库上省钱，能多点就多点！</p>
+<p>另外，也不要什么样的数据都往数据库（关系型数据库）存，搞清楚各类型数据库的强项与弱项，做出明智的选择。否则会带来很多不必要的麻烦！</p>
+<p><strong>4.应用要基于操作系统来部署还是基于容器来部署？</strong></p>
+<p>这是个决策性的问题！基于操作系统的部署，是一种比较传统和常见的部署方式。优点是，很多系统工具都是完善的，只要你大概知道要部署什么，部署下来一般不会有太多问题，因为这是个完整的系统。</p>
+<p>但是，由于系统与系统之间可能不能完全一致，有各种各样的差异，所以，你在这个机器上运行成功的东西，在另外的机器上则不一定能成功。因此，基于系统的部署将会使我们的问题排查难度大大增加，而且移值性会很差。比如你在机器A上安装了10个软件，你可能配置了n个选项，但是，当你在安装B机器的时候，你并不能很好的利用原有的配置，你还得从头一个个地来！</p>
+<blockquote>
+<p>因此，有另一个部署方案，基于容器的部署（我这里是基于docker容器的部署）。docker就类似于一个个的虚拟机，但是它更加轻量级，当一个docker部署好后，你可以任意复制到其他机器上运行，看起来很诱人吧。</p>
+</blockquote>
+<p>不过，docker只是入门级容器，对于大量集群容器的管理，还是显得力不从心，当然你很容易找到另一个方案: Kubernetes (K8s); 你只要花上少许的时间了解下，你就可以应用了！</p>
+<p>当然了，使用容器的方案，有没有什么缺点呢？应该是有的，比如本来可以基于系统的监控方案，因为接入容器后，监控指标则不一定适用了，当然现成的方案还是有的，不过得另外再花点时间研究了。再比如：如果容器出了问题，是否能排查出来，这也是另一个问题！</p>
+<p><strong>5.都有些什么样的基础设施或者中间件？</strong></p>
+<p>想要运行应用程序，自然是先考虑运行环境的。比如：应用需要 nginx 来做http服务器，用 tomcat 来做java web应用服务器，用redis来做缓存中间件，用zk来做应用协调中间件，用rabbitmq来做消息中间件，等等！</p>
+<p>因此，要在代码跑起来之前，先要把这些环境给准备好咯。</p>
+<blockquote>
+<p>准备这些中间件或基础设施之前，也要问下当下的形势，是否有高性能高可用应用需求？比如：是否需要集群部署，或者单机部署？往往集群部署又会依赖其他的中间件！也更复杂！</p>
+</blockquote>
+<p>当然，这些都不是事。事儿是在出问题之后，能够有意识，能够猜测到问题发生的点！</p>
+<p><strong>6.应用代码应该怎样部署？</strong></p>
+<p>当基础环境就绪后，就应该让主角上场了。应用代码怎么部署？</p>
+<p>最简单的: 通过ftp上传代码到服务器上后，一个个部署！这种方案是最原始的，也是在没有办法搞更好的方案的时候使用的，不应长期使用；</p>
+<p>稍微好点的: 使用集成工具(如jenkins)进行打包，然后上传一个私有yum镜像服务器（yum 源）。然后在线进行yum 安装；这种方式，借助了集成工具，几个好处:</p>
+<ul>
+<li>可以检测代码合法性如：单元测试、代码规范（可能需要插件）；</li>
+<li>对任何的改动有简单留档，可以备查的同时，也为代码的回滚提供了可能；</li>
+<li>减少了手动上传导致的包破坏的可能性；</li>
+<li>适合大规模应用；</li>
+</ul>
+<p>再成熟点的: 再往后面，手动 yum 安装也已经太累了，所以急需一个部署平台，实现自动化部署；（这里的自动化部署可能就是基于CI集成部署的一种升级版）。总之，大大减小了人工参与程序，提升了效率，同时也保证了质量！当然，这种部署平台已经经过了严格的测试，出错的可能性也比较小了！</p>
+<p><strong>7.服务器的安全性？</strong></p>
+<p>不考虑服务器的安全性的应用，无异于自暴自弃。黑客无处不在，不过幸好现在系统也是越来越完善，只要稍加控制，即不那么容易被攻破了。但是如果放弃安全防护，则随便来一个菜鸟程序员就把你搞死了，那时的损失就大了。</p>
+<p>网络安全是个很专业的领域，我不敢造次去谈它。不过我们可以简单的做下防护: 如防火墙、授权操作、病毒库等等。当然，如果使用xx云服务，则轻松方便多了，在后台点点设置几下搞定！</p>
+<p><strong>8.服务的可监控性？</strong></p>
+<p>无监控，不上线！</p>
+<p>这是一个警示，如果线上服务没有监控，则所有线上的东西，都成了盲区，这对程序员GG们来说，简直太糟糕了，虽然他们很自信！</p>
+<blockquote>
+<p>监控分两个方面：一是系统级别的监控；二是应用级别的监控；(一般忽略其他监控: 如网络)</p>
+</blockquote>
+<p>系统级别的监控一般可以安装第三方的软件来解决: 如 zabbix, grafana …</p>
+<p>而应用级别的监控，则需要自己拥有一套监控代码了，而这对初期项目，则往往比较吃力。当然，如果引入一些开源的解决方案也是可以的，比如 ELK, 做到分布式日志中心的作用的同时，也可以根据日志做相应的应用报错监控！然而这又涉及另外的机器费用和人力成本问题，也显得不那么简单了。</p>
+<p>而如果使用xx云服务，则往往都会自带服务器监控的，可以很方便地查看到服务器情况，站在高层次预估应用是否存在潜藏的问题！</p>
+<p>如上，就是一些个人觉得的在部署一整套线上环境的时候，需要考虑的事项！从理论上讲解了下个人见解，不对之处，请赐教！</p> 
+      <a class="article-more-link" href="/2019/07/08/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E6%A6%82%E8%A7%88/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-变成一个厉害的人，最核心的一点：相信复利效应"
   class="article article-type-post"
   itemscope
@@ -843,92 +954,13 @@
 </article>
 
     
-    <article
-  id="post-Swagger-java-lang-NumberFormatException-For-input-string"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/"
-    >Swagger java.lang.NumberFormatException:For input string:&#34;&#34; 解决办法</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/" class="article-date">
-  <time datetime="2019-07-05T06:32:03.000Z" itemprop="datePublished">2019-07-05</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址 <a href="https://doc.xiaominfo.com/guide/format-exception.html" target="_blank" rel="noopener">https://doc.xiaominfo.com/guide/format-exception.html</a></p>
-</blockquote>
-<p>很多朋友在升级Springfox-Swagger到2.9.2版本后会碰见NumberFormatException异常<strong>java.lang.NumberFormatException: For input string: “”</strong></p>
-<p>异常信息如下：</p>
-<pre class=" language-java"><code class="language-java">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>NumberFormatException<span class="token operator">:</span> For input string<span class="token operator">:</span> <span class="token string">""</span>
-    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>NumberFormatException<span class="token punctuation">.</span><span class="token function">forInputString</span><span class="token punctuation">(</span>NumberFormatException<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">65</span><span class="token punctuation">)</span> <span class="token operator">~</span><span class="token punctuation">[</span>na<span class="token operator">:</span><span class="token number">1.8</span><span class="token punctuation">.</span>0_111<span class="token punctuation">]</span>
-    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Long<span class="token punctuation">.</span><span class="token function">parseLong</span><span class="token punctuation">(</span>Long<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">601</span><span class="token punctuation">)</span> <span class="token operator">~</span><span class="token punctuation">[</span>na<span class="token operator">:</span><span class="token number">1.8</span><span class="token punctuation">.</span>0_111<span class="token punctuation">]</span>
-    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Long<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>Long<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">803</span><span class="token punctuation">)</span> <span class="token operator">~</span><span class="token punctuation">[</span>na<span class="token operator">:</span><span class="token number">1.8</span><span class="token punctuation">.</span>0_111<span class="token punctuation">]</span>
-    at  
-    <span class="token comment" spellcheck="true">//more....</span></code></pre>
-<p>解决办法是在pom.xml中排除Springfox-Swagger的Swagger-Models的jar包,重新引入，如下：</p>
-<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span> https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>mvnrepository<span class="token punctuation">.</span>com<span class="token operator">/</span>artifact<span class="token operator">/</span>io<span class="token punctuation">.</span>springfox<span class="token operator">/</span>springfox<span class="token operator">-</span>swagger2 <span class="token operator">--</span><span class="token operator">></span>
-<span class="token operator">&lt;</span>dependency<span class="token operator">></span>
-    <span class="token operator">&lt;</span>groupId<span class="token operator">></span>io<span class="token punctuation">.</span>springfox<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">></span>
-    <span class="token operator">&lt;</span>artifactId<span class="token operator">></span>springfox<span class="token operator">-</span>swagger2<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">></span>
-    <span class="token operator">&lt;</span>version<span class="token operator">></span><span class="token number">2.9</span><span class="token punctuation">.</span><span class="token number">2</span><span class="token operator">&lt;</span><span class="token operator">/</span>version<span class="token operator">></span>
-    <span class="token operator">&lt;</span>exclusions<span class="token operator">></span>
-        <span class="token operator">&lt;</span>exclusion<span class="token operator">></span>
-            <span class="token operator">&lt;</span>groupId<span class="token operator">></span>io<span class="token punctuation">.</span>swagger<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">></span>
-            <span class="token operator">&lt;</span>artifactId<span class="token operator">></span>swagger<span class="token operator">-</span>models<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">></span>
-        <span class="token operator">&lt;</span><span class="token operator">/</span>exclusion<span class="token operator">></span>
-    <span class="token operator">&lt;</span><span class="token operator">/</span>exclusions<span class="token operator">></span>
-<span class="token operator">&lt;</span><span class="token operator">/</span>dependency<span class="token operator">></span>
-
-<span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span> https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>mvnrepository<span class="token punctuation">.</span>com<span class="token operator">/</span>artifact<span class="token operator">/</span>io<span class="token punctuation">.</span>swagger<span class="token operator">/</span>swagger<span class="token operator">-</span>models <span class="token operator">--</span><span class="token operator">></span>
-<span class="token operator">&lt;</span>dependency<span class="token operator">></span>
-    <span class="token operator">&lt;</span>groupId<span class="token operator">></span>io<span class="token punctuation">.</span>swagger<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">></span>
-    <span class="token operator">&lt;</span>artifactId<span class="token operator">></span>swagger<span class="token operator">-</span>models<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">></span>
-    <span class="token operator">&lt;</span>version<span class="token operator">></span><span class="token number">1.5</span><span class="token punctuation">.</span><span class="token number">21</span><span class="token operator">&lt;</span><span class="token operator">/</span>version<span class="token operator">></span>
-<span class="token operator">&lt;</span><span class="token operator">/</span>dependency<span class="token operator">></span></code></pre>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/swagger/" rel="tag">swagger</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/22/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="page-number" href="/page/22/">22</a><span class="page-number current">23</span><a class="page-number" href="/page/24/">24</a><a class="page-number" href="/page/25/">25</a><span class="space">&hellip;</span><a class="page-number" href="/page/42/">42</a><a class="extend next" rel="next" href="/page/24/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/22/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="page-number" href="/page/22/">22</a><span class="page-number current">23</span><a class="page-number" href="/page/24/">24</a><a class="page-number" href="/page/25/">25</a><span class="space">&hellip;</span><a class="page-number" href="/page/43/">43</a><a class="extend next" rel="next" href="/page/24/">下一页</a>
   </nav>
   
 </section>

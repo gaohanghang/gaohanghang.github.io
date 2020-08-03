@@ -99,6 +99,85 @@
     
     
     <article
+  id="post-Swagger-java-lang-NumberFormatException-For-input-string"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/"
+    >Swagger java.lang.NumberFormatException:For input string:&#34;&#34; 解决办法</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/05/Swagger-java-lang-NumberFormatException-For-input-string/" class="article-date">
+  <time datetime="2019-07-05T06:32:03.000Z" itemprop="datePublished">2019-07-05</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址 <a href="https://doc.xiaominfo.com/guide/format-exception.html" target="_blank" rel="noopener">https://doc.xiaominfo.com/guide/format-exception.html</a></p>
+</blockquote>
+<p>很多朋友在升级Springfox-Swagger到2.9.2版本后会碰见NumberFormatException异常<strong>java.lang.NumberFormatException: For input string: “”</strong></p>
+<p>异常信息如下：</p>
+<pre class=" language-java"><code class="language-java">java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>NumberFormatException<span class="token operator">:</span> For input string<span class="token operator">:</span> <span class="token string">""</span>
+    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>NumberFormatException<span class="token punctuation">.</span><span class="token function">forInputString</span><span class="token punctuation">(</span>NumberFormatException<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">65</span><span class="token punctuation">)</span> <span class="token operator">~</span><span class="token punctuation">[</span>na<span class="token operator">:</span><span class="token number">1.8</span><span class="token punctuation">.</span>0_111<span class="token punctuation">]</span>
+    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Long<span class="token punctuation">.</span><span class="token function">parseLong</span><span class="token punctuation">(</span>Long<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">601</span><span class="token punctuation">)</span> <span class="token operator">~</span><span class="token punctuation">[</span>na<span class="token operator">:</span><span class="token number">1.8</span><span class="token punctuation">.</span>0_111<span class="token punctuation">]</span>
+    at java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Long<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>Long<span class="token punctuation">.</span>java<span class="token operator">:</span><span class="token number">803</span><span class="token punctuation">)</span> <span class="token operator">~</span><span class="token punctuation">[</span>na<span class="token operator">:</span><span class="token number">1.8</span><span class="token punctuation">.</span>0_111<span class="token punctuation">]</span>
+    at  
+    <span class="token comment" spellcheck="true">//more....</span></code></pre>
+<p>解决办法是在pom.xml中排除Springfox-Swagger的Swagger-Models的jar包,重新引入，如下：</p>
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span> https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>mvnrepository<span class="token punctuation">.</span>com<span class="token operator">/</span>artifact<span class="token operator">/</span>io<span class="token punctuation">.</span>springfox<span class="token operator">/</span>springfox<span class="token operator">-</span>swagger2 <span class="token operator">--</span><span class="token operator">></span>
+<span class="token operator">&lt;</span>dependency<span class="token operator">></span>
+    <span class="token operator">&lt;</span>groupId<span class="token operator">></span>io<span class="token punctuation">.</span>springfox<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">></span>
+    <span class="token operator">&lt;</span>artifactId<span class="token operator">></span>springfox<span class="token operator">-</span>swagger2<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">></span>
+    <span class="token operator">&lt;</span>version<span class="token operator">></span><span class="token number">2.9</span><span class="token punctuation">.</span><span class="token number">2</span><span class="token operator">&lt;</span><span class="token operator">/</span>version<span class="token operator">></span>
+    <span class="token operator">&lt;</span>exclusions<span class="token operator">></span>
+        <span class="token operator">&lt;</span>exclusion<span class="token operator">></span>
+            <span class="token operator">&lt;</span>groupId<span class="token operator">></span>io<span class="token punctuation">.</span>swagger<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">></span>
+            <span class="token operator">&lt;</span>artifactId<span class="token operator">></span>swagger<span class="token operator">-</span>models<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">></span>
+        <span class="token operator">&lt;</span><span class="token operator">/</span>exclusion<span class="token operator">></span>
+    <span class="token operator">&lt;</span><span class="token operator">/</span>exclusions<span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>dependency<span class="token operator">></span>
+
+<span class="token operator">&lt;</span><span class="token operator">!</span><span class="token operator">--</span> https<span class="token operator">:</span><span class="token operator">/</span><span class="token operator">/</span>mvnrepository<span class="token punctuation">.</span>com<span class="token operator">/</span>artifact<span class="token operator">/</span>io<span class="token punctuation">.</span>swagger<span class="token operator">/</span>swagger<span class="token operator">-</span>models <span class="token operator">--</span><span class="token operator">></span>
+<span class="token operator">&lt;</span>dependency<span class="token operator">></span>
+    <span class="token operator">&lt;</span>groupId<span class="token operator">></span>io<span class="token punctuation">.</span>swagger<span class="token operator">&lt;</span><span class="token operator">/</span>groupId<span class="token operator">></span>
+    <span class="token operator">&lt;</span>artifactId<span class="token operator">></span>swagger<span class="token operator">-</span>models<span class="token operator">&lt;</span><span class="token operator">/</span>artifactId<span class="token operator">></span>
+    <span class="token operator">&lt;</span>version<span class="token operator">></span><span class="token number">1.5</span><span class="token punctuation">.</span><span class="token number">21</span><span class="token operator">&lt;</span><span class="token operator">/</span>version<span class="token operator">></span>
+<span class="token operator">&lt;</span><span class="token operator">/</span>dependency<span class="token operator">></span></code></pre>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/swagger/" rel="tag">swagger</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-七成毕业生月薪不足6000：除了工资，第一份工作还应该看重什么？"
   class="article article-type-post"
   itemscope
@@ -826,80 +905,13 @@ public class SynchronizedTest {
 </article>
 
     
-    <article
-  id="post-HashSet、LinkedHashSet和TreeSet三者区别与联系"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/30/HashSet%E3%80%81LinkedHashSet%E5%92%8CTreeSet%E4%B8%89%E8%80%85%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB/"
-    >HashSet、LinkedHashSet和TreeSet三者区别与联系</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/06/30/HashSet%E3%80%81LinkedHashSet%E5%92%8CTreeSet%E4%B8%89%E8%80%85%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB/" class="article-date">
-  <time datetime="2019-06-30T04:36:32.000Z" itemprop="datePublished">2019-06-30</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="一-HashSet"><a href="#一-HashSet" class="headerlink" title="一.HashSet"></a>一.HashSet</h2><p>特点：</p>
-<p>1.HashSet中不能有相同的元素，可以有一个Null元素，存入的元素是无序的。</p>
-<p>2.HashSet如何保证唯一性？</p>
-<p>​    1).HashSet底层数据结构是哈希表，哈希表就是存储唯一系列的表，而哈希值是由对象的hashCode()方法生成。</p>
-<p>​    2).确保唯一性的两个方法：hashCode()和equals()方法。</p>
-<p>3.添加、删除操作时间复杂度都是O(1)。</p>
-<p>4.非线程安全</p>
-<h2 id="二-LinkedHashSet"><a href="#二-LinkedHashSet" class="headerlink" title="二.LinkedHashSet"></a>二.LinkedHashSet</h2><p>特点：</p>
-<p>1.LinkedHashSet中不能有相同元素，可以有一个Null元素，元素严格按照放入的顺序排列。</p>
-<p>2.LinkedHashSet如何保证有序和唯一性？</p>
-<p>​    1).底层数据结构由哈希表和链表组成。</p>
-<p>​    2).链表保证了元素的有序即存储和取出一致，哈希表保证了元素的唯一性。</p>
-<p>3.添加、删除操作时间复杂度都是O(1)。</p>
-<p>4.非线程安全</p>
-<h2 id="三-TreeSet"><a href="#三-TreeSet" class="headerlink" title="三.TreeSet"></a>三.TreeSet</h2><p>特点：</p>
-<p>1.TreeSet是中不能有相同元素，不可以有Null元素，根据元素的自然顺序进行排序。</p>
-<p>2.TreeSet如何保证元素的排序和唯一性？</p>
-<p>底层的数据结构是红黑树(一种自平衡二叉查找树)</p>
-<p>3.添加、删除操作时间复杂度都是O(log(n))</p>
-<p>4.非线程安全</p>
-<h2 id="四-总结："><a href="#四-总结：" class="headerlink" title="四.总结："></a>四.总结：</h2><p>通过以上特点可以分析出，三者都保证了元素的唯一性，如果无排序要求可以选用HashSet；如果想取出元素的顺序和放入元素的顺序相同，那么可以选用LinkedHashSet。如果想插入、删除立即排序或者按照一定规则排序可以选用TreeSet。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/23/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="page-number" href="/page/23/">23</a><span class="page-number current">24</span><a class="page-number" href="/page/25/">25</a><a class="page-number" href="/page/26/">26</a><span class="space">&hellip;</span><a class="page-number" href="/page/42/">42</a><a class="extend next" rel="next" href="/page/25/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/23/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="page-number" href="/page/23/">23</a><span class="page-number current">24</span><a class="page-number" href="/page/25/">25</a><a class="page-number" href="/page/26/">26</a><span class="space">&hellip;</span><a class="page-number" href="/page/43/">43</a><a class="extend next" rel="next" href="/page/25/">下一页</a>
   </nav>
   
 </section>

@@ -99,6 +99,154 @@
     
     
     <article
+  id="post-Spring-Autowired和构造函数的顺序"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/06/02/Spring-Autowired%E5%92%8C%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E7%9A%84%E9%A1%BA%E5%BA%8F/"
+    >Spring @Autowired和构造函数的顺序 </a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/02/Spring-Autowired%E5%92%8C%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E7%9A%84%E9%A1%BA%E5%BA%8F/" class="article-date">
+  <time datetime="2019-06-02T05:17:52.000Z" itemprop="datePublished">2019-06-02</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>最近写代码需要在构造函数中调用一个本class的函数，而这个函数中用到了本class的@Autowired的变量。</p>
+<p>于是觉得可能会出错。因为@Autowired一定要等本类构造完成后，才能从外部引用设置进来。所以@Autowired的注入时间一定会晚于构造函数的执行时间。</p>
+<p>那，这个局怎么破？</p>
+<p>原始代码如下：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PluginServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">IPluginService</span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">/**
+     * 系统加载的所有插件的接入接口列表
+     */</span>
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">private</span> List<span class="token operator">&lt;</span>IPluginAccess<span class="token operator">></span> plugins<span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">/**
+     * 系统加载的所有插件的信息列表
+     */</span>
+    <span class="token keyword">private</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> PluginInfo<span class="token operator">></span> pluginInfoMap<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token function">PluginServiceImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        pluginInfoMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span>String<span class="token punctuation">,</span> PluginInfo<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">// 初始化所有插件</span>
+        <span class="token function">initial</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">/**
+     * 初始化
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">initial</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 用到了plugins变量</span>
+        plugins<span class="token punctuation">.</span>xxxxxxxx<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>后来查到Spring的建议： 总是在您的bean中使用构造函数建立依赖注入。</p>
+<p>所以，代码改成如下，问题解决。</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PluginServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">IPluginService</span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">/**
+     * 系统加载的所有插件的接入接口列表
+     */</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> List<span class="token operator">&lt;</span>IPluginAccess<span class="token operator">></span> plugins<span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">/**
+     * 系统加载的所有插件的信息列表
+     */</span>
+    <span class="token keyword">private</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> PluginInfo<span class="token operator">></span> pluginInfoMap<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">public</span> <span class="token function">PluginServiceImpl</span><span class="token punctuation">(</span>List<span class="token operator">&lt;</span>IPluginAccess<span class="token operator">></span> plugins<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>plugins <span class="token operator">=</span> plugins<span class="token punctuation">;</span>
+        pluginInfoMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span>String<span class="token punctuation">,</span> PluginInfo<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">// 初始化所有插件</span>
+        <span class="token function">initial</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">/**
+     * 初始化
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">initial</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 用到了plugins变量</span>
+        plugins<span class="token punctuation">.</span>xxxxxxxx<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>相关文章</p>
+<ul>
+<li><ol>
+<li><a href="http://www.voidcn.com/article/p-wtjvgeys-no.html" target="_blank" rel="noopener">构造函数的顺序</a></li>
+</ol>
+</li>
+<li><ol start="2">
+<li><a href="http://www.voidcn.com/article/p-buuzpxnx-os.html" target="_blank" rel="noopener">构造函数的构造顺序</a></li>
+</ol>
+</li>
+<li><ol start="3">
+<li><a href="http://www.voidcn.com/article/p-qfjbseof-bhd.html" target="_blank" rel="noopener">构造函数顺序</a></li>
+</ol>
+</li>
+<li><ol start="4">
+<li><a href="http://www.voidcn.com/article/p-vaiytonw-ov.html" target="_blank" rel="noopener">Spring-Bean的构造函数和Setter执行顺序以及InitializingBean</a></li>
+</ol>
+</li>
+<li><ol start="5">
+<li><a href="http://www.voidcn.com/article/p-pundccfc-nz.html" target="_blank" rel="noopener">构造函数和析构函数的执行顺序相反</a></li>
+</ol>
+</li>
+<li><ol start="6">
+<li><a href="http://www.voidcn.com/article/p-nmjiaxgk-bka.html" target="_blank" rel="noopener">构造函数和析构函数的调用顺序</a></li>
+</ol>
+</li>
+<li><ol start="7">
+<li><a href="http://www.voidcn.com/article/p-sfinabkp-ts.html" target="_blank" rel="noopener">C++构造函数和析构函数的调用顺序</a></li>
+</ol>
+</li>
+<li><ol start="8">
+<li><a href="http://www.voidcn.com/article/p-kbfzgltt-yp.html" target="_blank" rel="noopener">C++中构造函数和析构函数的执行顺序</a></li>
+</ol>
+</li>
+<li><ol start="9">
+<li><a href="http://www.voidcn.com/article/p-zbfvnfso-bdn.html" target="_blank" rel="noopener">关于构造函数和析构函数的调用顺序</a></li>
+</ol>
+</li>
+<li><ol start="10">
+<li><a href="http://www.voidcn.com/article/p-svcrbndw-bdy.html" target="_blank" rel="noopener">c++中， 构造函数和析构函数的执行顺序</a></li>
+</ol>
+</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Autowired的使用：推荐对构造函数进行注释"
   class="article article-type-post"
   itemscope
@@ -781,76 +929,13 @@ mysql:5.7</code></pre>
 </article>
 
     
-    <article
-  id="post-Java-生态核心知识点整理"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/05/24/Java-%E7%94%9F%E6%80%81%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/"
-    >Java 生态核心知识点整理</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/05/24/Java-%E7%94%9F%E6%80%81%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/" class="article-date">
-  <time datetime="2019-05-24T04:39:18.000Z" itemprop="datePublished">2019-05-24</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文链接 <a href="[http://www.ityouknow.com/java/2019/03/25/java-knowledge.html](http://www.ityouknow.com/java/2019/03/25/java-knowledge.html)">Java 生态核心知识点整理</a></p>
-<p>下载地址 <a href="[https://github.com/harvies/books/blob/master/Java/JAVA%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86.pdf](https://github.com/harvies/books/blob/master/Java/JAVA核心知识点整理.pdf)">Java核心知识点整理</a></p>
-</blockquote>
-<p>又到了求职的金三银四的黄金月份，我相信有不少小伙伴已经摩拳擦掌的准备寻找下一份工作。</p>
-<p>就目前国内的面试模式来讲，在面试前积极的准备面试，复习整个 Java 知识体系将变得非常重要，可以很负责任的说一句，复习准备的是否充分，将直接影响你入职的成功率。</p>
-<p>但很多小伙伴却苦于没有合适的资料来回顾整个 Java 知识体系，或者有的小伙伴可能都不知道该从哪里开始复习。</p>
-<p>我偶然从一个网友群中发现了整理的这份资料，不论是从整个 Java 知识体系，还是从面试的角度来看，都是一份含技术量很高的资料。</p>
-<p>也不知道这位作者是谁，里面的内容也大多整理来自于互联网，但很明显的是这位作者为了整理这份资料用了很多心，在此表示感谢。</p>
-<blockquote>
-<p>注，后来联系上了作者是美团的一位大佬，再次表示感谢！</p>
-</blockquote>
-<p>我随后截了几张图，大家可以仔细查看左边的菜单栏，覆盖的知识面真的很广，而且质量都很不错。</p>
-<p><img src="http://www.itmind.net/assets/images/2019/java/java01.jpg" alt="img">)<img src="http://www.itmind.net/assets/images/2019/java/java02.jpg" alt="img">)<img src="http://www.itmind.net/assets/images/2019/java/java03.jpg" alt="img">)<img src="http://www.itmind.net/assets/images/2019/java/java04.jpg" alt="img"></p>
-<p>说实话，作为一名 Java 程序员，不论你需不需要面试都应该好好看下这份资料。我大概撸了一边，真的是堪称典范。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/28/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><a class="page-number" href="/page/28/">28</a><span class="page-number current">29</span><a class="page-number" href="/page/30/">30</a><a class="page-number" href="/page/31/">31</a><span class="space">&hellip;</span><a class="page-number" href="/page/42/">42</a><a class="extend next" rel="next" href="/page/30/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/28/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><a class="page-number" href="/page/28/">28</a><span class="page-number current">29</span><a class="page-number" href="/page/30/">30</a><a class="page-number" href="/page/31/">31</a><span class="space">&hellip;</span><a class="page-number" href="/page/43/">43</a><a class="extend next" rel="next" href="/page/30/">下一页</a>
   </nav>
   
 </section>

@@ -99,6 +99,108 @@
     
     
     <article
+  id="post-Restful-Api写法心得之二《参数接收篇》"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%BA%8C%E3%80%8A%E5%8F%82%E6%95%B0%E6%8E%A5%E6%94%B6%E7%AF%87%E3%80%8B/"
+    >Restful Api写法心得之二《参数接收篇》</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%BA%8C%E3%80%8A%E5%8F%82%E6%95%B0%E6%8E%A5%E6%94%B6%E7%AF%87%E3%80%8B/" class="article-date">
+  <time datetime="2019-06-09T06:42:41.000Z" itemprop="datePublished">2019-06-09</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a href="https://blog.csdn.net/aiyaya_/article/details/78208528" target="_blank" rel="noopener">Restful Api写法心得之二《参数接收篇》</a></p>
+<p>原文作者：<a href="https://blog.csdn.net/aiyaya_" target="_blank" rel="noopener">筑码-井哥</a></p>
+</blockquote>
+<p>本篇文章主要说下接口的数据参数到底该如何接收，我们知道一个http请求最重要的意义就是将数据在服务器上进行传入与传出，本章主要讲的也就是传入。一次请求传递参数的方式主要有 URL路径中、请求头中、请求体中还有通过cookie等，下面我们分别对几种方式进行讲解。</p>
+<h2 id="MediaType的选择"><a href="#MediaType的选择" class="headerlink" title="MediaType的选择"></a>MediaType的选择</h2><p>MediaType即是Internet Media Type，互联网媒体类型；也叫做MIME类型，在Http协议消息头中，使用Content-Type来表示具体请求中的媒体类型信息。</p>
+<ul>
+<li>对于POST、PUT、PATCH这种HTTP方法，统一使用 application/json，将参数放在请求体中以JSON格式传递至服务器</li>
+<li>对于GET、DELETE的HTTP方法，使用默认类型（application/x-www-form-urlencoded）</li>
+</ul>
+<p>★<strong>备注</strong> </p>
+<p>特殊情况特殊考虑，例如进行文件上传时，使用 multipart/form-data类型等</p>
+<h2 id="路径参数"><a href="#路径参数" class="headerlink" title="路径参数"></a>路径参数</h2><p>对应spring mvc框架中@PathVariable注解</p>
+<p><strong>★备注</strong> </p>
+<p>这里有个注意的点，当路径参数值中有带点”.”的情况时，spring mvc框架中有对点做特殊处理，这导致在程序中只能接收到点之前的内容，例如你的请求是：GET <a href="https://api.zhuma.com/users/hehe.haha，后端在接收userId=’hehe.haha’时，只会接收到hehe字符串，后面的部分（.haha）被舍弃掉了。" target="_blank" rel="noopener">https://api.zhuma.com/users/hehe.haha，后端在接收userId=’hehe.haha’时，只会接收到hehe字符串，后面的部分（.haha）被舍弃掉了。</a></p>
+<p>解决方式是：</p>
+<pre><code class="java">package com.zhuma.demo.analyst.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+@Configuration
+public class MvcConfig extends WebMvcConfigurerAdapter {
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.setUseSuffixPatternMatch(false);//可以让URL路径中带小数点 &#39;.&#39; 后面的值不被忽略 
+    }
+
+}</code></pre>
+<h2 id="请求头参数"><a href="#请求头参数" class="headerlink" title="请求头参数"></a>请求头参数</h2><p>对应spring mvc框架中@RequestHeader注解</p>
+<p>对于提供给APP（android、ios、pc） 的接口我们可能需要关注一些调用信息，例如 用户登录信息、调用来源、app版本号、api的版本号、安全验证信息 等等，我们将这些信息放入头信息（HTTP HEAD中），下面给出在参数命名的例子：</p>
+<ul>
+<li>X-Token 用户的登录token（用于兑换用户登录信息）</li>
+<li>Api-Version api的版本号</li>
+<li>App-Version app版本号</li>
+<li>Call-Source 调用来源(IOS、ANDROID、PC、WECHAT、WEB)</li>
+<li>Authorization 安全校验参数（后面会有文章详细介绍该如何做安全校验）<br>这时你可能会思考一下几个问题：</li>
+</ul>
+<ol>
+<li><p>为什么需要收集 api版本号、app版本号、调用来源这些信息呢？<br>这里解释下，主要有几个原因： </p>
+<p>①. 方便线上环境定位问题，这也是一个重要的原因（我们后面会讲通过切面全局打印非GET请求的接口调用日志）。</p>
+<p>②. 我们可以通过这些参数信息处理我们的业务逻辑，而没有必要在用到的时候我们才想起来让调用者将信息传递过来，导致同一功能性的参数，参数名和参数值不统一的情况发生。</p>
+</li>
+<li><p>是每个接口都要这些参数么？<br>是的，建议将所有的接口都传递上述参数信息。</p>
+</li>
+<li><p>怎么做这些参数的校验呢？</p>
+<p>你可以写个拦截器，统一校验你的接口中全局的header参数，如果还是不太会写，可以参考这篇文章<a href="http://blog.csdn.net/aiyaya_/article/details/78314783" target="_blank" rel="noopener">《统一参数校验》</a></p>
+</li>
+</ol> 
+      <a class="article-more-link" href="/2019/06/09/Restful-Api%E5%86%99%E6%B3%95%E5%BF%83%E5%BE%97%E4%B9%8B%E4%BA%8C%E3%80%8A%E5%8F%82%E6%95%B0%E6%8E%A5%E6%94%B6%E7%AF%87%E3%80%8B/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Restful-Api写法心得之一《路径定义篇》"
   class="article article-type-post"
   itemscope
@@ -1355,161 +1457,13 @@ networks:
 </article>
 
     
-    <article
-  id="post-Spring-Autowired和构造函数的顺序"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/02/Spring-Autowired%E5%92%8C%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E7%9A%84%E9%A1%BA%E5%BA%8F/"
-    >Spring @Autowired和构造函数的顺序 </a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/06/02/Spring-Autowired%E5%92%8C%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E7%9A%84%E9%A1%BA%E5%BA%8F/" class="article-date">
-  <time datetime="2019-06-02T05:17:52.000Z" itemprop="datePublished">2019-06-02</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p>最近写代码需要在构造函数中调用一个本class的函数，而这个函数中用到了本class的@Autowired的变量。</p>
-<p>于是觉得可能会出错。因为@Autowired一定要等本类构造完成后，才能从外部引用设置进来。所以@Autowired的注入时间一定会晚于构造函数的执行时间。</p>
-<p>那，这个局怎么破？</p>
-<p>原始代码如下：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PluginServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">IPluginService</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">/**
-     * 系统加载的所有插件的接入接口列表
-     */</span>
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> List<span class="token operator">&lt;</span>IPluginAccess<span class="token operator">></span> plugins<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">/**
-     * 系统加载的所有插件的信息列表
-     */</span>
-    <span class="token keyword">private</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> PluginInfo<span class="token operator">></span> pluginInfoMap<span class="token punctuation">;</span>
-
-    <span class="token keyword">public</span> <span class="token function">PluginServiceImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        pluginInfoMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span>String<span class="token punctuation">,</span> PluginInfo<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment" spellcheck="true">// 初始化所有插件</span>
-        <span class="token function">initial</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token comment" spellcheck="true">/**
-     * 初始化
-     */</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">initial</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 用到了plugins变量</span>
-        plugins<span class="token punctuation">.</span>xxxxxxxx<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>后来查到Spring的建议： 总是在您的bean中使用构造函数建立依赖注入。</p>
-<p>所以，代码改成如下，问题解决。</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PluginServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">IPluginService</span> <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">/**
-     * 系统加载的所有插件的接入接口列表
-     */</span>
-    <span class="token keyword">private</span> <span class="token keyword">final</span> List<span class="token operator">&lt;</span>IPluginAccess<span class="token operator">></span> plugins<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">/**
-     * 系统加载的所有插件的信息列表
-     */</span>
-    <span class="token keyword">private</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> PluginInfo<span class="token operator">></span> pluginInfoMap<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">public</span> <span class="token function">PluginServiceImpl</span><span class="token punctuation">(</span>List<span class="token operator">&lt;</span>IPluginAccess<span class="token operator">></span> plugins<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>plugins <span class="token operator">=</span> plugins<span class="token punctuation">;</span>
-        pluginInfoMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token operator">&lt;</span>String<span class="token punctuation">,</span> PluginInfo<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment" spellcheck="true">// 初始化所有插件</span>
-        <span class="token function">initial</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token comment" spellcheck="true">/**
-     * 初始化
-     */</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">initial</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// 用到了plugins变量</span>
-        plugins<span class="token punctuation">.</span>xxxxxxxx<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>相关文章</p>
-<ul>
-<li><ol>
-<li><a href="http://www.voidcn.com/article/p-wtjvgeys-no.html" target="_blank" rel="noopener">构造函数的顺序</a></li>
-</ol>
-</li>
-<li><ol start="2">
-<li><a href="http://www.voidcn.com/article/p-buuzpxnx-os.html" target="_blank" rel="noopener">构造函数的构造顺序</a></li>
-</ol>
-</li>
-<li><ol start="3">
-<li><a href="http://www.voidcn.com/article/p-qfjbseof-bhd.html" target="_blank" rel="noopener">构造函数顺序</a></li>
-</ol>
-</li>
-<li><ol start="4">
-<li><a href="http://www.voidcn.com/article/p-vaiytonw-ov.html" target="_blank" rel="noopener">Spring-Bean的构造函数和Setter执行顺序以及InitializingBean</a></li>
-</ol>
-</li>
-<li><ol start="5">
-<li><a href="http://www.voidcn.com/article/p-pundccfc-nz.html" target="_blank" rel="noopener">构造函数和析构函数的执行顺序相反</a></li>
-</ol>
-</li>
-<li><ol start="6">
-<li><a href="http://www.voidcn.com/article/p-nmjiaxgk-bka.html" target="_blank" rel="noopener">构造函数和析构函数的调用顺序</a></li>
-</ol>
-</li>
-<li><ol start="7">
-<li><a href="http://www.voidcn.com/article/p-sfinabkp-ts.html" target="_blank" rel="noopener">C++构造函数和析构函数的调用顺序</a></li>
-</ol>
-</li>
-<li><ol start="8">
-<li><a href="http://www.voidcn.com/article/p-kbfzgltt-yp.html" target="_blank" rel="noopener">C++中构造函数和析构函数的执行顺序</a></li>
-</ol>
-</li>
-<li><ol start="9">
-<li><a href="http://www.voidcn.com/article/p-zbfvnfso-bdn.html" target="_blank" rel="noopener">关于构造函数和析构函数的调用顺序</a></li>
-</ol>
-</li>
-<li><ol start="10">
-<li><a href="http://www.voidcn.com/article/p-svcrbndw-bdy.html" target="_blank" rel="noopener">c++中， 构造函数和析构函数的执行顺序</a></li>
-</ol>
-</li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/27/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="page-number" href="/page/27/">27</a><span class="page-number current">28</span><a class="page-number" href="/page/29/">29</a><a class="page-number" href="/page/30/">30</a><span class="space">&hellip;</span><a class="page-number" href="/page/42/">42</a><a class="extend next" rel="next" href="/page/29/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/27/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="page-number" href="/page/27/">27</a><span class="page-number current">28</span><a class="page-number" href="/page/29/">29</a><a class="page-number" href="/page/30/">30</a><span class="space">&hellip;</span><a class="page-number" href="/page/43/">43</a><a class="extend next" rel="next" href="/page/29/">下一页</a>
   </nav>
   
 </section>

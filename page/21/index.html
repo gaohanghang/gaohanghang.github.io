@@ -99,6 +99,147 @@
     
     
     <article
+  id="post-8-种常被忽视的-SQL-错误用法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/"
+    >8 种常被忽视的 SQL 错误用法</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/" class="article-date">
+  <time datetime="2019-08-02T13:54:16.000Z" itemprop="datePublished">2019-08-02</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://yq.aliyun.com/articles/72501" target="_blank" rel="noopener">https://yq.aliyun.com/articles/72501</a></p>
+</blockquote>
+<ul>
+<li>1、LIMIT 语句</li>
+<li>2、隐式转换</li>
+<li>3、关联更新、删除</li>
+<li>4、混合排序</li>
+<li>5、EXISTS语句</li>
+<li>6、条件下推</li>
+<li>7、提前缩小范围</li>
+<li>8、中间结果集下推</li>
+<li>总结</li>
+</ul>
+<p><strong>sql语句的执行顺序：</strong></p>
+<pre><code class="sql">FROM 
+&lt;left_table&gt;
+
+ON 
+&lt;join_condition&gt;
+
+&lt;join_type&gt;
+ JOIN 
+&lt;right_table&gt;
+
+WHERE 
+&lt;where_condition&gt;
+
+GROUP BY 
+&lt;group_by_list&gt;
+
+HAVING 
+&lt;having_condition&gt;
+
+SELECT
+
+DISTINCT 
+&lt;select_list&gt;
+
+ORDER BY 
+&lt;order_by_condition&gt;
+
+LIMIT 
+&lt;limit_number&gt;</code></pre>
+<h1 id="1、LIMIT-语句"><a href="#1、LIMIT-语句" class="headerlink" title="1、LIMIT 语句"></a>1、LIMIT 语句</h1><p>分页查询是最常用的场景之一，但也通常也是最容易出问题的地方。比如对于下面简单的语句，一般 DBA 想到的办法是在 type, name, create_time 字段上加组合索引。这样条件排序都能有效的利用到索引，性能迅速提升。</p>
+<pre><code class="sql">SELECT * 
+FROM   operation 
+WHERE  type = &#39;SQLStats&#39; 
+       AND name = &#39;SlowLog&#39; 
+ORDER  BY create_time 
+LIMIT  1000, 10; </code></pre>
+<p>好吧，可能90%以上的 DBA 解决该问题就到此为止。但当 LIMIT 子句变成 “LIMIT 1000000,10” 时，程序员仍然会抱怨：我只取10条记录为什么还是慢？</p>
+<p>要知道数据库也并不知道第1000000条记录从什么地方开始，即使有索引也需要从头计算一次。出现这种性能问题，多数情形下是程序员偷懒了。</p>
+<p>在前端数据浏览翻页，或者大数据分批导出等场景下，是可以将上一页的最大值当成参数作为查询条件的。SQL 重新设计如下：</p>
+<pre><code>SELECT   * 
+FROM     operation 
+WHERE    type = &#39;SQLStats&#39; 
+AND      name = &#39;SlowLog&#39; 
+AND      create_time &gt; &#39;2017-03-16 14:00:00&#39; 
+ORDER BY create_time limit 10;</code></pre><p>在新设计下查询时间基本固定，不会随着数据量的增长而发生变化。</p>
+<h1 id="2、隐式转换"><a href="#2、隐式转换" class="headerlink" title="2、隐式转换"></a>2、隐式转换</h1><p>SQL语句中查询变量和字段定义类型不匹配是另一个常见的错误。比如下面的语句：</p>
+<pre><code class="sql">mysql&gt; explain extended SELECT * 
+     &gt; FROM   my_balance b 
+     &gt; WHERE  b.bpn = 14000000123 
+     &gt;       AND b.isverified IS NULL ;
+mysql&gt; show warnings;
+| Warning | 1739 | Cannot use ref access on index &#39;bpn&#39; due to type or collation conversion on field &#39;bpn&#39;</code></pre>
+<p>其中字段 bpn 的定义为 varchar(20)，MySQL 的策略是将字符串转换为数字之后再比较。函数作用于表字段，索引失效。</p>
+<p>上述情况可能是应用程序框架自动填入的参数，而不是程序员的原意。现在应用框架很多很繁杂，使用方便的同时也小心它可能给自己挖坑。</p>
+<h1 id="3、关联更新、删除"><a href="#3、关联更新、删除" class="headerlink" title="3、关联更新、删除"></a>3、关联更新、删除</h1><p>虽然 MySQL5.6 引入了物化特性，但需要特别注意它目前仅仅针对查询语句的优化。对于更新或删除需要手工重写成 JOIN。</p>
+<p>比如下面 UPDATE 语句，MySQL 实际执行的是循环/嵌套子查询（DEPENDENT SUBQUERY)，其执行时间可想而知。</p>
+<pre><code class="sql">UPDATE operation o 
+SET    status = &#39;applying&#39; 
+WHERE  o.id IN (SELECT id 
+                FROM   (SELECT o.id, 
+                               o.status 
+                        FROM   operation o 
+                        WHERE  o.group = 123 
+                               AND o.status NOT IN ( &#39;done&#39; ) 
+                        ORDER  BY o.parent, 
+                                  o.id 
+                        LIMIT  1) t); </code></pre>
+<p>执行计划：</p>
+<pre><code>+----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+
+| id | select_type        | table | type  | possible_keys | key     | key_len | ref   | rows | Extra                                               |
++----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+
+| 1  | PRIMARY            | o     | index |               | PRIMARY | 8       |       | 24   | Using where; Using temporary                        |
+| 2  | DEPENDENT SUBQUERY |       |       |               |         |         |       |      | Impossible WHERE noticed after reading const tables |
+| 3  | DERIVED            | o     | ref   | idx_2,idx_5   | idx_5   | 8       | const | 1    | Using where; Using filesort                         |
++----+--------------------+-------+-------+---------------+---------+---------+-------+------+-----------------------------------------------------+</code></pre><p>重写为 JOIN 之后，子查询的选择模式从 DEPENDENT SUBQUERY 变成 DERIVED，执行速度大大加快，从7秒降低到2毫秒。</p> 
+      <a class="article-more-link" href="/2019/08/02/8-%E7%A7%8D%E5%B8%B8%E8%A2%AB%E5%BF%BD%E8%A7%86%E7%9A%84-SQL-%E9%94%99%E8%AF%AF%E7%94%A8%E6%B3%95/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-6个月从零学会英语"
   class="article article-type-post"
   itemscope
@@ -762,83 +903,13 @@ public class RaskDemo extends RecursiveAction {
 </article>
 
     
-    <article
-  id="post-tcp三次握手、四次挥手"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/17/tcp%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E3%80%81%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B/"
-    >tcp三次握手、四次挥手</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/17/tcp%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E3%80%81%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B/" class="article-date">
-  <time datetime="2019-07-17T13:59:22.000Z" itemprop="datePublished">2019-07-17</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="视频讲解总结1"><a href="#视频讲解总结1" class="headerlink" title="视频讲解总结1"></a>视频讲解总结1</h2><blockquote>
-<p>视频地址 <a href="https://www.youtube.com/watch?v=TEh6t8meORo" target="_blank" rel="noopener">tcp三次握手、四次挥手</a></p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190717220026.png" alt=""></p>
-<ol>
-<li>SYN  J</li>
-<li>SYN K, ACK  J+1    服务器对 J+1说明服务器准备好了</li>
-<li>ACK K+1  客户端对 K+1 说明客户端准备好了</li>
-</ol>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190717220719.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190717221253.png" alt=""></p>
-<p>在TCP中，如果有一方收到了对方的数据，一定会发送ACK确认包给发送方</p>
-<p>而在UDP中，没有这个过程，因此导致了TCP稳定，而UDP不稳定</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190717222019.png" alt=""></p>
-<ol>
-<li>FIN seq = x+2 ACK = y +1    FIN(final)客户端要close的标志，ACK是确认收到了上次数据包</li>
-<li>ACK = x + 3    收到了</li>
-<li>FIN seq = y + 1  服务端调用socket close 发送FIN告诉客户端我也要关了</li>
-<li>ACK = y + 2 客户端表示收到了</li>
-</ol>
-<h2 id="TCP为什么是四次，而不是三次？"><a href="#TCP为什么是四次，而不是三次？" class="headerlink" title="TCP为什么是四次，而不是三次？"></a>TCP为什么是四次，而不是三次？</h2><p>收到主动方发来的FIN报，被动方会立刻回答主动方，让主动方进入FIN-WAIT-1状态。防止主动方重复的发FIN报。</p> 
-      <a class="article-more-link" href="/2019/07/17/tcp%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E3%80%81%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
   </article>
   
 
   
   <nav class="page-nav">
     
-    <a class="extend prev" rel="prev" href="/page/20/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="page-number current">21</span><a class="page-number" href="/page/22/">22</a><a class="page-number" href="/page/23/">23</a><span class="space">&hellip;</span><a class="page-number" href="/page/42/">42</a><a class="extend next" rel="next" href="/page/22/">下一页</a>
+    <a class="extend prev" rel="prev" href="/page/20/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="page-number current">21</span><a class="page-number" href="/page/22/">22</a><a class="page-number" href="/page/23/">23</a><span class="space">&hellip;</span><a class="page-number" href="/page/43/">43</a><a class="extend next" rel="next" href="/page/22/">下一页</a>
   </nav>
   
 </section>
