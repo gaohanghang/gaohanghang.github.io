@@ -79,7 +79,7 @@
   <script>
     try {
       var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        strings: ['面朝大海，春暖花开', '科技需要人文的浇灌', '想要的都拥有，得不到的都释怀'],
         startDelay: 0,
         typeSpeed: 200,
         loop: true,
@@ -97,6 +97,321 @@
     
     
     
+    
+    <article
+  id="post-Spring-Boot-使用枚举类型作为请求参数"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/10/23/Spring-Boot-%E4%BD%BF%E7%94%A8%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E4%BD%9C%E4%B8%BA%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0/"
+    >Spring Boot 使用枚举类型作为请求参数</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/10/23/Spring-Boot-%E4%BD%BF%E7%94%A8%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E4%BD%9C%E4%B8%BA%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0/" class="article-date">
+  <time datetime="2019-10-23T14:45:36.000Z" itemprop="datePublished">2019-10-23</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><strong>本文作者：</strong> xkcoding</p>
+<p><strong>原文链接：</strong> <a href="https://xkcoding.com/2019/01/30/spring-boot-request-use-enums-params.html" target="_blank" rel="noopener">https://xkcoding.com/2019/01/30/spring-boot-request-use-enums-params.html</a></p>
+</blockquote>
+<h2 id="1-场景"><a href="#1-场景" class="headerlink" title="1. 场景"></a>1. 场景</h2><p>在我们实际开发中，枚举类型应用十分广泛，可以避免在项目中定义大量的『魔法值』变量。但是，在 web 开发中，如何将枚举对象作为请求参数传进 Controller，做到类型自动转换？直接使用 <code>@RequestParam</code> 和 <code>@RequestBody</code> 断然是不够的，这里就需要我们自定义 <code>Converter</code> 来实现类型转化了。</p>
+<h2 id="2-需求"><a href="#2-需求" class="headerlink" title="2. 需求"></a>2. 需求</h2><p>比如一个用户对象，里面的性别属性，我们定义一个枚举类型 <code>Gender</code>。</p>
+<p><strong><code>GenderEnum.java</code></strong></p>
+<pre><code class="java">/**
+ * &lt;p&gt;
+ * 性别枚举
+ * &lt;/p&gt;
+ *
+ * @package: com.xkcoding.springboottest.constants.enums
+ * @description: 性别枚举
+ * @author: yangkai.shen
+ * @date: Created in 2019-01-30 11:06
+ * @copyright: Copyright (c) 2019
+ * @version: V1.0
+ * @modified: yangkai.shen
+ */
+@Getter
+public enum GenderEnum {
+    /**
+     * 男
+     */
+    MALE(0),
+    /**
+     * 女
+     */
+    FEMALE(1);
+
+    /**
+     * 性别编码
+     */
+    private Integer code;
+
+    GenderEnum(int code) {
+        this.code = code;
+    }
+
+}</code></pre>
+<p>请求对象封装 <code>QueryRequest</code></p>
+<p><strong><code>QueryRequest.java</code></strong></p>
+<pre><code class="java">/**
+ * &lt;p&gt;
+ * 请求参数
+ * &lt;/p&gt;
+ *
+ * @package: com.xkcoding.springboottest.controller.enum_test
+ * @description: 请求参数
+ * @author: yangkai.shen
+ * @date: Created in 2019-01-30 14:02
+ * @copyright: Copyright (c) 2019
+ * @version: V1.0
+ * @modified: yangkai.shen
+ */
+@Data
+public class QueryRequest {
+    private GenderEnum gender;
+}</code></pre>
+<p>在 Controller 层直接使用如下方式，期望参数自动进行类型转换</p>
+<p><strong><code>EnumTestController.java</code></strong></p>
+<pre><code class="java">/**
+ * &lt;p&gt;
+ * 测试参数是枚举类型，自动转换
+ * &lt;/p&gt;
+ *
+ * @package: com.xkcoding.springboottest.controller.enum_test
+ * @description: 测试参数是枚举类型，自动转换
+ * @author: yangkai.shen
+ * @date: Created in 2019-01-30 13:56
+ * @copyright: Copyright (c) 2019
+ * @version: V1.0
+ * @modified: yangkai.shen
+ */
+@Slf4j
+@RestController
+@RequestMapping(&quot;/enum&quot;)
+public class EnumTestController {
+
+    @GetMapping(&quot;/get&quot;)
+    public Dict testGet(QueryRequest request) {
+        log.info(&quot;【get-request】= {}&quot;, JSONUtil.toJsonStr(request));
+        return Dict.create().set(&quot;get-request&quot;, request);
+    }
+
+    @PostMapping(&quot;/post&quot;)
+    public Dict testPost(@RequestBody QueryRequest request) {
+        log.info(&quot;【post-request】= {}&quot;, JSONUtil.toJsonStr(request));
+        return Dict.create().set(&quot;post-request&quot;, request);
+    }
+
+}</code></pre>
+<p>这么写的时候，gender 只能接收到 <code>MALE</code> 、<code>FEMALE</code> 这样的参数，除此以外，均会报类型不匹配的错误信息，此时是无法处理 <code>0</code> 、<code>1</code> 这样的参数的。</p>
+<p>需求：</p>
+<ol>
+<li>接收到 <code>MALE</code> 、<code>FEMALE</code> 这样的参数，可以自动转为对应的枚举值；</li>
+<li>接收到 <code>0</code> 、<code>1</code> 这样的参数，也可以自动转为对应的枚举值。</li>
+</ol>
+<h2 id="3-解决"><a href="#3-解决" class="headerlink" title="3. 解决"></a>3. 解决</h2><p>此时，本文的『主角』Converter 就可以隆重登场了。</p>
+<blockquote>
+<p>注意，<code>Converter</code> 是 <code>org.springframework.core.convert.converter.Converter</code> ，别导错包了。</p>
+</blockquote>
+<p><strong><code>IntegerCodeToGenderEnumConverter.java</code></strong></p>
+<pre><code class="java">/**
+ * &lt;p&gt;
+ * 编码 -&gt; 性别 转换器
+ * &lt;/p&gt;
+ *
+ * @package: com.xkcoding.springboottest.config.convert
+ * @description: 编码 -&gt; 性别 转换器
+ * @author: yangkai.shen
+ * @date: Created in 2019-01-30 11:14
+ * @copyright: Copyright (c) 2019
+ * @version: V1.0
+ * @modified: yangkai.shen
+ */
+public class IntegerCodeToGenderEnumConverter implements Converter&lt;Integer, GenderEnum&gt; {
+    private Map&lt;Integer, GenderEnum&gt; enumMap = Maps.newHashMap();
+
+    public IntegerCodeToGenderEnumConverter() {
+        for (GenderEnum genderEnum : GenderEnum.values()) {
+            enumMap.put(genderEnum.getCode(), genderEnum);
+        }
+    }
+
+    @Override
+    public GenderEnum convert(Integer source) {
+        GenderEnum genderEnum = enumMap.get(source);
+        if (ObjectUtil.isNull(genderEnum)) {
+            throw new IllegalArgumentException(&quot;无法匹配对应的枚举类型&quot;);
+        }
+        return genderEnum;
+    }
+}</code></pre>
+<p>其实这里已经可以实现类型转换了，但是引出另外一个问题，当我们的枚举类特别多的时候，我们就需要写很多个 自定义的 Converter 来满足类型转化。</p>
+<p>所以我们不使用上面直接使用 <code>Converter</code> 的这种方法，我们引入 <code>ConverterFactory</code> 来解决这个问题。</p>
+<h3 id="3-1-抽取公共枚举接口"><a href="#3-1-抽取公共枚举接口" class="headerlink" title="3.1. 抽取公共枚举接口"></a>3.1. 抽取公共枚举接口</h3><blockquote>
+<p>以后的枚举类都需要实现这个接口</p>
+</blockquote>
+<p><strong><code>BaseEnum.java</code></strong></p>
+<pre><code class="java">/**
+ * &lt;p&gt;
+ * 通用枚举接口
+ * &lt;/p&gt;
+ *
+ * @package: com.xkcoding.springboottest.constants
+ * @description: 通用枚举接口
+ * @author: yangkai.shen
+ * @date: Created in 2019-01-30 11:04
+ * @copyright: Copyright (c) 2019
+ * @version: V1.0
+ * @modified: yangkai.shen
+ */
+public interface BaseEnum {
+    /**
+     * 获取枚举编码
+     *
+     * @return 编码
+     */
+    Integer getCode();
+}</code></pre>
+<h3 id="3-2-调整-GenderEnum-枚举类"><a href="#3-2-调整-GenderEnum-枚举类" class="headerlink" title="3.2. 调整 GenderEnum 枚举类"></a>3.2. 调整 GenderEnum 枚举类</h3><p><strong><code>GenderEnum.java</code></strong></p>
+<pre><code class="java">/**
+ * &lt;p&gt;
+ * 性别枚举
+ * &lt;/p&gt;
+ *
+ * @package: com.xkcoding.springboottest.constants.enums
+ * @description: 性别枚举
+ * @author: yangkai.shen
+ * @date: Created in 2019-01-30 11:06
+ * @copyright: Copyright (c) 2019
+ * @version: V1.0
+ * @modified: yangkai.shen
+ */
+@Getter
+public enum GenderEnum implements BaseEnum {
+    /**
+     * 男
+     */
+    MALE(0),
+    /**
+     * 女
+     */
+    FEMALE(1);
+
+    /**
+     * 性别编码
+     */
+    private Integer code;
+
+    GenderEnum(int code) {
+        this.code = code;
+    }
+
+}</code></pre>
+<h3 id="3-3-创建通用-Integer-gt-Enum-的-Converter-类"><a href="#3-3-创建通用-Integer-gt-Enum-的-Converter-类" class="headerlink" title="3.3. 创建通用 Integer -&gt; Enum 的 Converter 类"></a>3.3. 创建通用 <code>Integer -&gt; Enum</code> 的 Converter 类</h3><p><strong><code>IntegerToEnumConverter.java</code></strong></p>
+<pre><code class="java">/**
+ * &lt;p&gt;
+ * 枚举编码 -&gt; 枚举 转化器
+ * &lt;/p&gt;
+ *
+ * @package: com.xkcoding.springboottest.config.convert
+ * @description: 枚举编码 -&gt; 枚举 转化器
+ * @author: yangkai.shen
+ * @date: Created in 2019-01-30 11:21
+ * @copyright: Copyright (c) 2019
+ * @version: V1.0
+ * @modified: yangkai.shen
+ */
+public class IntegerToEnumConverter&lt;T extends BaseEnum&gt; implements Converter&lt;Integer, T&gt; {
+    private Map&lt;Integer, T&gt; enumMap = Maps.newHashMap();
+
+    public IntegerToEnumConverter(Class&lt;T&gt; enumType) {
+        T[] enums = enumType.getEnumConstants();
+        for (T e : enums) {
+            enumMap.put(e.getCode(), e);
+        }
+    }
+
+    @Override
+    public T convert(Integer source) {
+        T t = enumMap.get(source);
+        if (ObjectUtil.isNull(t)) {
+            throw new IllegalArgumentException(&quot;无法匹配对应的枚举类型&quot;);
+        }
+        return t;
+    }
+}</code></pre>
+<h3 id="3-4-创建对应的自定义-ConverterFactory-工厂类"><a href="#3-4-创建对应的自定义-ConverterFactory-工厂类" class="headerlink" title="3.4. 创建对应的自定义 ConverterFactory 工厂类"></a>3.4. 创建对应的自定义 ConverterFactory 工厂类</h3><p><strong><code>IntegerCodeToEnumConverterFactory.java</code></strong></p>
+<pre><code class="java">/**
+ * &lt;p&gt;
+ * 编码 -&gt; 枚举 转化器工厂类
+ * &lt;/p&gt;
+ *
+ * @package: com.xkcoding.springboottest.config.convert.factory
+ * @description: 编码 -&gt; 枚举 转化器工厂类
+ * @author: yangkai.shen
+ * @date: Created in 2019-01-30 11:09
+ * @copyright: Copyright (c) 2019
+ * @version: V1.0
+ * @modified: yangkai.shen
+ */
+public class IntegerCodeToEnumConverterFactory implements ConverterFactory&lt;Integer, BaseEnum&gt; {
+    private static final Map&lt;Class, Converter&gt; CONVERTERS = Maps.newHashMap();
+
+    /**
+     * 获取一个从 Integer 转化为 T 的转换器，T 是一个泛型，有多个实现
+     *
+     * @param targetType 转换后的类型
+     * @return 返回一个转化器
+     */
+    @Override
+    public &lt;T extends BaseEnum&gt; Converter&lt;Integer, T&gt; getConverter(Class&lt;T&gt; targetType) {
+        Converter&lt;Integer, T&gt; converter = CONVERTERS.get(targetType);
+        if (converter == null) {
+            converter = new IntegerToEnumConverter&lt;&gt;(targetType);
+            CONVERTERS.put(targetType, converter);
+        }
+        return converter;
+    }
+}</code></pre>
+<h3 id="3-5-创建通用-String-gt-Enum-的-Converter-类和对应的-ConverterFactory-工厂类"><a href="#3-5-创建通用-String-gt-Enum-的-Converter-类和对应的-ConverterFactory-工厂类" class="headerlink" title="3.5. 创建通用 String -&gt; Enum 的 Converter 类和对应的 ConverterFactory 工厂类"></a>3.5. 创建通用 <code>String -&gt; Enum</code> 的 Converter 类和对应的 <code>ConverterFactory</code> 工厂类</h3><blockquote>
+<p>因为 Post 请求可以对传入的 json 属性定义类型，但是 Get 请求后台接收到的参数都是 String 类型，因此需要在创建一个 Converter 类</p>
+</blockquote> 
+      <a class="article-more-link" href="/2019/10/23/Spring-Boot-%E4%BD%BF%E7%94%A8%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B%E4%BD%9C%E4%B8%BA%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
     
     <article
   id="post-ARTS-7"
@@ -887,160 +1202,6 @@ Share：分享一篇有观点和思考的技术文章。主要为了输出你的
         >阅读更多...</a
       >
        
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-理解Callable-和-Spring-DeferredResult（翻译）"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/10/10/%E7%90%86%E8%A7%A3Callable-%E5%92%8C-Spring-DeferredResult%EF%BC%88%E7%BF%BB%E8%AF%91%EF%BC%89/"
-    >理解Callable 和 Spring DeferredResult</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/10/10/%E7%90%86%E8%A7%A3Callable-%E5%92%8C-Spring-DeferredResult%EF%BC%88%E7%BF%BB%E8%AF%91%EF%BC%89/" class="article-date">
-  <time datetime="2019-10-10T09:25:40.000Z" itemprop="datePublished">2019-10-10</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址: <a href="https://www.cnblogs.com/aheizi/p/5659030.html" target="_blank" rel="noopener">理解Callable 和 Spring DeferredResult（翻译）</a></p>
-</blockquote>
-<h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1 介绍"></a>1 介绍</h3><p>Servlet 3中的异步支持为在另一个线程中处理HTTP请求提供了可能性。当有一个长时间运行的任务时，这是特别有趣的，因为当另一个线程处理这个请求时，容器线程被释放，并且可以继续为其他请求服务。<br>这个主题已经解释了很多次，Spring框架提供的关于这个功能的类似乎有一点混乱——在一个Controller中返回Callable 和 DeferredResult。</p>
-<p>在这篇文章中，我将实施这两个例子，以显示其差异。</p>
-<p>这里所显示的所有示例都包括执行一个控制器，该控制器将执行一个长期运行的任务，然后将结果返回给客户机。长时间运行的任务由taskservice处理：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TaskServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">TaskService</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">final</span> Logger logger <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">public</span> String <span class="token function">execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">try</span> <span class="token punctuation">{</span>
-            Thread<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">5000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Slow task executed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span> <span class="token string">"Task finished"</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">}</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>这个web应用是用Spring Boot创建的，我们将执行下面的类来运行我们的例子：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MainApp</span> <span class="token punctuation">{</span>
-
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>MainApp<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<h3 id="2-阻塞的Controller"><a href="#2-阻塞的Controller" class="headerlink" title="2 阻塞的Controller"></a>2 阻塞的Controller</h3><p>在这个例子中，一个请求到达控制器。servlet线程不会被释放，直到长时间运行的方法被执行，我们退出<code>@requestmapping</code>注释的方法。</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BlockingController</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">final</span> Logger logger <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">private</span> <span class="token keyword">final</span> TaskService taskService<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">public</span> <span class="token function">BlockingController</span><span class="token punctuation">(</span>TaskService taskService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>taskService <span class="token operator">=</span> taskService<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/block"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">,</span> produces <span class="token operator">=</span> <span class="token string">"text/html"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> String <span class="token function">executeSlowTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Request received"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        String result <span class="token operator">=</span> taskService<span class="token punctuation">.</span><span class="token function">execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Servlet thread released"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>如果我们运行这个例子<a href="http://localhost:8080/block，在日志里我们会发现servlet" target="_blank" rel="noopener">http://localhost:8080/block，在日志里我们会发现servlet</a> request不会被释放，直到长时间的任务执行完（5秒后）。</p>
-<pre><code>2015-07-12 12:41:11.849  [nio-8080-exec-6] x.s.web.controller.BlockingController    : Request received
-2015-07-12 12:41:16.851  [nio-8080-exec-6] x.spring.web.service.TaskServiceImpl     : Slow task executed
-2015-07-12 12:41:16.851  [nio-8080-exec-6] x.s.web.controller.BlockingController    : Servlet thread released</code></pre><h3 id="3-返回Callable"><a href="#3-返回Callable" class="headerlink" title="3 返回Callable"></a>3 返回Callable</h3><p>在这个例子中，不是直接返回的结果，我们将返回一个Callable：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AsyncCallableController</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">final</span> Logger logger <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">private</span> <span class="token keyword">final</span> TaskService taskService<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">public</span> <span class="token function">AsyncCallableController</span><span class="token punctuation">(</span>TaskService taskService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>taskService <span class="token operator">=</span> taskService<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/callable"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">,</span> produces <span class="token operator">=</span> <span class="token string">"text/html"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> Callable<span class="token operator">&lt;</span>String<span class="token operator">></span> <span class="token function">executeSlowTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Request received"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        Callable<span class="token operator">&lt;</span>String<span class="token operator">></span> callable <span class="token operator">=</span> taskService<span class="token operator">:</span><span class="token operator">:</span>execute<span class="token punctuation">;</span>
-        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Servlet thread released"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token keyword">return</span> callable<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>返回Callable意味着Spring MVC将调用在不同的线程中执行定义的任务。Spring将使用TaskExecutor来管理线程。在等待完成的长期任务之前，servlet线程将被释放。</p>
-<pre><code>2015-07-12 13:07:07.012  [nio-8080-exec-5] x.s.w.c.AsyncCallableController          : Request received
-2015-07-12 13:07:07.013  [nio-8080-exec-5] x.s.w.c.AsyncCallableController          : Servlet thread released
-2015-07-12 13:07:12.014  [      MvcAsync2] x.spring.web.service.TaskServiceImpl     : Slow task executed</code></pre><p>你可以看到我们在长时间运行的任务执行完毕之前就已经从servlet返回了。这并不意味着客户端收到了一个响应。与客户端的通信仍然是开放的等待结果，但接收到的请求的线程已被释放，并可以服务于另一个客户的请求。</p>
-<h3 id="4-返回DeferredResult"><a href="#4-返回DeferredResult" class="headerlink" title="4 返回DeferredResult"></a>4 返回DeferredResult</h3><p>首先，我们需要创建一个deferredresult对象。此对象将由控制器返回。我们将完成和Callable相同的事，当我们在另一个线程处理长时间运行的任务的时候释放servlet线程。</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AsyncDeferredController</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">final</span> Logger logger <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">private</span> <span class="token keyword">final</span> TaskService taskService<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">public</span> <span class="token function">AsyncDeferredController</span><span class="token punctuation">(</span>TaskService taskService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>taskService <span class="token operator">=</span> taskService<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/deferred"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">,</span> produces <span class="token operator">=</span> <span class="token string">"text/html"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> DeferredResult<span class="token operator">&lt;</span>String<span class="token operator">></span> <span class="token function">executeSlowTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Request received"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        DeferredResult<span class="token operator">&lt;</span>String<span class="token operator">></span> deferredResult <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DeferredResult</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        CompletableFuture<span class="token punctuation">.</span><span class="token function">supplyAsync</span><span class="token punctuation">(</span>taskService<span class="token operator">:</span><span class="token operator">:</span>execute<span class="token punctuation">)</span>
-            <span class="token punctuation">.</span><span class="token function">whenCompleteAsync</span><span class="token punctuation">(</span><span class="token punctuation">(</span>result<span class="token punctuation">,</span> throwable<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> deferredResult<span class="token punctuation">.</span><span class="token function">setResult</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Servlet thread released"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token keyword">return</span> deferredResult<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>所以，返回DeferredResult和返回Callable有什么区别？不同的是这一次线程是由我们管理。创建一个线程并将结果set到DeferredResult是由我们自己来做的。</p>
-<p>用completablefuture创建一个异步任务。这将创建一个新的线程，在那里我们的长时间运行的任务将被执行。也就是在这个线程中，我们将set结果到DeferredResult并返回。</p>
-<p>是在哪个线程池中我们取回这个新的线程？默认情况下，在completablefuture的supplyasync方法将在forkjoin池运行任务。如果你想使用一个不同的线程池，你可以通过传一个executor到supplyasync方法：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token operator">&lt;</span>U<span class="token operator">></span> CompletableFuture<span class="token operator">&lt;</span>U<span class="token operator">></span> <span class="token function">supplyAsync</span><span class="token punctuation">(</span>Supplier<span class="token operator">&lt;</span>U<span class="token operator">></span> supplier<span class="token punctuation">,</span> Executor executor<span class="token punctuation">)</span></code></pre>
-<p>如果我们运行这个例子，我们将得到如下结果：</p>
-<pre><code>2015-07-12 13:28:08.433  [io-8080-exec-10] x.s.w.c.AsyncDeferredController          : Request received
-2015-07-12 13:28:08.475  [io-8080-exec-10] x.s.w.c.AsyncDeferredController          : Servlet thread released
-2015-07-12 13:28:13.469  [onPool-worker-1] x.spring.web.service.TaskServiceImpl     : Slow task executed</code></pre><h3 id="5-结论"><a href="#5-结论" class="headerlink" title="5 结论"></a>5 结论</h3><p>站在一定高度来看这问题，Callable和Deferredresult做的是同样的事情——释放容器线程，在另一个线程上异步运行长时间的任务。不同的是谁管理执行任务的线程。</p>
-<p>文中涉及的代码<a href="https://github.com/aheizi/spring-rest" target="_blank" rel="noopener">spring-rest</a></p>
-<p>翻译自<a href="http://xpadro.blogspot.com/2015/07/understanding-callable-and-spring.html" target="_blank" rel="noopener">Xavier Padró’s Blog</a></p>
- 
       <!-- reward -->
       
     </div>

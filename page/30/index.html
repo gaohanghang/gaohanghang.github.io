@@ -79,7 +79,7 @@
   <script>
     try {
       var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        strings: ['面朝大海，春暖花开', '科技需要人文的浇灌', '想要的都拥有，得不到的都释怀'],
         startDelay: 0,
         typeSpeed: 200,
         loop: true,
@@ -97,6 +97,92 @@
     
     
     
+    
+    <article
+  id="post-Spring-Boot-Thymeleaf-热部署"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/05/24/Spring-Boot-Thymeleaf-%E7%83%AD%E9%83%A8%E7%BD%B2/"
+    >Spring Boot Thymeleaf 热部署</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/05/24/Spring-Boot-Thymeleaf-%E7%83%AD%E9%83%A8%E7%BD%B2/" class="article-date">
+  <time datetime="2019-05-24T13:20:18.000Z" itemprop="datePublished">2019-05-24</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h3 id="thymeleaf禁用缓存"><a href="#thymeleaf禁用缓存" class="headerlink" title="thymeleaf禁用缓存"></a>thymeleaf禁用缓存</h3><p>将thymeleaf的cache属性置为false，不使用thymeleaf的缓存功能。</p>
+<pre class=" language-yaml"><code class="language-yaml"><span class="token key atrule">spring</span><span class="token punctuation">:</span>
+    <span class="token key atrule">thymeleaf</span><span class="token punctuation">:</span>
+        <span class="token key atrule">cache</span><span class="token punctuation">:</span> <span class="token boolean important">false</span></code></pre>
+<p>一开始我就配置了，但是修改页面之后，刷新浏览器，修改的内容没有生效。</p>
+<h3 id="最终解决办法"><a href="#最终解决办法" class="headerlink" title="最终解决办法"></a>最终解决办法</h3><p>这个时候查看target目录下，你修改的html文件，发现刚刚修改的内容并没有编译到该文件中。刷新浏览器自然就没有生效。所以需要我们自己手动build一下。。。</p>
+<h4 id="方法1"><a href="#方法1" class="headerlink" title="方法1"></a><strong>方法1</strong></h4><ol>
+<li><p>首先，需要thymeleaf的缓存设置为false。 </p>
+</li>
+<li><p>然后使用下面两条命令，均可以。 </p>
+<p>ctrl + shift + F9：Recompile （这个一般是修改了java代码，如controller等文件，重新编译）<br>ctrl + F9：Build Project （这个，当你修改了静态页面，如html页面，重新build）</p>
+</li>
+</ol>
+<p>如果只是修改了静态页面，建议使用ctrl + F9。</p>
+<h4 id="方法2"><a href="#方法2" class="headerlink" title="方法2"></a><strong>方法2</strong></h4><p>可能你觉得每次修改之后，按一下快捷键也很麻烦。那么就需要配置一下IDEA。开启IDEA的自动build功能。使用spring-boot-devtools进行热部署。</p>
+<ol>
+<li><p>首先，还是需要把thymeleaf的缓存设置为false。 </p>
+</li>
+<li><p>pom.xml加入，引入devtools:</p>
+</li>
+</ol>
+<pre class=" language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!-- 热部署 --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>org.springframework.boot<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>spring-boot-devtools<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>2.0.4.RELEASE<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
+    <span class="token comment" spellcheck="true">&lt;!-- 启用 --></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>optional</span><span class="token punctuation">></span></span>true<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>optional</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span></code></pre>
+<ol start="3">
+<li>修改IDEA的两处配置<br>①file —&gt; setting —&gt;Compiler，启用自动build </li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190524212520.png" alt=""></p>
+<p>ps：这里有可能IDEA的版本不一样，没有这个选项，有可能是<code>make project automatically</code>。</p>
+<p>​    ②IDEA中按下快捷键：<code>ctrl + shift +alt + /</code> ，调出如下面板 </p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190524212631.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190524212644.png" alt=""></p>
+<p>OK。这个时候，修改文件，再刷新一下浏览器。会发现刚刚改的东西生效了（java代码和静态页面得修改都会自动生效）。修改<code>controller</code>里面的代码，不用重新编译，也自动生效了。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/springboot/" rel="tag">springboot</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
     
     <article
   id="post-Java-生态核心知识点整理"
@@ -774,69 +860,6 @@
     
     <footer class="article-footer">
        
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-final关键字详解"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/01/17/final%E5%85%B3%E9%94%AE%E5%AD%97%E8%AF%A6%E8%A7%A3/"
-    >final关键字详解</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/01/17/final%E5%85%B3%E9%94%AE%E5%AD%97%E8%AF%A6%E8%A7%A3/" class="article-date">
-  <time datetime="2019-01-17T08:29:12.000Z" itemprop="datePublished">2019-01-17</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="什么是final变量-类-方法？"><a href="#什么是final变量-类-方法？" class="headerlink" title="什么是final变量 / 类 / 方法？"></a>什么是final变量 / 类 / 方法？</h2><p>任何变量前被 final 修饰就是 final 变量，定义的类前被 final 修饰就是 final 类，任何方法前被 final 修饰就是final方法。</p>
-<p>当用final修饰一个类时，表明这个类不能被继承。</p>
-<p>下面这段话摘自《Java编程思想》第四版第143页：</p>
-<blockquote>
-<p>“使用 final 方法的原因有两个。第一个原因是把方法锁定，以防任何继承类修改它的含义；第二个原因是效率。在早期的Java实现版本中，会将final方法转为内嵌调用。但是如果方法过于庞大，可能看不到内嵌调用带来的任何性能提升。在最近的 Java 版本中，不需要使用 final 方法进行这些优化了。“</p>
-</blockquote>
-<p>意思就是说如果认为方法足够完整，子类不需要修改就可以用final方法，避免子类去修改。</p>
-<p>final方法是静态绑定的，在编译时候就确定好是哪个类的方法，所以 final 方法比非 final 方法快一些。</p>
-<h2 id="final修饰变量和修饰引用变量到底有啥不同？"><a href="#final修饰变量和修饰引用变量到底有啥不同？" class="headerlink" title="final修饰变量和修饰引用变量到底有啥不同？"></a>final修饰变量和修饰引用变量到底有啥不同？</h2><p><strong>简单来讲，就是final修饰的常量普通变量不可改变，修饰的引用变量引用不可变，引用对象的内容可以改变！</strong></p>
-<h2 id="final关键字有啥好处？"><a href="#final关键字有啥好处？" class="headerlink" title="final关键字有啥好处？"></a>final关键字有啥好处？</h2><ul>
-<li>final方法比非final快一些</li>
-<li>final关键字提高了性能。JVM和Java应用都会缓存final变量。</li>
-<li>final变量可以安全的在多线程环境下进行共享，而不需要额外的同步开销。</li>
-<li>使用final关键字，JVM会对方法、变量及类进行优化。</li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
-
     </footer>
   </div>
 

@@ -79,7 +79,7 @@
   <script>
     try {
       var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        strings: ['面朝大海，春暖花开', '科技需要人文的浇灌', '想要的都拥有，得不到的都释怀'],
         startDelay: 0,
         typeSpeed: 200,
         loop: true,
@@ -97,6 +97,160 @@
     
     
     
+    
+    <article
+  id="post-理解Callable-和-Spring-DeferredResult（翻译）"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/10/10/%E7%90%86%E8%A7%A3Callable-%E5%92%8C-Spring-DeferredResult%EF%BC%88%E7%BF%BB%E8%AF%91%EF%BC%89/"
+    >理解Callable 和 Spring DeferredResult</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/10/10/%E7%90%86%E8%A7%A3Callable-%E5%92%8C-Spring-DeferredResult%EF%BC%88%E7%BF%BB%E8%AF%91%EF%BC%89/" class="article-date">
+  <time datetime="2019-10-10T09:25:40.000Z" itemprop="datePublished">2019-10-10</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://www.cnblogs.com/aheizi/p/5659030.html" target="_blank" rel="noopener">理解Callable 和 Spring DeferredResult（翻译）</a></p>
+</blockquote>
+<h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1 介绍"></a>1 介绍</h3><p>Servlet 3中的异步支持为在另一个线程中处理HTTP请求提供了可能性。当有一个长时间运行的任务时，这是特别有趣的，因为当另一个线程处理这个请求时，容器线程被释放，并且可以继续为其他请求服务。<br>这个主题已经解释了很多次，Spring框架提供的关于这个功能的类似乎有一点混乱——在一个Controller中返回Callable 和 DeferredResult。</p>
+<p>在这篇文章中，我将实施这两个例子，以显示其差异。</p>
+<p>这里所显示的所有示例都包括执行一个控制器，该控制器将执行一个长期运行的任务，然后将结果返回给客户机。长时间运行的任务由taskservice处理：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TaskServiceImpl</span> <span class="token keyword">implements</span> <span class="token class-name">TaskService</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> Logger logger <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> String <span class="token function">execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            Thread<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">5000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Slow task executed"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token string">"Task finished"</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">RuntimeException</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>这个web应用是用Spring Boot创建的，我们将执行下面的类来运行我们的例子：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MainApp</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>MainApp<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<h3 id="2-阻塞的Controller"><a href="#2-阻塞的Controller" class="headerlink" title="2 阻塞的Controller"></a>2 阻塞的Controller</h3><p>在这个例子中，一个请求到达控制器。servlet线程不会被释放，直到长时间运行的方法被执行，我们退出<code>@requestmapping</code>注释的方法。</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BlockingController</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> Logger logger <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> TaskService taskService<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">public</span> <span class="token function">BlockingController</span><span class="token punctuation">(</span>TaskService taskService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>taskService <span class="token operator">=</span> taskService<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/block"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">,</span> produces <span class="token operator">=</span> <span class="token string">"text/html"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> String <span class="token function">executeSlowTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Request received"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        String result <span class="token operator">=</span> taskService<span class="token punctuation">.</span><span class="token function">execute</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Servlet thread released"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> result<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>如果我们运行这个例子<a href="http://localhost:8080/block，在日志里我们会发现servlet" target="_blank" rel="noopener">http://localhost:8080/block，在日志里我们会发现servlet</a> request不会被释放，直到长时间的任务执行完（5秒后）。</p>
+<pre><code>2015-07-12 12:41:11.849  [nio-8080-exec-6] x.s.web.controller.BlockingController    : Request received
+2015-07-12 12:41:16.851  [nio-8080-exec-6] x.spring.web.service.TaskServiceImpl     : Slow task executed
+2015-07-12 12:41:16.851  [nio-8080-exec-6] x.s.web.controller.BlockingController    : Servlet thread released</code></pre><h3 id="3-返回Callable"><a href="#3-返回Callable" class="headerlink" title="3 返回Callable"></a>3 返回Callable</h3><p>在这个例子中，不是直接返回的结果，我们将返回一个Callable：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AsyncCallableController</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> Logger logger <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> TaskService taskService<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">public</span> <span class="token function">AsyncCallableController</span><span class="token punctuation">(</span>TaskService taskService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>taskService <span class="token operator">=</span> taskService<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/callable"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">,</span> produces <span class="token operator">=</span> <span class="token string">"text/html"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> Callable<span class="token operator">&lt;</span>String<span class="token operator">></span> <span class="token function">executeSlowTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Request received"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        Callable<span class="token operator">&lt;</span>String<span class="token operator">></span> callable <span class="token operator">=</span> taskService<span class="token operator">:</span><span class="token operator">:</span>execute<span class="token punctuation">;</span>
+        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Servlet thread released"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> callable<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>返回Callable意味着Spring MVC将调用在不同的线程中执行定义的任务。Spring将使用TaskExecutor来管理线程。在等待完成的长期任务之前，servlet线程将被释放。</p>
+<pre><code>2015-07-12 13:07:07.012  [nio-8080-exec-5] x.s.w.c.AsyncCallableController          : Request received
+2015-07-12 13:07:07.013  [nio-8080-exec-5] x.s.w.c.AsyncCallableController          : Servlet thread released
+2015-07-12 13:07:12.014  [      MvcAsync2] x.spring.web.service.TaskServiceImpl     : Slow task executed</code></pre><p>你可以看到我们在长时间运行的任务执行完毕之前就已经从servlet返回了。这并不意味着客户端收到了一个响应。与客户端的通信仍然是开放的等待结果，但接收到的请求的线程已被释放，并可以服务于另一个客户的请求。</p>
+<h3 id="4-返回DeferredResult"><a href="#4-返回DeferredResult" class="headerlink" title="4 返回DeferredResult"></a>4 返回DeferredResult</h3><p>首先，我们需要创建一个deferredresult对象。此对象将由控制器返回。我们将完成和Callable相同的事，当我们在另一个线程处理长时间运行的任务的时候释放servlet线程。</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AsyncDeferredController</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> Logger logger <span class="token operator">=</span> LoggerFactory<span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">private</span> <span class="token keyword">final</span> TaskService taskService<span class="token punctuation">;</span>
+
+    <span class="token annotation punctuation">@Autowired</span>
+    <span class="token keyword">public</span> <span class="token function">AsyncDeferredController</span><span class="token punctuation">(</span>TaskService taskService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>taskService <span class="token operator">=</span> taskService<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"/deferred"</span><span class="token punctuation">,</span> method <span class="token operator">=</span> RequestMethod<span class="token punctuation">.</span>GET<span class="token punctuation">,</span> produces <span class="token operator">=</span> <span class="token string">"text/html"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> DeferredResult<span class="token operator">&lt;</span>String<span class="token operator">></span> <span class="token function">executeSlowTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Request received"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        DeferredResult<span class="token operator">&lt;</span>String<span class="token operator">></span> deferredResult <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DeferredResult</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        CompletableFuture<span class="token punctuation">.</span><span class="token function">supplyAsync</span><span class="token punctuation">(</span>taskService<span class="token operator">:</span><span class="token operator">:</span>execute<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">whenCompleteAsync</span><span class="token punctuation">(</span><span class="token punctuation">(</span>result<span class="token punctuation">,</span> throwable<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> deferredResult<span class="token punctuation">.</span><span class="token function">setResult</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        logger<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Servlet thread released"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> deferredResult<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>所以，返回DeferredResult和返回Callable有什么区别？不同的是这一次线程是由我们管理。创建一个线程并将结果set到DeferredResult是由我们自己来做的。</p>
+<p>用completablefuture创建一个异步任务。这将创建一个新的线程，在那里我们的长时间运行的任务将被执行。也就是在这个线程中，我们将set结果到DeferredResult并返回。</p>
+<p>是在哪个线程池中我们取回这个新的线程？默认情况下，在completablefuture的supplyasync方法将在forkjoin池运行任务。如果你想使用一个不同的线程池，你可以通过传一个executor到supplyasync方法：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token operator">&lt;</span>U<span class="token operator">></span> CompletableFuture<span class="token operator">&lt;</span>U<span class="token operator">></span> <span class="token function">supplyAsync</span><span class="token punctuation">(</span>Supplier<span class="token operator">&lt;</span>U<span class="token operator">></span> supplier<span class="token punctuation">,</span> Executor executor<span class="token punctuation">)</span></code></pre>
+<p>如果我们运行这个例子，我们将得到如下结果：</p>
+<pre><code>2015-07-12 13:28:08.433  [io-8080-exec-10] x.s.w.c.AsyncDeferredController          : Request received
+2015-07-12 13:28:08.475  [io-8080-exec-10] x.s.w.c.AsyncDeferredController          : Servlet thread released
+2015-07-12 13:28:13.469  [onPool-worker-1] x.spring.web.service.TaskServiceImpl     : Slow task executed</code></pre><h3 id="5-结论"><a href="#5-结论" class="headerlink" title="5 结论"></a>5 结论</h3><p>站在一定高度来看这问题，Callable和Deferredresult做的是同样的事情——释放容器线程，在另一个线程上异步运行长时间的任务。不同的是谁管理执行任务的线程。</p>
+<p>文中涉及的代码<a href="https://github.com/aheizi/spring-rest" target="_blank" rel="noopener">spring-rest</a></p>
+<p>翻译自<a href="http://xpadro.blogspot.com/2015/07/understanding-callable-and-spring.html" target="_blank" rel="noopener">Xavier Padró’s Blog</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
     
     <article
   id="post-《未来世界的幸存者》读后感"
@@ -1077,90 +1231,6 @@ time=1536809054173
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag">多线程</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-思考-3-任何事情都有代价"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/09/24/%E6%80%9D%E8%80%83-3-%E4%BB%BB%E4%BD%95%E4%BA%8B%E6%83%85%E9%83%BD%E6%9C%89%E4%BB%A3%E4%BB%B7/"
-    >思考 3: 任何事情都有代价</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/09/24/%E6%80%9D%E8%80%83-3-%E4%BB%BB%E4%BD%95%E4%BA%8B%E6%83%85%E9%83%BD%E6%9C%89%E4%BB%A3%E4%BB%B7/" class="article-date">
-  <time datetime="2019-09-24T13:17:28.000Z" itemprop="datePublished">2019-09-24</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>选择越多，选择越好</p>
-<p>没得选也不要盲目</p>
-</blockquote>
-<p><a href="https://www.bilibili.com/video/av38824746" target="_blank" rel="noopener">https://www.bilibili.com/video/av38824746</a></p>
-<blockquote>
-<p>任何事情都有代价</p>
-<p>选择难的事情</p>
-<p>选择贵的东西</p>
-</blockquote>
-<p><a href="https://www.bilibili.com/video/av38272155" target="_blank" rel="noopener">https://www.bilibili.com/video/av38272155</a></p>
-<p>恨一个人总是容易，随便找个理由，大可弃他而去，爱一个人总是那么难，就算他于你而言只是个意外，就算有反对的声音，就算有人冷嘲热讽，你还是无法弃之不顾，还是常常奋不顾身，即便经过这一切，他还是惦记着你的不好，你也不过一声叹息。–S01E07</p>
-<p><a href="https://www.bilibili.com/video/av46310847" target="_blank" rel="noopener">https://www.bilibili.com/video/av46310847</a></p>
-<p>人生充满谎言</p>
-<p>人心浮动，坚守初心</p>
-<p>真正想要的一件不拉的全丢光了</p>
-<p>死亡的本身并没有意义</p>
-<p>活在当下</p>
-<p><a href="https://www.bilibili.com/video/av34173276" target="_blank" rel="noopener">https://www.bilibili.com/video/av34173276</a></p>
-<p>一个人最大优点，往往藏着他最大的弱点</p>
-<p><a href="https://www.bilibili.com/video/av38041629" target="_blank" rel="noopener">https://www.bilibili.com/video/av38041629</a></p>
-<p>见识过这世界的疯狂，才明白什么叫做无常</p>
-<p>S01E08</p>
-<p><a href="https://www.bilibili.com/video/av38531844" target="_blank" rel="noopener">https://www.bilibili.com/video/av38531844</a></p>
-<blockquote>
-<p>没得到的不一定是好的</p>
-</blockquote>
-<p>一个早早离开的人，安放着你最美好的想像</p>
-<p>“人的出现是没有目的的，你的存在也不需要任何意义，不过是众多时间线里一个选择的结果。你也不用纠结另一种可能的生活，你之所以成为你就是你之前的的无数选择。偏差一点点就变成了另一个世界的故事。就像埋在花园里的爷孙俩，那和你并没有关系。你的人生是唯一而且确定的，它就在眼前。”<br>“最向往的生活永远在别处，这是一种求而不得的无奈，而这世间最无奈的就是就是将‘拥有’和‘没有’做比较。一处不存在的生活，一个早已离开的人安放着你最美好的想象，没有谁敌得过想象。”</p>
-<p><a href="https://www.bilibili.com/video/av67233866" target="_blank" rel="noopener">https://www.bilibili.com/video/av67233866</a></p>
-<p>标签效应：领导会给人贴标签</p>
-<p>少点标签</p>
-<p>自证预言</p>
-<p>强者愈强</p>
-<p><a href="https://www.bilibili.com/video/av53942294" target="_blank" rel="noopener">https://www.bilibili.com/video/av53942294</a></p>
-<p>少犯错，少拖延</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%80%9D%E8%80%83/" rel="tag">思考</a></li></ul>
 
     </footer>
   </div>

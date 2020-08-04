@@ -79,7 +79,7 @@
   <script>
     try {
       var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        strings: ['面朝大海，春暖花开', '科技需要人文的浇灌', '想要的都拥有，得不到的都释怀'],
         startDelay: 0,
         typeSpeed: 200,
         loop: true,
@@ -97,6 +97,141 @@
     
     
     
+    
+    <article
+  id="post-实体继承与-Builder注解共存"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/05/%E5%AE%9E%E4%BD%93%E7%BB%A7%E6%89%BF%E4%B8%8E-Builder%E6%B3%A8%E8%A7%A3%E5%85%B1%E5%AD%98/"
+    >实体继承与@Builder注解共存</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/05/%E5%AE%9E%E4%BD%93%E7%BB%A7%E6%89%BF%E4%B8%8E-Builder%E6%B3%A8%E8%A7%A3%E5%85%B1%E5%AD%98/" class="article-date">
+  <time datetime="2019-07-05T08:32:04.000Z" itemprop="datePublished">2019-07-05</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址 <a href="https://www.cnblogs.com/lori/p/10266508.html" target="_blank" rel="noopener">https://www.cnblogs.com/lori/p/10266508.html</a></p>
+</blockquote>
+<p>在面向对象的设计里，继承是非常必要的，我们会把共有的属性和方法抽象到父类中，由它统一去实现，而在进行lombok时代之后，更多的打法是使用@Builder来进行对象赋值，我们直接在类上加@Builder之后，我们的继承就被无情的屏蔽了，这主要是由于构造方法与父类冲突的问题导致的，事实上，<code>我们可以把@Builder注解加到子类的全参构造方法</code>上就可以了！</p>
+<blockquote>
+<p>下面做一个Jpa实体的例子</p>
+</blockquote>
+<h3 id="一个基类"><a href="#一个基类" class="headerlink" title="一个基类"></a>一个基类</h3><p>它一般有统一的id,createdOn,updatedOn等字段 ，在基类中统一去维护。</p>
+<blockquote>
+<p>注意：父类中的属性需要子数去访问，所以需要被声明为protected，如果是private，那在赋值时将是不被允许的。</p>
+</blockquote>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">/**
+ * @MappedSuperclass是一个标识，不会生成这张数据表,子类的@Builder注解需要加在重写的构造方法上.
+ */</span>
+<span class="token annotation punctuation">@Getter</span>
+<span class="token annotation punctuation">@ToString</span><span class="token punctuation">(</span>callSuper <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+<span class="token annotation punctuation">@AllArgsConstructor</span>
+<span class="token annotation punctuation">@NoArgsConstructor</span>
+<span class="token annotation punctuation">@MappedSuperclass</span>
+<span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">EntityBase</span> <span class="token punctuation">{</span>
+  <span class="token annotation punctuation">@Id</span>
+  <span class="token annotation punctuation">@GeneratedValue</span><span class="token punctuation">(</span>strategy <span class="token operator">=</span> GenerationType<span class="token punctuation">.</span>AUTO<span class="token punctuation">)</span>
+  <span class="token keyword">protected</span> Long id<span class="token punctuation">;</span>
+
+
+  <span class="token annotation punctuation">@JsonFormat</span><span class="token punctuation">(</span>pattern <span class="token operator">=</span> <span class="token string">"yyyy-MM-dd HH:mm:ss"</span><span class="token punctuation">,</span> timezone <span class="token operator">=</span> <span class="token string">"GMT+8"</span><span class="token punctuation">)</span>
+  <span class="token annotation punctuation">@Column</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"created_on"</span><span class="token punctuation">)</span>
+  <span class="token keyword">protected</span> LocalDateTime createdOn<span class="token punctuation">;</span>
+
+  <span class="token annotation punctuation">@JsonFormat</span><span class="token punctuation">(</span>pattern <span class="token operator">=</span> <span class="token string">"yyyy-MM-dd HH:mm:ss"</span><span class="token punctuation">,</span> timezone <span class="token operator">=</span> <span class="token string">"GMT+8"</span><span class="token punctuation">)</span>
+  <span class="token annotation punctuation">@Column</span><span class="token punctuation">(</span>name <span class="token operator">=</span> <span class="token string">"updated_on"</span><span class="token punctuation">)</span>
+  <span class="token keyword">protected</span> LocalDateTime updatedOn<span class="token punctuation">;</span>
+
+  <span class="token comment" spellcheck="true">/**
+   * Sets createdAt before insert
+   */</span>
+  <span class="token annotation punctuation">@PrePersist</span>
+  <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setCreationDate</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>createdOn <span class="token operator">=</span> LocalDateTime<span class="token punctuation">.</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>updatedOn <span class="token operator">=</span> LocalDateTime<span class="token punctuation">.</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment" spellcheck="true">/**
+   * Sets updatedAt before update
+   */</span>
+  <span class="token annotation punctuation">@PreUpdate</span>
+  <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setChangeDate</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>updatedOn <span class="token operator">=</span> LocalDateTime<span class="token punctuation">.</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<h3 id="一个实现类"><a href="#一个实现类" class="headerlink" title="一个实现类"></a>一个实现类</h3><blockquote>
+<p>注意，需要重写全参数的构造方法，否则父数中的属性不能被赋值。</p>
+</blockquote>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Entity</span>
+<span class="token annotation punctuation">@Getter</span>
+<span class="token annotation punctuation">@NoArgsConstructor</span>
+<span class="token annotation punctuation">@ToString</span><span class="token punctuation">(</span>callSuper <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TestEntityBuilder</span> <span class="token keyword">extends</span> <span class="token class-name">EntityBase</span> <span class="token punctuation">{</span>
+  <span class="token keyword">private</span> String title<span class="token punctuation">;</span>
+  <span class="token keyword">private</span> String description<span class="token punctuation">;</span>
+
+  <span class="token annotation punctuation">@Builder</span><span class="token punctuation">(</span>toBuilder <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+  <span class="token keyword">public</span> <span class="token function">TestEntityBuilder</span><span class="token punctuation">(</span>Long id<span class="token punctuation">,</span> LocalDateTime createdOn<span class="token punctuation">,</span> LocalDateTime updatedOn<span class="token punctuation">,</span>
+                           String title<span class="token punctuation">,</span> String description<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">super</span><span class="token punctuation">(</span>id<span class="token punctuation">,</span> createdOn<span class="token punctuation">,</span> updatedOn<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>title <span class="token operator">=</span> title<span class="token punctuation">;</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>description <span class="token operator">=</span> description<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<h3 id="单元测试"><a href="#单元测试" class="headerlink" title="单元测试"></a>单元测试</h3><pre class=" language-java"><code class="language-java">    <span class="token comment" spellcheck="true">/**
+   * 测试：在实体使用继承时，如何使用@Builder注解.
+   */</span>
+  <span class="token annotation punctuation">@Test</span>
+  <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">insertBuilderAndInherit</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    TestEntityBuilder testEntityBuilder <span class="token operator">=</span> TestEntityBuilder<span class="token punctuation">.</span><span class="token function">builder</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">title</span><span class="token punctuation">(</span><span class="token string">"lind"</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">description</span><span class="token punctuation">(</span><span class="token string">"lind is @builder and inherit"</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    testBuilderEntityRepository<span class="token punctuation">.</span><span class="token function">save</span><span class="token punctuation">(</span>testEntityBuilder<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    TestEntityBuilder entity <span class="token operator">=</span> testBuilderEntityRepository<span class="token punctuation">.</span><span class="token function">findById</span><span class="token punctuation">(</span>
+        testEntityBuilder<span class="token punctuation">.</span><span class="token function">getId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">orElse</span><span class="token punctuation">(</span>null<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"userinfo:"</span> <span class="token operator">+</span> entity<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    entity <span class="token operator">=</span> entity<span class="token punctuation">.</span><span class="token function">toBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">description</span><span class="token punctuation">(</span><span class="token string">"修改了"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    testBuilderEntityRepository<span class="token punctuation">.</span><span class="token function">save</span><span class="token punctuation">(</span>entity<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"userinfo:"</span> <span class="token operator">+</span> entity<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span></code></pre>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jpa/" rel="tag">jpa</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
     
     <article
   id="post-Swagger-java-lang-NumberFormatException-For-input-string"
@@ -808,94 +943,6 @@ public class SynchronizedTest {
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
 
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-为什么阿里巴巴要求谨慎使用ArrayList中的subList方法"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/30/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E8%A6%81%E6%B1%82%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8ArrayList%E4%B8%AD%E7%9A%84subList%E6%96%B9%E6%B3%95/"
-    >为什么阿里巴巴要求谨慎使用ArrayList中的subList方法</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/06/30/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E8%A6%81%E6%B1%82%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8ArrayList%E4%B8%AD%E7%9A%84subList%E6%96%B9%E6%B3%95/" class="article-date">
-  <time datetime="2019-06-30T13:46:59.000Z" itemprop="datePublished">2019-06-30</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址 <a href="https://www.hollischuang.com/archives/3775" target="_blank" rel="noopener">https://www.hollischuang.com/archives/3775</a></p>
-<p>原位作者 Hollis</p>
-</blockquote>
-<p>集合是Java开发日常开发中经常会使用到的。在之前的一些文章中，我们介绍过一些关于使用集合类应该注意的事项，如《为什么阿里巴巴禁止在 foreach 循环里进行元素的 remove/add 操作》、《为什么阿里巴巴建议集合初始化时，指定集合容量大小》等。</p>
-<p>关于集合类，《阿里巴巴Java开发手册》中其实还有另外一个规定：</p>
-<p><img src="https://www.hollischuang.com/wp-content/uploads/2019/06/15586973453381-1.jpg" alt="-w1379">￼</p>
-<p>本文就来分析一下为什么会有如此建议？其背后的原理是什么？</p>
-<h3 id="subList"><a href="#subList" class="headerlink" title="subList"></a>subList</h3><p>subList是List接口中定义的一个方法，该方法主要用于返回一个集合中的一段、可以理解为截取一个集合中的部分元素，他的返回值也是一个List。</p>
-<p>如以下代码：</p>
-<pre><code>public static void main(String[] args) {
-    List&lt;String&gt; names = new ArrayList&lt;String&gt;() {{
-        add("Hollis");
-        add("hollischuang");
-        add("H");
-    }};
-
-    List subList = names.subList(0, 1);
-    System.out.println(subList);
-}</code></pre><p>以上代码输出结果为：</p>
-<pre><code>[Hollis]</code></pre><p>如果我们改动下代码，将subList的返回值强转成ArrayList试一下：</p>
-<pre><code>public static void main(String[] args) {
-    List&lt;String&gt; names = new ArrayList&lt;String&gt;() {{
-        add("Hollis");
-        add("hollischuang");
-        add("H");
-    }};
-
-    ArrayList subList = names.subList(0, 1);
-    System.out.println(subList);
-}</code></pre><p>以上代码将抛出异常：</p>
-<pre><code>java.lang.ClassCastException: java.util.ArrayList$SubList cannot be cast to java.util.ArrayList</code></pre><p>不只是强转成ArrayList会报错，强转成LinkedList、Vector等List的实现类同样也都会报错。</p>
-<p>那么，为什么会发生这样的报错呢？我们接下来深入分析一下。</p>
-<h3 id="底层原理"><a href="#底层原理" class="headerlink" title="底层原理"></a>底层原理</h3><p>首先，我们看下subList方法给我们返回的List到底是个什么东西，这一点在JDK源码中注释是这样说的：</p>
-<blockquote>
-<p>Returns a view of the portion of this list between the specifiedfromIndex, inclusive, and toIndex, exclusive.</p>
-</blockquote>
-<p>也就是说subList 返回是一个视图，那么什么叫做视图呢？</p>
-<p>我们看下subList的源码：</p> 
-      <a class="article-more-link" href="/2019/06/30/%E4%B8%BA%E4%BB%80%E4%B9%88%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E8%A6%81%E6%B1%82%E8%B0%A8%E6%85%8E%E4%BD%BF%E7%94%A8ArrayList%E4%B8%AD%E7%9A%84subList%E6%96%B9%E6%B3%95/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
     </footer>
   </div>
 

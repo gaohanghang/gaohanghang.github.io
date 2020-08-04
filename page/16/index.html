@@ -79,7 +79,7 @@
   <script>
     try {
       var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        strings: ['面朝大海，春暖花开', '科技需要人文的浇灌', '想要的都拥有，得不到的都释怀'],
         startDelay: 0,
         typeSpeed: 200,
         loop: true,
@@ -97,6 +97,67 @@
     
     
     
+    
+    <article
+  id="post-解决Hash冲突的几种方法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/25/%E8%A7%A3%E5%86%B3Hash%E5%86%B2%E7%AA%81%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/"
+    >解决Hash冲突的几种方法</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/25/%E8%A7%A3%E5%86%B3Hash%E5%86%B2%E7%AA%81%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E6%B3%95/" class="article-date">
+  <time datetime="2019-08-25T02:58:54.000Z" itemprop="datePublished">2019-08-25</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190825144828.png" alt=""></p>
+<blockquote>
+<p>原文地址: <a href="https://blog.csdn.net/u012104435/article/details/47951357" target="_blank" rel="noopener">https://blog.csdn.net/u012104435/article/details/47951357</a></p>
+</blockquote>
+<h2 id="开放地址法："><a href="#开放地址法：" class="headerlink" title="开放地址法："></a>开放地址法：</h2><h3 id="1-线性探测法-ThreadLocalMap"><a href="#1-线性探测法-ThreadLocalMap" class="headerlink" title="1.线性探测法:ThreadLocalMap"></a>1.线性探测法:ThreadLocalMap</h3><p>线性再散列法是形式最简单的处理冲突的方法。插入元素时，如果发生冲突，算法会简单的从该槽位置向后循环遍历hash表，直到找到表中的下一个空槽，并将该元素放入该槽中（会导致相同hash值的元素挨在一起和其他hash值对应的槽被占用）。查找元素时，首先散列值所指向的槽，如果没有找到匹配，则继续从该槽遍历hash表，直到：（1）找到相应的元素；（2）找到一个空槽，指示查找的元素不存在，（所以不能随便删除元素）；（3）整个hash表遍历完毕（指示该元素不存在并且hash表是满的）</p>
+<p>用线性探测法处理冲突，思路清晰，算法简单，但存在下列缺点：<br>① 处理溢出需另编程序。一般可另外设立一个溢出表，专门用来存放上述哈希表中放不下的记录。此溢出表最简单的结构是顺序表，查找方法可用顺序查找。<br>② 按上述算法建立起来的哈希表，删除工作非常困难。如果将此元素删除，查找的时会发现空槽，则会认为要找的元素不存在。只能标上已被删除的标记，否则，将会影响以后的查找。<br>③ 线性探测法很容易产生堆聚现象。所谓堆聚现象，就是存入哈希表的记录在表中连成一片。按照线性探测法处理冲突，如果生成哈希地址的连续序列愈长 ( 即不同关键字值的哈希地址相邻在一起愈长 ) ，则当新的记录加入该表时，与这个序列发生冲突的可能性愈大。因此，哈希地址的较长连续序列比较短连续序列生长得快，这就意味着，一旦出现堆聚 ( 伴随着冲突 ) ，就将引起进一步的堆聚。</p>
+<h3 id="2-线性补偿探测法"><a href="#2-线性补偿探测法" class="headerlink" title="2.线性补偿探测法"></a>2.线性补偿探测法</h3><p>线性补偿探测法的基本思想是：将线性探测的步长从 1 改为 Q ，即将上述算法中的<br>hash ＝ (hash ＋ 1) % m 改为：hash ＝ (hash ＋ Q) % m = hash % m + Q % m，而且要求 Q 与 m 是互质的，以便能探测到哈希表中的所有单元。<br>【例】 PDP-11 小型计算机中的汇编程序所用的符合表，就采用此方法来解决冲突，所用表长 m ＝ 1321 ，选用 Q ＝ 25 。</p>
+<h3 id="3-伪随机探测"><a href="#3-伪随机探测" class="headerlink" title="3.伪随机探测"></a>3.伪随机探测</h3><p>随机探测的基本思想是：将线性探测的步长从常数改为随机数，即令： hash ＝ (hash ＋ RN) % m ，其中 RN 是一个随机数。在实际程序中应预先用随机数发生器产生一个随机序列，将此序列作为依次探测的步长。这样就能使不同的关键字具有不同的探测次序，从而可以避 免或减少堆聚。基于与线性探测法相同的理由，在线性补偿探测法和随机探测法中，删除一个记录后也要打上删除标记。</p>
+<h2 id="拉链法"><a href="#拉链法" class="headerlink" title="拉链法"></a>拉链法</h2><p>拉链法 : hashmap</p>
+<p>拉链法的优点<br>与开放定址法相比，拉链法有如下几个优点：<br>①拉链法处理冲突简单，且无堆积现象，即非同义词决不会发生冲突，因此平均查找长度较短；<br>②由于拉链法中各链表上的结点空间是动态申请的，故它更适合于造表前无法确定表长的情况；<br>③开放定址法为减少冲突，要求装填因子α较小，故当结点规模较大时会浪费很多空间。而拉链法中可取α≥1，且结点较大时，拉链法中增加的指针域可忽略不计，因此节省空间；<br>④在用拉链法构造的散列表中，删除结点的操作易于实现。只要简单地删去链表上相应的结点即可。</p>
+<p>拉链法的缺点<br>    　拉链法的缺点是：指针需要额外的空间，故当结点规模较小时，开放定址法较为节省空间，而若将节省的指针空间用来扩大散列表的规模，可使装填因子变小，这又减少了开放定址法中的冲突，从而提高平均查找速度。</p>
+<h2 id="再散列（双重散列，多重散列）"><a href="#再散列（双重散列，多重散列）" class="headerlink" title="再散列（双重散列，多重散列）"></a>再散列（双重散列，多重散列）</h2><p>当发生冲突时，使用第二个、第三个、哈希函数计算地址，直到无冲突时。缺点：计算时间增加。</p>
+<h2 id="建立一个公共溢出区"><a href="#建立一个公共溢出区" class="headerlink" title="建立一个公共溢出区"></a>建立一个公共溢出区</h2><p>假设哈希函数的值域为[0,m-1],则设向量HashTable[0..m-1]为基本表，另外设立存储空间向量OverTable[0..v]用以存储发生冲突的记录。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
     
     <article
   id="post-Java-8中Stream-API的这些奇技淫巧！你都Get到了吗？"
@@ -974,80 +1035,6 @@ sudo ufw enable</code></pre>
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-《代码整洁之道-程序员的职业素养》读书笔记"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/20/%E3%80%8A%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93-%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%81%8C%E4%B8%9A%E7%B4%A0%E5%85%BB%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"
-    >《代码整洁之道-程序员的职业素养》读书笔记</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/20/%E3%80%8A%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93-%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9A%84%E8%81%8C%E4%B8%9A%E7%B4%A0%E5%85%BB%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" class="article-date">
-  <time datetime="2019-08-20T10:03:46.000Z" itemprop="datePublished">2019-08-20</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190820181050.png" alt=""></p>
-<blockquote>
-<p>豆瓣地址: <a href="https://book.douban.com/subject/26919457/" target="_blank" rel="noopener">https://book.douban.com/subject/26919457/</a></p>
-</blockquote>
-<h2 id="第1章-专业主义-7"><a href="#第1章-专业主义-7" class="headerlink" title="第1章 专业主义 7"></a>第1章 专业主义 7</h2><h3 id="1-1-清楚你要什么-8"><a href="#1-1-清楚你要什么-8" class="headerlink" title="1.1 清楚你要什么 8"></a>1.1 清楚你要什么 8</h3><p>专业主义不但象征着荣誉与骄傲，而且明确意味着责任与义务。</p>
-<h3 id="1-2-担当责任-8"><a href="#1-2-担当责任-8" class="headerlink" title="1.2 担当责任 8"></a>1.2 担当责任 8</h3><p>不要忽视测试环节</p>
-<h3 id="1-3-首先，不行损害之事-10"><a href="#1-3-首先，不行损害之事-10" class="headerlink" title="1.3 首先，不行损害之事 10"></a>1.3 首先，不行损害之事 10</h3><h4 id="1-3-1-不要破坏软件功能-10"><a href="#1-3-1-不要破坏软件功能-10" class="headerlink" title="1.3.1 不要破坏软件功能 10"></a>1.3.1 不要破坏软件功能 10</h4><ol>
-<li>让 QA 找不出任何问题</li>
-<li>要确信代码正常运行</li>
-<li>自动化 QA</li>
-</ol>
-<h4 id="1-3-2-不要破坏结构-12"><a href="#1-3-2-不要破坏结构-12" class="headerlink" title="1.3.2 不要破坏结构 12"></a>1.3.2 不要破坏结构 12</h4><p>如果你希望自己的软件灵活可变，那就应该时常修改它。</p>
-<h3 id="1-4-职业道德-13"><a href="#1-4-职业道德-13" class="headerlink" title="1.4 职业道德 13"></a>1.4 职业道德 13</h3><p>每周拿出20小时，看书、练习、学习，或者其他能提升职业能力的事情。</p>
-<h4 id="1-4-1-了解你的领域-14"><a href="#1-4-1-了解你的领域-14" class="headerlink" title="1.4.1 了解你的领域 14"></a>1.4.1 了解你的领域 14</h4><p>专业开发人员必须精通的事项:</p>
-<ul>
-<li>设计模式</li>
-<li>设计原则: 面向对象，组件设计原则</li>
-<li>方法: 必须理解 XP、Scrum、精益、看板、瀑布、结构化分析及结构化设计等。</li>
-<li>实践: 测试驱动开发、面向对象设计、结构化编程、持续集成和结对编程</li>
-<li>工件: 必须了解如何使用 UML图、DFD图、结构图、Petri 网络图、状态迁移图表</li>
-</ul>
-<h4 id="1-4-2-坚持学习-16"><a href="#1-4-2-坚持学习-16" class="headerlink" title="1.4.2 坚持学习 16"></a>1.4.2 坚持学习 16</h4><p>坚持广泛学习才能不至于落伍，java程序员就去学学ruby</p>
-<h4 id="1-4-3-练习-16"><a href="#1-4-3-练习-16" class="headerlink" title="1.4.3 练习 16"></a>1.4.3 练习 16</h4><h4 id="1-4-4-合作-17"><a href="#1-4-4-合作-17" class="headerlink" title="1.4.4 合作 17"></a>1.4.4 合作 17</h4><h4 id="1-4-5-辅导-17"><a href="#1-4-5-辅导-17" class="headerlink" title="1.4.5 辅导 17"></a>1.4.5 辅导 17</h4><h4 id="1-4-6-了解业务领域-17"><a href="#1-4-6-了解业务领域-17" class="headerlink" title="1.4.6 了解业务领域 17"></a>1.4.6 了解业务领域 17</h4><h4 id="1-4-7-与雇主／客户保持一致-18"><a href="#1-4-7-与雇主／客户保持一致-18" class="headerlink" title="1.4.7 与雇主／客户保持一致 18"></a>1.4.7 与雇主／客户保持一致 18</h4><h4 id="1-4-8-谦逊-18"><a href="#1-4-8-谦逊-18" class="headerlink" title="1.4.8 谦逊 18"></a>1.4.8 谦逊 18</h4><h2 id="第2章-说“不”-19"><a href="#第2章-说“不”-19" class="headerlink" title="第2章 说“不” 19"></a>第2章 说“不” 19</h2><blockquote>
-<p>能就是能，不能就是不能，不要说，’试试看’。—— 尤达</p>
-</blockquote>
-<p>2.1 对抗角色 21<br>2.2 高风险时刻 24<br>2.3 要有团队精神 25<br>2.3.1 试试看 26<br>2.3.2 消极对抗 28<br>2.4 说“是”的成本 30<br>2.5 如何写出好代码 35</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
 
     </footer>
   </div>

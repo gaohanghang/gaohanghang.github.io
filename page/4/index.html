@@ -79,7 +79,7 @@
   <script>
     try {
       var typed = new Typed("#subtitle", {
-        strings: ['面朝大海，春暖花开', '愿你一生努力，一生被爱', '想要的都拥有，得不到的都释怀'],
+        strings: ['面朝大海，春暖花开', '科技需要人文的浇灌', '想要的都拥有，得不到的都释怀'],
         startDelay: 0,
         typeSpeed: 200,
         loop: true,
@@ -97,6 +97,445 @@
     
     
     
+    
+    <article
+  id="post-用好Java中的枚举，真的没有那么简单！"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/01/18/%E7%94%A8%E5%A5%BDJava%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%EF%BC%8C%E7%9C%9F%E7%9A%84%E6%B2%A1%E6%9C%89%E9%82%A3%E4%B9%88%E7%AE%80%E5%8D%95%EF%BC%81/"
+    >用好Java中的枚举，真的没有那么简单！</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/01/18/%E7%94%A8%E5%A5%BDJava%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%EF%BC%8C%E7%9C%9F%E7%9A%84%E6%B2%A1%E6%9C%89%E9%82%A3%E4%B9%88%E7%AE%80%E5%8D%95%EF%BC%81/" class="article-date">
+  <time datetime="2020-01-17T17:35:31.000Z" itemprop="datePublished">2020-01-18</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>最近重看 Java 枚举，看到这篇觉得还不错的文章，于是简单翻译和完善了一些内容，分享给大家，希望你们也能有所收获。另外，不要忘了文末还有补充哦！</p>
+<p>ps: 这里发一篇枚举的文章，也是因为后面要发一篇非常实用的关于 SpringBoot 全局异常处理的比较好的实践里面就用到了枚举。</p>
+<p>这篇文章由 JavaGuide 翻译，</p>
+<p>公众号: JavaGuide,原文地址：<a href="https://www.baeldung.com/a-guide-to-java-enums" target="_blank" rel="noopener">https://www.baeldung.com/a-guide-to-java-enums</a> 。</p>
+<p>转载请注明上面这段文字。</p>
+</blockquote>
+<h2 id="1-概览"><a href="#1-概览" class="headerlink" title="1.概览"></a><strong>1.概览</strong></h2><p>在本文中，我们将看到什么是 Java 枚举，它们解决了哪些问题以及如何在实践中使用  Java 枚举实现一些设计模式。</p>
+<p>enum关键字在 java5 中引入，表示一种特殊类型的类，其总是继承java.lang.Enum类，更多内容可以自行查看其官方文档。</p>
+<p>枚举在很多时候会和常量拿来对比，可能因为本身我们大量实际使用枚举的地方就是为了替代常量。那么这种方式由什么优势呢？</p>
+<p><strong>以这种方式定义的常量使代码更具可读性，允许进行编译时检查，预先记录可接受值的列表，并避免由于传入无效值而引起的意外行为。</strong></p>
+<p>下面示例定义一个简单的枚举类型 pizza 订单的状态，共有三种 ORDERED, READY, DELIVERED状态:</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> shuang<span class="token punctuation">.</span>kou<span class="token punctuation">.</span>enumdemo<span class="token punctuation">.</span>enumtest<span class="token punctuation">;</span>
+
+publicenum PizzaStatus <span class="token punctuation">{</span>
+    ORDERED<span class="token punctuation">,</span>
+    READY<span class="token punctuation">,</span>
+    DELIVERED<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p><strong>简单来说，我们通过上面的代码避免了定义常量，我们将所有和 pizza 订单的状态的常量都统一放到了一个枚举类型里面。</strong></p>
+<pre><code>System.out.println(PizzaStatus.ORDERED.name());//ORDERED
+System.out.println(PizzaStatus.ORDERED);//ORDERED
+System.out.println(PizzaStatus.ORDERED.name().getClass());//class java.lang.String
+System.out.println(PizzaStatus.ORDERED.getClass());//class shuang.kou.enumdemo.enumtest.PizzaStatus</code></pre><h2 id="2-自定义枚举方法"><a href="#2-自定义枚举方法" class="headerlink" title="2.自定义枚举方法"></a><strong>2.自定义枚举方法</strong></h2><p>现在我们对枚举是什么以及如何使用它们有了基本的了解，让我们通过在枚举上定义一些额外的API方法，将上一个示例提升到一个新的水平：</p>
+<pre class=" language-java"><code class="language-java">publicclass Pizza <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> PizzaStatus status<span class="token punctuation">;</span>
+    publicenum PizzaStatus <span class="token punctuation">{</span>
+        ORDERED<span class="token punctuation">,</span>
+        READY<span class="token punctuation">,</span>
+        DELIVERED<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isDeliverable</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">getStatus</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> PizzaStatus<span class="token punctuation">.</span>READY<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            returntrue<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        returnfalse<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment" spellcheck="true">// Methods that set and get the status variable.</span>
+<span class="token punctuation">}</span></code></pre>
+<h2 id="3-使用-比较枚举类型"><a href="#3-使用-比较枚举类型" class="headerlink" title="3.使用 == 比较枚举类型"></a><strong>3.使用 == 比较枚举类型</strong></h2><p>由于枚举类型确保JVM中仅存在一个常量实例，因此我们可以安全地使用“ ==”运算符比较两个变量，如上例所示；此外，“ ==”运算符可提供编译时和运行时的安全性。</p>
+<p>首先，让我们看一下以下代码段中的运行时安全性，其中“ ==”运算符用于比较状态，并且如果两个值均为null 都不会引发 NullPointerException。相反，如果使用equals方法，将抛出 NullPointerException：</p>
+<pre><code>if(testPz.getStatus().equals(Pizza.PizzaStatus.DELIVERED));
+if(testPz.getStatus() == Pizza.PizzaStatus.DELIVERED);</code></pre><p>对于编译时安全性，我们看另一个示例，两个不同枚举类型进行比较，使用equal方法比较结果确定为true，因为getStatus方法的枚举值与另一个类型枚举值一致，但逻辑上应该为false。这个问题可以使用==操作符避免。因为编译器会表示类型不兼容错误：</p>
+<pre><code>if(testPz.getStatus().equals(TestColor.GREEN));
+if(testPz.getStatus() == TestColor.GREEN);</code></pre><h2 id="4-在-switch-语句中使用枚举类型"><a href="#4-在-switch-语句中使用枚举类型" class="headerlink" title="4.在 switch 语句中使用枚举类型"></a><strong>4.在 switch 语句中使用枚举类型</strong></h2><pre><code>public int getDeliveryTimeInDays() {
+    switch (status) {
+        case ORDERED: return5;
+        case READY: return2;
+        case DELIVERED: return0;
+    }
+    return0;
+}</code></pre><h2 id="5-枚举类型的属性-方法和构造函数"><a href="#5-枚举类型的属性-方法和构造函数" class="headerlink" title="5.枚举类型的属性,方法和构造函数"></a><strong>5.枚举类型的属性,方法和构造函数</strong></h2><blockquote>
+<p>“</p>
+<p>文末有我(JavaGuide)的补充。</p>
+<p>”</p>
+</blockquote>
+<p>你可以通过在枚举类型中定义属性,方法和构造函数让它变得更加强大。</p>
+<p>下面，让我们扩展上面的示例，实现从比萨的一个阶段到另一个阶段的过渡，并了解如何摆脱之前使用的if语句和switch语句：</p>
+<pre><code>publicclass Pizza {
+
+    private PizzaStatus status;
+    publicenum PizzaStatus {
+        ORDERED (5){
+            @Override
+            public boolean isOrdered() {
+                returntrue;
+            }
+        },
+        READY (2){
+            @Override
+            public boolean isReady() {
+                returntrue;
+            }
+        },
+        DELIVERED (0){
+            @Override
+            public boolean isDelivered() {
+                returntrue;
+            }
+        };
+
+        privateint timeToDelivery;
+
+        public boolean isOrdered() {returnfalse;}
+
+        public boolean isReady() {returnfalse;}
+
+        public boolean isDelivered(){returnfalse;}
+
+        public int getTimeToDelivery() {
+            return timeToDelivery;
+        }
+
+        PizzaStatus (int timeToDelivery) {
+            this.timeToDelivery = timeToDelivery;
+        }
+    }
+
+    public boolean isDeliverable() {
+        returnthis.status.isReady();
+    }
+
+    public void printTimeToDeliver() {
+        System.out.println(&quot;Time to delivery is &quot; +
+          this.getStatus().getTimeToDelivery());
+    }
+
+    // Methods that set and get the status variable.
+}</code></pre><p>下面这段代码展示它是如何 work 的：</p>
+<pre><code>@Test
+public void givenPizaOrder_whenReady_thenDeliverable() {
+    Pizza testPz = new Pizza();
+    testPz.setStatus(Pizza.PizzaStatus.READY);
+    assertTrue(testPz.isDeliverable());
+}</code></pre><h2 id="6-EnumSet-and-EnumMap"><a href="#6-EnumSet-and-EnumMap" class="headerlink" title="6.EnumSet and EnumMap"></a><strong>6.EnumSet and EnumMap</strong></h2><h3 id="6-1-EnumSet"><a href="#6-1-EnumSet" class="headerlink" title="6.1. EnumSet"></a>6.1. EnumSet</h3><p><code>EnumSet</code> 是一种专门为枚举类型所设计的 <code>Set</code> 类型。</p>
+<p>与<code>HashSet</code>相比，由于使用了内部位向量表示，因此它是特定 <code>Enum</code> 常量集的非常有效且紧凑的表示形式。</p>
+<p>它提供了类型安全的替代方法，以替代传统的基于int的“位标志”，使我们能够编写更易读和易于维护的简洁代码。</p>
+<p><code>EnumSet</code> 是抽象类，其有两个实现：<code>RegularEnumSet</code> 、<code>JumboEnumSet</code>，选择哪一个取决于实例化时枚举中常量的数量。</p>
+<p>在很多场景中的枚举常量集合操作（如：取子集、增加、删除、<code>containsAll</code>和<code>removeAll</code>批操作）使用<code>EnumSet</code>非常合适；如果需要迭代所有可能的常量则使用<code>Enum.values()</code>。</p>
+<pre><code>publicclass Pizza {
+
+    privatestatic EnumSet&lt;PizzaStatus&gt; undeliveredPizzaStatuses =
+      EnumSet.of(PizzaStatus.ORDERED, PizzaStatus.READY);
+
+    private PizzaStatus status;
+
+    publicenum PizzaStatus {
+        ...
+    }
+
+    public boolean isDeliverable() {
+        returnthis.status.isReady();
+    }
+
+    public void printTimeToDeliver() {
+        System.out.println(&quot;Time to delivery is &quot; +
+          this.getStatus().getTimeToDelivery() + &quot; days&quot;);
+    }
+
+    public static List&lt;Pizza&gt; getAllUndeliveredPizzas(List&lt;Pizza&gt; input) {
+        return input.stream().filter(
+          (s) -&gt; undeliveredPizzaStatuses.contains(s.getStatus()))
+            .collect(Collectors.toList());
+    }
+
+    public void deliver() {
+        if (isDeliverable()) {
+            PizzaDeliverySystemConfiguration.getInstance().getDeliveryStrategy()
+              .deliver(this);
+            this.setStatus(PizzaStatus.DELIVERED);
+        }
+    }
+
+    // Methods that set and get the status variable.
+}</code></pre><p>下面的测试演示了展示了 <code>EnumSet</code> 在某些场景下的强大功能：</p>
+<pre><code>@Test
+public void givenPizaOrders_whenRetrievingUnDeliveredPzs_thenCorrectlyRetrieved() {
+    List&lt;Pizza&gt; pzList = new ArrayList&lt;&gt;();
+    Pizza pz1 = new Pizza();
+    pz1.setStatus(Pizza.PizzaStatus.DELIVERED);
+
+    Pizza pz2 = new Pizza();
+    pz2.setStatus(Pizza.PizzaStatus.ORDERED);
+
+    Pizza pz3 = new Pizza();
+    pz3.setStatus(Pizza.PizzaStatus.ORDERED);
+
+    Pizza pz4 = new Pizza();
+    pz4.setStatus(Pizza.PizzaStatus.READY);
+
+    pzList.add(pz1);
+    pzList.add(pz2);
+    pzList.add(pz3);
+    pzList.add(pz4);
+
+    List&lt;Pizza&gt; undeliveredPzs = Pizza.getAllUndeliveredPizzas(pzList);
+    assertTrue(undeliveredPzs.size() == 3);
+}</code></pre><h3 id="6-2-EnumMap"><a href="#6-2-EnumMap" class="headerlink" title="6.2. EnumMap"></a>6.2. EnumMap</h3><p><code>EnumMap</code>是一个专门化的映射实现，用于将枚举常量用作键。与对应的 <code>HashMap</code> 相比，它是一个高效紧凑的实现，并且在内部表示为一个数组:</p>
+<pre><code>EnumMap&lt;Pizza.PizzaStatus, Pizza&gt; map;</code></pre><p>让我们快速看一个真实的示例，该示例演示如何在实践中使用它：</p>
+<pre><code>publicstatic EnumMap&lt;PizzaStatus, List&lt;Pizza&gt;&gt;
+  groupPizzaByStatus(List&lt;Pizza&gt; pizzaList) {
+    EnumMap&lt;PizzaStatus, List&lt;Pizza&gt;&gt; pzByStatus =
+      new EnumMap&lt;PizzaStatus, List&lt;Pizza&gt;&gt;(PizzaStatus.class);
+
+    for (Pizza pz : pizzaList) {
+        PizzaStatus status = pz.getStatus();
+        if (pzByStatus.containsKey(status)) {
+            pzByStatus.get(status).add(pz);
+        } else {
+            List&lt;Pizza&gt; newPzList = new ArrayList&lt;Pizza&gt;();
+            newPzList.add(pz);
+            pzByStatus.put(status, newPzList);
+        }
+    }
+    return pzByStatus;
+}</code></pre><p>下面的测试演示了展示了 <code>EnumMap</code> 在某些场景下的强大功能：</p>
+<pre><code>@Test
+public void givenPizaOrders_whenGroupByStatusCalled_thenCorrectlyGrouped() {
+    List&lt;Pizza&gt; pzList = new ArrayList&lt;&gt;();
+    Pizza pz1 = new Pizza();
+    pz1.setStatus(Pizza.PizzaStatus.DELIVERED);
+
+    Pizza pz2 = new Pizza();
+    pz2.setStatus(Pizza.PizzaStatus.ORDERED);
+
+    Pizza pz3 = new Pizza();
+    pz3.setStatus(Pizza.PizzaStatus.ORDERED);
+
+    Pizza pz4 = new Pizza();
+    pz4.setStatus(Pizza.PizzaStatus.READY);
+
+    pzList.add(pz1);
+    pzList.add(pz2);
+    pzList.add(pz3);
+    pzList.add(pz4);
+
+    EnumMap&lt;Pizza.PizzaStatus,List&lt;Pizza&gt;&gt; map = Pizza.groupPizzaByStatus(pzList);
+    assertTrue(map.get(Pizza.PizzaStatus.DELIVERED).size() == 1);
+    assertTrue(map.get(Pizza.PizzaStatus.ORDERED).size() == 2);
+    assertTrue(map.get(Pizza.PizzaStatus.READY).size() == 1);
+}</code></pre><h2 id="7-通过枚举实现一些设计模式"><a href="#7-通过枚举实现一些设计模式" class="headerlink" title="7. 通过枚举实现一些设计模式"></a><strong>7. 通过枚举实现一些设计模式</strong></h2><h3 id="7-1-单例模式"><a href="#7-1-单例模式" class="headerlink" title="7.1 单例模式"></a>7.1 单例模式</h3><p>通常，使用类实现 Singleton 模式并非易事，枚举提供了一种实现单例的简便方法。</p>
+<p>《Effective Java 》和《Java与模式》都非常推荐这种方式，使用这种方式方式实现枚举可以有什么好处呢？</p>
+<p>《Effective Java》</p>
+<blockquote>
+<p>“</p>
+<p>这种方法在功能上与公有域方法相近，但是它更加简洁，无偿提供了序列化机制，绝对防止多次实例化，即使是在面对复杂序列化或者反射攻击的时候。虽然这种方法还没有广泛采用，但是单元素的枚举类型已经成为实现 Singleton的最佳方法。—-《Effective Java 中文版 第二版》</p>
+<p>”</p>
+</blockquote>
+<p>《Java与模式》</p>
+<blockquote>
+<p>“</p>
+<p>《Java与模式》中，作者这样写道，使用枚举来实现单实例控制会更加简洁，而且无偿地提供了序列化机制，并由JVM从根本上提供保障，绝对防止多次实例化，是更简洁、高效、安全的实现单例的方式。</p>
+<p>”</p>
+</blockquote>
+<p>下面的代码段显示了如何使用枚举实现单例模式：</p>
+<pre><code>publicenum PizzaDeliverySystemConfiguration {
+    INSTANCE;
+    PizzaDeliverySystemConfiguration() {
+        // Initialization configuration which involves
+        // overriding defaults like delivery strategy
+    }
+
+    private PizzaDeliveryStrategy deliveryStrategy = PizzaDeliveryStrategy.NORMAL;
+
+    public static PizzaDeliverySystemConfiguration getInstance() {
+        return INSTANCE;
+    }
+
+    public PizzaDeliveryStrategy getDeliveryStrategy() {
+        return deliveryStrategy;
+    }
+}</code></pre><p>如何使用呢？请看下面的代码：</p>
+<pre><code>PizzaDeliveryStrategy deliveryStrategy = PizzaDeliverySystemConfiguration.getInstance().getDeliveryStrategy();</code></pre><p>通过 <code>PizzaDeliverySystemConfiguration.getInstance()</code> 获取的就是单例的 <code>PizzaDeliverySystemConfiguration</code></p>
+<h3 id="7-2-策略模式"><a href="#7-2-策略模式" class="headerlink" title="7.2 策略模式"></a>7.2 策略模式</h3><p>通常，策略模式由不同类实现同一个接口来实现的。</p>
+<p>这也就意味着添加新策略意味着添加新的实现类。使用枚举，可以轻松完成此任务，添加新的实现意味着只定义具有某个实现的另一个实例。</p>
+<p>下面的代码段显示了如何使用枚举实现策略模式：</p>
+<pre><code>publicenum PizzaDeliveryStrategy {
+    EXPRESS {
+        @Override
+        public void deliver(Pizza pz) {
+            System.out.println(&quot;Pizza will be delivered in express mode&quot;);
+        }
+    },
+    NORMAL {
+        @Override
+        public void deliver(Pizza pz) {
+            System.out.println(&quot;Pizza will be delivered in normal mode&quot;);
+        }
+    };
+
+    public abstract void deliver(Pizza pz);
+}</code></pre><p>给 <code>Pizza</code>增加下面的方法：</p>
+<pre><code>public void deliver() {
+    if (isDeliverable()) {
+        PizzaDeliverySystemConfiguration.getInstance().getDeliveryStrategy()
+          .deliver(this);
+        this.setStatus(PizzaStatus.DELIVERED);
+    }
+}</code></pre><p>如何使用呢？请看下面的代码：</p>
+<pre><code>@Test
+public void givenPizaOrder_whenDelivered_thenPizzaGetsDeliveredAndStatusChanges() {
+    Pizza pz = new Pizza();
+    pz.setStatus(Pizza.PizzaStatus.READY);
+    pz.deliver();
+    assertTrue(pz.getStatus() == Pizza.PizzaStatus.DELIVERED);
+}</code></pre><h2 id="8-Java-8-与枚举"><a href="#8-Java-8-与枚举" class="headerlink" title="8. Java 8 与枚举"></a><strong>8. Java 8 与枚举</strong></h2><p>Pizza 类可以用Java 8重写，您可以看到方法 lambda 和Stream API如何使 <code>getAllUndeliveredPizzas（）</code>和<code>groupPizzaByStatus（）</code>方法变得如此简洁：</p>
+<p><code>getAllUndeliveredPizzas（）</code>:</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> List<span class="token operator">&lt;</span>Pizza<span class="token operator">></span> <span class="token function">getAllUndeliveredPizzas</span><span class="token punctuation">(</span>List<span class="token operator">&lt;</span>Pizza<span class="token operator">></span> input<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> input<span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span>
+      <span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token operator">!</span>deliveredPizzaStatuses<span class="token punctuation">.</span><span class="token function">contains</span><span class="token punctuation">(</span>s<span class="token punctuation">.</span><span class="token function">getStatus</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">collect</span><span class="token punctuation">(</span>Collectors<span class="token punctuation">.</span><span class="token function">toList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p><code>groupPizzaByStatus（）</code> :</p>
+<pre class=" language-java"><code class="language-java">publicstatic EnumMap<span class="token operator">&lt;</span>PizzaStatus<span class="token punctuation">,</span> List<span class="token operator">&lt;</span>Pizza<span class="token operator">>></span>
+  <span class="token function">groupPizzaByStatus</span><span class="token punctuation">(</span>List<span class="token operator">&lt;</span>Pizza<span class="token operator">></span> pzList<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    EnumMap<span class="token operator">&lt;</span>PizzaStatus<span class="token punctuation">,</span> List<span class="token operator">&lt;</span>Pizza<span class="token operator">>></span> map <span class="token operator">=</span> pzList<span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">collect</span><span class="token punctuation">(</span>
+      Collectors<span class="token punctuation">.</span><span class="token function">groupingBy</span><span class="token punctuation">(</span>Pizza<span class="token operator">:</span><span class="token operator">:</span>getStatus<span class="token punctuation">,</span>
+      <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token keyword">new</span> <span class="token class-name">EnumMap</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span>PizzaStatus<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">,</span> Collectors<span class="token punctuation">.</span><span class="token function">toList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> map<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<h2 id="9-Enum-类型的-JSON-表现形式"><a href="#9-Enum-类型的-JSON-表现形式" class="headerlink" title="9. Enum 类型的 JSON 表现形式"></a><strong>9. Enum 类型的 JSON 表现形式</strong></h2><p>使用Jackson库，可以将枚举类型的JSON表示为POJO。下面的代码段显示了可以用于同一目的的Jackson批注：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@JsonFormat</span><span class="token punctuation">(</span>shape <span class="token operator">=</span> JsonFormat<span class="token punctuation">.</span>Shape<span class="token punctuation">.</span>OBJECT<span class="token punctuation">)</span>
+publicenum PizzaStatus <span class="token punctuation">{</span>
+    <span class="token function">ORDERED</span> <span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isOrdered</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            returntrue<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">READY</span> <span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isReady</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            returntrue<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token function">DELIVERED</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isDelivered</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            returntrue<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    privateint timeToDelivery<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isOrdered</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span><span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isReady</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span><span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isDelivered</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span><span class="token punctuation">}</span>
+
+    <span class="token annotation punctuation">@JsonProperty</span><span class="token punctuation">(</span><span class="token string">"timeToDelivery"</span><span class="token punctuation">)</span>
+    <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">getTimeToDelivery</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> timeToDelivery<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">private</span> <span class="token function">PizzaStatus</span> <span class="token punctuation">(</span><span class="token keyword">int</span> timeToDelivery<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>timeToDelivery <span class="token operator">=</span> timeToDelivery<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>我们可以按如下方式使用 <code>Pizza</code> 和 <code>PizzaStatus</code>：</p>
+<pre><code>Pizza pz = new Pizza();
+pz.setStatus(Pizza.PizzaStatus.READY);
+System.out.println(Pizza.getJsonString(pz));</code></pre><p>生成 Pizza 状态以以下JSON展示：</p>
+<pre><code>{
+  &quot;status&quot; : {
+    &quot;timeToDelivery&quot; : 2,
+    &quot;ready&quot; : true,
+    &quot;ordered&quot; : false,
+    &quot;delivered&quot; : false
+  },
+  &quot;deliverable&quot; : true
+}</code></pre><p>有关枚举类型的JSON序列化/反序列化（包括自定义）的更多信息，请参阅Jackson-将枚举序列化为JSON对象。</p>
+<h2 id="10-总结"><a href="#10-总结" class="headerlink" title="10.总结"></a><strong>10.总结</strong></h2><p>本文我们讨论了Java枚举类型，从基础知识到高级应用以及实际应用场景，让我们感受到枚举的强大功能。</p>
+<h2 id="11-补充"><a href="#11-补充" class="headerlink" title="11. 补充"></a><strong>11. 补充</strong></h2><p>我们在上面讲到了，我们可以通过在枚举类型中定义属性,方法和构造函数让它变得更加强大。</p>
+<p>下面我通过一个实际的例子展示一下，当我们调用短信验证码的时候可能有几种不同的用途，我们在下面这样定义：</p>
+<pre><code>publicenum PinType {
+
+    REGISTER(100000, &quot;注册使用&quot;),
+    FORGET_PASSWORD(100001, &quot;忘记密码使用&quot;),
+    UPDATE_PHONE_NUMBER(100002, &quot;更新手机号码使用&quot;);
+
+    privatefinalint code;
+    privatefinal String message;
+
+    PinType(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public String toString() {
+        return&quot;PinType{&quot; +
+                &quot;code=&quot; + code +
+                &quot;, message=&#39;&quot; + message + &#39;\&#39;&#39; +
+                &#39;}&#39;;
+    }
+}</code></pre><p>实际使用：</p>
+<pre><code>System.out.println(PinType.FORGET_PASSWORD.getCode());
+System.out.println(PinType.FORGET_PASSWORD.getMessage());
+System.out.println(PinType.FORGET_PASSWORD.toString());</code></pre><p>Output:</p>
+<pre><code>100001
+忘记密码使用
+PinType{code=100001, message=&#39;忘记密码使用&#39;}</code></pre><p>这样的话，在实际使用起来就会非常灵活方便！</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
     
     <article
   id="post-Redis和mysql数据怎么保持数据一致的？"
@@ -2138,82 +2577,6 @@ Document doc <span class="token operator">=</span> <span class="token function">
 <p>大多数时候，产品在吸引用户采用新功能方面做得非常好：新闻通讯，应用内参观和良好的设计习惯可确保UX不会因最新的全面更新而中断。</p>
 <p>另一方面，对于API来说，似乎只有两个可能的选择：要么从不更改接口以免破坏实现，要么不经通知就更改它，从而破坏了大多数客户的工作。发生这种情况是因为API团队通常不会与用户群断开连接，因为它们不会直接与用户互动。</p>
 <p>但是，第三个选择是完全可能的：有了正确的基础架构和工具，您就可以拥有以对其用户可管理的方式进行更改的API。您可以使用度量标准来做出有关您公开的界面的明智决定：端点使用频率是多少？最近6个月内，有哪些用户称其为特定的API端点？确保您始终可以回答此类问题，因为它们将使您无需担心用户一天的噩梦就能开发自己的API。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-如果一个对象有多个方法加了-synchronized，那么该对象有几把锁？"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/26/%E5%A6%82%E6%9E%9C%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E4%B8%AA%E6%96%B9%E6%B3%95%E5%8A%A0%E4%BA%86-synchronized%EF%BC%8C%E9%82%A3%E4%B9%88%E8%AF%A5%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%87%A0%E6%8A%8A%E9%94%81%EF%BC%9F/"
-    > 如果一个对象有多个方法加了 synchronized，那么该对象有几把锁？</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/12/26/%E5%A6%82%E6%9E%9C%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E4%B8%AA%E6%96%B9%E6%B3%95%E5%8A%A0%E4%BA%86-synchronized%EF%BC%8C%E9%82%A3%E4%B9%88%E8%AF%A5%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%87%A0%E6%8A%8A%E9%94%81%EF%BC%9F/" class="article-date">
-  <time datetime="2019-12-26T13:52:15.000Z" itemprop="datePublished">2019-12-26</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>答案是一把锁 🔐</p>
-</blockquote>
-<p>代码示例：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Test</span> <span class="token punctuation">{</span>
-
-    <span class="token keyword">public</span> <span class="token keyword">synchronized</span> <span class="token keyword">void</span> <span class="token function">method1</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// do something</span>
-    <span class="token punctuation">}</span>
-
-    <span class="token keyword">public</span> <span class="token keyword">synchronized</span> <span class="token keyword">void</span> <span class="token function">method2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token comment" spellcheck="true">// do something</span>
-    <span class="token punctuation">}</span>
-
-<span class="token punctuation">}</span></code></pre>
-<p>对象锁是在一个类的对象上加的的锁，只有一把，不管有几个方法进行了同步。</p>
-<p>这些同步方法都共有一把锁，只要一个线程获得了这个对象锁，其他的线程就不能访问该对象的任何一个同步方法。</p>
-<h3 id="对象锁："><a href="#对象锁：" class="headerlink" title="对象锁："></a>对象锁：</h3><p>synchronized 修饰实体里的非静态变量，锁的是对象</p>
-<p>synchronized 修饰代码块，锁的是对象</p>
-<p>synchronized 修饰非静态方法，锁的是对象</p>
-<p>使用对象锁的情况，只有使用同一对象的线程才会受锁的影响，多个对象调用同一方法也不会受影响。</p>
-<h3 id="类锁："><a href="#类锁：" class="headerlink" title="类锁："></a>类锁：</h3><p>synchronized 修饰类中的静态变量</p>
-<p>synchronized 修饰静态方法</p>
-<p>synchronized 修饰类.class</p>
-<p>类锁是所有线程共享的锁，所以同一时刻，只能有一个线程使用加了锁的方法或方法体，不管是不是同一个实例。</p>
-<blockquote>
-<p>参考文章：</p>
-<p><a href="https://blog.csdn.net/qa275267067/article/details/79804713" target="_blank" rel="noopener">https://blog.csdn.net/qa275267067/article/details/79804713</a></p>
-<p><a href="https://www.cnblogs.com/fengzheng/p/12066239.html" target="_blank" rel="noopener">https://www.cnblogs.com/fengzheng/p/12066239.html</a></p>
-</blockquote>
  
       <!-- reward -->
       
