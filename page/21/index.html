@@ -99,6 +99,197 @@
     
     
     <article
+  id="post-使用-Jenkins-与-Git-自动化部署原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/04/%E4%BD%BF%E7%94%A8-Jenkins-%E4%B8%8E-Git-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E5%8E%9F%E7%90%86/"
+    >使用 Jenkins 与 Git 自动化部署原理</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/04/%E4%BD%BF%E7%94%A8-Jenkins-%E4%B8%8E-Git-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2019-08-03T17:02:54.000Z" itemprop="datePublished">2019-08-04</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>参考视频: <a href="http://www.mayikt.com/front/couinfo/193/0" target="_blank" rel="noopener">http://www.mayikt.com/front/couinfo/193/0</a></p>
+</blockquote>
+<h2 id="0-运行效果"><a href="#0-运行效果" class="headerlink" title="0 运行效果"></a>0 运行效果</h2><blockquote>
+<p>使用jenkins自动build运行效果</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190804000548.png" alt=""></p>
+<h2 id="1-Docker-安装"><a href="#1-Docker-安装" class="headerlink" title="1 Docker 安装"></a>1 Docker 安装</h2><h3 id="使用脚本自动安装"><a href="#使用脚本自动安装" class="headerlink" title="使用脚本自动安装"></a>使用脚本自动安装</h3><p>在测试或开发环境中 Docker 官方为了简化安装流程，提供了一套便捷的安装脚本，CentOS 系统上可以使用这套脚本安装：</p>
+<pre><code class="bash">$ curl -fsSL get.docker.com -o get-docker.sh
+$ sudo sh get-docker.sh --mirror Aliyun</code></pre>
+<p>执行这个命令后，脚本就会自动的将一切准备工作做好，并且把 Docker CE 的 Edge 版本安装在系统中。</p>
+<h3 id="启动-Docker-CE"><a href="#启动-Docker-CE" class="headerlink" title="启动 Docker CE"></a>启动 Docker CE</h3><pre><code class="bash">$ sudo systemctl enable docker
+$ sudo systemctl start docker</code></pre>
+<h3 id="建立-docker-用户组"><a href="#建立-docker-用户组" class="headerlink" title="建立 docker 用户组"></a>建立 docker 用户组</h3><p>默认情况下，<code>docker</code> 命令会使用 <a href="https://en.wikipedia.org/wiki/Unix_domain_socket" target="_blank" rel="noopener">Unix socket</a> 与 Docker 引擎通讯。而只有 <code>root</code> 用户和 <code>docker</code> 组的用户才可以访问 Docker 引擎的 Unix socket。出于安全考虑，一般 Linux 系统上不会直接使用 <code>root</code> 用户。因此，更好地做法是将需要使用 <code>docker</code> 的用户加入 <code>docker</code> 用户组。</p>
+<p>建立 <code>docker</code> 组：</p>
+<pre><code class="bash">$ sudo groupadd docker</code></pre>
+<p>将当前用户加入 <code>docker</code> 组：</p>
+<pre><code class="bash">$ sudo usermod -aG docker $USER</code></pre>
+<p>退出当前终端并重新登录，进行如下测试。</p>
+<h3 id="测试-Docker-是否安装正确"><a href="#测试-Docker-是否安装正确" class="headerlink" title="测试 Docker 是否安装正确"></a>测试 Docker 是否安装正确</h3><pre><code class="bash">$ docker run hello-world
+
+Unable to find image &#39;hello-world:latest&#39; locally
+latest: Pulling from library/hello-world
+d1725b59e92d: Pull complete
+Digest: sha256:0add3ace90ecb4adbf7777e9aacf18357296e799f81cabc9fde470971e499788
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the &quot;hello-world&quot; image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/</code></pre>
+<p>若能正常输出以上信息，则说明安装成功。</p> 
+      <a class="article-more-link" href="/2019/08/04/%E4%BD%BF%E7%94%A8-Jenkins-%E4%B8%8E-Git-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E5%8E%9F%E7%90%86/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jenkins/" rel="tag">jenkins</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-CentOS-安装-Docker-CE"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/"
+    >CentOS 安装 Docker CE</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/" class="article-date">
+  <time datetime="2019-08-03T06:00:22.000Z" itemprop="datePublished">2019-08-03</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="CentOS-安装-Docker-CE"><a href="#CentOS-安装-Docker-CE" class="headerlink" title="CentOS 安装 Docker CE"></a>CentOS 安装 Docker CE</h2><blockquote>
+<p>警告：切勿在没有配置 Docker YUM 源的情况下直接使用 yum 命令安装 Docker.</p>
+</blockquote>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><h4 id="系统要求"><a href="#系统要求" class="headerlink" title="系统要求"></a>系统要求</h4><p>Docker CE 支持 64 位版本 CentOS 7，并且要求内核版本不低于 3.10。 CentOS 7 满足最低内核的要求，但由于内核版本比较低，部分功能（如 <code>overlay2</code> 存储层驱动）无法使用，并且部分功能可能不太稳定。</p>
+<h4 id="卸载旧版本"><a href="#卸载旧版本" class="headerlink" title="卸载旧版本"></a>卸载旧版本</h4><p>旧版本的 Docker 称为 <code>docker</code> 或者 <code>docker-engine</code>，使用以下命令卸载旧版本：</p>
+<pre><code class="bash">$ sudo yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-selinux \
+                  docker-engine-selinux \
+                  docker-engine</code></pre>
+<h3 id="使用-yum-安装"><a href="#使用-yum-安装" class="headerlink" title="使用 yum 安装"></a>使用 yum 安装</h3><p>执行以下命令安装依赖包：</p>
+<pre><code class="bash">$ sudo yum install -y yum-utils \
+           device-mapper-persistent-data \
+           lvm2</code></pre>
+<p>鉴于国内网络问题，强烈建议使用国内源，官方源请在注释中查看。</p>
+<p>执行下面的命令添加 <code>yum</code> 软件源：</p>
+<pre><code class="bash">$ sudo yum-config-manager \
+    --add-repo \
+    https://mirrors.ustc.edu.cn/docker-ce/linux/centos/docker-ce.repo
+
+
+# 官方源
+# $ sudo yum-config-manager \
+#     --add-repo \
+#     https://download.docker.com/linux/centos/docker-ce.repo</code></pre>
+<p>如果需要测试版本的 Docker CE 请使用以下命令：</p>
+<pre><code class="bash">$ sudo yum-config-manager --enable docker-ce-test</code></pre>
+<p>如果需要每日构建版本的 Docker CE 请使用以下命令：</p>
+<pre><code class="bash">$ sudo yum-config-manager --enable docker-ce-nightly</code></pre>
+<h4 id="安装-Docker-CE"><a href="#安装-Docker-CE" class="headerlink" title="安装 Docker CE"></a>安装 Docker CE</h4><p>更新 <code>yum</code> 软件源缓存，并安装 <code>docker-ce</code>。</p>
+<pre><code class="bash">$ sudo yum makecache fast
+$ sudo yum install docker-ce</code></pre>
+<h3 id="使用脚本自动安装"><a href="#使用脚本自动安装" class="headerlink" title="使用脚本自动安装"></a>使用脚本自动安装</h3><p>在测试或开发环境中 Docker 官方为了简化安装流程，提供了一套便捷的安装脚本，CentOS 系统上可以使用这套脚本安装：</p>
+<pre><code class="bash">$ curl -fsSL get.docker.com -o get-docker.sh
+$ sudo sh get-docker.sh --mirror Aliyun</code></pre>
+<p>执行这个命令后，脚本就会自动的将一切准备工作做好，并且把 Docker CE 的 Edge 版本安装在系统中。</p> 
+      <a class="article-more-link" href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Dockerization-Do-more-with-Docke"
   class="article article-type-post"
   itemscope
@@ -695,199 +886,6 @@ Java3y    30  7月15号</code></pre>
 <h3 id="Future-接口介绍"><a href="#Future-接口介绍" class="headerlink" title="Future 接口介绍"></a>Future 接口介绍</h3><p>JDK5 新增了 Future 接口，用于描述一个异步计算的结果。虽然 Future 以及相关使用方法提供了异步执行任务的能力，但是对于结果的获取却是很不方便，只能通过阻塞或者轮询的方式得到任务的结果。阻塞的方式显然和我们的异步编程的初衷相违背，轮询的方式又会耗费无谓的 CPU 资源，而且也不能及时地得到计算结果，为什么不能用观察者设计模式呢？即当计算结果完成及时通知监听者。</p>
 <p>有一些开源框架实现了我们的设想，例如 Netty 的 ChannelFuture 类扩展了 Future 接口，通过提供 addListener 方法实现支持回调方式的异步编程。Netty 中所有的 I/O 操作都是异步的,这意味着任何的 I/O 调用都将立即返回，而不保证这些被请求的 I/O 操作在调用结束的时候已经完成。取而代之地，你会得到一个返回的 ChannelFuture 实例，这个实例将给你一些关于 I/O 操作结果或者状态的信息。当一个 I/O 操作开始的时候，一个新的 Future 对象就会被创建。在开始的时候，新的 Future 是未完成的状态－－它既非成功、失败，也非被取消，因为 I/O 操作还没有结束。如果 I/O 操作以成功、失败或者被取消中的任何一种状态结束了，那么这个 Future 将会被标记为已完成，并包含更多详细的信息（例如：失败的原因）。请注意，即使是失败和被取消的状态，也是属于已完成的状态。阻塞方式的示例代码如清单 1 所示。</p>
 <h5 id="清单-1-阻塞方式示例代码"><a href="#清单-1-阻塞方式示例代码" class="headerlink" title="清单 1. 阻塞方式示例代码"></a>清单 1. 阻塞方式示例代码</h5> 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-RecursiveTask和RecursiveAction的使用-以及java-8-并行流和顺序流"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/24/RecursiveTask%E5%92%8CRecursiveAction%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%BB%A5%E5%8F%8Ajava-8-%E5%B9%B6%E8%A1%8C%E6%B5%81%E5%92%8C%E9%A1%BA%E5%BA%8F%E6%B5%81/"
-    >RecursiveTask和RecursiveAction的使用 以及java 8 并行流和顺序流</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/24/RecursiveTask%E5%92%8CRecursiveAction%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%BB%A5%E5%8F%8Ajava-8-%E5%B9%B6%E8%A1%8C%E6%B5%81%E5%92%8C%E9%A1%BA%E5%BA%8F%E6%B5%81/" class="article-date">
-  <time datetime="2019-07-24T15:29:48.000Z" itemprop="datePublished">2019-07-24</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址: <a href="https://blog.csdn.net/weixin_41404773/article/details/80733324" target="_blank" rel="noopener">https://blog.csdn.net/weixin_41404773/article/details/80733324</a></p>
-</blockquote>
-<h2 id="什么是Fork-Join框架"><a href="#什么是Fork-Join框架" class="headerlink" title="什么是Fork/Join框架"></a>什么是Fork/Join框架</h2><p>Fork/Join框架是Java7提供了的一个用于并行执行任务的框架， 是一个把大任务分割成若干个小任务，最终汇总每个小任务结果后得到大任务结果的框架。</p>
-<p>我们再通过Fork和Join这两个单词来理解下Fork/Join框架，Fork就是把一个大任务切分为若干子任务并行的执行，Join就是合并这些子任务的执行结果，最后得到这个大任务的结果。比如计算1+2+。。＋10000，可以分割成10个子任务，每个子任务分别对1000个数进行求和，最终汇总这10个子任务的结果。Fork/Join的运行流程图如下：</p>
-<h2 id="工作窃取算法"><a href="#工作窃取算法" class="headerlink" title="工作窃取算法"></a>工作窃取算法</h2><p>工作窃取（work-stealing）算法是指某个线程从其他队列里窃取任务来执行。工作窃取的运行流程图如下：</p>
-<p> 那么为什么需要使用工作窃取算法呢？假如我们需要做一个比较大的任务，我们可以把这个任务分割为若干互不依赖的子任务，为了减少线程间的竞争，于是把这些子任务分别放到不同的队列里，并为每个队列创建一个单独的线程来执行队列里的任务，线程和队列一一对应，比如A线程负责处理A队列里的任务。但是有的线程会先把自己队列里的任务干完，而其他线程对应的队列里还有任务等待处理。干完活的线程与其等着，不如去帮其他线程干活，于是它就去其他线程的队列里窃取一个任务来执行。而在这时它们会访问同一个队列，所以为了减少窃取任务线程和被窃取任务线程之间的竞争，通常会使用双端队列，被窃取任务线程永远从双端队列的头部拿任务执行，而窃取任务的线程永远从双端队列的尾部拿任务执行。        </p>
-<p>工作窃取算法的优点是充分利用线程进行并行计算，并减少了线程间的竞争，其缺点是在某些情况下还是存在竞争，比如双端队列里只有一个任务时。并且消耗了更多的系统资源，比如创建多个线程和多个双端队列。</p>
-<h3 id="ForkJoinPool"><a href="#ForkJoinPool" class="headerlink" title="ForkJoinPool"></a>ForkJoinPool</h3><p>Java提供了ForkJoinPool来支持将一个任务拆分成多个“小任务”并行计算，再把多个“小任务”的结果合成总的计算结果。</p>
-<p>ForkJoinPool是ExecutorService的实现类，因此是一种特殊的线程池。ForkJoinPool提供了如下两个常用的构造器。</p>
-<ul>
-<li><p>public ForkJoinPool(int parallelism)：创建一个包含parallelism个并行线程的ForkJoinPool</p>
-</li>
-<li><p>public ForkJoinPool() ：以Runtime.getRuntime().availableProcessors()的返回值作为parallelism来创建ForkJoinPool</p>
-</li>
-</ul>
-<p>创建ForkJoinPool实例后，可以调用ForkJoinPool的submit(ForkJoinTask<T> task)或者invoke(ForkJoinTask<T> task)来执行指定任务。其中ForkJoinTask代表一个可以并行、合并的任务。ForkJoinTask是一个抽象类，它有两个抽象子类：RecursiveAction和RecursiveTask。</p>
-<ul>
-<li>RecursiveTask代表有返回值的任务</li>
-<li>RecursiveAction代表没有返回值的任务。</li>
-</ul>
-<h3 id="RecursiveAction"><a href="#RecursiveAction" class="headerlink" title="RecursiveAction"></a>RecursiveAction</h3><p>下面以一个没有返回值的大任务为例，介绍一下RecursiveAction的用法。</p>
-<p>大任务是：打印0-100的数值。</p>
-<p>小任务是：每次只能打印20个数值。</p>
-<p>代码执行</p>
-<pre><code class="java">package com.example.jedis.test;
-
-import java.util.concurrent.RecursiveAction;
-
-/**
- *
- * @Author : Wukn
- * @Date : 2018/2/5
- */
-public class RaskDemo extends RecursiveAction {
-    /**
-     *  每个&quot;小任务&quot;最多只打印20个数
-      */
-    private static final int MAX = 20;
-
-    private int start;
-    private int end;
-
-    public RaskDemo(int start, int end) {
-        this.start = start;
-        this.end = end;
-    }
-
-    @Override
-    protected void compute() {
-        //当end-start的值小于MAX时，开始打印
-        if((end-start) &lt; MAX) {
-            for(int i= start; i&lt;end;i++) {
-                System.out.println(Thread.currentThread().getName()+&quot;i的值&quot;+i);
-            }
-        }else {
-            // 将大任务分解成两个小任务
-            int middle = (start + end) / 2;
-            RaskDemo left = new RaskDemo(start, middle);
-            RaskDemo right = new RaskDemo(middle, end);
-            left.fork();
-            right.fork();
-        }
-    }
-}</code></pre>
-<pre><code class="java">public static void main(String[] args) throws Exception{
-    // 创建包含Runtime.getRuntime().availableProcessors()返回值作为个数的并行线程的ForkJoinPool
-    ForkJoinPool forkJoinPool = new ForkJoinPool();
-
-    // 提交可分解的PrintTask任务
-    forkJoinPool.submit(new RaskDemo(0, 1000));
-
-    //阻塞当前线程直到 ForkJoinPool 中所有的任务都执行结束
-    forkJoinPool.awaitTermination(2, TimeUnit.SECONDS);
-
-    // 关闭线程池
-    forkJoinPool.shutdown();
-}</code></pre>
-<p>运行结果</p>
-<p>从上面结果来看，ForkJoinPool启动了四个线程来执行这个打印任务，我的计算机的CPU是四核的。大家还可以看到程序虽然打印了0-999这一千个数字，但是并不是连续打印的，这是因为程序将这个打印任务进行了分解，分解后的任务会并行执行，所以不会按顺序打印。</p>
-<h3 id="RecursiveTask"><a href="#RecursiveTask" class="headerlink" title="RecursiveTask"></a>RecursiveTask</h3><p>下面以一个有返回值的大任务为例，介绍一下RecursiveTask的用法。</p> 
-      <a class="article-more-link" href="/2019/07/24/RecursiveTask%E5%92%8CRecursiveAction%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%BB%A5%E5%8F%8Ajava-8-%E5%B9%B6%E8%A1%8C%E6%B5%81%E5%92%8C%E9%A1%BA%E5%BA%8F%E6%B5%81/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java8/" rel="tag">java8</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-分布式缓存Redis之与Memcached的比较"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/17/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98Redis%E4%B9%8B%E4%B8%8EMemcached%E7%9A%84%E6%AF%94%E8%BE%83/"
-    >分布式缓存Redis之与Memcached的比较</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/17/%E5%88%86%E5%B8%83%E5%BC%8F%E7%BC%93%E5%AD%98Redis%E4%B9%8B%E4%B8%8EMemcached%E7%9A%84%E6%AF%94%E8%BE%83/" class="article-date">
-  <time datetime="2019-07-17T15:24:52.000Z" itemprop="datePublished">2019-07-17</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>文章地址 <a href="https://www.cnblogs.com/aspirant/p/8883871.html" target="_blank" rel="noopener">Redis和Memcache的区别总结-京东阿里面试</a></p>
-</blockquote>
-<h3 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h3><p>Redis支持的数据类型要丰富得多,Redis不仅仅支持简单的k/v类型的数据，同时还提供String，List,Set,Hash,Sorted Set,pub/sub,Transactions数据结构的存储。其中Set是HashMap实现的，value永远为null而已</p>
-<p>memcache支持简单数据类型，需要客户端自己处理复杂对象 </p>
-<h3 id="持久性"><a href="#持久性" class="headerlink" title="持久性"></a>持久性</h3><p>redis支持数据落地持久化存储,</p>
-<p>可以将内存中的数据保持在磁盘中，重启的时候可以再次加载进行使用。 </p>
-<p>memcache不支持数据持久存储 </p>
-<h3 id="分布式存储"><a href="#分布式存储" class="headerlink" title="分布式存储"></a>分布式存储</h3><p>redis支持master-slave复制模式</p>
-<p>memcache可以使用一致性hash做分布式</p>
-<h3 id="value大小不同"><a href="#value大小不同" class="headerlink" title="value大小不同"></a>value大小不同</h3><p>memcache是一个内存缓存，key的长度小于250字符<strong>，单个item存储要小于1M</strong>，不适合虚拟机使用</p>
-<h3 id="数据一致性不同"><a href="#数据一致性不同" class="headerlink" title="数据一致性不同"></a>数据一致性不同</h3><p>Redis只使用单核，而Memcached可以使用多核，所以平均每一个核上Redis在存储小数据时比Memcached性能更高。而在100k以上的数据中，Memcached性能要高于Redis，虽然Redis最近也在存储大数据的性能上进行优化，但是比起Memcached，还是稍有逊色。 </p>
-<p>redis使用的是单线程模型，保证了数据按顺序提交。</p>
-<p>memcache需要使用cas保证数据一致性。CAS（Check and Set）是一个确保并发一致性的机制，属于“乐观锁”范畴；原理很简单：拿版本号，操作，对比版本号，如果一致就操作，不一致就放弃任何操作 </p>
-<h3 id="cpu利用"><a href="#cpu利用" class="headerlink" title="cpu利用"></a>cpu利用</h3><p>redis单线程模型只能使用一个cpu，可以开启多个redis进程</p>
- 
       <!-- reward -->
       
     </div>

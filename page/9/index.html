@@ -99,6 +99,278 @@
     
     
     <article
+  id="post-ARTS-8"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/02/ARTS-8/"
+    >ARTS-8</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/02/ARTS-8/" class="article-date">
+  <time datetime="2019-11-01T16:35:24.000Z" itemprop="datePublished">2019-11-02</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>ARTS是由左耳朵耗子陈皓在极客时间专栏《左耳听风》中发起的一个每周学习打卡计划。</p>
+</blockquote>
+<pre><code>Algorithm：至少做一个 LeetCode 的算法题。主要为了编程训练和学习。
+
+Review：阅读并点评至少一篇英文技术文章。主要为了学习英文，如果你英文不行，很难成为技术高手。
+
+Tip：学习至少一个技术技巧。主要是为了总结和归纳你日常工作中所遇到的知识点。
+
+Share：分享一篇有观点和思考的技术文章。主要为了输出你的影响力，能够输出你的价值观。</code></pre><h2 id="Algorithm-算法"><a href="#Algorithm-算法" class="headerlink" title="Algorithm(算法)"></a>Algorithm(算法)</h2><h3 id="leetcode-958-完全二叉树的判断"><a href="#leetcode-958-完全二叉树的判断" class="headerlink" title="leetcode 958  完全二叉树的判断"></a>leetcode 958  完全二叉树的判断</h3><p><a href="https://leetcode-cn.com/problems/check-completeness-of-a-binary-tree/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/check-completeness-of-a-binary-tree/</a></p>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">/**
+ * @Description https://www.youtube.com/watch?v=xxIpSooeZfQ
+ * @Author Gao Hang Hang
+ * @Date 2019-11-06 00:20
+ **/</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">/*
+    思路:
+        bfs 广度优先
+        left -> right 一旦 null，后面全 null
+    时间复杂度：O(N)，因为遍历了二叉树
+    空间复杂度：O(N)，使用Queue
+     */</span>
+    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isCompleteTree</span><span class="token punctuation">(</span>TreeNode root<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// corner case</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>root <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">// 是否遇到过空节点，true：遇到过null，false：没遇到过null</span>
+        <span class="token keyword">boolean</span> end <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        Queue<span class="token operator">&lt;</span>TreeNode<span class="token operator">></span> q <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">// offer 添加一个元素并返回true  如果队列已满，则返回false</span>
+        q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>root<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span>q<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// left -> right</span>
+            TreeNode node <span class="token operator">=</span> q<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// poll 移除并返问队列头部的元素  如果队列为空，则返回null</span>
+            <span class="token comment" spellcheck="true">// null</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>node <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                end <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">// not null</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>end<span class="token punctuation">)</span> <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+                <span class="token comment" spellcheck="true">// 添加左节点</span>
+                q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>node<span class="token punctuation">.</span>left<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment" spellcheck="true">// 添加右节点</span>
+                q<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>node<span class="token punctuation">.</span>right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<h2 id="Review-点评"><a href="#Review-点评" class="headerlink" title="Review(点评)"></a>Review(点评)</h2><h2 id="Tip-技巧"><a href="#Tip-技巧" class="headerlink" title="Tip(技巧)"></a>Tip(技巧)</h2><h3 id="url命名"><a href="#url命名" class="headerlink" title="url命名"></a>url命名</h3><p><a href="https://blog.csdn.net/belalds/article/details/80060296" target="_blank" rel="noopener">https://blog.csdn.net/belalds/article/details/80060296</a></p>
+<p><a href="https://xovel.cn/article/naming-rule.html" target="_blank" rel="noopener">https://xovel.cn/article/naming-rule.html</a></p>
+<p><a href="https://blog.csdn.net/ideality_hunter/article/details/82109940" target="_blank" rel="noopener">https://blog.csdn.net/ideality_hunter/article/details/82109940</a></p>
+<p><a href="https://juejin.im/entry/584a1ae761ff4b0058d08bf1" target="_blank" rel="noopener">https://juejin.im/entry/584a1ae761ff4b0058d08bf1</a></p>
+<p>脊柱命名法（spinal-case）<br>脊柱命名法是使用连字符 “-“ 分割单词的一种蛇形命名法的变体. 它的优点与缺点跟蛇形命名法非常相似, 只是有项例外是有的语言不允许使用连字符用来定义符号名称 (例如声明变量，class起名或函数命名时). 你可能会发现它参考了lisp命名的写法，因为lisp方言就是这么做的. 这种命名法也是Unix和Linux系统中传统的文件夹命名方式. 例如: spinal-case, current-user, 等等.</p>
+<p>根据文档 RFC3986 规定, URL是大小写敏感的 (除了主机头等信息).<br>实际情况中，大小写敏感问题可能会对在Windows环境托管的API导致出现问题.</p>
+<p>所以建议使用脊柱命名法（spinal-case） ( RFC3986 文档中突出强调了这一点), 这种命名法也被 Google, PayPal 和其他大公司使用.</p>
+<h2 id="Share-分享"><a href="#Share-分享" class="headerlink" title="Share(分享)"></a>Share(分享)</h2><p><a href="http://ghang.top/2019/11/05/《阿里巴巴-Java-开发手册》第五章MySQL数据库解读/">《阿里巴巴 Java 开发手册》第五章MySQL数据库解读</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ARTS/" rel="tag">ARTS</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-Spring-Boot-高效数据聚合之道"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/01/Spring-Boot-%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E8%81%9A%E5%90%88%E4%B9%8B%E9%81%93/"
+    >Spring Boot 高效数据聚合之道</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/01/Spring-Boot-%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E8%81%9A%E5%90%88%E4%B9%8B%E9%81%93/" class="article-date">
+  <time datetime="2019-11-01T01:34:28.000Z" itemprop="datePublished">2019-11-01</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://learnku.com/spring/t/30589" target="_blank" rel="noopener">Spring Boot 高效数据聚合之道</a></p>
+</blockquote>
+<p>项目地址和示例代码: <a href="https://github.com/lvyahui8/spring-boot-data-aggregator" target="_blank" rel="noopener">https://github.com/lvyahui8/spring-boot-data-aggregator</a></p>
+<h2 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h2><p>接口开发是后端开发中最常见的场景，可能是 RESTFul 接口，也可能是 RPC 接口. <strong>接口开发往往是从各处捞出数据，然后组装成结果，特别是那些偏业务的接口.</strong></p>
+<p>如何<strong>方便快速的开发高性能的接口</strong> , 是一个必须思考的问题.</p>
+<p>例如，我现在需要实现一个接口，拉取<code>用户基础信息</code> + <code>用户的博客列表</code> + <code>用户的粉丝数据</code>的整合数据，假设已经有如下三个接口可以使用，分别用来获取 <code>用户基础信息</code> , <code>用户博客列表</code> , <code>用户的粉丝数据</code>.</p>
+<p><strong>用户基础信息</strong></p>
+<pre><code class="java">@Service
+public class UserServiceImpl implements UserService {
+    @Override
+    public User get(Long id) {
+        try {Thread.sleep(1000L);} catch (InterruptedException e) {}
+        /* mock a user*/
+        User user = new User();
+        user.setId(id);
+        user.setEmail(&quot;lvyahui8@gmail.com&quot;);
+        user.setUsername(&quot;lvyahui8&quot;);
+        return user;
+    }
+}</code></pre>
+<p><strong>用户博客列表</strong></p>
+<pre><code class="java">@Service
+public class PostServiceImpl implements PostService {
+    @Override
+    public List&lt;Post&gt; getPosts(Long userId) {
+        try { Thread.sleep(1000L); } catch (InterruptedException e) {}
+        Post post = new Post();
+        post.setTitle(&quot;spring data aggregate example&quot;);
+        post.setContent(&quot;No active profile set, falling back to default profiles&quot;);
+        return Collections.singletonList(post);
+    }
+}</code></pre>
+<p><strong>用户的粉丝数据</strong></p>
+<pre><code class="java">@Service
+public class FollowServiceImpl implements FollowService {
+    @Override
+    public List&lt;User&gt; getFollowers(Long userId) {
+        try { Thread.sleep(1000L); } catch (InterruptedException e) {}
+        int size = 10;
+        List&lt;User&gt; users = new ArrayList&lt;&gt;(size);
+        for(int i = 0 ; i &lt; size; i++) {
+            User user = new User();
+            user.setUsername(&quot;name&quot;+i);
+            user.setEmail(&quot;email&quot;+i+&quot;@fox.com&quot;);
+            user.setId((long) i);
+            users.add(user);
+        };
+        return users;
+    }
+}</code></pre>
+<p><em>注意，每一个方法都 sleep 了 1s 以模拟业务耗时.</em></p>
+<p>我们需要再封装一个接口，来拼装以上三个接口的数据.</p>
+<pre><code class="java">@Component
+public class UserQueryFacade {
+    @Autowired
+    private FollowService followService;
+    @Autowired
+    private PostService postService;
+    @Autowired
+    private UserService userService;
+
+    public User getUserData(Long userId) {
+        User user = userService.get(userId);
+        user.setPosts(postService.getPosts(userId));
+        user.setFollowers(followService.getFollowers(userId));
+        return user;
+    }
+}</code></pre>
+<p><strong>很明显，上面的代码，效率低下，起码要 3s 才能拿到结果</strong> , 且一旦用到某个接口的数据，便需要注入相应的 service, 复用麻烦.</p>
+<h2 id="2-并行实现"><a href="#2-并行实现" class="headerlink" title="2. 并行实现"></a>2. 并行实现</h2><p>有追求的程序员可能立马会考虑到，这<strong>几项数据之间并无强依赖性，完全可以并行获取</strong>嘛，通过异步线程 + CountDownLatch+Future 实现，就像下面这样.</p>
+<pre><code class="java">@Component
+public class UserQueryFacade {
+    @Autowired
+    private FollowService followService;
+    @Autowired
+    private PostService postService;
+    @Autowired
+    private UserService userService;
+
+    public User getUserDataByParallel(Long userId) throws InterruptedException, ExecutionException {
+          // 创建固定大小的线程池
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+          // CountDownLatch类位于java.util.concurrent包下，利用它可以实现类似计数器的功能。比如有一个任务A，它要等待其他4个任务执行完毕之后才能执行，此时就可以利用CountDownLatch来实现这种功能了。
+        CountDownLatch countDownLatch = new CountDownLatch(3); // 参数count为计数值
+        Future&lt;User&gt; userFuture = executorService.submit(() -&gt; {
+            try{
+                return userService.get(userId);
+            }finally {
+                countDownLatch.countDown();
+            }
+        });
+        Future&lt;List&lt;Post&gt;&gt; postsFuture = executorService.submit(() -&gt; {
+            try{
+                return postService.getPosts(userId);
+            }finally {
+                countDownLatch.countDown();
+            }
+        });
+        Future&lt;List&lt;User&gt;&gt; followersFuture = executorService.submit(() -&gt; {
+            try{
+                return followService.getFollowers(userId);
+            }finally {
+                countDownLatch.countDown();
+            }
+        });
+          // 使当前线程在锁存器倒计数至零之前一直等待，除非线程被中断。
+        countDownLatch.await();
+        User user = userFuture.get();
+        user.setFollowers(followersFuture.get());
+        user.setPosts(postsFuture.get());
+        return user;
+    }
+}</code></pre>
+<p>上面的代码，<strong>将串行调用改为并行调用，在有限并发级别下，能极大提高性能</strong>. 但很明显，它过于复杂，如果每个接口都为了并行执行都写这样一段代码，简直是噩梦.</p>
+<h2 id="3-优雅的注解实现"><a href="#3-优雅的注解实现" class="headerlink" title="3. 优雅的注解实现"></a>3. 优雅的注解实现</h2><p>熟悉 java 的都知道，java 有一种非常便利的特性～～注解。简直是黑魔法。往往只需要给类或者方法上添加一些注解，便可以实现非常复杂的功能.</p>
+<p>有了注解，再结合 Spring 依赖自动注入的思想，那么我们可不可以通过注解的方式，自动注入依赖，自动并行调用接口呢？答案是肯定的.</p> 
+      <a class="article-more-link" href="/2019/11/01/Spring-Boot-%E9%AB%98%E6%95%88%E6%95%B0%E6%8D%AE%E8%81%9A%E5%90%88%E4%B9%8B%E9%81%93/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-boot/" rel="tag">spring boot</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-HTTP长连接和短连接"
   class="article article-type-post"
   itemscope
@@ -922,173 +1194,6 @@
     
     <footer class="article-footer">
        
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Synchronize-关键字原理"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/10/24/Synchronize-%E5%85%B3%E9%94%AE%E5%AD%97%E5%8E%9F%E7%90%86/"
-    >Synchronize 关键字原理</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/10/24/Synchronize-%E5%85%B3%E9%94%AE%E5%AD%97%E5%8E%9F%E7%90%86/" class="article-date">
-  <time datetime="2019-10-24T04:42:50.000Z" itemprop="datePublished">2019-10-24</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p><a href="https://juejin.im/post/5a5c488e518825733a30ae9d" target="_blank" rel="noopener">https://juejin.im/post/5a5c488e518825733a30ae9d</a></p>
-</blockquote>
-<p>众所周知 <code>Synchronize</code> 关键字是解决并发问题常用解决方案，有以下三种使用方式:</p>
-<ul>
-<li>同步普通方法，锁的是当前对象。</li>
-<li>同步静态方法，锁的是当前 <code>Class</code> 对象。</li>
-<li>同步块，锁的是 <code>()</code> 中的对象。</li>
-</ul>
-<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 同步普通方法</span>
-<span class="token keyword">public</span> <span class="token keyword">synchronized</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-
-<span class="token punctuation">}</span>
-
-<span class="token comment" spellcheck="true">// 同步静态方法</span>
-<span class="token keyword">public</span> <span class="token keyword">synchronized</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-
-<span class="token punctuation">}</span>
-
-<span class="token comment" spellcheck="true">// 同步块</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    <span class="token keyword">synchronized</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-优质文档的4条原则"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/10/24/%E4%BC%98%E8%B4%A8%E6%96%87%E6%A1%A3%E7%9A%844%E6%9D%A1%E5%8E%9F%E5%88%99/"
-    >良好文档的4条原则(翻译)</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/10/24/%E4%BC%98%E8%B4%A8%E6%96%87%E6%A1%A3%E7%9A%844%E6%9D%A1%E5%8E%9F%E5%88%99/" class="article-date">
-  <time datetime="2019-10-23T16:24:02.000Z" itemprop="datePublished">2019-10-24</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191101203643.png" alt=""></p>
-<blockquote>
-<p>原文地址: <a href="https://medium.com/swlh/the-4-tenets-of-good-documentation-1bd8069b3c2d" target="_blank" rel="noopener">The 4 Tenets of Good Documentation</a></p>
-</blockquote>
-<p>我最近和一个我带的初级开发人员讨论代码文档，并提出了良好文档应该包括的四件事。在向我的学员讲过这一点之后，他们惊讶于为什么以前没有人如此简洁地说过。所以我决定写下这些原则，以防读者也看不到它们。</p>
-<p>好的代码文档必须告诉下一个开发人员（即使是同一个人）以下四点信息：</p>
-<ul>
-<li>目的：为什么编写代码（是库，代码段，方法或类）</li>
-<li>功能：代码在做什么，</li>
-<li>形式：代码如何实现其功能，以及</li>
-<li>用法：如何使用代码。</li>
-</ul>
-<p>在本文的其余部分中，我将使用 PieChart 类作为示例，该类的编写目的是在屏幕上显示饼图。这是一个非常简单的概念，它完全封装了可能会被重用的单个功能。</p>
-<h1 id="目的：为什么要编写代码"><a href="#目的：为什么要编写代码" class="headerlink" title="目的：为什么要编写代码"></a>目的：为什么要编写代码</h1><p>为什么创建这个 PieChart 类？在我们的示例中，它封装了向用户显示饼图所需的所有代码。在我们的应用程序中，我们将显示很多饼图，因此，最好有一个编写良好的类来处理它们。因此，此类的简单目的是使显示饼图更易于编码。</p>
-<p>一般来说，这是最容易编写的文档。一方面，这纯粹是观点。编写该类的原因是你想要或需要编写它。你只需要将其目的传达给下一个开发人员。这样，你可以让下一个人看到它，以了解它为什么对你创建的整个项目或库很重要，他们将更好地掌握如何在代码中使用它。此外，文档的这一部分不必冗长。它只需要足够的信息告诉开发人员到底是什么。</p>
-<p>在文档的这一部分中，你还应该列出编写此代码的所有假设。在这里，你可能要列出此代码的替代方案，这些替代方案可能无法满足你的特定要求。</p>
-<pre><code>目的：
-
-PieChart 封装了显示饼图的功能，给用户一个可重用的类。</code></pre><h1 id="功能：这段代码在做什么"><a href="#功能：这段代码在做什么" class="headerlink" title="功能：这段代码在做什么"></a>功能：这段代码在做什么</h1><p>这是你编写的代码的高级描述。在我们的 PieChart 类示例中，代码将获取用户数据并将其显示为饼图。但是，该描述过于简洁，实际上只是”目的”部分的重复。</p>
-<p>我们需要做的是解释 PieChart 的所有部分都在做什么。在提供表格文档时，可以将其分解为多个部分并进行解释。不过，对于复杂的代码，最好对功能进行汇总，并与代码原理的解释分开。</p>
-<pre><code>功能：
-
-PieChart 接收用户数据并将其转换为可显示的格式，然后呈现给用户。饼图使用本地图形库创建，并使用提供的字符串进行描述。饼图可以在屏幕范围内创建为任意大小，并且可以放置在屏幕上的任何位置，只要它们完全在屏幕范围内即可。饼图将使用一组计算出的颜色创建，以提供各部分之间的对比。如果需要，也可以设置颜色。</code></pre><h1 id="形式：此代码的工作方式"><a href="#形式：此代码的工作方式" class="headerlink" title="形式：此代码的工作方式"></a>形式：此代码的工作方式</h1><p>现在我们需要深入研究代码。这是我们在这里解释所使用的所有微妙技巧，所使用的所有复杂算法以及代码进行的所有假设的地方。并不是每个方法或属性都需要单独文档化，特别是如果它们的名称是见名知意的。但是，复杂的方法和方法参数绝对应该如此，特别是当可以使用编辑器自动完成查看注释时。</p>
-<p>这里的文档应该是这样的水平：如果要让其他人去看（或者如果你要在6个月后再回来查看它），不会有关于它如何工作的问题。这可以说是最华丽的赞美了。</p>
-<p>在这里，你还需要解释为什么选择一种算法而不是另一种算法，尤其是当你使用的算法是非标准算法时。对于大多数类型的软件，有许多标准实践，如果你的代码将要偏离这些标准，请提供充分的文档说明其原因和方式。我知道作为开发人员，我们有多喜欢在我们的代码中利用巧妙的技巧。但是，如果你没有足够地证明这种聪明才智，那么没人会理解或信任你的所作所为。</p>
-<p>以下是 PieChart 的一种方法 DrawChart() 的一个很好注释的示例（在此缩写为空格）。</p>
-<pre><code>格式：
-
-/ * 
-此方法DrawChart（）包含用于
-在屏幕上绘制图表的所有图形代码。它希望从类属性中知道大小
-（半径），中心位置，数据数组，颜色数组和
-描述数组。没有这些，该
-方法将失败。绘制循环：根据数据计算圆弧，从中心到圆弧
-起点绘制线，绘制圆弧，从圆弧末端到中心绘制线，填充
-颜色，创建描述字符串视图，基于
-圆弧旋转视图，绘制字符串视图。该方法将在失败时引发错误。
-* / 
-func DrawChart（）</code></pre><h1 id="用法：如何使用此代码"><a href="#用法：如何使用此代码" class="headerlink" title="用法：如何使用此代码"></a>用法：如何使用此代码</h1><p>最后，我们需要描述如何使用代码。对于某些代码，这是可选的，但前提是用法简单，明显且易于从代码中推断出来。通常只有使用简单方法或高度描述枚举之类的代码时才如此。其他所有内容均应使用，并在可能的情况下以自动完成编辑器可以理解注释以及自文档库可以读取它的方式添加注释。</p>
-<pre><code>用法：
-
-PieChart.init（Array userData []，Array userColors []，Array 
-description []，double radius，point centerPoint）userData是一个值数组（双精度），将用于
-计算饼图的百分比部分。userColors是一个可选的颜色数组，
-每个值与一个颜色匹配。descriptions是一个可选的字符串数组，显示在
-每个楔形中，每个值与一个匹配。radius是饼图的半径。centerPoint是饼图的中心，是一个点结构
-（双x，双y）。</code></pre><h1 id="第五条宗旨：乐趣"><a href="#第五条宗旨：乐趣" class="headerlink" title="第五条宗旨：乐趣"></a>第五条宗旨：乐趣</h1><p>编写或阅读文档通常都不是很有趣。如果做得正确，文档能提供很多信息，但文档通常很枯燥，有时很难理解。我喜欢在我的注释中搞些幽默，我鼓励你也这样做。一个无伤大雅的，有目的的双关语或基于上下文的笑话常常受到读者的赞赏。不过要注意政策。一些老板对此不满意。</p>
-<h1 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h1><p>好的文档是成为优秀开发人员的一部分。如果没有其他原因，我鼓励每个开发人员养成为代码写文档的习惯，他们将能够理解自己所写的内容。而且，我向你保证，如果你勤奋地编写良好的文档，你的同事和合作者将为此而喜欢你。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
     </footer>
   </div>
 

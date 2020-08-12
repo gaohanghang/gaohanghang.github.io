@@ -99,6 +99,165 @@
     
     
     <article
+  id="post-Docker-部署Confluence15-2"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/11/Docker-%E9%83%A8%E7%BD%B2Confluence15-2/"
+    >Docker 部署Confluence15.2</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/11/Docker-%E9%83%A8%E7%BD%B2Confluence15-2/" class="article-date">
+  <time datetime="2019-08-10T16:52:16.000Z" itemprop="datePublished">2019-08-11</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原作者: <a href="https://www.cnblogs.com/tchua/" target="_blank" rel="noopener">小花</a></p>
+<p>原文地址: <a href="https://www.cnblogs.com/tchua/p/10727568.html" target="_blank" rel="noopener">https://www.cnblogs.com/tchua/p/10727568.html</a></p>
+</blockquote>
+<h3 id="一、数据库准备"><a href="#一、数据库准备" class="headerlink" title="一、数据库准备"></a>一、数据库准备</h3><h4 id="数据库版本：5-7"><a href="#数据库版本：5-7" class="headerlink" title="数据库版本：5.7"></a>数据库版本：5.7</h4><p>这里数据库并没有采用docker镜像方式，而是选择已有数据库。至于数据库安装这里不再说明。</p>
+<p>注：我这里安装confluence时，需要在下面配置数据库信息时，在数据库地址链接后面加上?sessionVariables=tx_isolation=’READ-COMMITTED’，否则会报错</p>
+<p>1) 创建数据库并授权</p>
+<pre><code>create database confluence default character set utf8 collate utf8_bin;
+GRANT ALL PRIVILEGES ON confluence.* TO &#39;confluence&#39;@&#39;%&#39; IDENTIFIED BY &#39;Confluence#123&#39; WITH GRANT OPTION;
+FLUSH PRIVILEGES;</code></pre><h3 id="二-、confluence安装"><a href="#二-、confluence安装" class="headerlink" title="二 、confluence安装"></a>二 、confluence安装</h3><p>1)  获取镜像</p>
+<p>confluence镜像我们去拉取官方最新镜像<a href="https://hub.docker.com/r/atlassian/confluence-server/tags?page=3" target="_blank" rel="noopener">atlassian/confluence-server:6.15.2</a></p>
+<p> [root@vanje-dev01 ~]# docker pull atlassian/confluence-server:6.15.2 </p>
+<p>镜像大小大约800多M，下载速度取决于本地带宽，耐心等待就好</p>
+<p>2）启动confluence</p>
+<pre><code>docker run -d --name confluence -p 7080:8090 -p 7091:8091 atlassian/confluence-server:6.15.2</code></pre><p>上面参数挂载宿主机目录进行confluence数据持久化及同步容器时间，7080为容器映射到宿主机端口，后面需要用此端口进行对confluence访问。</p>
+<p>启动后，可以通过docker ps 查看是否启动成功，如果看到confluence容器是UP状态，则证明已经启动成功。</p>
+<p>3）confluence安装配置</p>
+<p>浏览器打开confluence访问页面：<a href="http://172.16.11.248:7080，既可以看到confluence安装配置页面">http://172.16.11.248:7080，既可以看到confluence安装配置页面</a></p>
+<p>3.1）修改语言(看个人需要)</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190812232929.png" alt=""></p>
+<p> <img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190812232946.png" alt=""></p>
+<p>3.2） 获得插件，这里可以不选择，直接下一步就行</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190812233001.png" alt=""></p>
+<p>3.3） 获取Server ID到次页面需要输入key才可以进行下一步，这里需要记住服务器ID，为后面破解需要。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190812233019.png" alt=""></p>
+<h3 id="三、confluence破解"><a href="#三、confluence破解" class="headerlink" title="三、confluence破解"></a>三、confluence破解</h3><p>　　3.1）破解包下载</p>
+<p>　　　　下载地址: <a href="https://files.cnblogs.com/files/tchua/key-Confluence.rar" target="_blank" rel="noopener">key-Confluence.rar</a></p>
+<p>　　3.2）运行破解程序（需要java环境）</p>
+<p>　　win上打开cmd，进入下面路径，运行破解程序</p> 
+      <a class="article-more-link" href="/2019/08/11/Docker-%E9%83%A8%E7%BD%B2Confluence15-2/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-是什么让你开始放下手机去读书？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/10/%E6%98%AF%E4%BB%80%E4%B9%88%E8%AE%A9%E4%BD%A0%E5%BC%80%E5%A7%8B%E6%94%BE%E4%B8%8B%E6%89%8B%E6%9C%BA%E5%8E%BB%E8%AF%BB%E4%B9%A6%EF%BC%9F/"
+    >是什么让你开始放下手机去读书？</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/10/%E6%98%AF%E4%BB%80%E4%B9%88%E8%AE%A9%E4%BD%A0%E5%BC%80%E5%A7%8B%E6%94%BE%E4%B8%8B%E6%89%8B%E6%9C%BA%E5%8E%BB%E8%AF%BB%E4%B9%A6%EF%BC%9F/" class="article-date">
+  <time datetime="2019-08-10T13:32:50.000Z" itemprop="datePublished">2019-08-10</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：魏华懋</p>
+<p>链接：<a href="https://www.zhihu.com/question/303137880/answer/591763203" target="_blank" rel="noopener">https://www.zhihu.com/question/303137880/answer/591763203</a></p>
+<p>来源：知乎</p>
+</blockquote>
+<p>西安交通大学政治学教授陆卫明在一次授课时讲道：“实际上，我对你们（他的学生）特别是90后一代青年学生还是有一点看法的，什么看法呢？你们把大量的时间花在电脑手机上，如果是要查某些资料就到网上，百度网或者学术期刊找二手的论文，这是害死人的。<strong>如果没有读大量的原始经典名著， 就缺乏功底与魅力，不要说是鉴赏能力，就连辨别能力都没有，这个实际上就会导致人云亦云，以讹传讹，不会思考，也没有思想的局面，这恐怕是以后你们发展的最大瓶颈</strong>。</p>
+<p><strong>手机很好玩，但玩手机不会产生价值，而且在浪费价值</strong></p>
+<p>手机是真的好玩，一玩就能玩一天，抖音也好玩，一点进去就能开心几个小时。手机在很大程度上真的能度过无聊的时光。 </p>
+<blockquote>
+<p>但是，总有很多时刻，当屏幕熄灭的一瞬间，内心时不时会闪现一丝空荡荡的感觉，花了那么多的时间在看空间，看朋友圈，刷贴吧，逛微博。最后却什么都没有换来，没有产生任何的价值。</p>
+</blockquote>
+<p>经济学上有个词叫做“<strong>机会成本</strong>”，意思是为了得到这种东西所放弃的东西。套用在这里，玩手机也是有成本的，为了玩手机，需要放弃我们的时间、机会等一系列隐形的成本。</p>
+<blockquote>
+<p>打个比方， 本来说好去做一天兼职，然后第二天却起不来床，睡了一上午，点了一份外卖，又玩了一下午的游戏，这里的机会成本是本应该做兼职一天的收入。本来说好要去图书馆学习的，但是却呆在宿舍打了一天游戏，本应该在图书馆学习一天知识的时间的机会成本也同样被浪费掉了。</p>
+</blockquote>
+<p><strong>与其吸收零散碎片化的信息，不如多读书形成系统专业的知识</strong></p>
+<p>当然，很多人说他们能够在手机上也能学到很多东西，例如每天看新闻能够了解我们的社会，刷微博经常会发现新奇的事物能够丰富眼界，看b站时不时还能学到新的技能，搜百度也能找到很多问题的答案。</p>
+<p>但这些，无疑都是碎片化的信息，在《如何阅读一本书》这本书里，谈到阅读的目标分为两类，一是为获得咨询而读，二是为求得理解而读。<strong>显而易见的是绝大多数人属于第一类，为获得娱乐，资讯，消遣时间而玩手机，而这类信息在本质上都是重复的，简单的，不会因为无法理解而伤脑筋 。</strong>这类信息很大程度上能增加我们的资讯，却不能增进我们的理解力；</p>
+<p><strong>而读书更趋近于第二类，是系统性，理解性的。我们在读书的时候，更多的是去读我们并不怎么知道的东西，</strong>这个东西的水平比阅读的人高上一截，在双方水准不齐之下，这个作者想要表达的东西，能增进阅读者的理解力。而且一本书里面的内容往往是一个领域的知识，具有专业性和系统性，能够帮助我们更为深入的了解在该领域的必要知识，在阅读的过程中慢慢理解和思考，可在与作者的沟通中学习到作者建立的知识体系，也能形成自己的认知和思考。</p>
+<blockquote>
+<p>读书这件事可以去辩证的看待，它既有主观的因素，例如读书的意识、方法、态度，动机；也有客观的因素，生活的环境，读书环境，身边人的影响等等。</p>
+</blockquote>
+<p><strong>当然，我们不能只注重主观的因素，两耳不闻窗外事，一心只读圣贤书的方法只会陷入死读书的怪圈；同样也不能只注重客观因素，例如没有良好的学习环境，身边的人都在玩，离不开手机这些原因就认为没那个条件而不去读书。</strong></p>
+<p><strong>这也正如矛盾的普遍性和特殊性关系一般，普遍性在于我们所有人都在读书，特殊性在于每个人都有不同的读书方法和经历，都会有自己独特的感受。</strong></p>
+<p><strong>一定要去读书而发现读书的感受，又通过对读书的深刻感受认识去更好的读书。</strong></p>
+<p><strong>读书是一个渐进式的过程</strong></p>
+<p>从不喜欢读书到喜欢读书的过程并不是一蹴而就的，而是一个漫长的、渐进的、启发的过程，这个过程一定要坚持，答主从大一开始看书到大三，用了两年时间开始真正的喜欢上读书，喜欢上学习这件事情。读的书也逐渐从小说渐渐转向政治学、经济学、历史学、哲学、心理学感兴趣的五大专业领域学习。</p>
+<p><strong>每天去图书馆读书不再是坚持，而是一种习惯。</strong></p>
+<p><strong>总结</strong>：我不反对玩手机，我平常也喜欢玩手机。<strong>我反对的是每天把大把用于学习，用于活动，用于提升自己的时间拿去玩手机</strong>，正如一天精力最好的白天和下午，很多人把这段最好的时间和精力献给了手机。与其吸收零散碎片化的信息，不如多读书形成系统专业的知识。</p>
+<p> <strong>在琐碎时间玩一会手机是消遣时间，在正经时间玩手机是消遣生命。</strong></p>
+<p><strong>PS:</strong>假期一定利用好时间多学习，多实践。我目前趁假期有大量空闲又纯粹不受打扰的时间学习，到学校后要上课就会断断续续。多去图书馆和书店安静有环境氛围的地方学习。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-《麦肯锡决断力》读书笔记"
   class="article article-type-post"
   itemscope
@@ -777,197 +936,6 @@ private void modifyPassword(String password1 ,String password2)</code></pre>
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-使用-Jenkins-与-Git-自动化部署原理"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/04/%E4%BD%BF%E7%94%A8-Jenkins-%E4%B8%8E-Git-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E5%8E%9F%E7%90%86/"
-    >使用 Jenkins 与 Git 自动化部署原理</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/04/%E4%BD%BF%E7%94%A8-Jenkins-%E4%B8%8E-Git-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E5%8E%9F%E7%90%86/" class="article-date">
-  <time datetime="2019-08-03T17:02:54.000Z" itemprop="datePublished">2019-08-04</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>参考视频: <a href="http://www.mayikt.com/front/couinfo/193/0" target="_blank" rel="noopener">http://www.mayikt.com/front/couinfo/193/0</a></p>
-</blockquote>
-<h2 id="0-运行效果"><a href="#0-运行效果" class="headerlink" title="0 运行效果"></a>0 运行效果</h2><blockquote>
-<p>使用jenkins自动build运行效果</p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190804000548.png" alt=""></p>
-<h2 id="1-Docker-安装"><a href="#1-Docker-安装" class="headerlink" title="1 Docker 安装"></a>1 Docker 安装</h2><h3 id="使用脚本自动安装"><a href="#使用脚本自动安装" class="headerlink" title="使用脚本自动安装"></a>使用脚本自动安装</h3><p>在测试或开发环境中 Docker 官方为了简化安装流程，提供了一套便捷的安装脚本，CentOS 系统上可以使用这套脚本安装：</p>
-<pre><code class="bash">$ curl -fsSL get.docker.com -o get-docker.sh
-$ sudo sh get-docker.sh --mirror Aliyun</code></pre>
-<p>执行这个命令后，脚本就会自动的将一切准备工作做好，并且把 Docker CE 的 Edge 版本安装在系统中。</p>
-<h3 id="启动-Docker-CE"><a href="#启动-Docker-CE" class="headerlink" title="启动 Docker CE"></a>启动 Docker CE</h3><pre><code class="bash">$ sudo systemctl enable docker
-$ sudo systemctl start docker</code></pre>
-<h3 id="建立-docker-用户组"><a href="#建立-docker-用户组" class="headerlink" title="建立 docker 用户组"></a>建立 docker 用户组</h3><p>默认情况下，<code>docker</code> 命令会使用 <a href="https://en.wikipedia.org/wiki/Unix_domain_socket" target="_blank" rel="noopener">Unix socket</a> 与 Docker 引擎通讯。而只有 <code>root</code> 用户和 <code>docker</code> 组的用户才可以访问 Docker 引擎的 Unix socket。出于安全考虑，一般 Linux 系统上不会直接使用 <code>root</code> 用户。因此，更好地做法是将需要使用 <code>docker</code> 的用户加入 <code>docker</code> 用户组。</p>
-<p>建立 <code>docker</code> 组：</p>
-<pre><code class="bash">$ sudo groupadd docker</code></pre>
-<p>将当前用户加入 <code>docker</code> 组：</p>
-<pre><code class="bash">$ sudo usermod -aG docker $USER</code></pre>
-<p>退出当前终端并重新登录，进行如下测试。</p>
-<h3 id="测试-Docker-是否安装正确"><a href="#测试-Docker-是否安装正确" class="headerlink" title="测试 Docker 是否安装正确"></a>测试 Docker 是否安装正确</h3><pre><code class="bash">$ docker run hello-world
-
-Unable to find image &#39;hello-world:latest&#39; locally
-latest: Pulling from library/hello-world
-d1725b59e92d: Pull complete
-Digest: sha256:0add3ace90ecb4adbf7777e9aacf18357296e799f81cabc9fde470971e499788
-Status: Downloaded newer image for hello-world:latest
-
-Hello from Docker!
-This message shows that your installation appears to be working correctly.
-
-To generate this message, Docker took the following steps:
- 1. The Docker client contacted the Docker daemon.
- 2. The Docker daemon pulled the &quot;hello-world&quot; image from the Docker Hub.
-    (amd64)
- 3. The Docker daemon created a new container from that image which runs the
-    executable that produces the output you are currently reading.
- 4. The Docker daemon streamed that output to the Docker client, which sent it
-    to your terminal.
-
-To try something more ambitious, you can run an Ubuntu container with:
- $ docker run -it ubuntu bash
-
-Share images, automate workflows, and more with a free Docker ID:
- https://hub.docker.com/
-
-For more examples and ideas, visit:
- https://docs.docker.com/get-started/</code></pre>
-<p>若能正常输出以上信息，则说明安装成功。</p> 
-      <a class="article-more-link" href="/2019/08/04/%E4%BD%BF%E7%94%A8-Jenkins-%E4%B8%8E-Git-%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2%E5%8E%9F%E7%90%86/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jenkins/" rel="tag">jenkins</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-CentOS-安装-Docker-CE"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/"
-    >CentOS 安装 Docker CE</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/" class="article-date">
-  <time datetime="2019-08-03T06:00:22.000Z" itemprop="datePublished">2019-08-03</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h2 id="CentOS-安装-Docker-CE"><a href="#CentOS-安装-Docker-CE" class="headerlink" title="CentOS 安装 Docker CE"></a>CentOS 安装 Docker CE</h2><blockquote>
-<p>警告：切勿在没有配置 Docker YUM 源的情况下直接使用 yum 命令安装 Docker.</p>
-</blockquote>
-<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><h4 id="系统要求"><a href="#系统要求" class="headerlink" title="系统要求"></a>系统要求</h4><p>Docker CE 支持 64 位版本 CentOS 7，并且要求内核版本不低于 3.10。 CentOS 7 满足最低内核的要求，但由于内核版本比较低，部分功能（如 <code>overlay2</code> 存储层驱动）无法使用，并且部分功能可能不太稳定。</p>
-<h4 id="卸载旧版本"><a href="#卸载旧版本" class="headerlink" title="卸载旧版本"></a>卸载旧版本</h4><p>旧版本的 Docker 称为 <code>docker</code> 或者 <code>docker-engine</code>，使用以下命令卸载旧版本：</p>
-<pre><code class="bash">$ sudo yum remove docker \
-                  docker-client \
-                  docker-client-latest \
-                  docker-common \
-                  docker-latest \
-                  docker-latest-logrotate \
-                  docker-logrotate \
-                  docker-selinux \
-                  docker-engine-selinux \
-                  docker-engine</code></pre>
-<h3 id="使用-yum-安装"><a href="#使用-yum-安装" class="headerlink" title="使用 yum 安装"></a>使用 yum 安装</h3><p>执行以下命令安装依赖包：</p>
-<pre><code class="bash">$ sudo yum install -y yum-utils \
-           device-mapper-persistent-data \
-           lvm2</code></pre>
-<p>鉴于国内网络问题，强烈建议使用国内源，官方源请在注释中查看。</p>
-<p>执行下面的命令添加 <code>yum</code> 软件源：</p>
-<pre><code class="bash">$ sudo yum-config-manager \
-    --add-repo \
-    https://mirrors.ustc.edu.cn/docker-ce/linux/centos/docker-ce.repo
-
-
-# 官方源
-# $ sudo yum-config-manager \
-#     --add-repo \
-#     https://download.docker.com/linux/centos/docker-ce.repo</code></pre>
-<p>如果需要测试版本的 Docker CE 请使用以下命令：</p>
-<pre><code class="bash">$ sudo yum-config-manager --enable docker-ce-test</code></pre>
-<p>如果需要每日构建版本的 Docker CE 请使用以下命令：</p>
-<pre><code class="bash">$ sudo yum-config-manager --enable docker-ce-nightly</code></pre>
-<h4 id="安装-Docker-CE"><a href="#安装-Docker-CE" class="headerlink" title="安装 Docker CE"></a>安装 Docker CE</h4><p>更新 <code>yum</code> 软件源缓存，并安装 <code>docker-ce</code>。</p>
-<pre><code class="bash">$ sudo yum makecache fast
-$ sudo yum install docker-ce</code></pre>
-<h3 id="使用脚本自动安装"><a href="#使用脚本自动安装" class="headerlink" title="使用脚本自动安装"></a>使用脚本自动安装</h3><p>在测试或开发环境中 Docker 官方为了简化安装流程，提供了一套便捷的安装脚本，CentOS 系统上可以使用这套脚本安装：</p>
-<pre><code class="bash">$ curl -fsSL get.docker.com -o get-docker.sh
-$ sudo sh get-docker.sh --mirror Aliyun</code></pre>
-<p>执行这个命令后，脚本就会自动的将一切准备工作做好，并且把 Docker CE 的 Edge 版本安装在系统中。</p> 
-      <a class="article-more-link" href="/2019/08/03/CentOS-%E5%AE%89%E8%A3%85-Docker-CE/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
 
     </footer>
   </div>

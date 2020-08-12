@@ -99,6 +99,245 @@
     
     
     <article
+  id="post-为什么要使用Spring-IOC"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/12/29/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8Spring-IOC/"
+    >为什么要使用Spring IOC?</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/29/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8Spring-IOC/" class="article-date">
+  <time datetime="2019-12-29T14:48:23.000Z" itemprop="datePublished">2019-12-29</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1gae09ffuerj30r80hsac1.jpg" alt=""></p>
+<p>图片来自<a href="https://www.zoltanraffai.com/blog/inversion-of-control-container/" target="_blank" rel="noopener">https://www.zoltanraffai.com/blog/inversion-of-control-container/</a></p>
+<blockquote>
+<p>作者：valarchie 的技术小屋</p>
+<p>链接：<a href="https://juejin.im/post/5d78a9f1e51d453b1f37ebb6" target="_blank" rel="noopener">https://juejin.im/post/5d78a9f1e51d453b1f37ebb6</a></p>
+<p>来源：掘金</p>
+<p>小结：</p>
+<ul>
+<li>控制反转（IOC）：<ul>
+<li>控制：上层需要去控制 new 下层对象</li>
+<li>反转：反转意味着我们把对象创建的控制权交出去，交给 IOC 容器，由 IOC 容器负责创建特定对象，并填充到各个声明需要特定对象的地方</li>
+</ul>
+</li>
+<li>依赖注入（DI）：通过控制反转，对象在被创建的时候，由一个调控系统内所有对象的外界实体将其所依赖的对象的引用传递给它。</li>
+<li>IOC 和 DI 的区别：IOC 是目的，DI 是手段。其实 IOC 相当于接口，它规定了要实现什么？而依赖注入（DI）就是具体的实现</li>
+</ul>
+<p>使用 IOC 的好处：</p>
+<ol>
+<li>Bean 之间的解耦，这种解耦体现在我们没有在代码中去硬编码 bean 之间的依赖。（不通过 new 操作依次构建对象，由 springIOC 内部帮助我们实现了依赖注入）。一方面，IOC 容器将通过 new 对象设置依赖的方式转变为运行期动态的进行设置依赖。</li>
+<li>IOC 容器天然地给我们提供了单例。</li>
+<li>当需要更换 dao 的时候，我们只需要在配置文件中更换 dao 的实现类，完全不会破坏到之前的代码。</li>
+<li>上层现在不需要知道下层是如何创建的。</li>
+</ol>
+<p>IOC 容器实现了开发中对象粒度的一种组件化，将每个对象当做组件一样放进容器当中。而每个组件都是可插拔，这种是最佳的对象解耦方式。一方面通过将对象之间的耦合关系从编译期推迟到运行期。一旦有需要这个对象的话，就直接使用，客户程序员完全不需要知道这个对象的来龙去脉。并且 IOC 容器对 Bean 的统一管理使得 AOP 的实现更加的方便。</p>
+</blockquote>
+<h3 id="1-思考"><a href="#1-思考" class="headerlink" title="1. 思考"></a>1. 思考</h3><p>Spring 已经占据我们 Java 开发框架中的半壁江山了，从一开始工作我们就在使用 Spring。但是到底为什么要用 Spring，可能很多人都没有去思考过这个问题？许多人可能也疲于应对需求，无暇思考这种看似理所当然的问题。那今天，我们就好好来讨论一下究竟为什么要使用 Spring IOC？</p>
+<h3 id="2-逆向思考"><a href="#2-逆向思考" class="headerlink" title="2. 逆向思考"></a>2. 逆向思考</h3><p>假设在最初没有 Spring IOC 这种框架的时候，我们采用传统 MVC 的方式来开发一段常见的用户逻辑。</p>
+<p>用户 DAO</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserDAO</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">private</span> String database<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token function">UserDAO</span><span class="token punctuation">(</span>String dataBase<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>database <span class="token operator">=</span> dataBase<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"保存用户！"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span></code></pre>
+<p>用户 Service</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserService</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">private</span> UserDAO dao<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token function">UserService</span><span class="token punctuation">(</span>UserDAO dao<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>dao <span class="token operator">=</span> dao<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        dao<span class="token punctuation">.</span><span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span></code></pre>
+<p>用户 Controller</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Controller</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> UserService service<span class="token punctuation">;</span>
+
+    <span class="token keyword">public</span> <span class="token function">Controller</span><span class="token punctuation">(</span>UserService userService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>service <span class="token operator">=</span> userService<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        service<span class="token punctuation">.</span><span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span></code></pre>
+<p>接下来我们就必须手动一个一个创建对象，并将 dao、service、controller 依次组装起来，然后才能调用。</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+  UserDAO dao <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">UserDAO</span><span class="token punctuation">(</span><span class="token string">"mysql"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  UserService service <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">UserService</span><span class="token punctuation">(</span>dao<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  Controller controller <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Controller</span><span class="token punctuation">(</span>service<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  controller<span class="token punctuation">.</span><span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span></code></pre>
+<p>分析一下这种做法的弊端有哪些呢？</p>
+<ol>
+<li>在生成 Controller 的地方我们都必须先创建 dao 再创建 service 最后再创建 Controller,这么一条繁琐的创建过程。</li>
+<li>在这三层结构当中，上层都需要知道下层是如何创建的，上层必须自己创建下层，这样就形成了紧密耦合。为什么业务程序员在写业务的时候却需要知道数据库的密码并自己创建 dao 呢？不仅如此，当如果 dao 的数据库密码变化了，在每一处生成 Controller 的地方都需要进行修改。</li>
+<li>通过 new 关键字生成了具体的对象，这是一种硬编码的方式，违反了面向接口编程的原则。当有一天我们从 Hibernate 更换到 Mybatis 的时候,在每一处 new DAO 的地方，我们都需要进行更换。</li>
+<li>我们频繁的创建对象，浪费了资源。</li>
+</ol>
+<p>这时候我们再来看看如果用 SpringIOC 的情况，刚才的代码变成如下。</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+  ApplicationContext context <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ClassPathXmlApplicationContext</span><span class="token punctuation">(</span><span class="token string">"classpath:application.xml"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  Controller controller <span class="token operator">=</span> <span class="token punctuation">(</span>Controller<span class="token punctuation">)</span> context<span class="token punctuation">.</span><span class="token function">getBean</span><span class="token punctuation">(</span><span class="token string">"controller"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  controller<span class="token punctuation">.</span><span class="token function">doSomething</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span></code></pre>
+<p>很明显，使用 IOC 之后，我们只管向容器索取所需的 Bean 即可。IOC 便解决了以下的痛点:</p>
+<ol>
+<li>Bean 之间的解耦，这种解耦体现在我们没有在代码中去硬编码 bean 之间的依赖。（不通过 new 操作依次构建对象，由 springIOC 内部帮助我们实现了依赖注入）。一方面，IOC 容器将通过 new 对象设置依赖的方式转变为运行期动态的进行设置依赖。</li>
+<li>IOC 容器天然地给我们提供了单例。</li>
+<li>当需要更换 dao 的时候，我们只需要在配置文件中更换 dao 的实现类，完全不会破坏到之前的代码。</li>
+<li>上层现在不需要知道下层是如何创建的。</li>
+</ol>
+<p>通过这个例子可能读者有点若有所思了，那我们再来看一下 IOC 的定义是什么。</p>
+<h3 id="3-定义"><a href="#3-定义" class="headerlink" title="3. 定义"></a>3. 定义</h3><p>控制反转（Inversion of Control，缩写为 IoC），是面向对象编程中的一种设计原则，可以用来减低计算机代码之间的耦合度。其中最常见的方式叫做依赖注入（Dependency Injection，简称 DI），还有一种方式叫“依赖查找”（Dependency Lookup）。通过控制反转，对象在被创建的时候，由一个调控系统内所有对象的外界实体将其所依赖的对象的引用传递给它。也可以说，依赖被注入到对象中。</p>
+<h3 id="4-解读"><a href="#4-解读" class="headerlink" title="4. 解读"></a>4. 解读</h3><p>控制反转，控制体现在什么地方？控制就体现在我们一开始的例子，上层需要去控制 new 下层对象。而反转意味着什么呢？ 反转意味着我们把对象创建的控制权交出去，交给谁呢？交给 IOC 容器，由 IOC 容器负责创建特定对象，并填充到各个声明需要特定对象的地方。同学们可能会对 IOC 和 DI 觉得很绕，其实 IOC 相当于接口，它规定了要实现什么？而依赖注入（DI）就是具体的实现，它实现了 IOC 想要的效果。IOC 的思想很好地体现了面向对象设计法则之一——好莱坞法则：“别找我们，我们找你”；即由 IoC 容器帮对象找相应的依赖对象并注入，而不是由对象主动去找。</p>
+<p>如何减低耦合？我们举个例子，当在 IDEA 开发环境中我们添加插件的时候，却需要去知道该插件需要什么依赖，要怎么才能成功开启插件？是不是对用户相当不友好呢？既然我们要使用插件，意味着我们和插件之间是耦合的，无法避免。但是如果我们还需要知道插件需要的依赖和开启插件的步骤，说明我们和插件之间的耦合关系更强烈了。所以 SpringIOC 的定义当中写道“降低耦合”而非“消除耦合”，但只要耦合度降低的话，就有利于代码的维护和扩展。思考一下？是不是跟 Maven 的机制很类似呢？在 Maven 中声明依赖的话，Maven 的自动将该依赖所需的其他依赖递归的寻找。你可以把你自己想象成一个对象的设计师，你设计了一张对象内部构造的图纸，交给 SpringIOC，它会自动地根据这份图纸生成这个对象。</p>
+<p>IOC 容器实现了开发中对象粒度的一种组件化，将每个对象当做组件一样放进容器当中。而每个组件都是可插拔，这种是最佳的对象解耦方式。一方面通过将对象之间的耦合关系从编译期推迟到运行期。一旦有需要这个对象的话，就直接使用，客户程序员完全不需要知道这个对象的来龙去脉。并且 IOC 容器对 Bean 的统一管理使得 AOP 的实现更加的方便。这样一来，我们客户程序员就可以更专注在业务代码的编写上。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-HTTP-API的6种设计原则"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/12/29/HTTP-API%E7%9A%846%E7%A7%8D%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/"
+    >HTTP API的6种设计原则</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/29/HTTP-API%E7%9A%846%E7%A7%8D%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/" class="article-date">
+  <time datetime="2019-12-29T13:32:40.000Z" itemprop="datePublished">2019-12-29</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a href="https://medium.com/@aldesantis/6-design-principles-for-your-http-apis-560434f9744e" target="_blank" rel="noopener">https://medium.com/@aldesantis/6-design-principles-for-your-http-apis-560434f9744e</a></p>
+<p>作者：<a href="https://medium.com/@aldesantis?source=post_page-----560434f9744e----------------------" target="_blank" rel="noopener">Alessandro Desantis</a></p>
+<p>翻译：高行行</p>
+</blockquote>
+<p>良好的API设计是一门艺术，这一点没有争议。当我们遇到一个经过适当设计的API时，我们会感觉到。就像良好的视觉UI一样，良好的API不仅美观，而且功能强大并且可以节省每个人的时间。基于这种想法，可以说API实际上就是UI。它们也不仅仅适用于机器：由于有人在编程和使用这些机器，因此创建一个用户感到高兴与之交互的API是其开发团队的明智选择，我们应该做出选择。</p>
+<p>关于视觉UI的设计原理，有很多资源，也有很多可以从中得到启发的好例子。另一方面，涉及API时，有很多文档说明了用于实现这些协议的不同协议，语言和框架，但是几乎没有足够的材料来说明使某些API易于使用和使用的基本原理和选择。别人的噩梦。</p>
+<p>尽管没有什么能比以往更胜一筹，并且每个团队都针对API的出色之处制定了自己的规则，但我们可以通过在API设计中应用一些基本原则来从中受益。这些非常抽象，可以用许多不同的方式实现，但它们应始终指导我们的技术决策。</p>
+<h1 id="1-一致性"><a href="#1-一致性" class="headerlink" title="1. 一致性"></a>1. 一致性</h1><p>一致性意味着相似的端点应该以相似的方式运行，包括在边缘场景中。您应该始终努力在整个API中保持词汇表，URL结构，请求/响应格式和错误处理的一致性。</p>
+<p>这提供了几个好处：</p>
+<ul>
+<li>它使与您的API的交互变得更加简单，因为用户始终知道期望什么，而不必阅读每个端点的文档，而可以随心所欲。</li>
+<li>它允许编写客户端库，这些客户端库不知道API的确切架构，仅知道您遵守的规则。Stripe API客户端就是一个很好的例子：由于请求和响应的结构始终相同，因此它可以动态构建对象，并且仅在其中一个API规则更改时才需要更新。</li>
+<li>它创建了一组经过实践检验的准则，在API中实现新功能时可以遵循这些准则。不再讨论使用数字ID还是UUID，因为您将继续使用已有的东西。</li>
+</ul>
+<p>一致性可能是您可以在API设计中实现的最有影响力的特征，并且您的用户会因此而爱您。</p>
+<h1 id="2-性能"><a href="#2-性能" class="headerlink" title="2. 性能"></a>2. 性能</h1><p>HTTP API的性能非常棘手。由于最终用户不会直接使用API，因此很容易很长时间就不会注意到性能问题，尤其是在服务器到服务器交互的情况下。不幸的是，由于软件是为人开发的，因此所有类型的性能问题最终都会影响最终用户。</p>
+<p>出于通常的原因，我强烈建议您不要进行早期优化：这会减慢MVP的开发速度，并且如果不首先制定正确的指标，就无法知道需要优化产品的哪些部分。您应该基于数据而非本能进行优化。</p>
+<p>如此说来，从第一天开始收集数据就非常重要。如今，设置APM工具只需几秒钟，它将为您提供大量有关在现实世界中如何使用API的有用信息。</p>
+<h1 id="3-文献资料"><a href="#3-文献资料" class="headerlink" title="3. 文献资料"></a>3. 文献资料</h1><p>不管您的API多么一致，用户仍然需要他们可以去的地方才能开始使用或获得有关API某些方面或功能的其他详细信息。</p>
+<p>此外，API文档不应该只是呈现请求和响应模板。建议添加可能对用户有用的任何信息，例如有关在进行某个API调用时在后台发生的情况或用户可能需要完成其他交易的其他终结点的解释，这是有用的。</p>
+<p>API文档的准确性和最新性非常重要。实现此目的的唯一方法是创建工作流，以将文档集成到开发过程中。一个好的方法是将文档检入VCS，并要求开发人员在更改API时对其进行更新。</p>
+<p>让开发人员编写文档似乎是浪费时间，但是花在文档上的时间越多，花在回答问题和调查虚假错误报告上的时间就越少。</p>
+<p>最后，确保不仅提供文档，而且请查阅。由于它是供人类食用的，因此在阅读文档时要特别注意UI和UX。无需您自己执行此操作，您只需采用<a href="https://stoplight.io/" target="_blank" rel="noopener">Stoplight之类</a>的服务即可为您存储和呈现标准格式的内容。</p>
+<h1 id="4-易用性"><a href="#4-易用性" class="headerlink" title="4. 易用性"></a>4. 易用性</h1><p>虽然在数据库表和API资源之间建立1：1映射并不是天生的错误，但是您应该知道，这不是构建API的唯一方法。实际上，对于复杂的API而言，这通常不是最佳方法，因为这使按正确顺序将正确的一组操作组合在一起的所有负担都落在了用户的肩膀上。</p>
+<p>如果您可以简化业务交易以仅需要一个API调用而不是两个API调用，为什么不这样做呢？视觉UI要求在后台发生的每个操作都需要用户输入是不可想象的-但是，当我们要求用户出于懒惰而做时，这正是我们在许多API中所做的。</p>
+<p>API的一个示例就是该API，它允许用户添加新的付款方式并将一种付款方式标记为默认付款方式。如果我们希望用户希望添加新方法并立即将其标记<em>为</em>默认属性，则可以向支付方法创建端点添加标记<em>为</em>默认属性，并在一次交易中完成所有操作，而无需两次API调用。这样既节省了开发时间，又节省了带宽。</p>
+<p>这种简化并非总是可能的：当您无法预先确定API的确切用例时（例如，在使用公共API的情况下），则应该尽可能地灵活（在上面的示例中，这意味着要添加该字段，还要维护一个单独的端点来设置默认付款方式）。</p>
+<p>经验法则是将API的各个方面视为达到目的的手段，即完成业务流程。您如何最好地帮助用户实现该目标？一旦考虑到这一点，设计选择就会变得更加容易。</p>
+<h1 id="5-简单"><a href="#5-简单" class="headerlink" title="5. 简单"></a>5. 简单</h1><p>在简单的，通用的标准和工具之上构建您的API。除非您有充分的理由使用信封，否则不需要信封，架构，API网关或任何其他深奥的解决方案。</p>
+<p>HTTP RFC已经为您提供了构建可靠且可互操作的Web服务所需的大多数工具，因此<a href="https://tools.ietf.org/html/rfc2616#section-10.1.1" target="_blank" rel="noopener">请继续阅读它</a>（是的，虽然很长，但是我可以保证值得）。</p>
+<p>坚持基础并做好。简单意味着对人和机器的开销更少，并且出错的空间也更少。例如，以下是使用Stripe API向信用卡收费的方法：</p>
+<pre><code>curl https://api.stripe.com/v1/charges \ 
+  -u your_api_key: \ 
+  -d amount=999 \ 
+  -d currency=usd \ 
+  -d description=&quot;Example charge&quot; \ 
+  -d source=tok_visa</code></pre><p>它是如此简单，您无需查找文档即可进行操作，并且几乎不可能将其弄乱。这是您要争取的简单性。</p>
+<p>（顺便说一下，Stripe API是周到的API设计的绝佳示例，因此，如果有空的话，请看一下<a href="https://stripe.com/docs/api" target="_blank" rel="noopener">API参考</a>。）</p>
+<h1 id="6-演化"><a href="#6-演化" class="headerlink" title="6. 演化"></a>6. 演化</h1><p>传统的Web应用程序一直在更新：设计和添加新功能，改进和简化流行功能，弃用和删除不使用的功能。用户习惯于在不断变化的环境中生活和操作，有时环境会发生巨大变化。</p>
+<p>大多数时候，产品在吸引用户采用新功能方面做得非常好：新闻通讯，应用内参观和良好的设计习惯可确保UX不会因最新的全面更新而中断。</p>
+<p>另一方面，对于API来说，似乎只有两个可能的选择：要么从不更改接口以免破坏实现，要么不经通知就更改它，从而破坏了大多数客户的工作。发生这种情况是因为API团队通常不会与用户群断开连接，因为它们不会直接与用户互动。</p>
+<p>但是，第三个选择是完全可能的：有了正确的基础架构和工具，您就可以拥有以对其用户可管理的方式进行更改的API。您可以使用度量标准来做出有关您公开的界面的明智决定：端点使用频率是多少？最近6个月内，有哪些用户称其为特定的API端点？确保您始终可以回答此类问题，因为它们将使您无需担心用户一天的噩梦就能开发自己的API。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-如果一个对象有多个方法加了-synchronized，那么该对象有几把锁？"
   class="article article-type-post"
   itemscope
@@ -1196,173 +1435,6 @@ $<span class="token punctuation">.</span><span class="token function">ajax</span
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AC%E8%BD%BD/" rel="tag">转载</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Spring-Boot：参数传递"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/07/Spring-Boot%EF%BC%9A%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92/"
-    >Spring Boot：传递参数</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/12/07/Spring-Boot%EF%BC%9A%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92/" class="article-date">
-  <time datetime="2019-12-07T06:02:30.000Z" itemprop="datePublished">2019-12-07</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址：<a href="https://dzone.com/articles/spring-boot-passing-parameters" target="_blank" rel="noopener">https://dzone.com/articles/spring-boot-passing-parameters</a></p>
-<p>译者：高行行</p>
-<p>Spring Boot 通过 Java 注解使传递参数变得容易。</p>
-</blockquote>
-<p><img src="https://dzone.com/storage/temp/12743582-pic-someone-kicking-a-soccer-ball.jpeg" alt="Person kicking soccer ball"></p>
-<p>请求 URL 时传递参数是 Spring Boot 的最基本功能之一。本文介绍了在请求中传递参数的方法。有两种方法可以传递参数。传递参数的常用方法是在 URL 调用中显式指定参数。格式如下：</p>
-<pre class=" language-http"><code class="language-http"><span class="token header-name keyword">https:</span>//www.youtube.com/watch?v=tuNhqqxgxXQ&amp;t=153s</code></pre>
-<p>在上面的 URL 中，有两个参数 v 和 t。要传递参数，请输入”?”。然后，添加参数名称，后跟”=”和参数值。它看起来像这样”?v=value”。要传递另一个参数，请使用”&amp;”，后跟第二个参数名。</p>
-<p>传递参数的第二种方法是 <em>path variable</em>。例如：</p>
-<pre class=" language-http"><code class="language-http"><span class="token header-name keyword">http:</span>//www.twitter.com/hashimati</code></pre>
-<p>此 URL 中的单词”hashimati”是一个变量。</p>
-<p>Spring Boot 通过 Java 注解使传递参数变得容易。让我们看看它在 Spring Boot 中是如何工作的。</p>
-<h3 id="创建一个项目"><a href="#创建一个项目" class="headerlink" title="创建一个项目"></a>创建一个项目</h3><p>使用<a href="https://start.spring.io/" target="_blank" rel="noopener" title="Spring Initializer">Spring Initializer</a>生成 Gradle 或 Maven 项目。你唯一需要的依赖是 <strong>Web。</strong></p>
-<h3 id="路径变量"><a href="#路径变量" class="headerlink" title="路径变量"></a><strong>路径变量</strong></h3><p>在路径变量中，我们在 Web 服务的路径内传递参数。下面的代码段演示了采用路径变量编写 Web 服务的方法：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/hello0/{name}"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> String <span class="token function">hello0</span><span class="token punctuation">(</span><span class="token annotation punctuation">@PathVariable</span><span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span> String name<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">return</span> <span class="token string">"Hello "</span> <span class="token operator">+</span> name<span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<ul>
-<li>该 <code>name</code> 变量嵌入在服务路径中的大括号之间。 </li>
-<li><code>name</code> 参数用<code>@PathVariable</code>注释。我们在 <code>@PathVariable</code> 中传递了<code>name</code>来表明方法签名中的<code>name</code>参数存储了<code>{name}</code>值。</li>
-</ul>
-<h4 id="Request-Parameter"><a href="#Request-Parameter" class="headerlink" title="Request Parameter"></a><strong>Request Parameter</strong></h4><p>在 Spring Boot 中，有两种方法可以在 URL 请求中传递参数：</p>
-<ol>
-<li><strong>使用 <code>@RequestParam</code>：</strong></li>
-</ol>
-<p><code>@RequestParam</code> 可用于注解方法签名中的参数。如以下代码片段所示：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/hello1"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> String <span class="token function">hello1</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestParam</span><span class="token punctuation">(</span>name<span class="token operator">=</span><span class="token string">"name"</span><span class="token punctuation">,</span> required <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">,</span> defaultValue <span class="token operator">=</span> <span class="token string">"Ahmed"</span><span class="token punctuation">)</span> String name<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token keyword">return</span> <span class="token string">"Hello "</span> <span class="token operator">+</span> name<span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p><code>@RequestParam</code> 具有以下参数：</p>
-<ul>
-<li><code>name</code>：请求参数的名称</li>
-<li><code>defaultValue</code>：如果未在请求中传递参数，则为默认值。</li>
-<li><code>required</code>：如果为 true，则该参数为必填。否则，不是。</li>
-</ul>
-<ol start="2">
-<li><strong>将参数封装在对象中</strong></li>
-</ol>
-<p>使用对象是一种封装参数的好方法。让我们看一下下面的代码片段。首先，我们将创建一个名称为 <code>Params</code> 的类 ：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Params</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> String a<span class="token punctuation">,</span> b<span class="token punctuation">;</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setA</span><span class="token punctuation">(</span>String a<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>a <span class="token operator">=</span> a<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setB</span><span class="token punctuation">(</span>String b<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>b <span class="token operator">=</span> b<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> String <span class="token function">getA</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> a<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> String <span class="token function">getB</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> b<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>在<code>Params</code> 类中应实现 getter 和 setter 方法 。然后，我们将 <code>Params</code> 在 Web 服务的方法签名中使用</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/hello2"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> String <span class="token function">hello2</span><span class="token punctuation">(</span>Parms parameters<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">//implement the setter and getter of the Params class.</span>
-    <span class="token keyword">return</span> <span class="token string">"Hello "</span> <span class="token operator">+</span> parameters<span class="token punctuation">.</span>a <span class="token operator">+</span> <span class="token string">" "</span> <span class="token operator">+</span> parameters<span class="token punctuation">.</span>b<span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p>最后，该 Web 服务获取到两个参数，分别是<code>a</code> 和<code>b</code>。</p>
-<h3 id="进一步阅读"><a href="#进一步阅读" class="headerlink" title="进一步阅读"></a>进一步阅读</h3><p><a href="https://dzone.com/articles/using-the-spring-requestmapping-annotation" target="_blank" rel="noopener" title="使用Spring @RequestMapping注释">使用 Spring @RequestMapping 注释</a></p>
-<p><a href="https://dzone.com/articles/working-with-filters-in-spring" target="_blank" rel="noopener" title="在Spring中使用过滤器">在 Spring 中使用过滤器</a></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-思考-14-小结的作用"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/06/%E6%80%9D%E8%80%83-14-%E5%B0%8F%E7%BB%93%E7%9A%84%E4%BD%9C%E7%94%A8/"
-    >思考 14 小结的作用</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/12/06/%E6%80%9D%E8%80%83-14-%E5%B0%8F%E7%BB%93%E7%9A%84%E4%BD%9C%E7%94%A8/" class="article-date">
-  <time datetime="2019-12-05T16:37:18.000Z" itemprop="datePublished">2019-12-06</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ul>
-<li>构建知识的脉络</li>
-<li>留下一些东西，再次切入时方便</li>
-<li>成就感</li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%80%9D%E8%80%83/" rel="tag">思考</a></li></ul>
 
     </footer>
   </div>

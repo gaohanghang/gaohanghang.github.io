@@ -99,6 +99,131 @@
     
     
     <article
+  id="post-索引优化三大原则"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/12/%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E4%B8%89%E5%A4%A7%E5%8E%9F%E5%88%99/"
+    >索引优化三大原则</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/12/%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E4%B8%89%E5%A4%A7%E5%8E%9F%E5%88%99/" class="article-date">
+  <time datetime="2019-07-12T00:16:02.000Z" itemprop="datePublished">2019-07-12</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原作者: <a href="https://my.oschina.net/u/923324" target="_blank" rel="noopener" title="南寒之星">南寒之星</a></p>
+<p>原文地址: <a href="https://my.oschina.net/u/923324/blog/1634787" target="_blank" rel="noopener" title="索引优化三大原则">索引优化三大原则</a></p>
+</blockquote>
+<h1 id="建索引的几大原则"><a href="#建索引的几大原则" class="headerlink" title="建索引的几大原则"></a>建索引的几大原则</h1><p>对于索引我总结三大原则：</p>
+<ul>
+<li>1、最左前缀原则；</li>
+<li>2、不冗余原则；</li>
+<li>3、最大选择性原则。</li>
+</ul>
+<p>基本掌握这三条，对于索引的优化理论上是没有问题了。</p>
+<h2 id="最左前缀原则"><a href="#最左前缀原则" class="headerlink" title="最左前缀原则"></a>最左前缀原则</h2><p>一般在 where 条件中两个及以上字段时，我们会建联合索引。 高效使用索引的首要条件是知道什么样的查询会使用到索引，这个问题和 B+Tree 中的“最左前缀原理”有关，下面通过例子说明最左前缀原理。 MySQL 中的索引可以以一定顺序引用多个列，这种索引叫做联合索引，一般的，一个联合索引是一个有序元组&lt;a1,a2,a3…an&gt;，其中各个元素均为数据表的一列，实际上要严格定义索引需要用到关系代数。另外，单列索引可以看成联合索引元素数为 1 的特例 最左前缀是一个很重要的原则。 mysql 会从左至右匹配，直到遇到范围查找(&gt; &lt; like between)就停止。 如： select * from table1 where a=1 and b=2 and c&lt;3 and d=9 ; 建立的联合索引为：(a,b,c,d) 实际使用的索引为(a,b,c)。因为遇到了 c&lt;3 就停止了，d 列就没有用上。 前面讲过联合索引是有序元组， 则 mysql 实际建的索引为：(a) (a,b) (a,b,c) (a,b,c,d)。 举个例子：where b=2 and c=3 and d=9 ；按照最左匹配原则，这个条件就没法走索引了，首先必须有 a。 =,in 可以乱序，查询优化器会帮你优化成索引可以识别的形式。也就是说，where b=2 and a=1 and c&lt;3 使用的索引任然为(a,b,c)组合。 回到线上案例： 索引:idx_whid_distributionorderid(wh_id,distribution_order_id) 索引组合 (wh_id) ,(wh_id,distribution_order_id) 相当于建了一个 wh_id 的单列索引，也就是说当你要根据 wh_id 查询时，是不需要再新建索引了。</p>
+<h2 id="不冗余原则"><a href="#不冗余原则" class="headerlink" title="不冗余原则"></a>不冗余原则</h2><p>尽量扩展索引、不要新建索引 mysql 目前主要索引有：FULLTEXT,HASH,BTREE 好的索引可以提高我们的查询效率，不好的索引不但不会起作用，反而给 DB 带来负担，基于 BTREE 结构，插入、修改都会重新调整索引结构，存储成本增加，写效率降低，同时 DB 系统也要消耗资源去维护。 基于刚才的最左匹配原则，尽量在原有基础上扩展索引，不要新增索引。 能用单索引，不用联合索引；能用窄索引，不用宽索引；能复用索引，不新建索引。 回到线上案例： nc_tms_order、ct_order 看看分别有哪些索引</p>
+<p>看到这里我开始凌乱，好像什么字段都可以加索引。 为此专门针对 ct_order 表两个具有比较性的索引做了性能测试，ct_order_code，lc_order_code 区分度都是非常高的字段，前者是好于后者（联合 station_id 并没有起到太多优化作用）。 idx_ct_order_code(ct_order_code), idx_ct_order_lc_order_code(station_id,lc_order_code) 那么接下来我们说说那些字段适合建索引。</p> 
+      <a class="article-more-link" href="/2019/07/12/%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E4%B8%89%E5%A4%A7%E5%8E%9F%E5%88%99/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-spring-data-jpa-query和pageabel"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/11/spring-data-jpa-query%E5%92%8Cpageabel/"
+    >spring data jpa @query和pageabel</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/11/spring-data-jpa-query%E5%92%8Cpageabel/" class="article-date">
+  <time datetime="2019-07-11T02:31:50.000Z" itemprop="datePublished">2019-07-11</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址 <a href="https://stackoverflow.com/questions/22345081/spring-data-jpa-query-and-pageable" target="_blank" rel="noopener">https://stackoverflow.com/questions/22345081/spring-data-jpa-query-and-pageable</a></p>
+</blockquote>
+<p>您可以对native query 使用分页。它在此处记录：<a href="https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#_native_queries" target="_blank" rel="noopener">https</a>：<a href="https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#_native_queries" target="_blank" rel="noopener">//docs.spring.io/spring-data/jpa/docs/current/reference/html/#_native_queries</a></p>
+<p>“ 您可以通过自己指定 <em>count query</em> 来使用本机查询进行分页：示例59.使用@Query在查询方法中声明分页的本机<em>count query</em>  ”</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserRepository</span> <span class="token keyword">extends</span> <span class="token class-name">JpaRepository</span><span class="token operator">&lt;</span>User<span class="token punctuation">,</span> Long<span class="token operator">></span> <span class="token punctuation">{</span>
+
+  <span class="token annotation punctuation">@Query</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"SELECT * FROM USERS WHERE LASTNAME = ?1"</span><span class="token punctuation">,</span>
+    countQuery <span class="token operator">=</span> <span class="token string">"SELECT count(*) FROM USERS WHERE LASTNAME = ?1"</span><span class="token punctuation">,</span>
+    nativeQuery <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+  Page<span class="token operator">&lt;</span>User<span class="token operator">></span> <span class="token function">findByLastname</span><span class="token punctuation">(</span>String lastname<span class="token punctuation">,</span> Pageable pageable<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jpa/" rel="tag">jpa</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-数据库设计规范之命名规范"
   class="article article-type-post"
   itemscope
@@ -735,156 +860,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-品Spring：bean定义上梁山"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/05/%E5%93%81Spring%EF%BC%9Abean%E5%AE%9A%E4%B9%89%E4%B8%8A%E6%A2%81%E5%B1%B1/"
-    >品Spring：bean定义上梁山</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/05/%E5%93%81Spring%EF%BC%9Abean%E5%AE%9A%E4%B9%89%E4%B8%8A%E6%A2%81%E5%B1%B1/" class="article-date">
-  <time datetime="2019-07-05T12:04:31.000Z" itemprop="datePublished">2019-07-05</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文链接 <a href="https://mp.weixin.qq.com/s/FDtjJrPMgciM_W7vUpNVbg" target="_blank" rel="noopener">品Spring：bean定义上梁山</a></p>
-</blockquote>
-<h2 id="技术不枯燥，先来点闲聊"><a href="#技术不枯燥，先来点闲聊" class="headerlink" title="技术不枯燥，先来点闲聊"></a>技术不枯燥，先来点闲聊</h2><p>先说点好事高兴一下。前段时间看新闻说，我国正式的空间站建设已在进行当中。下半年，长征五号B运载火箭将在海南文昌航天发射场择机将空间站核心舱发射升空。预计用2到3年将空间站建好。</p>
-<p>虽然到时你们不让我上去，不过我也为这件事出不了什么力，算扯平了。哈哈，但是我还是会衷心的祝福你。</p>
-<p>长征五号火箭首次采用5米大直径的箭体结构，总加注量达到780吨，起飞时共有10台发动机产生1078吨的推力，具备近地轨道25吨、地球同步转移轨道14吨的运载能力。</p>
-<p>不要误会，本文不是讲火箭的，关键我也讲不了呀。但是我们可以分析下火箭的特点。自身体积和重量非常大，内部结构与实现极其复杂。能够运送的物品与自身比起来微乎其微，关键这玩意老贵老贵了。</p>
-<p>因此SpaceX推出的猎鹰可回收火箭，从一开始就受到了全世界的关注。回收之后可以被重新利用，不但缩短了火箭发射的周期，平均下来每次发射的成本也少了很多。享受同样的服务，花更少的钱，不是所有人的最爱嘛。</p>
-<p>回到程序，其实现在大部分程序员，包括我自己在内都应该属于2.0或3.0版本的程序员，因为我们的职业生涯都是从Spring开始的。在Spring之前Java企业级应用开发标准其实是EJB（企业级JavaBean）。</p>
-<p>EJB只是一个标准或规范，由各大服务提供商来实现。EJB非常笨重而且用起来也痛苦，关键还很贵。其实和火箭的性质一样，自身的负担太重。这个问题必须要解决。</p>
-<p>因此，Elon Musk认识到了这点，就开始着手研制可回收火箭。在当时，Rod Johnson也认识到了EJB特点并深受其害，于是发明了Spring，轻量级、免费开源，慢慢就流行起来了。</p>
-<p>看到了吧，在工作或生活中，凡是遇到苦逼的地方，就说明这也是一个极有可能产生大成功的地方。这个秘密我可是告诉诸位了，能不能成功就看你们的了。哈哈。</p>
-<p>其实Spring现在也已经变得足够复杂了。</p>
-<h2 id="要想渡人，必先渡己"><a href="#要想渡人，必先渡己" class="headerlink" title="要想渡人，必先渡己"></a><strong>要想渡人，必先渡己</strong></h2><p>易中天老师曾说过，能够制造工具标志着人类的诞生。目前人类建造的文明，哪一个是通过双手刨出来的，不都是通过工具建造出来的嘛。</p>
-<p>比如我们盖高楼用的建材，不都是通过塔吊一点点吊上去的，随着建材的堆砌，楼越来越高。那么我们来思考一个问题，塔吊本身是如何上去的？</p>
-<p>塔吊本身就是一个工具了，所以（一般情况下）不可能再有其它工具来帮它了。所以塔吊只能实现自我爬升，实际也是这样的，相信大多人都见过，速度很慢的。</p>
-<p>我们都在用Windows操作系统，点点鼠标，敲敲键盘，用着很爽。但是在开发Windows系统本身时却是很苦逼的一件事。</p>
-<p>我主要想表达两方面的意思：</p>
-<p>如果有一天，我们能从工具的使用者变成设计者或制造者，那就厉害多了。</p>
-<p>还有就是，一个工具在对外提供服务前，一定要解决好自身的搭建或构建问题。</p>
-<p>Spring其实就是个工具，开发人员把业务代码写好后，把类作为bean注册到工具上，后续的运行时全部交由Spring这个工具接管，简直不要太爽。</p> 
-      <a class="article-more-link" href="/2019/07/05/%E5%93%81Spring%EF%BC%9Abean%E5%AE%9A%E4%B9%89%E4%B8%8A%E6%A2%81%E5%B1%B1/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-品Spring：帝国的基石"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/05/%E5%93%81Spring%EF%BC%9A%E5%B8%9D%E5%9B%BD%E7%9A%84%E5%9F%BA%E7%9F%B3/"
-    >品Spring：帝国的基石</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/05/%E5%93%81Spring%EF%BC%9A%E5%B8%9D%E5%9B%BD%E7%9A%84%E5%9F%BA%E7%9F%B3/" class="article-date">
-  <time datetime="2019-07-05T11:19:07.000Z" itemprop="datePublished">2019-07-05</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p>来源：公众号【编程新说】</p>
-<h2 id="序"><a href="#序" class="headerlink" title="序"></a><strong>序</strong></h2><p>生活是一杯酒，有时需要麻醉自己，才能够暂时忘却痛苦与不快。<br>生活是一杯茶，有时需要细细品味，才发现苦涩背后也会有甘甜。</p>
-<p>Spring是一杯酒，一眼望不到边的官方文档，着实让人难以下咽。<br>Spring是一杯茶，在无边的源码中畅游之后，发现色相味道俱全。</p>
-<p>高考状元是六月份的网红，Spring帝国是Java界的明星。<br>状元有自己的“武功秘籍”，Spring有自己的“帝国基石”。</p>
-<p>请随本文一起，品Spring，寻找帝国的基石。</p>
-<h2 id="帝国的基石"><a href="#帝国的基石" class="headerlink" title="帝国的基石"></a><strong>帝国的基石</strong></h2><p>无论是大到一个国家，或是小到一个个人，都有自己赖以存在的基石。这个基石就是核心支柱，就像经济基础支撑着上层建筑。</p>
-<p>以BAT来说，百度的搜索，阿里的电商，腾讯的社交。可以说这是他们的立司之本，如果想在这些方面和他们PK，几乎没有胜算的可能。</p>
-<p>Spring绝对是Java开发领域中一颗闪耀的明星，它的巨大光芒甚至一直在引领着Java的发展方向。</p>
-<p>现在说它已经发展为一个帝国，应该不会有人站出来反对吧。嗯，站出来也没关系，本人不接受反对。哈哈。</p>
-<p>那么有一个问题，请大家思考下，Spring帝国的基石是什么？</p>
-<p>用过或了解Spring的人肯定都会说是IoC啦，AOP啦，声明式事务啦等等。只能说这些回答浮于表面，明显不走心啊。</p>
-<p>好了，我来公布答案吧，这个帝国的基石，其实就是Bean。肯定会有人问，这个bean是什么东西啊，那就去看它的定义吧。对，就是Spring中的bean定义。</p>
-<p>在Spring中，bean定义其实就是一个接口，即BeanDefinition。我在上一篇“毕业十年”的文章中说过，我们定义的类或接口其实都是对一种数据构成的描述，所以可以直接把类或接口看作是一种数据结构。</p>
-<p>那么bean定义接口，就是一种数据结构，它记录了一个bean的全部信息，后期Spring对这个bean的所有操作都是建立在这些信息之上的。</p>
-<p>如果对Spring不是很熟悉的朋友，听到“bean的全部信息”这句话会有点懵。不要担心，照例拿生活中我们熟悉的事物去做类比，争取让所有人都能明白。</p>
-<p>在医疗行业，每个患者都会有一个病历，上面记录了患者家族病史，患者个人病史，都做过哪些检查以及检查结果，都做过哪些治疗以及恢复情况。还有大夫每次对患者的病情诊断与分析。</p>
-<p>这些信息肯定是记录的越全面越好，后续的治疗方案都是依赖这些信息而制定的。Spring中bean的信息就对等于这里患者的病历信息。</p>
-<p>在公安系统，每个嫌疑人也会有一个档案，上面记录了他的口供，作案信息或一些其它证据，同样这些信息搜集的越全面越好，后期法官的宣判与量刑也都依赖于它。</p>
-<p>那么在这里，记录案件信息的档案，就可以对等于Spring中bean的信息。</p>
-<p>相信通过这两个示例，你已经完全明白了这个bean信息的作用和地位。虽然到目前为止，你可能还真不知道它里面到底存储的是什么信息。但这不要紧，只要记住它非常重要就可以了。</p>
-<p>趁着这个机会，再小小拓展一下：</p>
-<p>这里的病历信息和档案信息里面记录的都是一些数据，所以可以认为它们对应于程序中的数据结构。</p>
-<p>医生的治疗方案和法官的宣判，其实都是依赖这些数据做出的决定，因此可以认为它们对应于程序中的算法。</p>
-<p>可见，数据结构决定着算法，或者说，算法是基于数据结构而设计的。</p>
-<p>因此，可以说数据结构的重要性要大于算法。良好的数据结构能简化算法，不好的数据结构只能使算法变得更复杂。</p>
-<h2 id="跟着变化走，把它当朋友"><a href="#跟着变化走，把它当朋友" class="headerlink" title="跟着变化走，把它当朋友"></a><strong>跟着变化走，把它当朋友</strong></h2><p>在上篇文章中提到过，唯一不变的就是变化，所以随着时间的推移，只需不断往这个数据结构中补充新的bean信息，Spring再利用这些补充信息去定义新的操作，以适应发展的需要。</p>
-<p>就是这样，Spring一步一步成长为一个浩浩荡荡的帝国。就像我在上一遍文章中说的，类或接口这样的数据结构一定要进行精心设计，这样代码写起来会简单些，而且后期改起来也会容易些。</p> 
-      <a class="article-more-link" href="/2019/07/05/%E5%93%81Spring%EF%BC%9A%E5%B8%9D%E5%9B%BD%E7%9A%84%E5%9F%BA%E7%9F%B3/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring/" rel="tag">spring</a></li></ul>
 
     </footer>
   </div>

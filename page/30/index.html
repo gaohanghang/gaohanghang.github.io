@@ -99,6 +99,186 @@
     
     
     <article
+  id="post-通过-Docker-快速搭建各种测试环境-Mysql-Redis-Elasticsearch-MongoDB"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/05/28/%E9%80%9A%E8%BF%87-Docker-%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%90%84%E7%A7%8D%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83-Mysql-Redis-Elasticsearch-MongoDB/"
+    >通过 Docker 快速搭建各种测试环境(Mysql, Redis, Elasticsearch, MongoDB)</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/05/28/%E9%80%9A%E8%BF%87-Docker-%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%90%84%E7%A7%8D%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83-Mysql-Redis-Elasticsearch-MongoDB/" class="article-date">
+  <time datetime="2019-05-28T00:37:25.000Z" itemprop="datePublished">2019-05-28</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址 <a href="https://juejin.im/post/5ce531b65188252d215ed8b7" target="_blank" rel="noopener">一文教您如何通过 Docker 快速搭建各种测试环境(Mysql, Redis, Elasticsearch, MongoDB) </a></p>
+</blockquote>
+<h2 id="一、镜像加速"><a href="#一、镜像加速" class="headerlink" title="一、镜像加速"></a>一、镜像加速</h2><p>Docker 默认是从官方镜像地址 Docker Hub 下下载镜像，由于服务器在国外的缘故，导致经常下载速度非常慢。为了提升镜像的下载速度，我们可以手动配置国内镜像加速器，让下载速度飚起来。</p>
+<p>国内的镜像加速器选项较多，如：阿里云，DaoCloud 等。</p>
+<p>本文主要说说如何配置阿里云的镜像加速器。</p>
+<h3 id="2-1-登录阿里云获取加速信息"><a href="#2-1-登录阿里云获取加速信息" class="headerlink" title="2.1 登录阿里云获取加速信息"></a>2.1 登录阿里云获取加速信息</h3><ol>
+<li>首先你需要注册一个阿里云账号，没有的话，通过下面的连接跳转注册：</li>
+</ol>
+<p><a href="https://link.juejin.im/?target=https%3A%2F%2Fdev.aliyun.com%2F">dev.aliyun.com/</a></p>
+<ol>
+<li>跳转镜像加速页 <a href="https://link.juejin.im/?target=https%3A%2F%2Fcr.console.aliyun.com%2F">cr.console.aliyun.com/</a>，获取加速配置信息：</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528191157.png" alt=""></p>
+<h3 id="2-2-配置-Docker"><a href="#2-2-配置-Docker" class="headerlink" title="2.2 配置 Docker"></a>2.2 配置 Docker</h3><h4 id="2-2-1-确定-Docker-Client-版本"><a href="#2-2-1-确定-Docker-Client-版本" class="headerlink" title="2.2.1 确定 Docker Client 版本"></a>2.2.1 确定 Docker Client 版本</h4><p>在配置之前，首先需要<strong>确定 Docker Client 的版本，推荐是 1.10.0+</strong>:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528191324.png" alt=""></p>
+<h4 id="2-2-2-配置镜像加速器"><a href="#2-2-2-配置镜像加速器" class="headerlink" title="2.2.2 配置镜像加速器"></a>2.2.2 配置镜像加速器</h4><blockquote>
+<p>PS: 这里以 CentOS 系统为例，如果你是别的系统，可以参考阿里云配置加速器官方文档。</p>
+</blockquote>
+<p>通过修改 daemon 配置文件 <code>/etc/docker/daemon.json</code> 来使用加速器：</p>
+<p>执行下面命令：</p>
+<pre><code class="shell">sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json &lt;&lt;-&#39;EOF&#39;
+{
+  &quot;registry-mirrors&quot;: [&quot;https://bjtzu1jb.mirror.aliyuncs.com&quot;]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker</code></pre>
+<h3 id="2-3-验证一下速度"><a href="#2-3-验证一下速度" class="headerlink" title="2.3 验证一下速度"></a>2.3 验证一下速度</h3><p>以下载 mongodb 为例，看下速度：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528191423.png" alt=""></p>
+<p>配置了加速器过后，速度终于飚起来了。</p>
+<h2 id="二、快速安装-amp-搭建-Mysql-环境"><a href="#二、快速安装-amp-搭建-Mysql-环境" class="headerlink" title="二、快速安装&amp;搭建 Mysql 环境"></a>二、快速安装&amp;搭建 Mysql 环境</h2><p>本节中，我们将学习如何通过 Docker 快速安装与搭建 Mysql 环境。</p>
+<h3 id="2-1-下载-Mysql-镜像"><a href="#2-1-下载-Mysql-镜像" class="headerlink" title="2.1 下载 Mysql 镜像"></a>2.1 下载 Mysql 镜像</h3><p>这里以 Mysql 5.7 为例：</p>
+<pre><code class="shell">docker pull mysql:5.7</code></pre>
+<p>下载完成后，通过 <code>docker images</code> 检查一下镜像是否下载成功:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192208.png" alt=""></p>
+<h3 id="2-2-先以最简单方式启动"><a href="#2-2-先以最简单方式启动" class="headerlink" title="2.2 先以最简单方式启动"></a>2.2 先以最简单方式启动</h3><p>先以简单的方式启动：</p>
+<pre><code class="cmd">docker run -d \
+--name mysql \
+-p 3306:3306 \
+-e MYSQL_ROOT_PASSWORD=123456 \
+mysql:5.7</code></pre>
+<ul>
+<li><code>-d</code>：以后台的方式运行；</li>
+<li><code>--name mysql</code>：指定容器的名称为 mysql;</li>
+<li><code>-p 3306:3306</code> 将容器的 3306 端口挂载到宿主机的 3306 端口上；</li>
+<li><code>-e MYSQL_ROOT_PASSWORD=123456</code>：指定 root 的密码为 123456</li>
+</ul>
+<p>命令执行完成后，你也可以通过 <code>docker ps</code>命令来确认下容器是否启动成功。若成功，我们需要将容器中的目录文件复制到宿主机中，分别包括：</p>
+<ul>
+<li>mysql 配置文件；</li>
+<li>数据存储目录，以便挂载(PS: 若不挂载到宿主机，每次启动容器数据都会丢失)</li>
+</ul>
+<pre><code class="cmd"># 将容器中的 mysql 配置文件复制到宿主机中指定路径下，路径你可以根据需要，自行修改
+docker cp mysql:/etc/mysql/mysql.conf.d/mysqld.cnf /usr/local/docker/mysql/config
+# 将容器中的 mysql 存储目录复制到宿主机中
+docker cp mysql:/var/lib/mysql/ /usr/local/docker/mysql/data</code></pre>
+<p>完成这一切后，让我们将刚刚运行的容器删除掉。</p>
+<pre><code class="cmd">docker rm -f mysql</code></pre>
+<blockquote>
+<p>PS: mysql 是我们运行容器时，指定的名称，当然，你也可以先执行 <code>docker ps</code>, 通过容器 ID 来删除。</p>
+</blockquote>
+<h3 id="2-3-正式运行-Mysql-容器"><a href="#2-3-正式运行-Mysql-容器" class="headerlink" title="2.3 正式运行 Mysql 容器"></a>2.3 正式运行 Mysql 容器</h3><p>接下来，正式运行 Mysql 容器：</p>
+<pre><code class="cmd">docker run -d \
+--name mysql \
+-p 3306:3306 \
+-v /usr/local/docker/mysql/config/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \
+-v /usr/local/docker/mysql/data/mysql:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+mysql:5.7</code></pre>
+<p>其他不变，额外添加了两个挂载子命令：</p>
+<ul>
+<li><code>-v /usr/local/docker/mysql/config/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf</code>: 将容器中 /etc/mysql/mysql.conf.d/mysqld.cnf 配置文件挂载到宿主机的 /usr/local/docker/mysql/config/mysqld.cnf 文件上；</li>
+<li><code>-v /usr/local/docker/mysql/data:/var/lib/mysql</code>: 将容器中 /var/lib/mysql 数据目录挂载到宿主机的 /usr/local/docker/mysql/data 目录下；</li>
+</ul>
+<p>执行命令完成后，查看下容器是否启动：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192248.png" alt=""></p>
+<p>可以看到，容器运行成功</p>
+<h3 id="2-4-通过-Mysql-客户端连接一下试试"><a href="#2-4-通过-Mysql-客户端连接一下试试" class="headerlink" title="2.4 通过 Mysql 客户端连接一下试试"></a>2.4 通过 Mysql 客户端连接一下试试</h3><p>通过 MySQL 客户端连接刚刚创建的 mysql, 看看能否连接成功：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192313.png" alt=""></p>
+<p>连接成功了！</p>
+<h2 id="三、快速安装-amp-搭建-Redis-环境"><a href="#三、快速安装-amp-搭建-Redis-环境" class="headerlink" title="三、快速安装&amp;搭建 Redis 环境"></a>三、快速安装&amp;搭建 Redis 环境</h2><p>本节中，我们将学习如何利用 Docker 安装&amp;搭建 Redis 环境。</p> 
+      <a class="article-more-link" href="/2019/05/28/%E9%80%9A%E8%BF%87-Docker-%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%90%84%E7%A7%8D%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83-Mysql-Redis-Elasticsearch-MongoDB/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-Mac-快速升级-Python"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/05/25/Mac-%E5%BF%AB%E9%80%9F%E5%8D%87%E7%BA%A7-Python/"
+    >Mac 快速升级 Python</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/05/25/Mac-%E5%BF%AB%E9%80%9F%E5%8D%87%E7%BA%A7-Python/" class="article-date">
+  <time datetime="2019-05-25T12:38:21.000Z" itemprop="datePublished">2019-05-25</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+   
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Spring-Boot-Thymeleaf-热部署"
   class="article article-type-post"
   itemscope
@@ -686,180 +866,6 @@
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
 
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Material-Design-风格前端框架"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/04/18/Material-Design-%E9%A3%8E%E6%A0%BC%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6/"
-    >Material Design 风格前端框架</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/04/18/Material-Design-%E9%A3%8E%E6%A0%BC%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6/" class="article-date">
-  <time datetime="2019-04-18T12:25:45.000Z" itemprop="datePublished">2019-04-18</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h4 id="MDUI-是一套用于开发-Material-Design-网页的前端框架"><a href="#MDUI-是一套用于开发-Material-Design-网页的前端框架" class="headerlink" title="MDUI 是一套用于开发 Material Design 网页的前端框架"></a>MDUI 是一套用于开发 Material Design 网页的前端框架</h4><p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1g2726k477rj312q0ilq4c.jpg" alt="image-20190418202740603"></p>
-<blockquote>
-<p>官网</p>
-<p><a href="https://www.mdui.org/" target="_blank" rel="noopener">https://www.mdui.org/</a></p>
-</blockquote>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%89%8D%E7%AB%AF%E6%A1%86%E6%9E%B6/" rel="tag">前端框架</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-about"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/01/25/about/"
-    >关于</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/01/25/about/" class="article-date">
-  <time datetime="2019-01-25T11:09:48.000Z" itemprop="datePublished">2019-01-25</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>欢迎来到我的小站呀，很高兴遇见你！🤝</p>
-</blockquote>
-<blockquote>
-<p>我是18届毕业生，专业是软件工程</p>
-<p>喜欢编程、看书和摄影 😁</p>
-<p>梦想：改变自己，超越自己</p>
-</blockquote>
-<h2 id="开源贡献"><a href="#开源贡献" class="headerlink" title="开源贡献"></a>开源贡献</h2><h3 id="Spring-Boot"><a href="#Spring-Boot" class="headerlink" title="Spring Boot"></a>Spring Boot</h3><p><a href="https://github.com/spring-projects/spring-boot/pull/18175" target="_blank" rel="noopener">PR Simplify code</a></p>
-<h3 id="SpringBootCodeGenerator"><a href="#SpringBootCodeGenerator" class="headerlink" title="SpringBootCodeGenerator"></a>SpringBootCodeGenerator</h3><p><a href="https://github.com/moshowgame/SpringBootCodeGenerator/pull/43" target="_blank" rel="noopener">PR 功能添加</a></p>
-<h2 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h2><p>CSDN：<a href="https://blog.csdn.net/qq_22871083" target="_blank" rel="noopener">https://blog.csdn.net/qq_22871083</a></p>
-<p>博客园：<a href="https://www.cnblogs.com/gaohanghang/" target="_blank" rel="noopener">https://www.cnblogs.com/gaohanghang/</a></p>
-<p>公众号：《骇客与画家》</p>
-<p>头条号：《骇客与画家》</p>
-<h2 id="学习网站"><a href="#学习网站" class="headerlink" title="学习网站"></a>学习网站</h2><p><a href="https://subscription.packtpub.com/" target="_blank" rel="noopener">packtpub视频学习</a></p>
-<p><a href="https://github.com/" target="_blank" rel="noopener">Github</a></p>
-<p><a href="https://www.nowcoder.com/discuss?type=2&order=0&expTag=1" target="_blank" rel="noopener">牛客网</a></p>
-<p><a href="http://www.ruanyifeng.com/blog/" target="_blank" rel="noopener">阮一峰的网络日志</a></p>
-<h2 id="博客工具"><a href="#博客工具" class="headerlink" title="博客工具"></a>博客工具</h2><p><a href="https://www.pexels.com/" target="_blank" rel="noopener">博文配图</a></p>
-<h2 id="公众号"><a href="#公众号" class="headerlink" title="公众号"></a>公众号</h2><p>《骇客与画家》</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20190915180454.png" alt=""></p>
-<h2 id="视频制作"><a href="#视频制作" class="headerlink" title="视频制作"></a>视频制作</h2><p>B站地址 </p>
-<p><a href="https://space.bilibili.com/180303522" target="_blank" rel="noopener">https://space.bilibili.com/180303522</a></p>
-<p><strong>视频制作网站和软件</strong></p>
-<p><a href="https://www.xinpianchang.com/square" target="_blank" rel="noopener">新片场</a></p>
-<p>iMovie</p>
-<h2 id="翻墙"><a href="#翻墙" class="headerlink" title="翻墙"></a>翻墙</h2><p><a href="https://justmysocks1.net/" target="_blank" rel="noopener">https://justmysocks1.net</a> (付费)</p>
-<h2 id="开发设备"><a href="#开发设备" class="headerlink" title="开发设备"></a>开发设备</h2><p>MacBook Pro 2019（15寸）</p>
-<p>AOC 4k显示器（27寸）</p>
-<h2 id="需要时刻锻炼的能力"><a href="#需要时刻锻炼的能力" class="headerlink" title="需要时刻锻炼的能力"></a>需要时刻锻炼的能力</h2><p><strong>算法能力</strong></p>
-<p><strong>工程能力</strong></p>
-<p><strong>沟通能力</strong></p>
-<p><strong>表达能力</strong></p>
-<p>猜词游戏 描述方</p>
-<p><strong>英语能力</strong></p>
-<p>翻译 YouTube 视频</p>
-<h2 id="java需要重点关注的内容"><a href="#java需要重点关注的内容" class="headerlink" title="java需要重点关注的内容"></a>java需要重点关注的内容</h2><p><strong>Java并发编程</strong></p>
-<p>多线程、线程池、synchronized、各种锁</p>
-<p><strong>集合框架</strong></p>
-<p>HashMap、ConcurrentHashMap、TreeMap、ArrayList等</p>
-<p><strong>JVM</strong></p>
-<p>内存结构、垃圾回收算法、垃圾收集器、如何调优</p>
-<h2 id="专业书籍推荐"><a href="#专业书籍推荐" class="headerlink" title="专业书籍推荐"></a>专业书籍推荐</h2><p>《java核心技术卷一》</p>
-<p>《深入理解Java虚拟机》</p>
-<p>《Java并发编程实战》</p>
-<p>《码出高效 Java 开发手册》</p>
-<h2 id="读过之后产生跪感的书"><a href="#读过之后产生跪感的书" class="headerlink" title="读过之后产生跪感的书"></a>读过之后产生跪感的书</h2><p>《黑客与画家》</p>
-<p>《人生哲思录》</p>
-<p>《少有人走的路》</p>
-<h2 id="为什么要写博客"><a href="#为什么要写博客" class="headerlink" title="为什么要写博客"></a>为什么要写博客</h2><p>知识的积累</p>
-<p>价值的展示</p>
-<h2 id="喜欢的产品-虽然现在买不起"><a href="#喜欢的产品-虽然现在买不起" class="headerlink" title="喜欢的产品(虽然现在买不起)"></a>喜欢的产品(虽然现在买不起)</h2><p><strong>莱卡相机</strong></p>
-<blockquote>
-<p>莱卡的相机实现太漂亮了</p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20190928180740.png" alt=""></p>
-<h2 id="鸡汤"><a href="#鸡汤" class="headerlink" title="鸡汤"></a>鸡汤</h2><p>不要怂，就是干</p>
-<p>提倡把自己丑陋的代码在比自己更优秀的人面前晒出来。含蓄的结果就是以为自己就是宇宙中心，感觉别人的代码都不如我。— 《码出高效 Java开发手册》</p>
-<p>应该保持持续性的努力，而不要间歇性的努力</p>
-<p>比起后悔的痛苦，努力的辛苦又算得了什么</p>
-<p>不着急，不害怕，不要脸 — 冯唐</p>
-<h2 id="不想学习时该怎么办"><a href="#不想学习时该怎么办" class="headerlink" title="不想学习时该怎么办"></a>不想学习时该怎么办</h2><p>使用手机拍摄学习延时视频，逼自己学习</p>
-<p>看会书</p>
-<h2 id="个人技能"><a href="#个人技能" class="headerlink" title="个人技能"></a>个人技能</h2><ul>
-<li>熟悉JAVA编程</li>
-<li>熟练使用IntelliJ IDEA开发工具</li>
-<li>熟悉Spring，SpringMVC，Spring Boot等开源框架的使用</li>
-<li>熟悉MySQL，Postgresql数据库的使用</li>
-<li>熟悉Git的使用</li>
-<li>熟悉Gradle，Maven</li>
-<li>Linux基本命令</li>
-<li>熟悉Tomcat应用服务器的使用</li>
-<li>熟悉restful接口风格</li>
-<li>会用Docker</li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
     </footer>
   </div>
 

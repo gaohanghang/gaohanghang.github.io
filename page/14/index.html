@@ -99,6 +99,269 @@
     
     
     <article
+  id="post-ARTS-4"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/09/13/ARTS-4/"
+    >ARTS-4</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/09/13/ARTS-4/" class="article-date">
+  <time datetime="2019-09-13T07:05:08.000Z" itemprop="datePublished">2019-09-13</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>ARTS是由左耳朵耗子陈皓在极客时间专栏《左耳听风》中发起的一个每周学习打卡计划。</p>
+</blockquote>
+<pre><code>Algorithm：至少做一个 LeetCode 的算法题。主要为了编程训练和学习。
+
+Review ：阅读并点评至少一篇英文技术文章。主要为了学习英文，如果你英文不行，很难成为技术高手。
+
+Tip：学习至少一个技术技巧。主要是为了总结和归纳你日常工作中所遇到的知识点。
+
+Share：分享一篇有观点和思考的技术文章。主要为了输出你的影响力，能够输出你的价值观。</code></pre><h2 id="Algorithm-算法"><a href="#Algorithm-算法" class="headerlink" title="Algorithm(算法)"></a>Algorithm(算法)</h2><h3 id="反转单链表"><a href="#反转单链表" class="headerlink" title="反转单链表"></a>反转单链表</h3><h4 id="方法一：迭代"><a href="#方法一：迭代" class="headerlink" title="方法一：迭代"></a>方法一：迭代</h4><p>假设存在链表 <code>1 → 2 → 3 → Ø</code>，我们想要把它改成 <code>Ø ← 1 ← 2 ← 3</code>。</p>
+<p>在遍历列表时，将当前节点的 <code>next</code> 指针改为指向前一个元素。由于节点没有引用其上一个节点，因此必须事先存储其前一个元素。在更改引用之前，还需要另一个指针来存储下一个节点。不要忘记在最后返回新的头引用！</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> ListNode <span class="token function">reverseList</span><span class="token punctuation">(</span>ListNode head<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    ListNode prev <span class="token operator">=</span> null<span class="token punctuation">;</span>
+    ListNode curr <span class="token operator">=</span> head<span class="token punctuation">;</span>
+    <span class="token keyword">while</span> <span class="token punctuation">(</span>curr <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        ListNode nextTemp <span class="token operator">=</span> curr<span class="token punctuation">.</span>next<span class="token punctuation">;</span>
+        curr<span class="token punctuation">.</span>next <span class="token operator">=</span> prev<span class="token punctuation">;</span>
+        prev <span class="token operator">=</span> curr<span class="token punctuation">;</span>
+        curr <span class="token operator">=</span> nextTemp<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> prev<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>时间复杂度：O(n)，假设 n 是列表的长度，时间复杂度是 O(n)。</li>
+<li>空间复杂度：O(1)。</li>
+</ul>
+<h4 id="方法二：递归"><a href="#方法二：递归" class="headerlink" title="方法二：递归"></a>方法二：递归</h4><blockquote>
+<p>视频地址: <a href="https://www.youtube.com/watch?v=lnAhayckbqo" target="_blank" rel="noopener">https://www.youtube.com/watch?v=lnAhayckbqo</a></p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190825095454.png" alt=""></p>
+<p>递归版本稍微复杂一些，其关键在于反向工作。假设列表的其余部分已经被反转，现在我该如何反转它前面的部分？</p>
+<p>假设列表为：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190825092455.png" alt=""></p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> ListNode <span class="token function">reverseList</span><span class="token punctuation">(</span>ListNode head<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>head <span class="token operator">==</span> null <span class="token operator">||</span> head<span class="token punctuation">.</span>next <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token keyword">return</span> head<span class="token punctuation">;</span>
+    ListNode p <span class="token operator">=</span> <span class="token function">reverseList</span><span class="token punctuation">(</span>head<span class="token punctuation">.</span>next<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    head<span class="token punctuation">.</span>next<span class="token punctuation">.</span>next <span class="token operator">=</span> head<span class="token punctuation">;</span>
+    head<span class="token punctuation">.</span>next <span class="token operator">=</span> null<span class="token punctuation">;</span>
+    <span class="token keyword">return</span> p<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>时间复杂度：O(n)，假设 n<em>n</em> 是列表的长度，那么时间复杂度为 O(n)。</li>
+<li>空间复杂度：O(n)，由于使用递归，将会使用隐式栈空间。递归深度可能会达到 <em>n</em> 层。</li>
+</ul>
+<h4 id="分析："><a href="#分析：" class="headerlink" title="分析："></a>分析：</h4><ol>
+<li><p>感觉官方题解的递归确实有点难理解，将每一行的的执行结果都打印出来我才看出来到底做了什么操作。</p>
+<ul>
+<li>优点：相当于将原链表中的节点从后向前一个一个拆下来并按顺序放入新链表，原链表从后往前每拆一个节点，新链表p的尾部就加上这个被拆下的节点。</li>
+<li>缺点：<ol>
+<li>没有尾递归优化，链表节点数量大递归很深的情况下存在溢出危险</li>
+<li>方法直接修改内存地址的指向，操作不直观。思路很好，但代码可读性较差（可能我太菜所以一下看不出来）</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>具体步骤分析：</p>
+<ol>
+<li><p><code>const p = reverseList(head.next);</code>这一行代码中的p对于整个递归栈而言最终返回了原链表中最后一个节点的地址，也是反转后新链表的head</p>
+</li>
+<li><pre><code>head.next.next = head;</code></pre><p>这一行做的操作比较复杂。</p>
+<ol>
+<li>递归每次退栈后时head相当于从后往前迭代原链表的每一个节点</li>
+<li>实际上head.next已经是原链表的当前尾节点了，在递归上一次退栈过程中的<code>head.next = null;</code>已经将当前递归栈中head.next.next变为null。</li>
+<li>同时head.next即原链表的当前尾节点和新链表p的尾节点是指向同一个内存地址的，也就是新旧链表的尾部此时在内存中是同一个地址。</li>
+<li>看出来以上三点之后，可以得到<code>head.next.next = head;</code>同时也是<strong>p[尾节点].next = head</strong>，就是将当前节点head的地址添加到新链表p的尾部。这个操作将原链表的第n个节点放到了第n+1个节点的后面，所以仍然存在一点问题，就是循环引用。</li>
+</ol>
+</li>
+<li><p><code>head.next = null;</code>因为上一行执行完后实际上使 <strong>head.next</strong> 和 <strong>head.next.next</strong> 变成了循环引用，所以需要将这个循环给释放掉，不然新链表的尾部也是一个存在相同的循环引用。因为此时的 <strong>head.next === p[在循环引用之前的末尾节点]</strong> (同时 head === p[在循环引用之前的末尾节点].next)，即 <strong>head.next</strong> 和 <strong>p[在循环引用之前的末尾节点]</strong> 是指向同一个内存地址。所以这一行的操作就是在切断循环引用，切完之后实际上已经实现了当前末位节点的反转</p>
+</li>
+<li><p><code>return p;</code>每次递归退栈返回尾部添加了一个新节点的反转后链表</p>
+</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>参考文章:</p>
+<p><a href="https://leetcode-cn.com/problems/reverse-linked-list/solution/di-gui-yu-die-dai-by-chitanda-eru/" target="_blank" rel="noopener">递归与迭代</a></p>
+</blockquote>
+<h2 id="Review-点评"><a href="#Review-点评" class="headerlink" title="Review(点评)"></a>Review(点评)</h2><blockquote>
+<ol>
+<li>对自己诚实: 真正想要的是什么。</li>
+<li>始终如一地设计并过上理想的一天: 设计你的日常生活，这样你就可以将所有时间（如果不是大部分）花在你真正重视和关心的事情上。</li>
+<li>不要迷失在“成功”的迷宫中，目标不是目的，达到目标后，树立下个目标。</li>
+</ol>
+</blockquote>
+<h3 id="为什么大多数人永远不会得到他们想要的"><a href="#为什么大多数人永远不会得到他们想要的" class="headerlink" title="为什么大多数人永远不会得到他们想要的"></a><a href="https://medium.com/better-marketing/why-most-people-dont-get-or-keep-what-they-truly-want-5eb53303af2c" target="_blank" rel="noopener">为什么大多数人永远不会得到他们想要的</a></h3><h3 id="实现梦想的第一步：诚实守信"><a href="#实现梦想的第一步：诚实守信" class="headerlink" title="实现梦想的第一步：诚实守信"></a>实现梦想的第一步：诚实守信</h3><blockquote>
+<p>尽管人们欺骗别人，但我们对自己说谎最多。我们每天都骗自己。</p>
+<p>诚实是情绪化的 - 这就是我们撒谎的原因。我们躲避情绪。我们不想变得脆弱。我们不想被拒绝。我们不想失败。我们不想错。相反，我们把我们的情绪压低并忽视它们 - 这是我们的危险。</p>
+<p>要开始你的情感发展之旅，你必须开始对自己更加诚实。</p>
+<p>如果你不追求你真正想要的东西，你永远不会<em>感到</em>成功。</p>
+</blockquote>
+<h4 id="实现梦想的第二步：始终如一地设计并过上理想的一天"><a href="#实现梦想的第二步：始终如一地设计并过上理想的一天" class="headerlink" title="实现梦想的第二步：始终如一地设计并过上理想的一天"></a>实现梦想的第二步：始终如一地设计并过上理想的一天</h4><blockquote>
+<p>一旦你开始诚实地对待自己真正想要的东西，就必须停止拖延。</p>
+<p>你必须开始设计你的一天，以配合你的梦想。你过着24小时的生活。24小时如何使用这些决定了你生活中的“成功”。</p>
+<p>您需要最大限度地利用您在最高优先级上花费的时间。</p>
+</blockquote>
+<h4 id="实现梦想的第三步：不要迷失在“成功”的迷宫中"><a href="#实现梦想的第三步：不要迷失在“成功”的迷宫中" class="headerlink" title="实现梦想的第三步：不要迷失在“成功”的迷宫中"></a>实现梦想的第三步：不要迷失在“成功”的迷宫中</h4><blockquote>
+<p>目标不是目的。他们是手段。一旦达到目标，就需要另一个目标。目标是自我改善的工具。它们是组织生活以实现梦想的方法。他们永远不应该停止。</p>
+<p>每击中一个目标，你的信心就会增强。随着你的信心增加，你的想象力和更大目标的能力也会增加。因此，实现目标不应该结束你的未来，它应该扩展你的未来。</p>
+<p>如果你过度依附于击中目标所带来的状态，那么你已经用完了未来，现在已经过去了。</p>
+</blockquote>
+<h4 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h4><blockquote>
+<p>实现自己的梦想并实现“成功”是一项艰难但值得追求的目标。</p>
+<p>它始于对自己诚实开始和结束。</p>
+<p>这可能很困难，因为我们是社交和情感生物。我们不想让其他人失望。我们不想完全诚实地告诉我们我们是谁或我们想要什么。相反，我们埋葬了我们的情感，过着安静的生活。</p>
+<p>不要这样做。</p>
+<p>不要自欺欺人。</p>
+<p>开始告诉周围的人你真正想要的东西。保留支持你的人。放弃那些试图让你留在原地的人。</p>
+<p>然后，设计你的日常生活，这样你就可以将所有时间（如果不是大部分）花在你真正重视和关心的事情上</p>
+<p>当你成功时，不要迷路。</p>
+<p>如果你不知道自己到底是谁 - 那么成功就会误导你。你要么过度地依附于你所开发的特定状态，要么迷失在其他人的议程（即“机会”）的迷宫中。</p>
+<p>一直以来，你需要不断地与自己保持联系，并对自己诚实。老实说，你需要对出现的机会更快地说“不”。</p>
+<p>仅仅因为某件事是一个很好的机会并不意味着你应该这样做。一切都有成本。时间是最大的成本。</p>
+<p>当你开始对最高的自我完全诚实时，就会立即开始发生惊人的事情。</p>
+<p>成功将会发生。必须成功。但它只有在你开始过你想要的生活时才会发生，而不是在成功的时候迷失。</p>
+</blockquote>
+<h2 id="Tip-技巧"><a href="#Tip-技巧" class="headerlink" title="Tip(技巧)"></a>Tip(技巧)</h2><blockquote>
+<p>使用Jenkins Theme美化jenkins</p>
+<p><a href="http://ghang.top/2019/09/13/Jenkins-Theme生成jenkins定制主题/">Jenkins-Theme生成jenkins定制主题</a></p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190913151753.png" alt=""></p>
+<h2 id="Share-分享"><a href="#Share-分享" class="headerlink" title="Share(分享)"></a>Share(分享)</h2><p><a href="http://ghang.top/2019/09/07/使用Flasgger让Python集成Swagger/">使用Flasgger让Python集成Swagger(翻译)</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ARTS/" rel="tag">ARTS</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-Jenkins-Theme生成jenkins定制主题"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/09/13/Jenkins-Theme%E7%94%9F%E6%88%90jenkins%E5%AE%9A%E5%88%B6%E4%B8%BB%E9%A2%98/"
+    >Jenkins Theme生成jenkins定制主题</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/09/13/Jenkins-Theme%E7%94%9F%E6%88%90jenkins%E5%AE%9A%E5%88%B6%E4%B8%BB%E9%A2%98/" class="article-date">
+  <time datetime="2019-09-13T05:23:40.000Z" itemprop="datePublished">2019-09-13</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://i4t.com/3720.html" target="_blank" rel="noopener">https://i4t.com/3720.html</a></p>
+<p>jenkins的默认界面实在是太丑了，可以使用Jenkins Theme生成定制主题进行美化。</p>
+</blockquote>
+<h2 id="效果图"><a href="#效果图" class="headerlink" title="﻿效果图"></a>﻿<strong>效果图</strong></h2><p><img src="http://static.zybuluo.com/abcdocker/so38ds9fzfdm3cdx0clfdnd1/image_1d97cfonfpkielp1rdl1u2r1mju37.png" alt="image_1d97cfonfpkielp1rdl1u2r1mju37.png-127kB"></p>
+<p>Jenkins默认界面比较丑，视觉容易疲劳，这时候就需要我们更换一个主题。让我们的Jenkins美观一些</p>
+<h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><p>首先需要我们打开生成css主题的地址：<a href="http://afonsof.com/jenkins-material-theme/" target="_blank" rel="noopener">http://afonsof.com/jenkins-material-theme/</a></p>
+<blockquote>
+<p>Select your color</p>
+</blockquote>
+<blockquote>
+<p>选择一个你喜欢的主题颜色。</p>
+</blockquote>
+<blockquote>
+<p>Choose your company logo</p>
+</blockquote>
+<blockquote>
+<p>上传你自定义的公司logo。</p>
+</blockquote>
+<blockquote>
+<p>点击“↓DOWNLOAD TOUR THEME!”</p>
+</blockquote>
+<blockquote>
+<p>上传logo完成之后，按钮会变更为下载按钮，点击下载到本地。</p>
+</blockquote>
+<h3 id="1-选择主题颜色"><a href="#1-选择主题颜色" class="headerlink" title="1.选择主题颜色"></a><strong>1.选择主题颜色</strong></h3><p><img src="http://static.zybuluo.com/abcdocker/097jzb6lembuzudsi4o4orro/image_1d97bfac31a4uauj1d8d1b0h3cb9.png" alt=""></p>
+<h3 id="2-选择公司logo-然后我们点击下载css"><a href="#2-选择公司logo-然后我们点击下载css" class="headerlink" title="2.选择公司logo,然后我们点击下载css"></a><strong>2.选择公司logo,然后我们点击下载css</strong></h3><p><img src="http://static.zybuluo.com/abcdocker/t11asdd68nql7of8grsqzgeq/image_1d97bi6acg7e31tgj6c8a82m.png" alt=""></p>
+<h3 id="3-Jenkins-配置"><a href="#3-Jenkins-配置" class="headerlink" title="3.Jenkins 配置"></a><strong>3.Jenkins 配置</strong></h3><p><strong>安装simple theme插件</strong></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190913140750.png" alt=""></p>
+<p>在主菜单中选择系统管理-&gt;管理插件</p>
+<p>安装完插件我们点击 <code>系统管理</code>–&gt;<code>系统设置</code>找到配置Theme的地方</p>
+<p><img src="http://static.zybuluo.com/abcdocker/iyrjv5g168d7nfu6dm09wzqr/image_1d97c2bmj185e1q9v1pdjas31grr13.png" alt=""></p>
+<p>Theme获取css文件有2种方式，第一种我们上传到nginx站点访问，第二种上传到Jenkins目录</p>
+<h4 id="第一种可以直接写http-down-i4t-com-jenkins-material-theme-css进行测试"><a href="#第一种可以直接写http-down-i4t-com-jenkins-material-theme-css进行测试" class="headerlink" title="第一种可以直接写http://down.i4t.com/jenkins-material-theme.css进行测试"></a><strong>第一种可以直接写</strong><a href="http://down.i4t.com/jenkins-material-theme.css" target="_blank" rel="noopener"><strong>http://down.i4t.com/jenkins-material-theme.css</strong></a><strong>进行测试</strong></h4><pre class=" language-http"><code class="language-http"><span class="token header-name keyword">http:</span>//down.i4t.com/jenkins-material-theme.css</code></pre>
+<p><img src="http://static.zybuluo.com/abcdocker/ywn4fp44nzbj98u801lafeb1/image_1d97ca4cel0810ta9ha1i516h520.png" alt=""></p>
+<h4 id="第二种"><a href="#第二种" class="headerlink" title="第二种"></a><strong>第二种</strong></h4><p>将之前下载的css文件放置到<code>${Jenkins_HOME}/userContent/material/</code>下</p>
+<p>没有material文件夹的可以自己创建，其他名字也是可以的。</p>
+<blockquote>
+<p>${Jenkins_HOME}这里是Jenkins默认目录，不修改家目录的情况下在/root/.jenkins</p>
+</blockquote>
+<p>!<img src="http://static.zybuluo.com/abcdocker/80eqsxdc8j9i0c3xl68eg6bk/image_1d97cd7bd1rc7113u1qfb1qbcmpg2d.png" alt=""></p>
+<h3 id="4-预览演示"><a href="#4-预览演示" class="headerlink" title="4.预览演示"></a><strong>4.预览演示</strong></h3><p>我们配置好css地址之后，点击保存</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190913141002.png" alt=""></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jenkins/" rel="tag">jenkins</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-《服务网格化-Service-Mesh》视频笔记"
   class="article article-type-post"
   itemscope
@@ -779,195 +1042,6 @@ app.run(debug=True)</code></pre>
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-程序员相关的纪录片"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/09/07/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9B%B8%E5%85%B3%E7%9A%84%E7%BA%AA%E5%BD%95%E7%89%87/"
-    >程序员相关的纪录片</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/09/07/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%9B%B8%E5%85%B3%E7%9A%84%E7%BA%AA%E5%BD%95%E7%89%87/" class="article-date">
-  <time datetime="2019-09-07T06:32:42.000Z" itemprop="datePublished">2019-09-07</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址: </p>
-<p>有哪些值得推荐的纪录片？ - 夏萌吓懵瞎蒙的回答 - 知乎<br><a href="https://www.zhihu.com/question/19956869/answer/55577331" target="_blank" rel="noopener">https://www.zhihu.com/question/19956869/answer/55577331</a></p>
-</blockquote>
-<p>作为一只程序猿，特来安利老本行的纪录片</p>
-<p>希望各位geek码农有技术情怀或者怀着一颗仰慕geek之心的萌妹子们喜欢</p>
-<p>首先是家喻户晓的乔帮主和比尔盖茨</p>
-<h2 id="硅谷传奇"><a href="#硅谷传奇" class="headerlink" title="硅谷传奇 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/1298084/">硅谷传奇 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143444.png" alt=""></p>
-<p>电影改编自那本让雷军同学热血沸腾的《硅谷之火》，微软和苹果的发家史，本片片名还有一个翻译叫《硅谷有贼》 ＝ ＝ 高级黑？2333</p>
-<p>还有一部题材类似的，也是两大巨头的故事</p>
-<h2 id="书呆子的胜利：意外帝国的崛起"><a href="#书呆子的胜利：意外帝国的崛起" class="headerlink" title="书呆子的胜利：意外帝国的崛起 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/2993935/">书呆子的胜利：意外帝国的崛起 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143519.png" alt=""></p>
-<p>软粉果粉都满足了，自然谷粉不能落下</p>
-<h2 id="谷歌与世界头脑"><a href="#谷歌与世界头脑" class="headerlink" title="谷歌与世界头脑 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/20431388/">谷歌与世界头脑 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143542.png" alt=""></p>
-<p>如今谷歌已经无处不在，正如片尾</p>
-<blockquote>
-<p>There is no way out，or around，or throught.</p>
-</blockquote>
-<p>接下来是各位程序员同学都熟悉的Linus Torvalds，非技术类的同学可能不太清楚，不要紧，他的自我介绍足以让你过目不忘</p>
-<blockquote>
-<p>My name is Linus Torvalds and I am your god.</p>
-</blockquote>
-<p>是的，你正在看的知乎，天天用的互联网就是跑在他一手开发维护并作为社区领袖二十多年来辛勤耕耘的Linux系统上的</p>
-<h2 id="代码"><a href="#代码" class="headerlink" title="代码 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/1418357/">代码 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143625.png" alt=""></p>
-<p>这部纪录片既是他的自传也是Linux的发展史，配合他本人的自传看口味更佳（Just for Fun (豆瓣)）正如他自传的书名，他用一生都在诠释——编程不过是just for fun。我们的池建强同学还特地为该书写过一篇读后感：</p>
-<p><a href="https://link.zhihu.com/?target=http%3A//www.chenjunlu.com/2014/07/linus-torvalds-biography/">Linus Torvalds 传记 By 池建强</a></p>
-<p>说到Linux自然绕不开开源，下面这部电影用更广阔的视角展现了开源运动的点滴</p>
-<h2 id="操作系统革命"><a href="#操作系统革命" class="headerlink" title="操作系统革命 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/1437389/">操作系统革命 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143659.png" alt=""></p>
-<p>片中采访了一系列的开源先驱，从大胡子领袖RMS到Eric Raymond再到Linus，各位码农们看到这么多大牛必将大呼过瘾。豆瓣排行第一的影评出自 </p>
-<p><a href="https://www.zhihu.com/people/99953853cc4219fabe8327301058357c" target="_blank" rel="noopener">Fenng</a>：操作系统的革命(Revolution OS) <a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/review/1044867/">操作系统的革命(Revolution OS) (操作系统革命 影评)</a></p>
-<p>和上面这些生命力旺盛的巨头相比，还有一些辉煌昙花一现。下面这部电影讲的就是上世纪90年代市值曾一度超过苹果的Netscape</p>
-<h2 id="代码奔腾"><a href="#代码奔腾" class="headerlink" title="代码奔腾 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/3124124/">代码奔腾 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143724.png" alt=""></p>
-<p>读过吴军老师《浪潮之巅》的同学一定对这段历史印象深刻，除了记录历史，影片还对网景公司员工和创始人的生活做了鲜活的呈现。阮一峰同学也在看完本片后交出了一篇优秀的观后感：痛苦造就性格（也许还造就产品）</p>
-<p>这部个人的传奇故事，令人扼腕叹息</p>
-<h2 id="互联网之子"><a href="#互联网之子" class="headerlink" title="互联网之子 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/25785114/">互联网之子 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143756.png" alt=""></p>
-<p>天才少年总是命途多舛，一言难尽，详细的介绍可以看耗子哥 <a href="https://www.zhihu.com/people/ed1bff9f8d1dd80f45c88aa150795078" target="_blank" rel="noopener">陈皓</a> 的这篇博文：<a href="https://link.zhihu.com/?target=http%3A//coolshell.cn/articles/11928.html">互联网之子</a></p>
-<p>和上面那部一样，下面这部影片也是政治味道浓烈</p>
-<h2 id="维基解密的抗争"><a href="#维基解密的抗争" class="headerlink" title="维基解密的抗争 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/5423352/">维基解密的抗争 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143825.png" alt=""></p>
-<p>公平公正，维基和我们孜孜以求</p>
-<p>从事设计工作的同学一定知道这个字体 <a href="https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/wiki/Helvetica">https://zh.wikipedia.org/wiki/Helvetica</a></p>
-<h2 id="传奇字体"><a href="#传奇字体" class="headerlink" title="传奇字体 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/1937190/">传奇字体 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143841.png" alt=""></p>
-<p>这部电影就是讲的Helvetica 的故事，很少有这样一部以一种字体为题材的电影，同样值得一看</p>
-<p>最后一部，讲述前些日子震惊全球的棱镜门</p>
-<h2 id="第四公民"><a href="#第四公民" class="headerlink" title="第四公民 "></a><a href="https://link.zhihu.com/?target=http%3A//movie.douban.com/subject/26059437/">第四公民 </a></h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907143901.png" alt=""></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-ARTS-3"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/09/02/ARTS-3/"
-    >ARTS-3</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/09/02/ARTS-3/" class="article-date">
-  <time datetime="2019-09-02T12:53:43.000Z" itemprop="datePublished">2019-09-02</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>ARTS是由左耳朵耗子陈皓在极客时间专栏《左耳听风》中发起的一个每周学习打卡计划。</p>
-</blockquote>
-<pre><code>Algorithm：至少做一个 LeetCode 的算法题。主要为了编程训练和学习。
-
-Review ：阅读并点评至少一篇英文技术文章。主要为了学习英文，如果你英文不行，很难成为技术高手。
-
-Tip：学习至少一个技术技巧。主要是为了总结和归纳你日常工作中所遇到的知识点。
-
-Share：分享一篇有观点和思考的技术文章。主要为了输出你的影响力，能够输出你的价值观。</code></pre><h2 id="Algorithm-算法"><a href="#Algorithm-算法" class="headerlink" title="Algorithm(算法)"></a>Algorithm(算法)</h2><h3 id="Leetcode-将有序数组转换为二叉搜索树"><a href="#Leetcode-将有序数组转换为二叉搜索树" class="headerlink" title="Leetcode 将有序数组转换为二叉搜索树"></a><strong>Leetcode 将有序数组转换为二叉搜索树</strong></h3><p>leetcode 108: <a href="https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/" target="_blank" rel="noopener">https://leetcode-cn.com/problems/convert-sorted-array-to-binary-search-tree/</a></p>
-<pre><code class="java">/**
- * Definition for a binary tree node.
- * public class TreeNode {
- *     int val;
- *     TreeNode left;
- *     TreeNode right;
- *     TreeNode(int x) { val = x; }
- * }
- */
-class Solution {
-    public TreeNode sortedArrayToBST(int[] nums) {
-        if (nums.length == 0) return null;
-        TreeNode head = helper(nums, 0, nums.length - 1);
-        return head;
-    }
-
-    public TreeNode helper(int[] nums, int low, int high) {
-        // Done，边界条件
-        if (low &gt; high) return null;
-        // 取中间值作为根节点
-        int mid = (low + high) / 2;
-        TreeNode node = new TreeNode(nums[mid]);
-        // 使用递归方法构建左右子树
-        node.left = helper(nums, low, mid - 1);
-        node.right = helper(nums, mid + 1, high);
-        return node;
-    }
-}</code></pre>
-<h2 id="Review-点评"><a href="#Review-点评" class="headerlink" title="Review(点评)"></a>Review(点评)</h2><blockquote>
-<p>原文地址: <a href="https://towardsdatascience.com/great-developers-never-stop-learning-77b9ce867eac" target="_blank" rel="noopener">伟大的开发者永远不会停止学习</a></p>
-</blockquote>
-<h3 id="❶-阅读的艺术"><a href="#❶-阅读的艺术" class="headerlink" title="❶ - 阅读的艺术"></a>❶ - 阅读的艺术</h3><p>图书</p>
-<p>博客</p>
-<p>推特</p>
-<h3 id="❷-从Avid-Reader到Avid-Writer"><a href="#❷-从Avid-Reader到Avid-Writer" class="headerlink" title="❷ - 从Avid Reader到Avid Writer"></a>❷ - 从Avid Reader到Avid Writer</h3><blockquote>
-<p>教是两次学习 - 约瑟夫·朱伯特</p>
-</blockquote> 
-      <a class="article-more-link" href="/2019/09/02/ARTS-3/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ARTS/" rel="tag">ARTS</a></li></ul>
 
     </footer>
   </div>

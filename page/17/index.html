@@ -99,6 +99,184 @@
     
     
     <article
+  id="post-如何在Ubuntu-18-04上安装Jenkins"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/21/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu-18-04%E4%B8%8A%E5%AE%89%E8%A3%85Jenkins/"
+    >如何在Ubuntu 18.04上安装Jenkins</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/21/%E5%A6%82%E4%BD%95%E5%9C%A8Ubuntu-18-04%E4%B8%8A%E5%AE%89%E8%A3%85Jenkins/" class="article-date">
+  <time datetime="2019-08-21T02:05:20.000Z" itemprop="datePublished">2019-08-21</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://www.digitalocean.com/community/tutorials/how-to-install-jenkins-on-ubuntu-18-04" target="_blank" rel="noopener">How To Install Jenkins on Ubuntu 18.04</a></p>
+<p>通过google翻译翻译的文章，翻译不太准确</p>
+</blockquote>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><a href="https://jenkins.io/" target="_blank" rel="noopener">Jenkins</a>是一个开源自动化服务器，可以自动执行持续集成和交付软件所涉及的重复技术任务。Jenkins是基于Java的，可以从Ubuntu软件包安装，也可以通过下载和运行其Web应用程序存档（WAR）文件来安装 - 该文件是构成在服务器上运行的完整Web应用程序的文件集合。</p>
+<p>在本教程中，您将通过添加其Debian软件包存储库来安装Jenkins，并使用该存储库来安装软件包<code>apt</code>。</p>
+<h3 id="先决条件"><a href="#先决条件" class="headerlink" title="先决条件"></a>先决条件</h3><p>要学习本教程，您需要：</p>
+<ul>
+<li>一个Ubuntu 18.04服务器配置了非root sudo用户和防火墙，遵循<a href="https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-18-04" target="_blank" rel="noopener">Ubuntu 18.04初始服务器设置指南</a>。我们建议从至少1 GB的RAM开始。有关规划生产Jenkins安装容量的指导，请参阅<a href="https://jenkins.io/doc/book/hardware-recommendations/" target="_blank" rel="noopener">为Masters选择正确的硬件</a>。</li>
+<li>安装了Java 8，遵循我们<a href="https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-ubuntu-18-04#installing-specific-versions-of-openjdk" target="_blank" rel="noopener">在Ubuntu 18.04</a>上<a href="https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-ubuntu-18-04#installing-specific-versions-of-openjdk" target="_blank" rel="noopener">安装特定版本的OpenJDK的</a>指导原则。</li>
+</ul>
+<h2 id="第1步-安装Jenkins"><a href="#第1步-安装Jenkins" class="headerlink" title="第1步 - 安装Jenkins"></a>第1步 - 安装Jenkins</h2><p>默认Ubuntu软件包中包含的Jenkins版本通常位于项目本身的最新可用版本之后。要利用最新的修补程序和功能，您可以使用项目维护的软件包来安装Jenkins。</p>
+<p>首先，将存储库密钥添加到系统：</p>
+<pre class=" language-shell"><code class="language-shell">wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -</code></pre>
+<p>添加密钥后，系统将返回<code>OK</code>。接下来，将Debian软件包存储库地址附加到服务器的<code>sources.list</code>：</p>
+<pre class=" language-shell"><code class="language-shell">sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'</code></pre>
+<p>当这两个都到位时，运行<code>update</code>以便<code>apt</code>使用新的存储库：</p>
+<pre class=" language-shell"><code class="language-shell">sudo apt update</code></pre>
+<p>最后，安装Jenkins及其依赖项：</p>
+<pre class=" language-shell"><code class="language-shell">sudo apt install jenkins</code></pre>
+<p>既然Jenkins及其依赖项已经到位，我们将启动Jenkins服务器。</p>
+<h2 id="第2步-启动詹金斯"><a href="#第2步-启动詹金斯" class="headerlink" title="第2步 - 启动詹金斯"></a>第2步 - 启动詹金斯</h2><p>让我们开始使用Jenkins <code>systemctl</code>：</p>
+<pre class=" language-shell"><code class="language-shell">sudo systemctl start jenkins</code></pre>
+<p>由于<code>systemctl</code>不显示输出，您可以使用其<code>status</code>命令来验证Jenkins是否已成功启动：</p>
+<pre class=" language-shell"><code class="language-shell">sudo systemctl status jenkins</code></pre>
+<p>如果一切顺利，输出的开头应该显示服务处于活动状态并配置为在启动时启动：</p>
+<pre class=" language-shell"><code class="language-shell">Output● jenkins.service - LSB: Start Jenkins at boot time
+   Loaded: loaded (/etc/init.d/jenkins; generated)
+   Active: active (exited) since Mon 2018-07-09 17:22:08 UTC; 6min ago
+     Docs: man:systemd-sysv-generator(8)
+    Tasks: 0 (limit: 1153)
+   CGroup: /system.slice/jenkins.service</code></pre>
+<p>现在Jenkins正在运行，让我们调整防火墙规则，以便我们可以从Web浏览器访问它以完成初始设置。</p>
+<h2 id="第3步-打开防火墙"><a href="#第3步-打开防火墙" class="headerlink" title="第3步 - 打开防火墙"></a>第3步 - 打开防火墙</h2><p>默认情况下，Jenkins在端口上运行<code>8080</code>，所以让我们使用<code>ufw</code>以下命令打开该端口：</p>
+<pre class=" language-shell"><code class="language-shell">sudo ufw allow 8080</code></pre>
+<p>检查<code>ufw</code>状态以确认新规则：</p>
+<pre class=" language-shell"><code class="language-shell">sudo ufw status</code></pre>
+<p>您将看到允许流量<code>8080</code>从任何地方移植：</p>
+<pre><code>OutputStatus: active
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+8080                       ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+8080 (v6)                  ALLOW       Anywhere (v6)</code></pre><p><strong>注意：</strong>如果防火墙处于非活动状态，则以下命令将允许OpenSSH并启用防火墙：</p>
+<pre class=" language-shell"><code class="language-shell">sudo ufw allow OpenSSH
+sudo ufw enable</code></pre>
+<p>安装Jenkins并配置防火墙后，我们可以完成初始设置。</p>
+<h2 id="第4步-设置Jenkins"><a href="#第4步-设置Jenkins" class="headerlink" title="第4步 - 设置Jenkins"></a>第4步 - 设置Jenkins</h2><p>要设置安装，请<code>8080</code>使用您的服务器域名或IP地址访问Jenkins的默认端口：<code>http://your_server_ip_or_domain:8080</code></p>
+<p>您应该看到<strong>Unlock Jenkins</strong>屏幕，它显示初始密码的位置：</p>
+<p><img src="https://assets.digitalocean.com/articles/jenkins-install-ubuntu-1604/unlock-jenkins.png" alt="解锁Jenkins屏幕"></p>
+<p>在终端窗口中，使用<code>cat</code>命令显示密码：</p>
+<pre><code>sudo cat /var/lib/jenkins/secrets/initialAdminPassword</code></pre><p>从终端复制32个字符的字母数字密码并将其粘贴到<strong>管理员密码</strong>字段中，然后单击<strong>继续</strong>。</p>
+<p>下一个屏幕显示安装建议插件或选择特定插件的选项：</p>
+<p><img src="https://assets.digitalocean.com/articles/jenkins-install-ubuntu-1804/customize_jenkins_screen_two.png" alt="自定义Jenkins屏幕"></p>
+<p>我们将单击<strong>Install suggested plugins</strong>选项，它将立即开始安装过程：</p>
+<p><img src="https://assets.digitalocean.com/articles/jenkins-install-ubuntu-1804/jenkins_plugin_install_two.png" alt="Jenkins入门安装插件屏幕"></p>
+<p>安装完成后，系统将提示您设置第一个管理用户。可以跳过此步骤并继续<code>admin</code>使用我们上面使用的初始密码，但我们会花一点时间来创建用户。</p>
+<p><strong>注意：</strong>默认的Jenkins服务器未加密，因此使用此表单提交的数据不受保护。当您准备好使用此安装时，请按照指南<a href="https://www.digitalocean.com/community/tutorials/how-to-configure-jenkins-with-ssl-using-an-nginx-reverse-proxy-on-ubuntu-18-04" target="_blank" rel="noopener">如何在Ubuntu 18.04上使用Nginx反向代理配置Jenkins和SSL</a>。这将保护用户凭据和有关通过Web界面传输的构建的信息。</p>
+<p><img src="https://assets.digitalocean.com/articles/jenkins-install-ubuntu-1804/jenkins_create_user.png" alt="Jenkins创建第一个管理员用户屏幕"></p>
+<p>输入用户的名称和密码：</p>
+<p><img src="https://assets.digitalocean.com/articles/jenkins-install-ubuntu-1804/jenkins_user_info.png" alt="詹金斯创建用户"></p>
+<p>您将看到一个“ <strong>实例配置”</strong>页面，该页面将要求您确认Jenkins实例的首选URL。确认服务器的域名或服务器的IP地址：</p>
+<p><img src="https://assets.digitalocean.com/articles/jenkins-install-ubuntu-1804/instance_confirmation.png" alt="Jenkins实例配置"></p>
+<p>确认相应信息后，单击“ <strong>保存并完成”</strong>。您将看到一个确认页面，确认<strong>“Jenkins准备就绪！”</strong> ：</p>
+<p><img src="https://assets.digitalocean.com/articles/jenkins-install-ubuntu-1804/jenkins_ready_page_two.png" alt="詹金斯准备好了屏幕"></p>
+<p>单击<strong>使用Jenkins开始</strong>访问主Jenkins仪表板：</p>
+<p><img src="https://assets.digitalocean.com/articles/jenkins-install-ubuntu-1804/jenkins_home_page.png" alt="欢迎来到Jenkins Screen"></p>
+<p>此时，您已成功完成Jenkins的安装。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>在本教程中，您使用项目提供的软件包安装了Jenkins，启动了服务器，打开了防火墙并创建了管理用户。此时，您可以开始探索Jenkins了。</p>
+<p>完成探索后，如果您决定继续使用Jenkins，请按照指南<a href="https://www.digitalocean.com/community/tutorials/how-to-configure-jenkins-with-ssl-using-an-nginx-reverse-proxy-on-ubuntu-18-04" target="_blank" rel="noopener">如何在Ubuntu 18.04上使用Nginx反向代理配置Jenkins SSL</a>来保护您的密码，以及任何敏感系统或产品信息。以纯文本形式在您的计算机和服务器之间发送。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jenkins/" rel="tag">jenkins</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-写代码怎能不会这些-Linux-命令？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/20/%E5%86%99%E4%BB%A3%E7%A0%81%E6%80%8E%E8%83%BD%E4%B8%8D%E4%BC%9A%E8%BF%99%E4%BA%9B-Linux-%E5%91%BD%E4%BB%A4%EF%BC%9F/"
+    >写代码怎能不会这些 Linux 命令？</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/20/%E5%86%99%E4%BB%A3%E7%A0%81%E6%80%8E%E8%83%BD%E4%B8%8D%E4%BC%9A%E8%BF%99%E4%BA%9B-Linux-%E5%91%BD%E4%BB%A4%EF%BC%9F/" class="article-date">
+  <time datetime="2019-08-20T14:27:22.000Z" itemprop="datePublished">2019-08-20</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文作者: 王爵</p>
+<p>原文地址: <a href="https://zhuanlan.zhihu.com/p/28674639" target="_blank" rel="noopener">写代码怎能不会这些 Linux 命令？</a></p>
+</blockquote>
+<blockquote>
+<p>这篇文章翻译自<a href="https://link.zhihu.com/?target=http%3A//www.thegeekstuff.com/2010/11/50-linux-commands/">http://www.thegeekstuff.com/2010/11/50-linux-commands/</a>这些都是一些很常用的命令，这篇文章中每个命令都有一些简单的示例说明它的用法，对于想学习Unix/Linux的人，这些命令基本上都是需要掌握的：</p>
+</blockquote>
+<p>同时我也做了一张简易版的图例：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190820222747.png" alt=""></p>
+<p>这张图片的原图地址在<a href="https://link.zhihu.com/?target=https%3A//i.loli.net/2017/08/22/599b9b3ca5bb7.png">这里</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/" rel="tag">linux</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-《代码整洁之道-程序员的职业素养》读书笔记"
   class="article article-type-post"
   itemscope
@@ -736,181 +914,6 @@ Share：分享一篇有观点和思考的技术文章。主要为了输出你的
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-一份工作坚持多久跳槽最合适？"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/17/%E4%B8%80%E4%BB%BD%E5%B7%A5%E4%BD%9C%E5%9D%9A%E6%8C%81%E5%A4%9A%E4%B9%85%E8%B7%B3%E6%A7%BD%E6%9C%80%E5%90%88%E9%80%82%EF%BC%9F/"
-    >一份工作坚持多久跳槽最合适？</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/17/%E4%B8%80%E4%BB%BD%E5%B7%A5%E4%BD%9C%E5%9D%9A%E6%8C%81%E5%A4%9A%E4%B9%85%E8%B7%B3%E6%A7%BD%E6%9C%80%E5%90%88%E9%80%82%EF%BC%9F/" class="article-date">
-  <time datetime="2019-08-17T06:47:04.000Z" itemprop="datePublished">2019-08-17</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p>对于一份工作，坚持多久跳槽最合适呢？是应该把一份工作至少坚持做满18个月，还是不管自己在这家公司待了多久，一有合适的时机就立刻辞职跳槽呢？</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190817144854.png" alt=""></p>
-<p>临近年关，王丽一直惴惴不安，时刻盯着手机，生怕遗漏任何重要的电话。前不久，她去应聘了一家心仪的单位岗位，过五关斩六将，已经通过了两轮面试。本打算年后辞职的，但左等右等，就是没有等来录取的offer，也没有接到不录用的通知。</p>
-<p>思前想后，王丽不知道其中是哪一个环节出错了，就能力而言，她自信完全可以胜任面试的岗位。如果说哪里有薄弱的地方，就是自己每份工作干的时间都不长，最短的9个月，最长的也就2年。而目前的这份工作，也才刚满1年，难道HR是在意这点吗？<strong>那究竟工作几年跳槽最合适呢？</strong></p>
-<p>有的人认为，如果你真的不喜欢自己的工作，那就应该离开。这是你的生活，你只需要按照自己的规则生活，其他人的规则与你无关。</p>
-<p>但是，<strong>如果一个人在4年内换了3份工作，这会引起CEO或HR的警惕。</strong>要么你太容易喜新厌旧，不能持之以恒，要么是因为你绩效不佳被辞退，或者因为你不够忠诚，随时准备跳槽等等，这会对公司团队文化和生产效率造成极大的破坏。这是任何一家企业都不能容忍的，尤其是小型企业。  </p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190817144916.png" alt=""></p>
-<p>是应该把一份工作至少坚持做满18个月，还是不管自己在这家公司待了多久，一有合适的时机就立刻辞职跳槽呢？人力资源专家迈克尔·O·切齐表示，<strong>这取决于你从工作中学到了多少，以及这份工作对你的职业生涯有何裨益</strong>。 </p>
-<p><strong><em>01</em></strong></p>
-<p> <strong>8个月内跳槽最糟糕</strong>  </p>
-<p>一份工作如果不满8个月就辞职跳槽，这是很糟糕的，除非你能找出非常客观的理由，比如公司大规模的裁员行为或工厂倒闭。</p>
-<p>无论是HR还是猎头，对应聘者非常看重的一点便是“忠诚度”，因为一个企业不希望辛辛苦苦培养的员工到头来却为别人做了嫁衣。一个人如果在同一个单位工作年限低于2年往往会被看作“不够忠诚”，不到1年，便被视为“稳定性差”。</p>
-<p><strong>8个月内就跳槽，这在HR眼里，或许表明你没有通过6个月的评估或第一个绩效周期</strong>。迈克尔建议，你最好在履历中省略这份工作，将任何成就算入自由职业部分。</p>
-<p>有些东西太糟糕了，只能被抛弃，其中就包括低于8个月的工作。 </p>
-<p><strong><em>02</em></strong></p>
-<p> <strong>18个月是社会公认的下限</strong>  </p>
-<p>工作了至少18个月才考虑跳槽，这是社会公认的下限。这意味着你至少安然度过了一个评估周期。通常而言，绩效评估是按年进行的，而且<strong>公司只会对工作满6个月的员工进行评估</strong>。而这正是18个月这个数字的由来。</p>
-<p>迈克尔表示，短期工作不能太多，如果你在一份工作中“被诱骗”，工作仅8个月就离职是可以理解的。但如果有5份工作均是如此，这似乎就是你的问题了。除非这份工作非常糟糕，否则你应该至少将这份工作做满18个月，跨越2个日历年。虽然我们不喜欢这些规则，不过许多公司非常不待见前一份工作只干了6至17个月的员工，这是现实。</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_gif/KWokWoqF9TicqJnicrU5f6mChYaDY5BpG8QbkT4tCcicLmISFmRKWdQk4GDSqPxJPQtH1OeMOv2IKaLIGKY5WO19w/640?wx_fmt=gif&wxfrom=5&wx_lazy=1" alt="img"></p>
-<p><strong><em>03</em></strong></p>
-<p> <strong>48个月跳槽比较好</strong>  </p>
-<p>在其他方面相同的情况下，2年好于18个月，3年好于2年，4年好于3年。3年正是大多数正规企业第一次签合同的期限，如果被公司认可，那么接下来将会是合同续签。工作满4年了，你可以得到在那里工作的“全部学分”，除非有明显的证据证明你表现不佳或停滞不前。如果你有幸在第四或者第五年被内部提拔，那么继续在这个岗位上。</p>
-<p><strong>如果到了第四、五年，成绩突出却没有得到更高的职位或者薪水，那么最明智的选择就是跳槽</strong>。因为眼下的环境已经成了瓶颈，而且个人的求胜欲望和上进心处于高点，此时跳槽不仅可以得到更高的职位和待遇，也可以继续延续个人的求胜欲望。 </p>
-<p><strong><em>04</em></strong></p>
-<p><strong>72个月还没升迁，赶紧跳</strong> </p>
-<p>工作72个月了，此时，如果你没有得到升职或更好的项目，这份工作将开始给你带来伤害。但是，如果你能不断获得升迁，这份工作可以做多长时间呢？答案是——没有上限。</p>
-<p>一个人在进入一个新的工作环境，第一年往往是“打酱油”的熟悉过程；第二年才可能慢慢进入角色，真正融入企业文化；经过前两年的积累，到了第三年才真正出成绩，当然这也是职位和薪资提高的关键时期。工作满四年，除去入职后的第一年，其他三年没有起伏，或者有平级调动，这种情形还是可以接受的。</p>
-<p><strong>如果你6年之后依旧没有明显的升职记录，这就会让人觉得你胸无大志</strong>，虽然你还不至于糟糕到连工作都保不住的程度，但你也只能算是平庸之辈。  </p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190817144943.png" alt=""></p>
-<p>在同一个公司同一个职位上，一旦错过了3～5年的跳槽黄金期，员工对安逸的需求大于上进求胜的欲望，随着年龄的增大、家庭琐事的负担，人的惰性将越来越束缚内心，最终沦为朝九晚五混日子的上班族。 </p>
-<p><em>本文转载自：**<a href="https://mp.weixin.qq.com/s/2rWtOPXnZxodomBTBtbXNg" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/2rWtOPXnZxodomBTBtbXNg</a></em></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-我说我精通字符串，面试官竟然问我Java中的String有没有长度限制！？"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/17/%E6%88%91%E8%AF%B4%E6%88%91%E7%B2%BE%E9%80%9A%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%8C%E9%9D%A2%E8%AF%95%E5%AE%98%E7%AB%9F%E7%84%B6%E9%97%AE%E6%88%91Java%E4%B8%AD%E7%9A%84String%E6%9C%89%E6%B2%A1%E6%9C%89%E9%95%BF%E5%BA%A6%E9%99%90%E5%88%B6%EF%BC%81%EF%BC%9F/"
-    >我说我精通字符串，面试官竟然问我Java中的String有没有长度限制！？</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/17/%E6%88%91%E8%AF%B4%E6%88%91%E7%B2%BE%E9%80%9A%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%8C%E9%9D%A2%E8%AF%95%E5%AE%98%E7%AB%9F%E7%84%B6%E9%97%AE%E6%88%91Java%E4%B8%AD%E7%9A%84String%E6%9C%89%E6%B2%A1%E6%9C%89%E9%95%BF%E5%BA%A6%E9%99%90%E5%88%B6%EF%BC%81%EF%BC%9F/" class="article-date">
-  <time datetime="2019-08-17T06:36:57.000Z" itemprop="datePublished">2019-08-17</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818204124.png" alt=""></p>
-<blockquote>
-<p>原文地址: <a href="https://mp.weixin.qq.com/s/7jgtRs6HxssL8QWV1wWLWQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/7jgtRs6HxssL8QWV1wWLWQ</a></p>
-</blockquote>
-<p>String是Java中很重要的一个数据类型，除了基本数据类型以外，String是被使用的最广泛的了，但是，关于String，其实还是有很多东西容易被忽略的。</p>
-<p>就如本文我们要讨论的问题：Java中的String有没有长度限制？</p>
-<p>这个问题要分两个阶段看，分别是编译期和运行期。不同的时期限制不一样。</p>
-<p><strong><em>1</em></strong></p>
-<p><strong>编译期</strong></p>
-<p>首先，我们先来合理的推断一下，当我们在代码中使用String s = “”;的形式来定义String对象的时候，””中字符的个数有没有限制呢？</p>
-<p>既然是合理的推断，那就要要足够的依据，所以我们可以从String的源码入手，根据public String(char value[], int offset, int count)的定义，count是int类型的，所以，char value[]中最多可以保存Integer.MAX_VALUE个,即2147483647字符。(jdk1.8.0_73)</p>
-<p>但是，实验证明，String s = “”;中，最多可以有65534个字符。如果超过这个个数。就会在编译期报错。</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-
-    String s <span class="token operator">=</span> <span class="token string">"a...a"</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">// 共65534个a</span>
-    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>s<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    String s1 <span class="token operator">=</span> <span class="token string">"a...a"</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">// 共65535个a</span>
-    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>s1<span class="token punctuation">.</span><span class="token function">length</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p>以上代码，会在String s1 = “a…a”;// 共65535个a处编译失败：</p>
-<pre><code>✗ javac StringLenghDemo.java
-StringLenghDemo.java:11: 错误: 常量字符串过长</code></pre><p><strong>明明说好的长度限制是2147483647，为什么65535个字符就无法编译了呢？</strong></p>
-<p>当我们使用字符串字面量直接定义String的时候，是会把字符串在常量池中存储一份的。那么上面提到的65534其实是常量池的限制。</p>
-<p>常量池中的每一种数据项也有自己的类型。Java中的UTF-8编码的Unicode字符串在常量池中以CONSTANT_Utf8类型表示。</p>
-<p>CONSTANTUtf8info是一个CONSTANTUtf8类型的常量池数据项，它存储的是一个常量字符串。常量池中的所有字面量几乎都是通过CONSTANTUtf8info描述的。CONSTANTUtf8_info的定义如下：</p>
-<pre class=" language-java"><code class="language-java">CONSTANT_Utf8_info <span class="token punctuation">{</span>
-    u1 tag<span class="token punctuation">;</span>
-    u2 length<span class="token punctuation">;</span>
-    u1 bytes<span class="token punctuation">[</span>length<span class="token punctuation">]</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p>由于本文的重点并不是CONSTANTUtf8info的介绍，这里就不详细展开了，我们只需要我们使用字面量定义的字符串在class文件中，是使用CONSTANTUtf8info存储的，而CONSTANTUtf8info中有u2 length;表明了该类型存储数据的长度。</p>
-<p>u2是无符号的16位整数，因此理论上允许的的最大长度是2^16=65536。而 java class 文件是使用一种变体UTF-8格式来存放字符的，null 值使用两个 字节来表示，因此只剩下 65536－ 2 ＝ 65534个字节。</p>
-<p>关于这一点，在the class file format spec中也有明确说明：</p>
-<pre><code>The length of field and method names, field and method descriptors, and other constant string values is limited to 65535 characters by the 16-bit unsigned length item of the CONSTANTUtf8info structure (§4.4.7). Note that the limit is on the number of bytes in the encoding and not on the number of encoded characters. UTF-8 encodes some characters using two or three bytes. Thus, strings incorporating multibyte characters are further constrained.</code></pre><p>也就是说，在Java中，所有需要保存在常量池中的数据，长度最大不能超过65535，这当然也包括字符串的定义咯。</p>
-<p><strong><em>2</em></strong></p>
-<p><strong>运行期</strong></p>
-<p>上面提到的这种String长度的限制是编译期的限制，也就是使用String s= “”;这种字面值方式定义的时候才会有的限制。</p>
-<p>那么。String在运行期有没有限制呢，答案是有的，就是我们前文提到的那个Integer.MAX_VALUE ，这个值约等于4G，在运行期，如果String的长度超过这个范围，就可能会抛出异常。(在jdk 1.9之前）</p>
-<p>int 是一个 32 位变量类型，取正数部分来算的话，他们最长可以有</p>
-<pre class=" language-java"><code class="language-java"><span class="token number">2</span><span class="token operator">^</span><span class="token number">31</span><span class="token operator">-</span><span class="token number">1</span> <span class="token operator">=</span><span class="token number">2147483647</span> 个 <span class="token number">16</span><span class="token operator">-</span>bit Unicodecharacter
-
-<span class="token number">2147483647</span> <span class="token operator">*</span> <span class="token number">16</span> <span class="token operator">=</span> <span class="token number">34359738352</span> 位
-<span class="token number">34359738352</span> <span class="token operator">/</span> <span class="token number">8</span> <span class="token operator">=</span> <span class="token function">4294967294</span> <span class="token punctuation">(</span>Byte<span class="token punctuation">)</span>
-<span class="token number">4294967294</span> <span class="token operator">/</span> <span class="token number">1024</span> <span class="token operator">=</span> <span class="token number">4194303</span><span class="token punctuation">.</span><span class="token function">998046875</span> <span class="token punctuation">(</span>KB<span class="token punctuation">)</span>
-<span class="token number">4194303.998046875</span> <span class="token operator">/</span> <span class="token number">1024</span> <span class="token operator">=</span> <span class="token number">4095</span><span class="token punctuation">.</span><span class="token function">9999980926513671875</span> <span class="token punctuation">(</span>MB<span class="token punctuation">)</span>
-<span class="token number">4095.9999980926513671875</span> <span class="token operator">/</span> <span class="token number">1024</span> <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">.</span><span class="token function">99999999813735485076904296875</span> <span class="token punctuation">(</span>GB<span class="token punctuation">)</span></code></pre>
-<p>有近 4G 的容量。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
 
     </footer>
   </div>
