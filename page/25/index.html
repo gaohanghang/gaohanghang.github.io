@@ -99,6 +99,175 @@
     
     
     <article
+  id="post-天天用Synchronized，底层原理是个啥"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/"
+    >天天用Synchronized，底层原理是个啥?</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/" class="article-date">
+  <time datetime="2019-07-02T11:56:26.000Z" itemprop="datePublished">2019-07-02</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：liuxiaopeng</p>
+<p>原文地址:：<a href="https://www.cnblogs.com/paddix/p/5367116.html" target="_blank" rel="noopener">https://www.cnblogs.com/paddix/p/5367116.html</a></p>
+</blockquote>
+<p><strong>Synchronized 的基本使用</strong></p>
+<p>Synchronized 的作用主要有三个：</p>
+<ul>
+<li>确保线程互斥的访问同步代码</li>
+<li>保证共享变量的修改能够及时可见</li>
+<li>有效解决重排序问题</li>
+</ul>
+<p>从语法上讲，Synchronized 总共有三种用法：</p>
+<ul>
+<li>修饰普通方法</li>
+<li>修饰静态方法</li>
+<li>修饰代码块</li>
+</ul>
+<p>接下来我就通过几个例子程序来说明一下这三种使用方式（为了便于比较，三段代码除了 Synchronized 的使用方式不同以外，其他基本保持一致）。</p>
+<p><strong>没有同步的情况</strong></p>
+<p>代码段 1：</p>
+<pre><code class="java">package com.paddx.test.concurrent;
+
+public class SynchronizedTest {
+  public void method1(){
+
+    System.out.println(&quot;Method 1 start&quot;);
+    try {
+      System.out.println(&quot;Method 1 execute&quot;);
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+       e.printStackTrace();
+    }
+    System.out.println(&quot;Method 1 end&quot;);
+  }
+
+  public void method2(){
+    System.out.println(&quot;Method 2 start&quot;);
+    try {
+      System.out.println(&quot;Method 2 execute&quot;);
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    System.out.println(&quot;Method 2 end&quot;);
+  }
+
+  public static void main(String[] args) {
+    final SynchronizedTest test = new SynchronizedTest();
+
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        test.method1();
+      }
+    }).start();
+
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        test.method2();
+      }
+    }).start();
+  }
+}</code></pre>
+<p>执行结果如下，线程 1 和线程 2 同时进入执行状态，线程 2 执行速度比线程 1 快，所以线程 2 先执行完成。推荐阅读：<a href="http://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247487589&idx=2&sn=bc7398739f7153e5cf9a9f0241b0cb5b&chksm=eb539553dc241c45b28c0ccf217359c17ccce4ae34e3c13f4c7a2555f108247ea3d54902a88c&scene=21#wechat_redirect" target="_blank" rel="noopener">多线程 start 和 run 方法到底有什么区别？</a></p>
+<p>这个过程中线程 1 和线程 2 是同时执行的：</p>
+<pre><code class="java">Method 1 start
+Method 1 execute
+Method 2 start
+Method 2 execute
+Method 2 end
+Method 1 end</code></pre>
+<p><strong>对普通方法同步</strong></p>
+<p>代码段 2：</p>
+<pre><code class="java">package com.paddx.test.concurrent;
+
+public class SynchronizedTest {
+  public synchronized void method1(){
+    System.out.println(&quot;Method 1 start&quot;);
+    try {
+      System.out.println(&quot;Method 1 execute&quot;);
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    System.out.println(&quot;Method 1 end&quot;);
+  }
+
+  public synchronized void method2(){
+    System.out.println(&quot;Method 2 start&quot;);
+    try {
+      System.out.println(&quot;Method 2 execute&quot;);
+      Thread.sleep(1000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    System.out.println(&quot;Method 2 end&quot;);
+  }
+
+  public static void main(String[] args) {
+    final SynchronizedTest test = new SynchronizedTest();
+
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        test.method1();
+      }
+    }).start();
+
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        test.method2();
+      }
+    }).start();
+  }
+}</code></pre>
+<p>执行结果如下，跟代码段 1 比较，可以很明显的看出，线程 2 需要等待线程 1 的 Method1 执行完成才能开始执行 Method2 方法。</p> 
+      <a class="article-more-link" href="/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-《Java高级开发工程师》直播课Ⅶ"
   class="article article-type-post"
   itemscope
@@ -692,69 +861,6 @@
     
     <footer class="article-footer">
        
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-布隆过滤器-Bloom-Filter"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/25/%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8-Bloom-Filter/"
-    >布隆过滤器 Bloom Filter</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/06/25/%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8-Bloom-Filter/" class="article-date">
-  <time datetime="2019-06-25T14:21:23.000Z" itemprop="datePublished">2019-06-25</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>视频地址 <a href="https://www.bilibili.com/video/av55398985/?p=58" target="_blank" rel="noopener">https://www.bilibili.com/video/av55398985/?p=58</a></p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190625222149.png" alt=""></p>
-<p>布隆过滤器 Bloom Filter</p>
-<p>一个很长的二进制向量和一个映射函数。</p>
-<p>布隆过滤器可以用于检索一个元素是否在一个集合中。</p>
-<p>它的优点是空间效率和查询时间都远远超过一般的算法，缺点是有一定的误识别率和删除困难。</p>
-<p>不在就确定不在</p>
-<p>在可以不准确，需要在数据库或文件再查下</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190625222253.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190625222356.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190625222603.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190625222624.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190625222715.png" alt=""></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
-
     </footer>
   </div>
 

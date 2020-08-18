@@ -99,6 +99,84 @@
     
     
     <article
+  id="post-用了-Lambda-之后，发现可以忘记设计模式了"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/12/%E7%94%A8%E4%BA%86-Lambda-%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%8F%91%E7%8E%B0%E5%8F%AF%E4%BB%A5%E5%BF%98%E8%AE%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%86/"
+    >用了 Lambda 之后，发现可以忘记设计模式了</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/12/%E7%94%A8%E4%BA%86-Lambda-%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%8F%91%E7%8E%B0%E5%8F%AF%E4%BB%A5%E5%BF%98%E8%AE%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%86/" class="article-date">
+  <time datetime="2019-07-12T10:30:22.000Z" itemprop="datePublished">2019-07-12</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://mp.weixin.qq.com/s/Xj4wjzfVkFJz8HWKahjmhA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/Xj4wjzfVkFJz8HWKahjmhA</a></p>
+</blockquote>
+<p>设计模式是过去的一些好的经验和套路的总结，但是好的语言特性可以让开发者不去考虑这些设计模式。面向对象常见的设计模式有策略模式、模板方法、观察者模式、责任链模式以及工厂模式，使用Lambda表达式（函数式编程思维）有助于避免面向对象开发中的那些固定代码。下面挑选了策略模式和职责链模式两个案例进行分析。</p>
+<h2 id="案例1：策略模式"><a href="#案例1：策略模式" class="headerlink" title="案例1：策略模式"></a>案例1：策略模式</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190712183208.png" alt=""></p>
+<p>当我们解决一个问题有不同的解法的时候，又不希望客户感知到这些解法的细节，这种情况下适合使用策略模式。策略模式包括三个部分：</p>
+<ul>
+<li>解决问题的算法（上图中的Strategy）；</li>
+<li>一个或多个该类算法的具体实现（上图中的ConcreteStrategyA、ConcreteStrategyB和ConcreteStrategyC）</li>
+<li>一个或多个客户使用场景（上图中的ClientContext）</li>
+</ul>
+<h3 id="面向对象思路"><a href="#面向对象思路" class="headerlink" title="面向对象思路"></a>面向对象思路</h3><p>首先定义策略接口，表示字符串的处理算法：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114605.png" alt=""></p>
+<p>然后定义具体的实现类，即不同的验证算法：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114625.png" alt=""></p>
+<p>最后定义客户使用场景，代码如下图所示。Validator是为客户提供服务时使用的上下文环境，每个Valiator对象中都封装了具体的Strategy对象，在实际工作中，我们可以通过更换具体的Strategy对象来进行客户服务的升级，而且不需要让客户进行升级。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114658.png" alt=""></p>
+<h3 id="函数式编程思路"><a href="#函数式编程思路" class="headerlink" title="函数式编程思路"></a>函数式编程思路</h3><p>如果使用Lambda表达式考虑，你会发现ValidationStrategy就是一个函数接口（还与Predicate具有同样的函数描述），那么就不需要定义上面那些实现类了，可以直接用下面的代码替换，原因是Lambda表达式内部已经对这些类进行了一定的封装。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190714114412.png" alt=""></p>
+<h2 id="案例2：责任链模式"><a href="#案例2：责任链模式" class="headerlink" title="案例2：责任链模式"></a>案例2：责任链模式</h2><p>在某些场景下，需要对一个对象做一系列的工作，这些工作分别是由不同的类完成的，这时候就比较适合使用责任链模式。责任链模式的主要组成部分包括三个：</p>
+<ul>
+<li>管理操作序列的抽象类，在该抽象类里有会有一个对象记录当前对象的后继操作对象；</li>
+<li>一些具体的操作对象，这些操作对象会以一个链表的形式组织起来</li>
+<li>一个使用该模式的客户端组件，该组件只需要跟一个组件打交道就好，不需要跟很多个操作对象耦合在一起。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190714114433.png" alt=""></p>
+<h3 id="面向对象思路-1"><a href="#面向对象思路-1" class="headerlink" title="面向对象思路"></a>面向对象思路</h3><p>首先看下我们这里定义了一个抽象类ProcessingObject，其中successor字段用于管理该对象的后继操作对象；handle接口作为对外提供服务的接口；handleWork作为实际处理对象的操作方法。</p> 
+      <a class="article-more-link" href="/2019/07/12/%E7%94%A8%E4%BA%86-Lambda-%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%8F%91%E7%8E%B0%E5%8F%AF%E4%BB%A5%E5%BF%98%E8%AE%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%86/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-索引优化三大原则"
   class="article article-type-post"
   itemscope
@@ -786,80 +864,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-《极简思维》读书笔记"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/06/%E3%80%8A%E6%9E%81%E7%AE%80%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"
-    >《极简思维》读书笔记</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/06/%E3%80%8A%E6%9E%81%E7%AE%80%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" class="article-date">
-  <time datetime="2019-07-06T07:20:19.000Z" itemprop="datePublished">2019-07-06</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h1 id="极简思维》丨手把手教你摆脱迷茫和不开心"><a href="#极简思维》丨手把手教你摆脱迷茫和不开心" class="headerlink" title="极简思维》丨手把手教你摆脱迷茫和不开心"></a><a href="https://book.douban.com/review/10016750/" target="_blank" rel="noopener">极简思维》丨手把手教你摆脱迷茫和不开心</a></h1><blockquote>
-<p>作者：寒夏（来自豆瓣）<br>来源：<a href="https://book.douban.com/review/10016750/" target="_blank" rel="noopener">https://book.douban.com/review/10016750/</a></p>
-</blockquote>
-<p>你是否经常感到迷茫，不知道自己到底应该过什么样的生活？</p>
-<p>你是否经常感到不开心，生活的许多方面都如乱麻一般不尽如人意？</p>
-<p>你是否经常觉得自己很忙，整天琐事缠身，没有时间过自己的生活？</p>
-<p>如果你的回答是“YES”，那么，《极简思维》这本书也许能帮到你。</p>
-<h2 id="（01）整理你的思维"><a href="#（01）整理你的思维" class="headerlink" title="（01）整理你的思维"></a>（01）整理你的思维</h2><p>生活中，我们经常会产生一些消极思想，那么，是什么导致了我们不能积极乐观地面对生活呢？作者给出了四个方面的原因：</p>
-<p>1、<strong>生活压力</strong>。压力过大是很多人感到生活不堪重负的首要原因。</p>
-<p>2、<strong>选择悖论</strong>。选择悖论是由心理学家巴里•施瓦茨提出的一个概念，它是指选择越多就越容易焦虑、犹豫、无力、不4、<strong>消极偏见</strong>。里克•汉森指出：<strong>为了让我们的祖先能够得以存活，大自然母亲在大脑进化的过程中设置了三种经常能够欺骗我们的错误：过高地估计恐惧的威力；过低地估计机会的成功率；以及过低地估计自己在面对恐惧与机遇时的才能</strong>。这就是消极偏见。</p>
-<p>面对经常产生的消极思想，我们应该做些什么来排除杂念呢？作者为我们提供了四个方法。</p>
-<p>1、<strong>专注的腹式呼吸</strong>。腹式呼吸，也就是深呼吸，它能够刺激我们的副交感神经系统，从而<strong>降低心率、放松肌肉、镇定精神并使大脑功能正常化</strong>。</p>
-<p>进行深呼吸的练习时，你可以选择一个固定的时间，选一个安静的空间，然后设置10分钟的计时器，在垫子上莲花坐或在椅子上坐直，伸直脊椎，把手轻轻放在大腿上，慢慢吸气，直到你的肺被充满，让你的肚子在吸气时向外推，吸气结束时，停下来倒数2秒，然后慢慢地、平稳的、完全地把气呼出去，让你的肚子回到它的自然位置，呼气结束时也要暂停倒数两秒，然后重复吸气动作。</p>
-<p>2、<strong>冥想</strong>。现在有很多书，也有很多课程专门讲冥想，冥想已经成为了很多人减轻压力，提高注意力的有效方式。</p>
-<p>冥想有十几种方式，但一般都是以同样的步骤开始的：<strong>静静地坐下，把注意力集中在你的呼吸上，无视任何干扰你的事物。</strong></p>
-<p>你可以在深呼吸练习后接着进行冥想，也可以另选时间。</p>
-<p>冥想的前几步跟深呼吸练习类似，只不过做完3-4次深呼吸后，你就要恢复正常呼吸，同时把注意力集中在呼吸上。一开始你的思维很容易不受控制，但是没关系，意识到自己想到了其它内容后，慢慢地让这些杂乱的想法离开你的大脑，重新把注意力集中的呼吸的感觉上。</p>
-<p>3、<strong>驯服消极思想</strong>。当一个消极思想出现时，做一个旁观者，给这个消极思想命名，然后学会对消极思想说不。你还可以找到消极思想的触发器，以此来控制你的思想。当然，分散注意力也是一种驯服消极思想的有效方法。</p>
-<p>4、<strong>新思想替换旧思想</strong>。当出现某些消极想法时，比如“我什么也干不好”，找一个例子反驳它。如果某个消极思想有着合理的理由存在时，学会接受，然后进行有效的思考，找到解决给你带来消极思想的事情的方法。亲手写下你的想法能帮助你整理你当下的思想，并且常常能引导你找到那些解决问题的方法。</p>
-<h2 id="（02）整理你的生活"><a href="#（02）整理你的生活" class="headerlink" title="（02）整理你的生活"></a>（02）整理你的生活</h2><p>有时候，我们容易陷入琐事中无法自拔，是因为没有确立自己核心价值观。</p>
-<p>你的核心价值观可以作为衡量你生活中所有选择和决定的标尺，让你能够将精力有针对性地花在成为想成为的人和过希望过的生活上。行为与价值观一致，你将收获快乐、干净、镇定，这种生活环境对你来说是最棒的。</p>
-<p>我们该如何确立自己的核心价值观呢？作者给我们提供了四个方法。</p>
-<p><strong>方法一、确定你的个人价值观</strong></p> 
-      <a class="article-more-link" href="/2019/07/06/%E3%80%8A%E6%9E%81%E7%AE%80%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
 
     </footer>
   </div>
