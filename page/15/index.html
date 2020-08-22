@@ -99,157 +99,6 @@
     
     
     <article
-  id="post-使用Flasgger让Python集成Swagger"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/09/07/%E4%BD%BF%E7%94%A8Flasgger%E8%AE%A9Python%E9%9B%86%E6%88%90Swagger/"
-    >使用Flasgger让Python集成Swagger(翻译)</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/09/07/%E4%BD%BF%E7%94%A8Flasgger%E8%AE%A9Python%E9%9B%86%E6%88%90Swagger/" class="article-date">
-  <time datetime="2019-09-07T11:24:52.000Z" itemprop="datePublished">2019-09-07</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907204137.png" alt=""></p>
-<blockquote>
-<p>原作者: Bruno Rocha</p>
-<p>原文地址: <a href="[http://brunorocha.org/python/flask/flasgger-api-playground-with-flask-and-swagger-ui.html](http://brunorocha.org/python/flask/flasgger-api-playground-with-flask-and-swagger-ui.html)">Flasgger - API playground with Flask and Swagger UI</a></p>
-<p>翻译: 高行行</p>
-<p>代码地址: <a href="https://github.com/gaohanghang/python-demo/tree/master/python-flasgger" target="_blank" rel="noopener">python-flasgger</a></p>
-</blockquote>
-<h1 id="1-Swagger是什么？"><a href="#1-Swagger是什么？" class="headerlink" title="1. Swagger是什么？"></a>1. Swagger是什么？</h1><p>Swagger是RESTful API简单而强大的代表。凭借全球最大的API工具生态系统和数千名开发人员。几乎所有现代编程语言和部署环境中都支持Swagger。使用支持 Swagger 的API，您可以获得交互式文档，客户端SDK生成和可见性。</p>
-<h1 id="2-Swagger-UI是什么"><a href="#2-Swagger-UI是什么" class="headerlink" title="2. Swagger UI是什么?"></a>2. Swagger UI是什么?</h1><p>Swagger UI是一个HTML，Javascript和CSS无依赖关系集合，可以从符合Swagger规范的API动态生成漂亮的文档和沙箱。由于Swagger UI没有依赖关系，因此你可以在任何服务器环境或本地计算机上托管它。跳转到<a href="http://petstore.swagger.io/" target="_blank" rel="noopener">Swagger UI 在线演示</a></p>
-<h1 id="3-Flask什么"><a href="#3-Flask什么" class="headerlink" title="3. Flask什么?"></a>3. Flask什么?</h1><p>Flask是基于Werkzeug，Jinja 2的Python微框架。为什么它非常棒？因为它简单但功能强大，沟通代码更方便！</p>
-<pre><code class="python">from flask import Flask, jsonify, request
-app = Flask(__name__)
-
-@app.route(&#39;my_awesome_api&#39;, methods=[&#39;POST&#39;])
-def my_awesome_endpoint():
-    data = request.json
-    return jsonify(data=data, meta={&quot;status&quot;: &quot;ok&quot;})
-
-app.run()</code></pre>
-<p>运行上面的脚本，然后就可以开始发送请求到API</p>
-<pre><code class="shell">curl -XPOST http://localhost:5000/my_awesome_api -d &#39;{&quot;python&quot;: &quot;is awesome&quot;}&#39;
-{
-    &quot;data&quot;: {&quot;python&quot;: &quot;is awesome&quot;},
-    &quot;meta&quot;: {&quot;status&quot;: &quot;ok&quot;}
-}</code></pre>
-<h1 id="4-Flasgger是什么？"><a href="#4-Flasgger是什么？" class="headerlink" title="4. Flasgger是什么？"></a>4. Flasgger是什么？</h1><p>Flasgger是Flask的扩展，用于帮助创建Flask API，其中包含由SwaggerUI提供支持的文档和调试工具。你可以使用YAML文件定义API结构，Flasgger会为你创建所有规范，你可以使用相同的模式来验证数据。</p>
-<p>GITHUB REPO: <a href="https://github.com/rochacbruno/flasgger" target="_blank" rel="noopener">https://github.com/rochacbruno/flasgger</a></p>
-<h1 id="5-安装"><a href="#5-安装" class="headerlink" title="5. 安装"></a>5. 安装</h1><pre><code class="shell">pip install flasgger</code></pre>
-<h1 id="6-创建应用"><a href="#6-创建应用" class="headerlink" title="6. 创建应用"></a>6. 创建应用</h1><p>您可以将API规范直接放在 docstrings 中</p>
-<pre><code class="python">import random
-from flask import Flask, jsonify, request
-from flasgger import Swagger
-
-app = Flask(__name__)
-Swagger(app)
-
-@app.route(&#39;/api/&lt;string:language&gt;/&#39;, methods=[&#39;GET&#39;])
-def index(language):
-    &quot;&quot;&quot;
-    This is the language awesomeness API
-    Call this api passing a language name and get back its features
-    ---
-    tags:
-      - Awesomeness Language API
-    parameters:
-      - name: language
-        in: path
-        type: string
-        required: true
-        description: The language name
-      - name: size
-        in: query
-        type: integer
-        description: size of awesomeness
-    responses:
-      500:
-        description: Error The language is not awesome!
-      200:
-        description: A language with its awesomeness
-        schema:
-          id: awesome
-          properties:
-            language:
-              type: string
-              description: The language name
-              default: Lua
-            features:
-              type: array
-              description: The awesomeness list
-              items:
-                type: string
-              default: [&quot;perfect&quot;, &quot;simple&quot;, &quot;lovely&quot;]
-
-    &quot;&quot;&quot;
-
-    language = language.lower().strip()
-    features = [
-        &quot;awesome&quot;, &quot;great&quot;, &quot;dynamic&quot;, 
-        &quot;simple&quot;, &quot;powerful&quot;, &quot;amazing&quot;, 
-        &quot;perfect&quot;, &quot;beauty&quot;, &quot;lovely&quot;
-    ]
-    size = int(request.args.get(&#39;size&#39;, 1))
-    if language in [&#39;php&#39;, &#39;vb&#39;, &#39;visualbasic&#39;, &#39;actionscript&#39;]:
-        return &quot;An error occurred, invalid language for awesomeness&quot;, 500
-    return jsonify(
-        language=language,
-        features=random.sample(features, size)
-    )
-
-
-app.run(debug=True)</code></pre>
-<h1 id="7-运行"><a href="#7-运行" class="headerlink" title="7. 运行"></a>7. 运行</h1><p>现在运行应用程序并访问 <a href="http://localhost:5000/apidocs/index.html" target="_blank" rel="noopener">http://localhost:5000/apidocs/index.html</a> 将会跳转到 Swagger UI 界面</p>
-<p><strong>启动效果</strong></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907195235.png" alt=""></p>
-<p><strong>Swagger 测试效果</strong></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190907194745.png" alt=""></p>
-<blockquote>
-<p>注意: 可以在配置中更改所有默认URL。</p>
-</blockquote>
-<p><strong>也可以使用单独的文件进行规范</strong></p> 
-      <a class="article-more-link" href="/2019/09/07/%E4%BD%BF%E7%94%A8Flasgger%E8%AE%A9Python%E9%9B%86%E6%88%90Swagger/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
   id="post-程序员相关的纪录片"
   class="article article-type-post"
   itemscope
@@ -1213,6 +1062,95 @@ git config --list</code></pre><h2 id="第2章"><a href="#第2章" class="headerl
 <h2 id="思考-🤔"><a href="#思考-🤔" class="headerlink" title="思考 🤔"></a>思考 🤔</h2><p>总感觉程序员和哲学家有些地方是共通的，哲学家思考社会，程序员思考程序设计，也许要两者兼具，才能成为大佬吧。</p>
 <p>不想做哲学家的程序员不是好程序员（哈哈😼）</p>
  
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%80%9D%E8%80%83/" rel="tag">思考</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-对马云和马斯克对话的思考🤔"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/29/%E5%AF%B9%E9%A9%AC%E4%BA%91%E5%92%8C%E9%A9%AC%E6%96%AF%E5%85%8B%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%80%9D%E8%80%83%F0%9F%A4%94/"
+    >对马云和马斯克对话的思考🤔</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/29/%E5%AF%B9%E9%A9%AC%E4%BA%91%E5%92%8C%E9%A9%AC%E6%96%AF%E5%85%8B%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%80%9D%E8%80%83%F0%9F%A4%94/" class="article-date">
+  <time datetime="2019-08-29T15:20:17.000Z" itemprop="datePublished">2019-08-29</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190829234745.png" alt=""></p>
+<h2 id="1-思考-🤔"><a href="#1-思考-🤔" class="headerlink" title="1. 思考 🤔"></a>1. 思考 🤔</h2><blockquote>
+<p>今天看新闻，2019 世界人工智能大会于八月二十九日在上海举世博中心举行，马云马斯克进行关于ai 发展的对话</p>
+<p>看了新闻视频感觉很有意思，用主持人的话说，这就是地球和卫星的对话</p>
+<p>马云的思维很符合中国人的思想内涵，而马斯克符合美国人的思维想法</p>
+<blockquote>
+<p>马斯克关心宇宙，马云关心地球</p>
+<p>马斯克忧虑AI发展，马云对人的优势迷之自信</p>
+<p>马斯克从技术来推理，马云用玄学来解释</p>
+<p>— sosence</p>
+</blockquote>
+<p>总体感觉，马云的观点更注重人文，马斯克观点更注重技术，文科生和理科生的相爱相杀 😼</p>
+<p>有点像《流浪地球》电影讨论时，中国人选择带着地球流浪，美国人会选择乘飞船离开地球 🌐。中国人比较注重家国思想，而美国人崇尚个人主义。</p>
+<p>不论对错，这是一场思维的碰撞 💥，很有意思，推荐大家看一下</p>
+</blockquote>
+<h2 id="2-视频地址"><a href="#2-视频地址" class="headerlink" title="2. 视频地址:"></a>2. 视频地址:</h2><iframe src="//player.bilibili.com/player.html?aid=65915912&cid=114357892&page=1" width="780" height="480" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
+<h2 id="3-马云-VS-马斯克对话全文实录"><a href="#3-马云-VS-马斯克对话全文实录" class="headerlink" title="3. 马云 VS 马斯克对话全文实录"></a>3. 马云 VS 马斯克对话全文实录</h2><blockquote>
+<p>原文地址: <a href="https://www.ifanr.com/1253696" target="_blank" rel="noopener">马云 VS 马斯克对话全文实录</a></p>
+</blockquote>
+<p> 2019 世界人工智能大会（WAIC）上，自嘲为「火星人」的马云和「未来的火星人」埃隆 · 马斯克（Elon Musk）针对人工智能、宇宙、教育、人类命途等话题上演了一场精彩对话。</p>
+<p>以下是现场对话全文 (视频<a href="https://tifan.net/1042152.mp4" target="_blank" rel="noopener">点这里</a>）：</p>
+<h3 id="话题一：AI"><a href="#话题一：AI" class="headerlink" title="话题一：AI"></a>话题一：AI</h3><p>马斯克：我们先看看 AI 这个关键词，我听说 AI 是「爱」的意思，是这个意思吗？</p>
+<p>马云：我特别不喜欢把 AI 叫做人工智能，我把它称之为「阿里巴巴智能」。</p>
+<p>马斯克：我也这么感觉。一般大家都会低估人工智能的能力，他们觉得可能就像是聪明人而已。实际上，人工智能比这个厉害得多，可能比最聪明的人还要聪明。面对这个状况我们应该做什么呢？我也不知道，我也不确定，但我希望 AI 会是好东西。</p>
+<p>有一句老话，如果打不过他们就和他们组成团队吧。我所开发的公司就是这样，目的就是让我们加入到 AI 战队里面。现在我们已经和手机、电脑连在一块了，我们已经成为带有机器特征的人了，机器在你生命相当于你生命的延伸，你离开了手机像少了一个手臂。</p>
+<p>与人的思维速度相比，现在的人工智能太慢了。假定一个计算机多几个服务点的计算能力，每个毫秒在计算机来说是极大进步，对于我们来说这不算什么。理解人类的自然语言对于计算机来说非常短，像鲸鱼在发的声音，每秒钟最多一百个字节左右的信息对于电脑来说太慢太短了。计算机可以超过你几十万倍数字通量的方式进行对话，机器人看到人应该会特别无聊，我想机器会比人聪明得多。这是我想说的人和计算机的差别。</p>
+<p>马云：我特别惊讶于你对于科技的愿景。我不是搞高科技的人，我是讲生活的，我觉得 AI 能够给全世界，给社会打开一个新的篇章，让大家更好的理解自己，而不是完全理解外部的世界。</p>
+<p>今天要预测未来很难，特别难。99.9% 的预测都是错的，只有 0.001% 的预测是对的。为什么对呢？那是运气好，很多情况 80% 的数据是错的。</p>
+<p>对于人工智能，对于阿里巴巴的智能，我很高兴它们能够更好的理解人类的本质。很多人担心人工智能，他们需要对自己有更多的自信。今天很多问题没有解决方案，但是未来会有，青年人会有解决方案。</p>
+<p>AI 的未来很难预测，历史上，人们对未来的 99.99% 的预测后来都被证明是错的。人们应该有更多的自信，AI 不是一个威胁，也不是恐怖的东西，人类也可以学会。</p>
+<p>我很乐观，我不觉得 AI 是一种威胁，我不认为人工智能是很恐怖的东西，因为人类很聪明。我觉得 AI 很好很有意思，我们会拥抱它。</p>
+<p>马斯克：告诉大家一个事实，现在电脑进步的速度是惊人的。比如玩电子游戏，往前看 40 年 50 年，可能你会有两个方块的单机游戏，但是现在可以很多人在一个游戏平台上一起打游戏，进步巨大。越来越多的游戏做得越来越真实。科技在未来仍然会有非常巨大的发展。</p>
+<p>人类文明有 7000 年历史，这个人类文明史从文明角度来看高低起伏非常厉害。我不是个天然的乐观或者悲观的人，但未来科技发展将会超越我们理解它的能力。我不知道这样是好事还是坏事。</p>
+<h3 id="话题二：火星"><a href="#话题二：火星" class="headerlink" title="话题二：火星"></a>话题二：火星</h3><p>马云：听说你要去火星？我对火星没有兴趣，我刚从火星回来。我对地球上发生的一切更感兴趣，为什么大家对火星这么好奇。</p>
+<p>对于火星，我们需要采取行动。我没有考虑过外星人。外星人在哪里，这是一个问题。为什么没有找到外星人，有些人找到外星人，说去过 51 区吗？我说别开玩笑了，有外星人我一定知道。</p>
+<p>马斯克：我觉得我们需要更进一步了解宇宙的本质，以确保我们能够进入到不同的行星生活。这并不是因为我觉得地球没有希望了，但毕竟存在这种可能，即使我们尽了最大的努力，地球还是有可能会发生人类无法控制的事情，外部力量或者内部事物导致文明被毁灭或者我们受到足够的威胁以至于我们只能搬到另外一个星球去生活。</p>
+<p>换句话说，地球 45 亿年的历史中，现在第一次有可能让生命离开地球生活，之前是没有可能的。但是这个机会窗口会有多久，长或者短都有可能。假定机会窗口不长，我们需要尽快抓住机会窗口。这是我的观点。</p> 
+      <a class="article-more-link" href="/2019/08/29/%E5%AF%B9%E9%A9%AC%E4%BA%91%E5%92%8C%E9%A9%AC%E6%96%AF%E5%85%8B%E5%AF%B9%E8%AF%9D%E7%9A%84%E6%80%9D%E8%80%83%F0%9F%A4%94/"
+        >阅读更多...</a
+      >
+       
       <!-- reward -->
       
     </div>

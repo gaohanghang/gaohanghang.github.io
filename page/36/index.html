@@ -99,68 +99,6 @@
     
     
     <article
-  id="post-SQL语句优化"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2018/07/19/SQL%E8%AF%AD%E5%8F%A5%E4%BC%98%E5%8C%96/"
-    >SQL语句优化</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2018/07/19/SQL%E8%AF%AD%E5%8F%A5%E4%BC%98%E5%8C%96/" class="article-date">
-  <time datetime="2018-07-19T04:24:22.000Z" itemprop="datePublished">2018-07-19</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p><strong>减少使用子查询</strong></p>
-<p><strong>不要使用select *</strong></p>
-<p>使用select *的话会增加解析的时间，另外会把不需要的数据也给查询出来，数据传输也是耗费时间的，</p>
-<p><strong>谨慎使用模糊查询</strong></p>
-<p>当模糊匹配以%开头时，该列索引将失效，若不以%开头，该列索引有效。</p>
-<p><strong>不要使用列号</strong></p>
-<p>使用列号的话，将会增加不必要的解析时间。</p>
-<p><strong>in 和 not in 也要慎用，否则会导致全表扫描</strong></p>
-<pre><code>select id from t where num in(1,2,3)    
-对于连续的数值，能用 between 就不要用 in 了：    
-select id from t where num between 1 and 3    </code></pre><p><strong>应尽量避免在 where 子句中对字段进行表达式操作</strong></p> 
-      <a class="article-more-link" href="/2018/07/19/SQL%E8%AF%AD%E5%8F%A5%E4%BC%98%E5%8C%96/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL/" rel="tag">SQL</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
   id="post-Java常见面试题"
   class="article article-type-post"
   itemscope
@@ -858,6 +796,85 @@ s = s.concat(&quot;ef&quot;);</code></pre>
 </li>
 </ul> 
       <a class="article-more-link" href="/2018/07/14/Volatile%E5%85%B3%E9%94%AE%E5%AD%97/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-泛型和泛型擦除"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2018/07/12/%E6%B3%9B%E5%9E%8B%E5%92%8C%E6%B3%9B%E5%9E%8B%E6%93%A6%E9%99%A4/"
+    >泛型和泛型擦除</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/07/12/%E6%B3%9B%E5%9E%8B%E5%92%8C%E6%B3%9B%E5%9E%8B%E6%93%A6%E9%99%A4/" class="article-date">
+  <time datetime="2018-07-12T14:06:22.000Z" itemprop="datePublished">2018-07-12</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>泛型是 JDK1.5 的一个新特性，其实就是一个『语法糖』，本质上就是编译器为了提供更好的可读性而提供的一种小「手段」，虚拟机层面是不存在所谓『泛型』的概念的。</p>
+<p>在我看来，『泛型』的存在具有以下两点意义，这也是它被设计出来的初衷。</p>
+<p>一是，通过泛型的语法定义，编译器可以在编译期提供一定的类型安全检查，过滤掉大部分因为类型不符而导致的运行时异常，例如：</p>
+<blockquote>
+<p>ArrayList<Integer> list = new ArrayList&lt;&gt;();</p>
+<p>list.add(“ddddd”); //编译失败</p>
+</blockquote>
+<p>由于我们的 ArrayList 是符合泛型语法定义的容器，所以你可以在实例化的时候指定一个类型，限定该容器只能容纳 Integer 类型的元素。而如果你强行添加其他类型的元素进入，那么编译器是不会通过的。</p>
+<p>二是，泛型可以让程序代码的可读性更高，并且由于本身只是一个语法糖，所以对于 JVM 运行时的性能是没有任何影响的。</p>
+<p>当然，『泛型』也有它与身俱来的一些缺点，虽然看起来好像只是提供了一种类型安全检查的功能，但是实际上这种语法糖的实现却没有看起来的那样轻松，理解好泛型的基本原理将有助于你理解各类容器集合框架。</p>
+<p><strong>类型擦除</strong></p>
+<p>『类型擦除』的概念放在最开始进行介绍是为了方便大家初步建立起对于『泛型』的一个基本认识，从而对于后续介绍的使用方式上会更容易理解。</p>
+<p>泛型这种语法糖，编译器会在编译期间「擦除」泛型语法并相应的做出一些类型转换动作。例如：</p>
+<pre><code class="java">public class Caculate&lt;T&gt; {
+
+    private T num;
+
+}</code></pre>
+<p>我们定义了一个泛型类，具体定义泛型类的细节待会会进行详细介绍，这里关注我们的类型擦除过程。定义了一个属性成员，该成员的类型是一个泛型类型，这个 T 具体是什么类型，我们也不知道，它只是用于限定类型的。</p>
+<p>当然，我们也可以反编译一下这个 Caculate 类：</p>
+<pre><code class="java">public class Caculate{
+
+    public Caculate(){}
+
+    private Object num;
+
+}</code></pre>
+<p>会得到这样一个结果，很明显的是，编译器擦除 Caculate 类后面的两个尖括号，并且将 num 的类型定义为 Object 类型。</p> 
+      <a class="article-more-link" href="/2018/07/12/%E6%B3%9B%E5%9E%8B%E5%92%8C%E6%B3%9B%E5%9E%8B%E6%93%A6%E9%99%A4/"
         >阅读更多...</a
       >
        
