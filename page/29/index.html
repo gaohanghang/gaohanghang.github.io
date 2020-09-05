@@ -99,6 +99,208 @@
     
     
     <article
+  id="post-IM表结构设计"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/06/05/IM%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/"
+    >IM表结构设计</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/05/IM%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="article-date">
+  <time datetime="2019-06-05T11:02:21.000Z" itemprop="datePublished">2019-06-05</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <pre><code>User(--用户表
+
+字段    字段类型    字段描述    备注
+U_ID    Int        主键、自增
+U_LoginID    Varchar（20）    (登陆账号)    
+U_NickName    Varchar（20）    (昵称)    
+U_PassWord    Varchar（20）    (密码)    
+U_SignaTure    Varchar（150）    (个性签名)    Null
+U_Sex    Bit    (性别)    Null
+U_Birthday    Datetime    (生日)    Null
+U_Telephone    Varchar（30）    (电话)    Null
+U_Name    Varchar（30）    (真实姓名)    Null
+U_Email    Varchar（50）    (邮箱)    Null
+U_Intro    Varchar（300）    (简介)    Null
+U_HeadPortrait     Varchar（100）    (头像)    
+U_ShengXiao    Char（2）    生肖    Null
+U_Age    Int    年龄    Null
+U_Constellation    Char(6)    星座    Null
+U_BloodType    Varchar（10）    血型    Null
+U_SchoolTag    Varchar（50）    毕业学校    Null
+U_Vocation    Varchar（30）    (职业)    Null
+U_NationID    Int    (国家ID)    外键
+U_ProvinceID    Int    （省份ID）    外键
+U_CityID    Int    （城市ID）    外键
+U_FriendshipPolicyID    Int    好友策略ID    外键
+U_UserStateID    Int    (用户状态ID)    外键
+U_FriendPolicyQuestion    Varchar(30)    好友策略问题    Null
+U_FriendPolicyAnswer    Varchar（30）    好友策略答案    Null
+U_FriendPolicyPassword    Varchar（30）    好友策略密码    Null
+)
+UserState(--用户状态表
+字段    字段类型    字段描述    备注
+US_ID    Int    (ID)    主键
+US _Name    Varchar（10）    (状态名字)    
+
+)
+
+
+Friends(--好友表
+字段    字段类型    字段描述    备注
+F_ID    Int    主键ID    主键
+F_FirendID    Int    朋友的ID    外键
+F_UserID    Int    自己的ID    外键
+F_Name    Varchar（30）    备注昵称    Null
+F_FriendTypeID    Int    (好友类型)    外键
+F_FriendGroupsID    Int    (所属分组ID)    外键
+
+) 
+User_FriendshipPolicy(--添加好友策略
+字段    字段类型    字段描述    备注
+U_FP_ID主键    Int    策略ID    主键
+U_FriendshipPolicy    varchar    好友添加方式    
+)
+FriendGroups(--好友分组表
+字段    字段类型    字段描述    备注
+FG_ID    Int    (分组ID)    主键
+FG_Name    Varchar    (分组名字)    
+FG_UserID    Int    用户ID    外键
+)
+FriendType (--好友类型
+字段    字段类型    字段描述    备注
+FT_ID    Int    （类型ID）    主键
+FT_Name    Varchar（20）    (类型名称)    
+)
+
+Messages(--聊天记录表
+字段    字段类型    字段描述    备注
+M_ID    Int    (消息ID)    主键，自增
+M_PostMessages    Text    (消息内容)    
+M_ status    Bit    (接收状态)    
+M_Time    Datetime    (发送时间)    默认值
+M_MessagesTypeID    Int    (消息类型ID)    外键
+M_ FromUserID     Int    (发送者ID)指向用户表    外键
+M_ToUserID     Int    (接收者ID)指向用户表    外键
+)
+
+MessagesType（--消息类型
+
+字段    字段类型    字段描述    备注
+MT_ID    Int    (类型ID)    主键
+MT_Name    Varchar（20）    类型名称    
+
+） 
+
+
+Nation (--国家
+字段    字段类型    字段描述    备注
+N_ID    Int    (国家ID)    主键
+N_Name    Varchar（30）    (名字)    
+)
+Province (--省份
+字段    字段类型    字段描述    备注
+P_ID    Int    （省份ID）    
+P_Name    Varchar（30）    (名字)    
+P_NationID    Int    所属国家ID    外键
+)
+
+City (--城市
+字段    字段类型    字段描述    备注
+C_ID    Int    （城市ID）    
+C_Name    Varchar（30）    (名字)    
+C_ProvinceID    Int    所属省份ID    外键
+)
+
+User_Groups(--用户群表
+字段    字段类型    字段描述    备注
+UG_ID    Int    群ID    主键
+UG_Name    Varchar（30）    群名称    
+UG_CreateTime    Datetime    创建时间    默认值
+UG_AdminID    Int    群主ID（指向用户表）    
+UG_ICon    Varchar（30）    群图标    
+UG_Notice    Varchar（200）    群公告    
+UG_Intro    Varchar（200）    群简介    
+）
+
+User_GroupsToUser(--群用户关联表
+字段    字段类型    字段描述    备注
+UG_ID    Int    ID    主键
+UG _UserID    Int    用户ID    外键
+UG _GroupID    Int    群ID    外键
+UG _CreateTime    Datetime    发送时间    Null
+UG _GroupNick    Varchar(15)    群内用户昵称    Null
+）
+
+
+
+User_GroupsMSGContent(--群消息内容表
+字段    字段类型    字段描述    备注
+GM _ID    Int    群消息ID    主键
+GM _Content    Text    消息内容    
+GM _FromID    Int    发送者ID    
+GM _FromUName    Varchar（30）    发送者昵称    
+GM _CreateTime    Datetime    发送时间    
+
+）
+User_GroupsMSGToUser(--群消息关联表
+字段    字段类型    字段描述    备注
+GM_ID    Int    ID    主键
+GM _UserID    Int    接收者ID    
+GM _GroupMessageID    Int    群消息ID    外键
+GM _State    Bit    接收状态    
+GM _CreateTime    Datetime    发送时间    
+
+）
+User_GroupsMSGUserToUser(--群内私聊消息关联表
+字段    字段类型    字段描述    备注
+GM _ID    Int    ID    主键
+GM _FromUserID    Int    发送者ID    
+GM _FromUserName    Varchar（30）    发送者昵称    
+GM _ToUserID    Int    接收者ID    
+GM _MSGContent    Varchar（300）    消息内容    
+GM _State    Bit    接收状态    
+GM _CreateTime    Datetime    发送时间    
+GM_ UserGroupID    Int    所属群ID    
+）</code></pre> 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IM/" rel="tag">IM</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-使用Swagger2Markup实现导出API文档"
   class="article article-type-post"
   itemscope
@@ -1167,83 +1369,6 @@ public UserAccountServiceImpl(User user){
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-data-jpa/" rel="tag">spring data jpa</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Gradle、Maven项目相互转换"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/05/30/Gradle%E3%80%81Maven%E9%A1%B9%E7%9B%AE%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2/"
-    >Gradle、Maven项目相互转换</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/05/30/Gradle%E3%80%81Maven%E9%A1%B9%E7%9B%AE%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2/" class="article-date">
-  <time datetime="2019-05-30T05:19:42.000Z" itemprop="datePublished">2019-05-30</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p><strong>原文作者：</strong> 夏末</p>
-<p><strong>原文链接：</strong> <a href="https://notes.wanghao.work/2017-08-21-Gradle、Maven项目相互转换.html" target="_blank" rel="noopener">https://notes.wanghao.work/2017-08-21-Gradle、Maven项目相互转换.html</a></p>
-</blockquote>
-<p>在开发Android项目的时候，使用的是<code>Gradle</code>构建工具，喜欢它的灵活和方便，在转向Java后端开发的时候更多时候使用的是<code>Maven</code>构建工具，然而看着漫天的尖括号，心里实在是难受。虽然只是一个构建工具，本着折腾的心，我还是更认可和看好<code>Gradle</code>。然而很多时候你的队友并没有习惯去使用或者快速熟悉<code>Gradle</code>构建工具，那么这个时候就需要将<code>Gradle</code>项目转换为Maven项目了，或者将Maven项目转换为<code>Gradle</code>项目了。</p>
-<h3 id="安装Gradle／Maven"><a href="#安装Gradle／Maven" class="headerlink" title="安装Gradle／Maven"></a>安装Gradle／Maven</h3><p>首先是安装构建工具，这个没啥好说的。</p>
-<h5 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h5><p>打开Powershell或者Cmder执行以下命令完成安装：</p>
-<pre><code>choco install gradle
-choco install maven</code></pre><p><code>choco</code>为windows下的一款包管理工具，可以方便安装管理配置一些常见的软件包，如果你没有安装<code>choco</code>的话，请移步：<a href="https://chocolatey.org/" target="_blank" rel="noopener">https://chocolatey.org/</a></p>
-<h5 id="Mac"><a href="#Mac" class="headerlink" title="Mac"></a>Mac</h5><p>打开Terminal，执行以下命令安装：</p>
-<pre><code>brew install gradle
-brew install maven</code></pre><h3 id="Maven-to-Gradle"><a href="#Maven-to-Gradle" class="headerlink" title="Maven to Gradle"></a>Maven to Gradle</h3><p>需要特别说明的是，<code>Gradle</code>对<code>Maven</code>的支持是比较完善的，因此，转换也是非常的简单，在<code>pom.xml</code>文件所在的目录下执行：</p>
-<pre><code>gradle init     # 根据pom.xml内容生成对应的gradle配置
-gradle build    # 开启gradle构建</code></pre><h3 id="Gradle-to-Maven"><a href="#Gradle-to-Maven" class="headerlink" title="Gradle to Maven"></a>Gradle to Maven</h3><p><code>Gradle</code>项目转<code>Maven</code>项目需要借助一个Gradle插件，在项目的<code>module</code>的<code>build.gradle</code>文件中加入以下配置即可：</p>
-<pre><code>apply plugin: &#39;maven&#39;</code></pre><p>通过双击<code>Idea</code>的Gradle Tasks GUI:</p>
-<p>或者执行命令来完成转换:</p>
-<pre><code>gradle install</code></pre><p>完成之后，将会在当前Module项目的<code>build</code>目录下的<code>poms</code>文件夹下生成<code>pom-default.xml</code>，将其拷贝到项目的根目录下即可。</p>
-<ul>
-<li>参考文档：<a href="https://guides.gradle.org/migrating-from-maven/" target="_blank" rel="noopener">https://guides.gradle.org/migrating-from-maven/</a></li>
-</ul>
-<hr>
-<p>通过实际测试，这样的生成的<code>pom-default.xml</code>文件是不能用于直接<code>maven</code>构建的，因为生成的<code>pom-default.xml</code>文件中的<code>groupId</code>还需要我们手动指定下。这样显然是不清真的，于是我们可以在<code>build.gradle</code>文件中将其事先定义好，这样生成的pom文件就不用我们再手动更改了：</p>
-<p>然而这样我们还是觉得麻烦，毕竟需要手动复制到项目根目录，再重新命名。我们还可以通过Hook Gradle中Maven插件的<code>install</code>Task来完成自动的复制和命名,编辑<code>build.gradle</code>:</p>
-<pre><code>task convert2Maven {
-    doLast {
-        file(&quot;$buildDir/poms/pom-default.xml&quot;).renameTo(file(&quot;$rootDir/pom.xml&quot;))
-    }
-}
-install.dependsOn(convert2Maven)</code></pre><p>此时，再执行<code>gradle install</code>这个task就可以看到gradle已经自动为我们在项目的根目录下生成好了<code>pom.xml</code>文件啦。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gradle/" rel="tag">Gradle</a></li></ul>
 
     </footer>
   </div>

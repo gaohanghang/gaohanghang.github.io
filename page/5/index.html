@@ -99,6 +99,178 @@
     
     
     <article
+  id="post-反射的基本原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/12/30/%E5%8F%8D%E5%B0%84%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/"
+    >反射的基本原理</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/30/%E5%8F%8D%E5%B0%84%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2019-12-30T14:53:54.000Z" itemprop="datePublished">2019-12-30</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a href="https://juejin.im/post/5b2f8bd2f265da59b457cf47" target="_blank" rel="noopener">https://juejin.im/post/5b2f8bd2f265da59b457cf47</a></p>
+<p>作者：YangAM</p>
+<p>小结：</p>
+<p>反射就是指程序在运行时能够动态的获取到一个类的类型信息的一种操作。</p>
+<p>获取一个 Class 对象的方法主要有以下三种。</p>
+<p><strong>类名.class</strong></p>
+<p><strong>getClass 方法</strong></p>
+<p><strong>forName 方法</strong></p>
+</blockquote>
+<p><img src="https://images2015.cnblogs.com/blog/1037972/201610/1037972-20161018144629217-1068318939.png" alt="img"></p>
+<p>图片来自 <a href="https://www.cnblogs.com/fengmingyue/p/5973260.html" target="_blank" rel="noopener">https://www.cnblogs.com/fengmingyue/p/5973260.html</a></p>
+<p>『反射』就是指程序在运行时能够动态的获取到一个类的类型信息的一种操作。它是现代框架的灵魂，几尽所有的框架能够提供的一些自动化机制都是靠反射实现的，这也是为什么各类框架都不允许你覆盖掉默认的无参构造器的原因，因为框架需要以反射机制利用无参构造器创建实例。</p>
+<p>总的来说，『反射』是很值得大家花时间学习的，尽管大部分人都很少有机会去手写框架，但是这将有助于你对于各类框架的理解。不奢求你通过本篇文章的学习对于『反射』能够有多么深层次的理解，但至少保证你了解『反射』的基本原理及使用。</p>
+<h3 id="1-Class-类型信息"><a href="#1-Class-类型信息" class="headerlink" title="1. Class 类型信息"></a>1. Class 类型信息</h3><p>之间介绍过虚拟机的类加载机制，其中我们提到过，每一种类型都会在初次使用时被加载进虚拟机内存的『方法区』中，包含类中定义的属性字段，方法字节码等信息。</p>
+<p>Java 中使用类 java.lang.Class 来指向一个类型信息，通过这个 Class 对象，我们就可以得到该类的所有内部信息。而获取一个 Class 对象的方法主要有以下三种。</p>
+<p><strong>类名.class</strong></p>
+<p>这种方式就比较简单，只要使用类名点 class 即可得到方法区该类型的类型信息。例如：</p>
+<pre class=" language-java"><code class="language-java">Object<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">;</span>
+Integer<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">;</span>
+String<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//等等</span></code></pre>
+<p><strong>getClass 方法</strong></p>
+<p>Object 类有这么一个方法：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">final</span> <span class="token keyword">native</span> Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> <span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>这是一个本地方法，并且不允许子类重写，所以理论上所有类型的实例都具有同一个 getClass 方法。具体使用上也很简单：</p>
+<pre><code>Integer integer = new Integer(12);
+integer.getClass();
+复制代码</code></pre><p><strong>forName 方法</strong></p>
+<p>forName 算是获取 Class 类型的一个最常用的方法，它允许你传入一个全类名，该方法会返回方法区代表这个类型的 Class 对象，如果这个类还没有被加载进方法区，forName 会先进行类加载。</p>
+<pre><code>public static Class&lt;?&gt; forName(String className) {
+    Class&lt;?&gt; caller = Reflection.getCallerClass();
+    return forName0(className, true, ClassLoader.getClassLoader(caller), caller);
+}</code></pre><p>由于方法区 Class 类型信息由类加载器和类全限定名唯一确定，所以想要去找这么一个 Class 就必须提供类加载器和类全限定名，这个 forName 方法默认使用调用者的类加载器。</p>
+<p>当然，Class 类中也有一个 forName 重载，允许你传入类加载器和类全限定名来匹配方法区类型信息。</p>
+<pre><code>public static Class&lt;?&gt; forName(String name, boolean initialize,
+ClassLoader loader){
+    //.....
+}</code></pre><p>至此，通过这些方法你可以得到任意类的类型信息，该类的所有字段属性，方法表等信息都可以通过这个 Class 对象进行获取。</p>
+<h3 id="2-反射字段属性"><a href="#2-反射字段属性" class="headerlink" title="2. 反射字段属性"></a>2. 反射字段属性</h3><p>Class 中有关获取字段属性的方法主要以下几个：</p>
+<ul>
+<li>public Field[] getFields()：返回该类型的所有 public 修饰的属性，包括父类的</li>
+<li>public Field getField(String name)：根据字段名称返回相应的字段</li>
+<li>public Field[] getDeclaredFields()：返回本类型中申明的所有字段，包含非 public 修饰的但不包含父类中的</li>
+<li>public Field getDeclaredField(String name)：同理</li>
+</ul>
+<p>当然，一个 Field 实例包含某个类的一个属性的所有信息，包括字段名称，访问修饰符，字段类型。除此之外，Field 还提供了大量的操作该属性值的方法，通过传入一个类实例，就可以直接使用 Field 实例操作该实例的当前字段属性的值。</p>
+<p>例如：</p>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//定义一个待反射类</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">People</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> String name<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<pre class=" language-java"><code class="language-java">Class<span class="token operator">&lt;</span>People<span class="token operator">></span> cls <span class="token operator">=</span> People<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">;</span>
+Field name <span class="token operator">=</span> cls<span class="token punctuation">.</span><span class="token function">getField</span><span class="token punctuation">(</span><span class="token string">"name"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+People people <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">People</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+name<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>people<span class="token punctuation">,</span><span class="token string">"hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>people<span class="token punctuation">.</span>name<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>程序会输出：</p>
+<pre><code>hello</code></pre><p>其实也很简单，set 方法会检索 People 对象是否具有一个 name 代表的字段，如果有将字符串 hello 赋值给该字段即可。</p>
+<p>整个 Field 类主要由两大部分组成，第一部分就是有关该字段属性的描述信息，例如名称，类型，外围类 Class 对象等，第二部分就是大量的 get 和 set 方法用于间接操作任意的外围类实例的当前属性值。</p>
+<h3 id="3-反射方法"><a href="#3-反射方法" class="headerlink" title="3. 反射方法"></a>3. 反射方法</h3><p>同样的，Class 类也提供了四种方法来获取其中的方法属性：</p>
+<ul>
+<li>public Method[] getMethods()：返回所有的 public 方法，包括父类中的</li>
+<li>public Method getMethod(String name, Class&lt;?&gt;… parameterTypes)：返回指定的方法</li>
+<li>public Method[] getDeclaredMethods()：返回本类申明的所有方法，包括非 public 修饰的，但不包括父类中的</li>
+<li>public Method getDeclaredMethod(String name, Class&lt;?&gt;… parameterTypes)：同理</li>
+</ul>
+<p>Method 抽象地代表了一个方法，同样有描述这个方法基本信息的字段和方法，例如方法名，方法的参数集合，方法的返回值类型，异常类型集合，方法的注解等。</p>
+<p>除此之外的还有一个 invoke 方法用于间接调用其他实例的该方法，例如：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">People</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">sayHello</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello wrold "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<pre class=" language-java"><code class="language-java">Class<span class="token operator">&lt;</span>People<span class="token operator">></span> cls <span class="token operator">=</span> People<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">;</span>
+Method sayHello <span class="token operator">=</span> cls<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token string">"sayHello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+People people <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">People</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+sayHello<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>people<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>程序输出：</p>
+<pre><code>hello wrold</code></pre><h3 id="4-反射构造器"><a href="#4-反射构造器" class="headerlink" title="4. 反射构造器"></a>4. 反射构造器</h3><p>对于 Constructor 来说，Class 类依然为它提供了四种获取实例的方法：</p>
+<ul>
+<li>public Constructor&lt;?&gt;[] getConstructors()：返回所有 public 修饰的构造器</li>
+<li>public Constructor&lt;?&gt;[] getDeclaredConstructors()：返回所有的构造器，无视访问修饰符</li>
+<li>public Constructor getConstructor(Class&lt;?&gt;… parameterTypes)：带指定参数的</li>
+<li>public Constructor getDeclaredConstructor(Class&lt;?&gt;… parameterTypes) ：同理</li>
+</ul>
+<p>Constructor 本质上也是一个方法，只是没有返回值而已，所以内部的基本内容和 Method 是类似的，只不过 Constructor 类中有一个 newInstance 方法用于创建一个该 Class 类型的实例对象出来。</p>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//最简单的一个反射创建实例的过程</span>
+Class<span class="token operator">&lt;</span>People<span class="token operator">></span> cls <span class="token operator">=</span> People<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">;</span>
+Constructor c <span class="token operator">=</span> cls<span class="token punctuation">.</span><span class="token function">getConstructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+People p <span class="token operator">=</span> <span class="token punctuation">(</span>People<span class="token punctuation">)</span> c<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>以上，我们简单的介绍了反射的基本使用情况，但都很基础，下面我们看看反射和一些稍微复杂的类型结合使用的情况，例如：数组，泛型，注解等。</p>
+<h3 id="5-反射的其他细节"><a href="#5-反射的其他细节" class="headerlink" title="5. 反射的其他细节"></a>5. 反射的其他细节</h3><h4 id="5-1-反射与数组"><a href="#5-1-反射与数组" class="headerlink" title="5.1 反射与数组"></a>5.1 <strong>反射与数组</strong></h4><p>我们都知道，数组是一种特殊的类型，它本质上由虚拟机在运行时动态生成，所以在反射这种类型的时候会稍有不同。</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">native</span> Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> <span class="token function">getComponentType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>Class 中有这么一个方法，该方法将返回数组 Class 实例元素的基本类型。只有当前的 Class 对象代表的是一个数组类型的时候，该方法才会返回数组的元素实际类型，其他的任何时候都会返回 null。</p>
+<p>当然，有一点需要注意下，代表数组的这个由虚拟机动态创建的类型，它直接继承的 Object 类，并且所有有关数组类的操作，比如为某个元素赋值或是获取数组长度的操作都直接对应一个单独的虚拟机数组操作指令。</p>
+<p>同样也因为数组类直接由虚拟机运行时动态创建，所以你不可能从一个数组类型的 Class 实例中得到构造方法，编译器根本没机会为类生成默认的构造器。于是你也不能以常规的方法通过 Constructor 来创建一个该类的实例对象。</p>
+<p>如果你非要尝试使用 Constructor 来创建一个新的实例的话，那么运行时程序将告诉你无法匹配一个构造器。像这样：</p>
+<pre class=" language-java"><code class="language-java">Class<span class="token operator">&lt;</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">></span> cls <span class="token operator">=</span> String<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">;</span>
+Constructor constructor <span class="token operator">=</span> cls<span class="token punctuation">.</span><span class="token function">getConstructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+String<span class="token punctuation">[</span><span class="token punctuation">]</span> strs <span class="token operator">=</span> <span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span> constructor<span class="token punctuation">.</span><span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>控制台输出：</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1gaf6k587kej30kq04oaaz.jpg" alt=""></p>
+<p>告诉你，Class 实例中根本找不到一个无参的构造器。那么难道我们就没有办法来动态创建一个数组了吗？</p>
+<p>当然不是，Java 中有一个类 java.lang.reflect.Array 提供了一些静态的方法用于动态的创建和获取一个数组类型。</p>
+<pre><code>//创建一个一维数组，componentType 为数组元素类型，length 数组长度
+public static Object newInstance(Class&lt;?&gt; componentType, int length)
+
+//可变参数 dimensions，指定多个维度的单维度长度
+public static Object newInstance(Class&lt;?&gt; componentType, int... dimensions)</code></pre><p>这是我认为 Array 类中最重要的两个方法，当然了 Array 类中还有一些其它方法用于获取指定数组的指定位置元素，这里不再赘述了。</p>
+<p>完全是因为数组这种类型并不是由常规的编译器编译生成，而是由虚拟机动态创建的，所以想要通过反射的方式实例化一个数组类型是得依赖 Array 这个类型的相关 newInstance 方法的。</p>
+<h4 id="5-2-反射与泛型"><a href="#5-2-反射与泛型" class="headerlink" title="5.2 反射与泛型"></a>5.2 <strong>反射与泛型</strong></h4><p>泛型是 Java 编译器范围内的概念，它能够在程序运行之前提供一定的安全检查，而反射是运行时发生的，也就是说如果你反射调用一个泛型方法，实际上就绕过了编译器的泛型检查了。我们看一段代码：</p>
+<pre class=" language-java"><code class="language-java">ArrayList<span class="token operator">&lt;</span>Integer<span class="token operator">></span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">23</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//list.add("fads");编译不通过</span>
+
+Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> cls <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">getClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+Method add <span class="token operator">=</span> cls<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token string">"add"</span><span class="token punctuation">,</span>Object<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+add<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>list<span class="token punctuation">,</span><span class="token string">"hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>list<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>最终你会发现我们从整型容器中取出一个字符串，因为虚拟机只管在运行时从方法区找到 ArrayList 这个类的类型信息并解析出它的 add 方法，接着执行这个方法。</p>
+<p>它不像一般的方法调用，调用之前编译器会检测这个方法存在不存在，参数类型是否匹配等，所以没了编译器的这层安全检查，反射地调用方法更容易遇到问题。</p>
+<p>除此之外，之前我们说过的泛型在经过编译期之后会被类型擦除，但实际上代表该类型的 Class 类型信息中是保存有一些基本的泛型信息的，这一点我们可以通过反射得到。</p>
+<p>这里不再带大家一起去看了，Class ，Field 和 Method 中都是有相关方法可以获取类或者方法在定义的时候所使用到的泛型类名名称。注意这里说的，只是名称，类似 E、V 这样的东西。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Spring-IOC过程源码分析"
   class="article article-type-post"
   itemscope
@@ -1652,189 +1824,6 @@ Document doc <span class="token operator">=</span> <span class="token function">
     
     <footer class="article-footer">
        
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-如何在CentOS-7-Fedora-31-30-29上安装ELK-Stack"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/10/%E5%A6%82%E4%BD%95%E5%9C%A8CentOS-7-Fedora-31-30-29%E4%B8%8A%E5%AE%89%E8%A3%85ELK-Stack/"
-    >如何在CentOS 7 / Fedora 31/30/29上安装ELK Stack</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/12/10/%E5%A6%82%E4%BD%95%E5%9C%A8CentOS-7-Fedora-31-30-29%E4%B8%8A%E5%AE%89%E8%A3%85ELK-Stack/" class="article-date">
-  <time datetime="2019-12-10T10:54:43.000Z" itemprop="datePublished">2019-12-10</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址：<a href="https://computingforgeeks.com/how-to-install-elk-stack-on-centos-fedora/" target="_blank" rel="noopener">https://computingforgeeks.com/how-to-install-elk-stack-on-centos-fedora/</a></p>
-<p>原作者： <a href="https://computingforgeeks.com/author/mutai-josphat/" target="_blank" rel="noopener" title="Josphat Mutai">Josphat Mutai</a></p>
-<p>译者：高行行</p>
-</blockquote>
-<p>如何在 CentOS 7 / Fedora 31/30/29 上安装 ELK Stack？“ <strong>ELK</strong> ”是 <code>Elasticsearch, Logstash, and Kibana</code> 的缩写。</p>
-<ul>
-<li><strong>Elasticsearch</strong>：这是一个开源的、基于 REST 和 JSON 的搜索引擎。它具有可扩展性、易用性和灵活性</li>
-<li><strong>Logstash</strong> ：这是一个服务器端数据处理管道，它同时从多个来源中采集数据，转换数据，然后将其发送到类似 Elasticsearch 的“存储”中。</li>
-<li><strong>Kibana</strong> 允许用户使用图表可视化 Elasticsearch 中的数据。</li>
-</ul>
-<p>对于 RHEL 8，请参阅：</p>
-<p><a href="https://computingforgeeks.com/how-to-install-the-elk-stack-on-rhel-8/" target="_blank" rel="noopener" title="如何在RHEL / CentOS 8上安装ELK Stack">如何在 RHEL / CentOS 8 上安装 ELK Stack</a></p>
-<p>请按照以下步骤在 CentOS 7 / Fedora 31/30/29 Linux 上安装和配置 ELK stack 工具。</p>
-<h2 id="步骤-1：安装-Java"><a href="#步骤-1：安装-Java" class="headerlink" title="步骤 1：安装 Java"></a>步骤 1：安装 Java</h2><p>由于 Elasticsearch 依赖 Java，因此你需要在 CentOS 7 / Fedora 系统上安装 Java。</p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum -y <span class="token function">install</span> java-openjdk-devel java-openjdk</code></pre>
-<h2 id="步骤-2：添加-ELK-存储库"><a href="#步骤-2：添加-ELK-存储库" class="headerlink" title="步骤 2：添加 ELK 存储库"></a>步骤 2：添加 ELK 存储库</h2><p>安装 Java 后，添加提供 ELK 堆栈软件包的 ELK 堆栈存储库。</p>
-<p><strong>对于 Elasticsearch 7.x</strong></p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">&lt;&lt;</span>EOF <span class="token operator">|</span> <span class="token function">sudo</span> <span class="token function">tee</span> /etc/yum.repos.d/elasticsearch.repo
-<span class="token punctuation">[</span>elasticsearch-7.x<span class="token punctuation">]</span>
-name<span class="token operator">=</span>Elasticsearch repository <span class="token keyword">for</span> 7.x packages
-baseurl<span class="token operator">=</span>https://artifacts.elastic.co/packages/7.x/yum
-gpgcheck<span class="token operator">=</span>1
-gpgkey<span class="token operator">=</span>https://artifacts.elastic.co/GPG-KEY-elasticsearch
-enabled<span class="token operator">=</span>1
-autorefresh<span class="token operator">=</span>1
-type<span class="token operator">=</span>rpm-md
-EOF</code></pre>
-<p><strong>对于 Elasticsearch 6.x</strong></p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">&lt;&lt;</span>EOF <span class="token operator">|</span> <span class="token function">sudo</span> <span class="token function">tee</span> /etc/yum.repos.d/elasticsearch.repo
-<span class="token punctuation">[</span>elasticsearch-6.x<span class="token punctuation">]</span>
-name<span class="token operator">=</span>Elasticsearch repository <span class="token keyword">for</span> 6.x packages
-baseurl<span class="token operator">=</span>https://artifacts.elastic.co/packages/6.x/yum
-gpgcheck<span class="token operator">=</span>1
-gpgkey<span class="token operator">=</span>https://artifacts.elastic.co/GPG-KEY-elasticsearch
-enabled<span class="token operator">=</span>1
-autorefresh<span class="token operator">=</span>1
-type<span class="token operator">=</span>rpm-md
-EOF</code></pre>
-<p>添加仓库后，导入 GPG 密钥：</p>
-<pre class=" language-shell"><code class="language-shell">sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch</code></pre>
-<p>清除并更新你的 YUM 软件包索引。</p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum clean all
-<span class="token function">sudo</span> yum makecache</code></pre>
-<h2 id="步骤-3：安装和配置-Elasticsearch"><a href="#步骤-3：安装和配置-Elasticsearch" class="headerlink" title="步骤 3：安装和配置 Elasticsearch"></a>步骤 3：安装和配置 Elasticsearch</h2><p>Elasticsearch 存储库已准备就绪，可以使用。你可以使用以下命令安装 Elasticsearch：</p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum -y <span class="token function">install</span> elasticsearch</code></pre>
-<p>确认软件包安装。</p>
-<pre class=" language-bash"><code class="language-bash">$ rpm -qi elasticsearch
- Name        <span class="token keyword">:</span> elasticsearch
- Epoch       <span class="token keyword">:</span> 0
- Version     <span class="token keyword">:</span> 7.0.1
- Release     <span class="token keyword">:</span> 1
- Architecture: x86_64
- Install Date: Mon 06 May 2019 09:59:57 PM EAT
- Group       <span class="token keyword">:</span> Application/Internet
- Size        <span class="token keyword">:</span> 571521653
- License     <span class="token keyword">:</span> Elastic License
- Signature   <span class="token keyword">:</span> RSA/SHA512, Mon 29 Apr 2019 05:14:11 PM EAT, Key ID d27d666cd88e42b4
- Source RPM  <span class="token keyword">:</span> elasticsearch-7.0.1-1-src.rpm
- Build Date  <span class="token keyword">:</span> Mon 29 Apr 2019 04:06:59 PM EAT
- Build Host  <span class="token keyword">:</span> packer-virtualbox-iso-1553723689
- Relocations <span class="token keyword">:</span> /usr
- Packager    <span class="token keyword">:</span> Elasticsearch
- Vendor      <span class="token keyword">:</span> Elasticsearch
- URL         <span class="token keyword">:</span> https://www.elastic.co/
- Summary     <span class="token keyword">:</span> Elasticsearch is a distributed RESTful search engine built <span class="token keyword">for</span> the cloud. Reference documentation can be found at https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html and the <span class="token string">'Elasticsearch: The Definitive Guide'</span> book can be found at https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html
- Description <span class="token keyword">:</span>
- Elasticsearch subproject :distribution:packages</code></pre>
-<p>你可以通过编辑文件来设置 JVM 选项（例如内存限制）： <code>/etc/elasticsearch/jvm.options</code></p>
-<p>下面的示例设置总堆空间的初始/最大大小</p>
-<pre class=" language-bash"><code class="language-bash">-Xms1g
--Xmx1g</code></pre>
-<p>如果你的系统内存较少，则可以将其配置为使用较小的内存。</p>
-<pre class=" language-bash"><code class="language-bash">-Xms256m
--Xmx512m</code></pre>
-<p>启动并设置为开机时启用 elasticsearch 服务：</p>
-<pre class=" language-bash"><code class="language-bash">$ <span class="token function">sudo</span> systemctl <span class="token function">enable</span> --now elasticsearch.service
- Synchronizing state of elasticsearch.service with SysV <span class="token function">service</span> script with /usr/lib/systemd/systemd-sysv-install.
- Executing: /usr/lib/systemd/systemd-sysv-install <span class="token function">enable</span> elasticsearch
- Created symlink /etc/systemd/system/multi-user.target.wants/elasticsearch.service → /usr/lib/systemd/system/elasticsearch.service.</code></pre>
-<p>测试以验证其是否正常运行：</p>
-<pre class=" language-bash"><code class="language-bash">$ curl http://127.0.0.1:9200
-<span class="token punctuation">{</span>
-  <span class="token string">"name"</span> <span class="token keyword">:</span> <span class="token string">"localhost.localdomain"</span>,
-  <span class="token string">"cluster_name"</span> <span class="token keyword">:</span> <span class="token string">"elasticsearch"</span>,
-  <span class="token string">"cluster_uuid"</span> <span class="token keyword">:</span> <span class="token string">"7fyD4TuqQ7yxog0fCnPXuA"</span>,
-  <span class="token string">"version"</span> <span class="token keyword">:</span> <span class="token punctuation">{</span>
-    <span class="token string">"number"</span> <span class="token keyword">:</span> <span class="token string">"7.5.0"</span>,
-    <span class="token string">"build_flavor"</span> <span class="token keyword">:</span> <span class="token string">"default"</span>,
-    <span class="token string">"build_type"</span> <span class="token keyword">:</span> <span class="token string">"rpm"</span>,
-    <span class="token string">"build_hash"</span> <span class="token keyword">:</span> <span class="token string">"e9ccaed468e2fac2275a3761849cbee64b39519f"</span>,
-    <span class="token string">"build_date"</span> <span class="token keyword">:</span> <span class="token string">"2019-11-26T01:06:52.518245Z"</span>,
-    <span class="token string">"build_snapshot"</span> <span class="token keyword">:</span> false,
-    <span class="token string">"lucene_version"</span> <span class="token keyword">:</span> <span class="token string">"8.3.0"</span>,
-    <span class="token string">"minimum_wire_compatibility_version"</span> <span class="token keyword">:</span> <span class="token string">"6.8.0"</span>,
-    <span class="token string">"minimum_index_compatibility_version"</span> <span class="token keyword">:</span> <span class="token string">"6.0.0-beta1"</span>
-  <span class="token punctuation">}</span>,
-  <span class="token string">"tagline"</span> <span class="token keyword">:</span> <span class="token string">"You Know, for Search"</span>
-<span class="token punctuation">}</span></code></pre>
-<p>创建一个测试的索引：</p>
-<pre class=" language-bash"><code class="language-bash">$ curl -X PUT <span class="token string">"http://127.0.0.1:9200/mytest_index"</span>
-<span class="token punctuation">{</span><span class="token string">"acknowledged"</span>:true,<span class="token string">"shards_acknowledged"</span>:true,<span class="token string">"index"</span><span class="token keyword">:</span><span class="token string">"mytest_index"</span><span class="token punctuation">}</span></code></pre>
-<h2 id="步骤-4：安装和配置-Kibana"><a href="#步骤-4：安装和配置-Kibana" class="headerlink" title="步骤 4：安装和配置 Kibana"></a>步骤 4：安装和配置 Kibana</h2><p>从添加的 Elasticsearch 存储库下载并安装 Kibana。</p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum -y <span class="token function">install</span> kibana</code></pre>
-<p>成功安装后，配置 Kibana：</p>
-<pre class=" language-bash"><code class="language-bash">$ <span class="token function">sudo</span> vim /etc/kibana/kibana.yml
-server.host: <span class="token string">"0.0.0.0"</span>
-server.name: <span class="token string">"kibana.example.com"</span>
-elasticsearch.url: <span class="token string">"http://localhost:9200"</span></code></pre>
-<p>根据需要更改其他设置，然后启动 kibana 服务：</p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> systemctl <span class="token function">enable</span> --now kibana</code></pre>
-<p>访问 <strong><a href="http://ip-address:5601" target="_blank" rel="noopener">http://ip-address:5601</a></strong> 以打开 Kibana 信息中心：</p>
-<p><img src="https://computingforgeeks.com/wp-content/uploads/2018/08/elasticsearch-kibana-centos7-min-1024x372.png" alt=""></p>
-<p>如果你有活动的防火墙服务，请允许使用 TCP <code>5601</code> 端口 </p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> firewall-cmd --add-port<span class="token operator">=</span>5601/tcp --permanent
-<span class="token function">sudo</span> firewall-cmd --reload</code></pre>
-<h2 id="步骤-5：安装和配置-Logstash"><a href="#步骤-5：安装和配置-Logstash" class="headerlink" title="步骤 5：安装和配置 Logstash"></a>步骤 5：安装和配置 Logstash</h2><p>最后安装的是针对 Logstash 的。它将充当客户端系统的集中式日志服务器，该服务器运行诸如<a href="https://www.elastic.co/products/beats/filebeat" target="_blank" rel="noopener" title="filebeat">filebeat</a>之类的代理 。</p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum -y <span class="token function">install</span> logstash</code></pre>
-<p>Logstash 自定义配置可以放在 <code>/etc/logstash/conf.d/</code>目录下。</p>
-<p>有关更多详细信息，请<a href="https://www.elastic.co/guide/en/logstash/current/index.html" target="_blank" rel="noopener" title=" 参阅Logstash配置手册 "> 参阅 Logstash 配置手册 </a>。</p>
-<h2 id="步骤-6：安装其他-ELK-工具-锦上添花"><a href="#步骤-6：安装其他-ELK-工具-锦上添花" class="headerlink" title="步骤 6：安装其他 ELK 工具-锦上添花"></a>步骤 6：安装其他 ELK 工具-锦上添花</h2><p>可以安装的其他 ELK 工具包括：</p>
-<ul>
-<li><strong>Filebeat</strong>：用于日志的轻量型采集器。通过提供一种转发和汇总日志与文件的轻量级方法，让简单的事情不再繁杂。</li>
-<li><strong>Metricbeat</strong>：用于从系统和服务收集指标。Metricbeat 能够以一种轻量型的方式，输送各种系统和服务统计数据，从 CPU 到内存，从 Redis 到 Nginx，不一而足。</li>
-<li><strong>Packetbeat</strong>：轻量型网络数据采集器。用于深挖网线上传输的数据，了解应用程序动态。Packetbeat 是一款轻量型网络数据包分析器，能够将数据发送至 Logstash 或 Elasticsearch。</li>
-<li><strong>Heartbeat</strong>：用于正常运行时间监视的轻量型采集器。它通过主动探测帮助你监视服务的可用性</li>
-<li><strong>Auditbeat</strong>：轻量型审计日志采集器，可帮助你审核系统上用户和进程的活动</li>
-</ul>
-<p>这些工具可以通过 <code>yum</code> 软件包管理器使用它们各自的名称一起进行安装。下面的示例将安装所有ELK插件工具。</p>
-<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum <span class="token function">install</span> filebeat auditbeat metricbeat packetbeat heartbeat-elastic</code></pre>
-<p>有关每种工具的配置和进一步的阅读，请参考官方的 <a href="https://www.elastic.co/guide/index.html" target="_blank" rel="noopener" title="ELK Stack文档">ELK Stack 文档</a> 以及 <a href="https://www.elastic.co/learn" target="_blank" rel="noopener" title="资源和培训">资源和培训</a>。</p>
-<p>更多指南：</p>
-<p><a href="https://computingforgeeks.com/manage-logs-with-graylog-server-on-ubuntu-18-04/" target="_blank" rel="noopener" title="在Ubuntu上使用Elasticsearch 6安装Graylog 3">在 Ubuntu 上使用 Elasticsearch 6 安装 Graylog 3</a></p>
-<p><a href="https://computingforgeeks.com/how-to-install-graylog-on-centos-rhel/" target="_blank" rel="noopener" title="在CentOS / RHEL 8上安装Graylog 3">在 CentOS / RHEL 8 上安装 Graylog 3</a></p>
-<p><a href="https://computingforgeeks.com/how-to-install-elasticsearch-on-centos/" target="_blank" rel="noopener" title="在CentOS 7上安装Elasticsearch 7">在 CentOS 7 上安装 Elasticsearch 7</a></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
     </footer>
   </div>
 

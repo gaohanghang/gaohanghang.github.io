@@ -99,6 +99,87 @@
     
     
     <article
+  id="post-Java-访问权限控制：你真的了解-protected-关键字吗？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/12/Java-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%EF%BC%9A%E4%BD%A0%E7%9C%9F%E7%9A%84%E4%BA%86%E8%A7%A3-protected-%E5%85%B3%E9%94%AE%E5%AD%97%E5%90%97%EF%BC%9F/"
+    >Java 访问权限控制：你真的了解 protected 关键字吗？</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/12/Java-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%EF%BC%9A%E4%BD%A0%E7%9C%9F%E7%9A%84%E4%BA%86%E8%A7%A3-protected-%E5%85%B3%E9%94%AE%E5%AD%97%E5%90%97%EF%BC%9F/" class="article-date">
+  <time datetime="2019-07-12T11:02:47.000Z" itemprop="datePublished">2019-07-12</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p><strong>版权声明：</strong></p>
+<p>本文原创作者：<a href="http://my.csdn.net/justloveyou_" target="_blank" rel="noopener">书呆子Rico</a><br>作者博客地址：<a href="http://blog.csdn.net/justloveyou_/" target="_blank" rel="noopener">http://blog.csdn.net/justloveyou_/</a></p>
+</blockquote>
+<p>摘要：</p>
+<p>　　对于类的成员而言，其能否被其他类所访问，取决于该成员的修饰词；而对于一个类而言，其能否被其他类所访问，也取决于该类的修饰词。在Java中，类成员访问权限修饰词有四类：private，无（包访问权限），protected 和 public，而其中只有包访问权限和public才能修饰一个类（内部类除外）。特别地，很多Java书籍对protected可见性的介绍都比较笼统，本文重点说明了protected关键字的可见性内涵，并介绍了一些其他的修饰符。</p>
+<h2 id="一-Package"><a href="#一-Package" class="headerlink" title="一. Package"></a>一. Package</h2><p>　关于包的使用，只需注意一点：在一个项目中，不可以有相同的两个包名，也就是说，包名不能和项目中其他的包名重复，这里不但包括自定义包名也包括项目所引用的类库的包名。看下面例子：</p>
+<pre><code class="java">package java.lang;
+
+public class MyObject {
+    public static void main(String[] args) throws CloneNotSupportedException {
+        Object o = new Object();
+        System.out.println(o.hashCode());
+    }
+}</code></pre>
+<p>　我们给自己的程序设置的包名是java.lang，事实上，java.lang是JDK使用的包名。这时，程序可以正常编译，但当我们运行程序时会有包冲突警告并抛出 “java.lang.SecurityException: Prohibited package name: java.lang”，如下图所示:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190712190554.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190712190611.png" alt=""></p>
+<p>　此外，我们需要注意：在程序中，package语句必须是文件中除注释外第一句程序代码，否则不能通过编译。</p>
+<h2 id="二-Java访问权限概述"><a href="#二-Java访问权限概述" class="headerlink" title="二. Java访问权限概述"></a>二. Java访问权限概述</h2><p>　　 对于一个类，其成员（包括成员变量和成员方法）能否被其他类所访问，取决于该成员的修饰词。在Java中，类成员的访问权限修饰词有四个：private，无（包访问权限），protected 和 public，其权限控制如下表所示：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190712190656.png" alt=""></p>
+<p>　　特别要注意的是，不同于类成员的访问权限类别，对于非内部类而言，类的访问权限修饰词仅有public和包访问权限两种（内部类可以是private或protected的，关于内部类进一步了解请见我的博客《Java 内部类综述》）。特别地，如果你不希望其他任何人对该类拥有访问权，你可以把所有的构造器都指定为private的，从而阻止任何人创建该类的对象。这个时候，该类的对象就只能在其static成员内部进行创建，这种情形有点像单例模式，例如像下面的例子那样：</p>
+<pre><code class="java">class Test {
+       // private Constructor!
+       private Test() {}
+       // Allow creation via static method:
+       public static Test getTest() {
+           return new Test();
+       }
+    }</code></pre> 
+      <a class="article-more-link" href="/2019/07/12/Java-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%EF%BC%9A%E4%BD%A0%E7%9C%9F%E7%9A%84%E4%BA%86%E8%A7%A3-protected-%E5%85%B3%E9%94%AE%E5%AD%97%E5%90%97%EF%BC%9F/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-用了-Lambda-之后，发现可以忘记设计模式了"
   class="article article-type-post"
   itemscope
@@ -784,86 +865,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TED/" rel="tag">TED</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-一条简单的-SQL-执行超过1000ms，纳尼？"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/07/%E4%B8%80%E6%9D%A1%E7%AE%80%E5%8D%95%E7%9A%84-SQL-%E6%89%A7%E8%A1%8C%E8%B6%85%E8%BF%871000ms%EF%BC%8C%E7%BA%B3%E5%B0%BC%EF%BC%9F/"
-    >一条简单的 SQL 执行超过1000ms，纳尼？</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/07/%E4%B8%80%E6%9D%A1%E7%AE%80%E5%8D%95%E7%9A%84-SQL-%E6%89%A7%E8%A1%8C%E8%B6%85%E8%BF%871000ms%EF%BC%8C%E7%BA%B3%E5%B0%BC%EF%BC%9F/" class="article-date">
-  <time datetime="2019-07-07T05:36:37.000Z" itemprop="datePublished">2019-07-07</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>作者：VipAugus</p>
-<p><a href="https://juejin.im/post/5ce906a3e51d455a2f2201dc" target="_blank" rel="noopener">https://juejin.im/post/5ce906a3e51d455a2f2201dc</a></p>
-</blockquote>
-<blockquote>
-<p>总结就是锁表了</p>
-</blockquote>
-<p>MySQL对我说“Too young, too naive!”</p>
-<h2 id="大概过程"><a href="#大概过程" class="headerlink" title="大概过程"></a><strong>大概过程</strong></h2><hr>
-<p>在测试环境Docker容器中，在跨进程调用服务的时候，A应用通过Dubbo调用B应用的RPC接口，发现B应用接口超时错误，接着通过debug和日志，<strong>发现具体耗时的地方在于一句简单SQL执行，但是耗时超过1000ms。</strong></p>
-<p>通过查看数据库的进程列表，发现是有<strong>死锁锁表</strong>了，<strong>很多进程状态status处于’sending data</strong>‘，最后为锁住的表添加索引，并且kill掉阻塞的请求，解除死锁，服务速度恢复正常。</p>
-<p><strong>下面记录的是大致排查过程：</strong></p>
-<p>通过观察业务代码，确认没有内存溢出或者其它事务问题，于是只能考虑Docker环境的数据库和jvm底层详情了。</p>
-<h2 id="使用Druid监控SQL执行状态"><a href="#使用Druid监控SQL执行状态" class="headerlink" title="使用Druid监控SQL执行状态"></a><strong>使用Druid监控SQL执行状态</strong></h2><hr>
-<p>通过日志，发现有一句SQL严重超时，一句简单SQL，原本是批量插入多条记录，为了定位问题，测试时<a href="http://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247489830&idx=2&sn=bbd2436d491ee2ea7079ae51ffa5560f&chksm=eb539c10dc2415062598194b0f8668afc236adc0307f775d98ff2a4103c8c125239e2f552a8f&scene=21#wechat_redirect" target="_blank" rel="noopener"><strong>Mybatis</strong></a><strong>只插入一条记录</strong>，但即便如此，还是耗时10秒</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707134444.png" alt=""></p>
-<p>于是打算使用阿里巴巴的数据库连接池Druid进行监控，这篇文章有教如何<a href="https://link.juejin.im/?target=https%3A%2F%2Fmy.oschina.net%2Fwangmengjun%2Fblog%2F788386">使用Druid监控SQL执行状态</a>，监控SQL效果如下：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707134507.png" alt=""></p>
-<p>在SQL监控Tab中，可以看到执行SQL的具体情况，包括某条SQL语句执行的时间（平均、最慢）、SQL执行次数、SQL执行出错的次数等</p>
-<p>上面显示的是正常情况下，时间单位是ms，正常的SQL一般在10ms之内，数据量大的控制在30ms之内，这样用户的使用体验感才会良好。所以说之前的1000ms，是不可接受的结果。</p>
-<h2 id="通过JMC远程监控Tomcat"><a href="#通过JMC远程监控Tomcat" class="headerlink" title="通过JMC远程监控Tomcat"></a>通过JMC远程监控Tomcat</h2><p><strong>JMC(java mission control)是jdk自带的一个监控工具</strong>，在jdk的bin目录下（java大法好，该目录下有很多实用的工具）。</p>
-<p>具体要<a href="https://link.juejin.im/?target=https%3A%2F%2Fblog.csdn.net%2Fkong2030%2Farticle%2Fdetails%2F80312417">怎么配置和加的参数请参考此文</a></p>
-<p>为了简单，我加了一个tomcat无验证模式：</p>
-<pre><code>#在tomcat的conf目录下的catalina.sh增加如下java启动参数： 
--Dcom.sun.management.jmxremote=true
--Dcom.sun.management.jmxremote.port=8888
--Dcom.sun.management.jmxremote.ssl=false
--Dcom.sun.management.jmxremote.authenticate=false
--XX:+UnlockCommercialFeatures -XX:+FlightRecorder</code></pre> 
-      <a class="article-more-link" href="/2019/07/07/%E4%B8%80%E6%9D%A1%E7%AE%80%E5%8D%95%E7%9A%84-SQL-%E6%89%A7%E8%A1%8C%E8%B6%85%E8%BF%871000ms%EF%BC%8C%E7%BA%B3%E5%B0%BC%EF%BC%9F/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
 
     </footer>
   </div>

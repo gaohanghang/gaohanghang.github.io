@@ -99,6 +99,107 @@
     
     
     <article
+  id="post-分布式全局ID生成方案"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/05/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%A8%E5%B1%80ID%E7%94%9F%E6%88%90%E6%96%B9%E6%A1%88/"
+    >分布式全局ID生成方案</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/05/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%A8%E5%B1%80ID%E7%94%9F%E6%88%90%E6%96%B9%E6%A1%88/" class="article-date">
+  <time datetime="2019-08-05T11:33:43.000Z" itemprop="datePublished">2019-08-05</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://juejin.im/post/5d22972f6fb9a07edd2a34cc" target="_blank" rel="noopener">分布式全局ID生成方案</a></p>
+</blockquote>
+<p>传统的单体架构的时候，我们基本是单库然后业务单表的结构。每个业务表的ID一般我们都是从1增，通过<code>AUTO_INCREMENT=1</code>设置自增起始值，但是在分布式服务架构模式下分库分表的设计，使得多个库或多个表存储相同的业务数据。这种情况根据数据库的自增ID就会产生相同ID的情况，不能保证主键的唯一性。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190805193436.png" alt=""></p>
+<p>如上图，如果第一个订单存储在 DB1 上则订单 ID 为1，当一个新订单又入库了存储在 DB2 上订单 ID 也为1。我们系统的架构虽然是分布式的，但是在用户层应是无感知的，重复的订单主键显而易见是不被允许的。那么针对分布式系统如何做到主键唯一性呢？</p>
+<h1 id="UUID"><a href="#UUID" class="headerlink" title="UUID"></a>UUID</h1><p>UUID （Universally Unique Identifier），通用唯一识别码的缩写。UUID是由一组32位数的16进制数字所构成，所以UUID理论上的总数为 16^32=2^128，约等于 3.4 x 10^38。也就是说若每纳秒产生1兆个UUID，要花100亿年才会将所有UUID用完。</p>
+<p>生成的UUID是由 <code>8-4-4-4-12</code>格式的数据组成，其中32个字符和4个连字符’ - ‘，一般我们使用的时候会将连字符删除 <code>uuid.toString().replaceAll(&quot;-&quot;,&quot;&quot;)</code>。</p>
+<p>目前UUID的产生方式有5种版本，每个版本的算法不同，应用范围也不同。</p>
+<ul>
+<li><strong>基于时间的UUID - 版本1</strong>： 这个一般是通过当前时间，随机数，和本地Mac地址来计算出来，可以通过 <code>org.apache.logging.log4j.core.util</code>包中的 <code>UuidUtil.getTimeBasedUuid()</code>来使用或者其他包中工具。由于使用了MAC地址，因此能够确保唯一性，但是同时也暴露了MAC地址，私密性不够好。</li>
+<li><strong>DCE安全的UUID - 版本2</strong> DCE（Distributed Computing Environment）安全的UUID和基于时间的UUID算法相同，但会把时间戳的前4位置换为POSIX的UID或GID。这个版本的UUID在实际中较少用到。</li>
+<li><strong>基于名字的UUID（MD5）- 版本3</strong> 基于名字的UUID通过计算名字和名字空间的MD5散列值得到。这个版本的UUID保证了：相同名字空间中不同名字生成的UUID的唯一性；不同名字空间中的UUID的唯一性；相同名字空间中相同名字的UUID重复生成是相同的。</li>
+<li><strong>随机UUID - 版本4</strong> 根据随机数，或者伪随机数生成UUID。这种UUID产生重复的概率是可以计算出来的，但是重复的可能性可以忽略不计，因此该版本也是被经常使用的版本。JDK中使用的就是这个版本。</li>
+<li><strong>基于名字的UUID（SHA1） - 版本5</strong> 和基于名字的UUID算法类似，只是散列值计算使用SHA1（Secure Hash Algorithm 1）算法。</li>
+</ul>
+<p>我们 Java中 JDK自带的 UUID产生方式就是版本4根据随机数生成的 UUID 和版本3基于名字的 UUID，有兴趣的可以去看看它的源码。</p>
+<pre><code class="java">public static void main(String[] args) {
+
+    //获取一个版本4根据随机字节数组的UUID。
+    UUID uuid = UUID.randomUUID();
+    System.out.println(uuid.toString().replaceAll(&quot;-&quot;,&quot;&quot;));
+
+    //获取一个版本3(基于名称)根据指定的字节数组的UUID。
+    byte[] nbyte = {10, 20, 30};
+    UUID uuidFromBytes = UUID.nameUUIDFromBytes(nbyte);
+    System.out.println(uuidFromBytes.toString().replaceAll(&quot;-&quot;,&quot;&quot;));
+}</code></pre>
+<p>得到的UUID结果，</p>
+<pre><code>59f51e7ea5ca453bbfaf2c1579f09f1d
+7f49b84d0bbc38e9a493718013baace6</code></pre><p>虽然 UUID 生成方便，本地生成没有网络消耗，但是使用起来也有一些缺点，</p>
+<ul>
+<li>不易于存储：UUID太长，16字节128位，通常以36长度的字符串表示，很多场景不适用。</li>
+<li>信息不安全：基于MAC地址生成UUID的算法可能会造成MAC地址泄露，暴露使用者的位置。</li>
+<li>对MySQL索引不利：如果作为数据库主键，在InnoDB引擎下，UUID的无序性可能会引起数据位置频繁变动，严重影响性能，可以查阅 Mysql 索引原理 B+树的知识。</li>
+</ul>
+<h1 id="数据库生成"><a href="#数据库生成" class="headerlink" title="数据库生成"></a>数据库生成</h1><p>是不是一定要基于外界的条件才能满足分布式唯一ID的需求呢，我们能不能在我们分布式数据库的基础上获取我们需要的ID？</p>
+<p>由于分布式数据库的起始自增值一样所以才会有冲突的情况发生，那么我们将分布式系统中数据库的同一个业务表的自增ID设计成不一样的起始值，然后设置固定的步长，步长的值即为分库的数量或分表的数量。</p>
+<p>以MySQL举例，利用给字段设置<code>auto_increment_increment</code>和<code>auto_increment_offset</code>来保证ID自增。</p>
+<ul>
+<li>auto_increment_offset：表示自增长字段从那个数开始，他的取值范围是1 .. 65535。</li>
+<li>auto_increment_increment：表示自增长字段每次递增的量，其默认值是1，取值范围是1 .. 65535。</li>
+</ul>
+<p>假设有三台机器，则DB1中order表的起始ID值为1，DB2中order表的起始值为2，DB3中order表的起始值为3，它们自增的步长都为3，则它们的ID生成范围如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190805194344.png" alt=""></p>
+<p>通过这种方式明显的优势就是依赖于数据库自身不需要其他资源，并且ID号单调自增，可以实现一些对ID有特殊要求的业务。</p>
+<p>但是缺点也很明显，首先它强依赖DB，当DB异常时整个系统不可用。虽然配置主从复制可以尽可能的增加可用性，但是数据一致性在特殊情况下难以保证。主从切换时的不一致可能会导致重复发号。还有就是ID发号性能瓶颈限制在单台MySQL的读写性能。</p>
+<h1 id="使用redis实现"><a href="#使用redis实现" class="headerlink" title="使用redis实现"></a>使用redis实现</h1><p>Redis实现分布式唯一ID主要是通过提供像 <em>INCR</em> 和 <em>INCRBY</em> 这样的自增原子命令，由于Redis自身的单线程的特点所以能保证生成的 ID 肯定是唯一有序的。</p>
+<p>但是单机存在性能瓶颈，无法满足高并发的业务需求，所以可以采用集群的方式来实现。集群的方式又会涉及到和数据库集群同样的问题，所以也需要设置分段和步长来实现。</p>
+<p>为了避免长期自增后数字过大可以通过与当前时间戳组合起来使用，另外为了保证并发和业务多线程的问题可以采用 Redis + Lua的方式进行编码，保证安全。</p> 
+      <a class="article-more-link" href="/2019/08/05/%E5%88%86%E5%B8%83%E5%BC%8F%E5%85%A8%E5%B1%80ID%E7%94%9F%E6%88%90%E6%96%B9%E6%A1%88/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-阅读《代码整洁之道》总结"
   class="article article-type-post"
   itemscope
@@ -811,84 +912,6 @@ Java3y    30  7月15号</code></pre>
         >阅读更多...</a
       >
        
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-e-printStackTrace-会导致锁死？这仅仅是打印，怎么可能？"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/29/e-printStackTrace-%E4%BC%9A%E5%AF%BC%E8%87%B4%E9%94%81%E6%AD%BB%EF%BC%9F%E8%BF%99%E4%BB%85%E4%BB%85%E6%98%AF%E6%89%93%E5%8D%B0%EF%BC%8C%E6%80%8E%E4%B9%88%E5%8F%AF%E8%83%BD%EF%BC%9F/"
-    >e.printStackTrace()会导致锁死？这仅仅是打印，怎么可能？</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/29/e-printStackTrace-%E4%BC%9A%E5%AF%BC%E8%87%B4%E9%94%81%E6%AD%BB%EF%BC%9F%E8%BF%99%E4%BB%85%E4%BB%85%E6%98%AF%E6%89%93%E5%8D%B0%EF%BC%8C%E6%80%8E%E4%B9%88%E5%8F%AF%E8%83%BD%EF%BC%9F/" class="article-date">
-  <time datetime="2019-07-29T12:47:34.000Z" itemprop="datePublished">2019-07-29</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址: <a href="https://mp.weixin.qq.com/s/A7SFmijk4_NZEG1HMkizhA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/A7SFmijk4_NZEG1HMkizhA</a></p>
-</blockquote>
-<p>先别惊呼不可能，听我细细道来。</p>
-<p>先看截图1：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729204813.png" alt=""></p>
-<p>注意右下角区域，红框部分。这块内存是什么呢？非堆！那么，左边是代码缓存区内存，右边红框就是字符串池，常量，基本类型数据的内存区。然后呢？已经满了。什么原因呢？</p>
-<p><strong>e.printStackTrace()！</strong></p>
-<p>满了的后果呢？整个web服务，访问之后，没响应了，就当是卡死掉了。</p>
-<p>再来看截图2：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729204900.png" alt=""></p>
-<p>看看有多少web的请求线程，被卡住在打印这一步！原因呢？要打印字符串输出到控制台上，那你字符串常量池所在的内存块要有空间啊。然而，因为e.printStackTrace() 语句要产生的字符串记录的是堆栈信息，太长太多，内存被填满了！注意 上面代码语句：4208行！</p>
-<p>来看图3：</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729204949.png" alt=""></p>
-<p>没毛病，没没事儿找事儿冤枉谁。就是这句代码惹的祸！当然，我承认，被 try 住的代码本身就有问题，导致很多调用都会抛异常。</p>
-<p>那么，让我们再来理理整个事件产生的经过：</p>
-<ul>
-<li>短时间内大量请求访问此接口</li>
-<li>代码本身有问题，很多情况下抛异常</li>
-<li>e.printStackTrace() 来打印异常到控制台</li>
-<li>产生错误堆栈字符串到字符串池内存空间</li>
-<li>此内存空间一下子被占满了</li>
-<li>开始在此内存空间产出字符串的线程还没完全生产完整，就没空间了</li>
-<li>大量线程产出字符串产出到一半，等在这儿（等有内存了继续搞啊）</li>
-<li>相互等待，等内存，锁死了，整个应用挂掉了。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总结当然重要，有3点：</p>
-<p>1.代码质量啊亲，代码不抛异常咱不就能愉快的继续浪么？</p>
-<p>2.不要使用 <code>e.printStackTrace()</code>啊，这玩意儿，在项目发布后，除过不断的刷控制台，并没用什么卵用啊，您到是用log对象输出到日志文件里面啊。</p>
-<p>3.推及开来，在java中，会产生大量字符串的方法，使用时，一定得悠着点，别一不小心撑到肚子（字符串池所属的那么点非堆内存空间），撑到肚子了，会死的啊。</p>
- 
       <!-- reward -->
       
     </div>

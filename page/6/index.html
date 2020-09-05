@@ -99,6 +99,189 @@
     
     
     <article
+  id="post-如何在CentOS-7-Fedora-31-30-29上安装ELK-Stack"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/12/10/%E5%A6%82%E4%BD%95%E5%9C%A8CentOS-7-Fedora-31-30-29%E4%B8%8A%E5%AE%89%E8%A3%85ELK-Stack/"
+    >如何在CentOS 7 / Fedora 31/30/29上安装ELK Stack</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/10/%E5%A6%82%E4%BD%95%E5%9C%A8CentOS-7-Fedora-31-30-29%E4%B8%8A%E5%AE%89%E8%A3%85ELK-Stack/" class="article-date">
+  <time datetime="2019-12-10T10:54:43.000Z" itemprop="datePublished">2019-12-10</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a href="https://computingforgeeks.com/how-to-install-elk-stack-on-centos-fedora/" target="_blank" rel="noopener">https://computingforgeeks.com/how-to-install-elk-stack-on-centos-fedora/</a></p>
+<p>原作者： <a href="https://computingforgeeks.com/author/mutai-josphat/" target="_blank" rel="noopener" title="Josphat Mutai">Josphat Mutai</a></p>
+<p>译者：高行行</p>
+</blockquote>
+<p>如何在 CentOS 7 / Fedora 31/30/29 上安装 ELK Stack？“ <strong>ELK</strong> ”是 <code>Elasticsearch, Logstash, and Kibana</code> 的缩写。</p>
+<ul>
+<li><strong>Elasticsearch</strong>：这是一个开源的、基于 REST 和 JSON 的搜索引擎。它具有可扩展性、易用性和灵活性</li>
+<li><strong>Logstash</strong> ：这是一个服务器端数据处理管道，它同时从多个来源中采集数据，转换数据，然后将其发送到类似 Elasticsearch 的“存储”中。</li>
+<li><strong>Kibana</strong> 允许用户使用图表可视化 Elasticsearch 中的数据。</li>
+</ul>
+<p>对于 RHEL 8，请参阅：</p>
+<p><a href="https://computingforgeeks.com/how-to-install-the-elk-stack-on-rhel-8/" target="_blank" rel="noopener" title="如何在RHEL / CentOS 8上安装ELK Stack">如何在 RHEL / CentOS 8 上安装 ELK Stack</a></p>
+<p>请按照以下步骤在 CentOS 7 / Fedora 31/30/29 Linux 上安装和配置 ELK stack 工具。</p>
+<h2 id="步骤-1：安装-Java"><a href="#步骤-1：安装-Java" class="headerlink" title="步骤 1：安装 Java"></a>步骤 1：安装 Java</h2><p>由于 Elasticsearch 依赖 Java，因此你需要在 CentOS 7 / Fedora 系统上安装 Java。</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum -y <span class="token function">install</span> java-openjdk-devel java-openjdk</code></pre>
+<h2 id="步骤-2：添加-ELK-存储库"><a href="#步骤-2：添加-ELK-存储库" class="headerlink" title="步骤 2：添加 ELK 存储库"></a>步骤 2：添加 ELK 存储库</h2><p>安装 Java 后，添加提供 ELK 堆栈软件包的 ELK 堆栈存储库。</p>
+<p><strong>对于 Elasticsearch 7.x</strong></p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">&lt;&lt;</span>EOF <span class="token operator">|</span> <span class="token function">sudo</span> <span class="token function">tee</span> /etc/yum.repos.d/elasticsearch.repo
+<span class="token punctuation">[</span>elasticsearch-7.x<span class="token punctuation">]</span>
+name<span class="token operator">=</span>Elasticsearch repository <span class="token keyword">for</span> 7.x packages
+baseurl<span class="token operator">=</span>https://artifacts.elastic.co/packages/7.x/yum
+gpgcheck<span class="token operator">=</span>1
+gpgkey<span class="token operator">=</span>https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled<span class="token operator">=</span>1
+autorefresh<span class="token operator">=</span>1
+type<span class="token operator">=</span>rpm-md
+EOF</code></pre>
+<p><strong>对于 Elasticsearch 6.x</strong></p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">cat</span> <span class="token operator">&lt;&lt;</span>EOF <span class="token operator">|</span> <span class="token function">sudo</span> <span class="token function">tee</span> /etc/yum.repos.d/elasticsearch.repo
+<span class="token punctuation">[</span>elasticsearch-6.x<span class="token punctuation">]</span>
+name<span class="token operator">=</span>Elasticsearch repository <span class="token keyword">for</span> 6.x packages
+baseurl<span class="token operator">=</span>https://artifacts.elastic.co/packages/6.x/yum
+gpgcheck<span class="token operator">=</span>1
+gpgkey<span class="token operator">=</span>https://artifacts.elastic.co/GPG-KEY-elasticsearch
+enabled<span class="token operator">=</span>1
+autorefresh<span class="token operator">=</span>1
+type<span class="token operator">=</span>rpm-md
+EOF</code></pre>
+<p>添加仓库后，导入 GPG 密钥：</p>
+<pre class=" language-shell"><code class="language-shell">sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch</code></pre>
+<p>清除并更新你的 YUM 软件包索引。</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum clean all
+<span class="token function">sudo</span> yum makecache</code></pre>
+<h2 id="步骤-3：安装和配置-Elasticsearch"><a href="#步骤-3：安装和配置-Elasticsearch" class="headerlink" title="步骤 3：安装和配置 Elasticsearch"></a>步骤 3：安装和配置 Elasticsearch</h2><p>Elasticsearch 存储库已准备就绪，可以使用。你可以使用以下命令安装 Elasticsearch：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum -y <span class="token function">install</span> elasticsearch</code></pre>
+<p>确认软件包安装。</p>
+<pre class=" language-bash"><code class="language-bash">$ rpm -qi elasticsearch
+ Name        <span class="token keyword">:</span> elasticsearch
+ Epoch       <span class="token keyword">:</span> 0
+ Version     <span class="token keyword">:</span> 7.0.1
+ Release     <span class="token keyword">:</span> 1
+ Architecture: x86_64
+ Install Date: Mon 06 May 2019 09:59:57 PM EAT
+ Group       <span class="token keyword">:</span> Application/Internet
+ Size        <span class="token keyword">:</span> 571521653
+ License     <span class="token keyword">:</span> Elastic License
+ Signature   <span class="token keyword">:</span> RSA/SHA512, Mon 29 Apr 2019 05:14:11 PM EAT, Key ID d27d666cd88e42b4
+ Source RPM  <span class="token keyword">:</span> elasticsearch-7.0.1-1-src.rpm
+ Build Date  <span class="token keyword">:</span> Mon 29 Apr 2019 04:06:59 PM EAT
+ Build Host  <span class="token keyword">:</span> packer-virtualbox-iso-1553723689
+ Relocations <span class="token keyword">:</span> /usr
+ Packager    <span class="token keyword">:</span> Elasticsearch
+ Vendor      <span class="token keyword">:</span> Elasticsearch
+ URL         <span class="token keyword">:</span> https://www.elastic.co/
+ Summary     <span class="token keyword">:</span> Elasticsearch is a distributed RESTful search engine built <span class="token keyword">for</span> the cloud. Reference documentation can be found at https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html and the <span class="token string">'Elasticsearch: The Definitive Guide'</span> book can be found at https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html
+ Description <span class="token keyword">:</span>
+ Elasticsearch subproject :distribution:packages</code></pre>
+<p>你可以通过编辑文件来设置 JVM 选项（例如内存限制）： <code>/etc/elasticsearch/jvm.options</code></p>
+<p>下面的示例设置总堆空间的初始/最大大小</p>
+<pre class=" language-bash"><code class="language-bash">-Xms1g
+-Xmx1g</code></pre>
+<p>如果你的系统内存较少，则可以将其配置为使用较小的内存。</p>
+<pre class=" language-bash"><code class="language-bash">-Xms256m
+-Xmx512m</code></pre>
+<p>启动并设置为开机时启用 elasticsearch 服务：</p>
+<pre class=" language-bash"><code class="language-bash">$ <span class="token function">sudo</span> systemctl <span class="token function">enable</span> --now elasticsearch.service
+ Synchronizing state of elasticsearch.service with SysV <span class="token function">service</span> script with /usr/lib/systemd/systemd-sysv-install.
+ Executing: /usr/lib/systemd/systemd-sysv-install <span class="token function">enable</span> elasticsearch
+ Created symlink /etc/systemd/system/multi-user.target.wants/elasticsearch.service → /usr/lib/systemd/system/elasticsearch.service.</code></pre>
+<p>测试以验证其是否正常运行：</p>
+<pre class=" language-bash"><code class="language-bash">$ curl http://127.0.0.1:9200
+<span class="token punctuation">{</span>
+  <span class="token string">"name"</span> <span class="token keyword">:</span> <span class="token string">"localhost.localdomain"</span>,
+  <span class="token string">"cluster_name"</span> <span class="token keyword">:</span> <span class="token string">"elasticsearch"</span>,
+  <span class="token string">"cluster_uuid"</span> <span class="token keyword">:</span> <span class="token string">"7fyD4TuqQ7yxog0fCnPXuA"</span>,
+  <span class="token string">"version"</span> <span class="token keyword">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"number"</span> <span class="token keyword">:</span> <span class="token string">"7.5.0"</span>,
+    <span class="token string">"build_flavor"</span> <span class="token keyword">:</span> <span class="token string">"default"</span>,
+    <span class="token string">"build_type"</span> <span class="token keyword">:</span> <span class="token string">"rpm"</span>,
+    <span class="token string">"build_hash"</span> <span class="token keyword">:</span> <span class="token string">"e9ccaed468e2fac2275a3761849cbee64b39519f"</span>,
+    <span class="token string">"build_date"</span> <span class="token keyword">:</span> <span class="token string">"2019-11-26T01:06:52.518245Z"</span>,
+    <span class="token string">"build_snapshot"</span> <span class="token keyword">:</span> false,
+    <span class="token string">"lucene_version"</span> <span class="token keyword">:</span> <span class="token string">"8.3.0"</span>,
+    <span class="token string">"minimum_wire_compatibility_version"</span> <span class="token keyword">:</span> <span class="token string">"6.8.0"</span>,
+    <span class="token string">"minimum_index_compatibility_version"</span> <span class="token keyword">:</span> <span class="token string">"6.0.0-beta1"</span>
+  <span class="token punctuation">}</span>,
+  <span class="token string">"tagline"</span> <span class="token keyword">:</span> <span class="token string">"You Know, for Search"</span>
+<span class="token punctuation">}</span></code></pre>
+<p>创建一个测试的索引：</p>
+<pre class=" language-bash"><code class="language-bash">$ curl -X PUT <span class="token string">"http://127.0.0.1:9200/mytest_index"</span>
+<span class="token punctuation">{</span><span class="token string">"acknowledged"</span>:true,<span class="token string">"shards_acknowledged"</span>:true,<span class="token string">"index"</span><span class="token keyword">:</span><span class="token string">"mytest_index"</span><span class="token punctuation">}</span></code></pre>
+<h2 id="步骤-4：安装和配置-Kibana"><a href="#步骤-4：安装和配置-Kibana" class="headerlink" title="步骤 4：安装和配置 Kibana"></a>步骤 4：安装和配置 Kibana</h2><p>从添加的 Elasticsearch 存储库下载并安装 Kibana。</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum -y <span class="token function">install</span> kibana</code></pre>
+<p>成功安装后，配置 Kibana：</p>
+<pre class=" language-bash"><code class="language-bash">$ <span class="token function">sudo</span> vim /etc/kibana/kibana.yml
+server.host: <span class="token string">"0.0.0.0"</span>
+server.name: <span class="token string">"kibana.example.com"</span>
+elasticsearch.url: <span class="token string">"http://localhost:9200"</span></code></pre>
+<p>根据需要更改其他设置，然后启动 kibana 服务：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> systemctl <span class="token function">enable</span> --now kibana</code></pre>
+<p>访问 <strong><a href="http://ip-address:5601" target="_blank" rel="noopener">http://ip-address:5601</a></strong> 以打开 Kibana 信息中心：</p>
+<p><img src="https://computingforgeeks.com/wp-content/uploads/2018/08/elasticsearch-kibana-centos7-min-1024x372.png" alt=""></p>
+<p>如果你有活动的防火墙服务，请允许使用 TCP <code>5601</code> 端口 </p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> firewall-cmd --add-port<span class="token operator">=</span>5601/tcp --permanent
+<span class="token function">sudo</span> firewall-cmd --reload</code></pre>
+<h2 id="步骤-5：安装和配置-Logstash"><a href="#步骤-5：安装和配置-Logstash" class="headerlink" title="步骤 5：安装和配置 Logstash"></a>步骤 5：安装和配置 Logstash</h2><p>最后安装的是针对 Logstash 的。它将充当客户端系统的集中式日志服务器，该服务器运行诸如<a href="https://www.elastic.co/products/beats/filebeat" target="_blank" rel="noopener" title="filebeat">filebeat</a>之类的代理 。</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum -y <span class="token function">install</span> logstash</code></pre>
+<p>Logstash 自定义配置可以放在 <code>/etc/logstash/conf.d/</code>目录下。</p>
+<p>有关更多详细信息，请<a href="https://www.elastic.co/guide/en/logstash/current/index.html" target="_blank" rel="noopener" title=" 参阅Logstash配置手册 "> 参阅 Logstash 配置手册 </a>。</p>
+<h2 id="步骤-6：安装其他-ELK-工具-锦上添花"><a href="#步骤-6：安装其他-ELK-工具-锦上添花" class="headerlink" title="步骤 6：安装其他 ELK 工具-锦上添花"></a>步骤 6：安装其他 ELK 工具-锦上添花</h2><p>可以安装的其他 ELK 工具包括：</p>
+<ul>
+<li><strong>Filebeat</strong>：用于日志的轻量型采集器。通过提供一种转发和汇总日志与文件的轻量级方法，让简单的事情不再繁杂。</li>
+<li><strong>Metricbeat</strong>：用于从系统和服务收集指标。Metricbeat 能够以一种轻量型的方式，输送各种系统和服务统计数据，从 CPU 到内存，从 Redis 到 Nginx，不一而足。</li>
+<li><strong>Packetbeat</strong>：轻量型网络数据采集器。用于深挖网线上传输的数据，了解应用程序动态。Packetbeat 是一款轻量型网络数据包分析器，能够将数据发送至 Logstash 或 Elasticsearch。</li>
+<li><strong>Heartbeat</strong>：用于正常运行时间监视的轻量型采集器。它通过主动探测帮助你监视服务的可用性</li>
+<li><strong>Auditbeat</strong>：轻量型审计日志采集器，可帮助你审核系统上用户和进程的活动</li>
+</ul>
+<p>这些工具可以通过 <code>yum</code> 软件包管理器使用它们各自的名称一起进行安装。下面的示例将安装所有ELK插件工具。</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token function">sudo</span> yum <span class="token function">install</span> filebeat auditbeat metricbeat packetbeat heartbeat-elastic</code></pre>
+<p>有关每种工具的配置和进一步的阅读，请参考官方的 <a href="https://www.elastic.co/guide/index.html" target="_blank" rel="noopener" title="ELK Stack文档">ELK Stack 文档</a> 以及 <a href="https://www.elastic.co/learn" target="_blank" rel="noopener" title="资源和培训">资源和培训</a>。</p>
+<p>更多指南：</p>
+<p><a href="https://computingforgeeks.com/manage-logs-with-graylog-server-on-ubuntu-18-04/" target="_blank" rel="noopener" title="在Ubuntu上使用Elasticsearch 6安装Graylog 3">在 Ubuntu 上使用 Elasticsearch 6 安装 Graylog 3</a></p>
+<p><a href="https://computingforgeeks.com/how-to-install-graylog-on-centos-rhel/" target="_blank" rel="noopener" title="在CentOS / RHEL 8上安装Graylog 3">在 CentOS / RHEL 8 上安装 Graylog 3</a></p>
+<p><a href="https://computingforgeeks.com/how-to-install-elasticsearch-on-centos/" target="_blank" rel="noopener" title="在CentOS 7上安装Elasticsearch 7">在 CentOS 7 上安装 Elasticsearch 7</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-目前为止全网最全的-SpringBoot-参数传递方案"
   class="article article-type-post"
   itemscope
@@ -1874,204 +2057,6 @@ Share：分享一篇有观点和思考的技术文章。主要为了输出你的
 <li>现在，在索引 Git 日志时，IDE 将显示一个进度条。</li>
 <li>现在，你可以选择是否要在文件历史记录窗口和 VCS 批注中查看更改的创建时间或提交时间。</li>
 </ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-java并发教程翻译"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/11/24/java%E5%B9%B6%E5%8F%91%E6%95%99%E7%A8%8B%E7%BF%BB%E8%AF%91/"
-    >java并发教程翻译</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/11/24/java%E5%B9%B6%E5%8F%91%E6%95%99%E7%A8%8B%E7%BF%BB%E8%AF%91/" class="article-date">
-  <time datetime="2019-11-24T02:49:02.000Z" itemprop="datePublished">2019-11-24</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址：<a href="http://tutorials.jenkov.com/java-concurrency/index.html" target="_blank" rel="noopener">http://tutorials.jenkov.com/java-concurrency/index.html</a></p>
-<p>参考文章：</p>
-<p><a href="http://ifeve.com/java-concurrency-thread/" target="_blank" rel="noopener">并发译文</a></p>
-<p><a href="https://blog.csdn.net/JackLang/article/details/52294629" target="_blank" rel="noopener">https://blog.csdn.net/JackLang/article/details/52294629</a></p>
-<p><a href="https://www.codeboot.net/tutorials/java-concurrency/index/" target="_blank" rel="noopener">https://www.codeboot.net/tutorials/java-concurrency/index/</a></p>
-<p>该英文教程更新了，因此站在前人的肩膀上，斗胆进行舔砖加瓦。英文不是特别好，全靠 Google 翻译和前辈的博客 🤣</p>
-<p>译者：高行行</p>
-<p>该 java 并发教程汇总和修订地址：<a href="https://www.yuque.com/gaohanghang/og37t5/kqzsra" target="_blank" rel="noopener">https://www.yuque.com/gaohanghang/og37t5/kqzsra</a></p>
-</blockquote>
-<p>Java <em>并发</em> 是一个涵盖 Java 平台多线程，并发和并行的术语。其中包括 Java 并发工具、问题和解决方案。该 Java 并发教程涵盖了多线程的核心概念、并发构造·、并发问题、坏处以及与 Java 中多线程相关的好处。</p>
-<h1 id="1-Java-并发和多线程教程"><a href="#1-Java-并发和多线程教程" class="headerlink" title="1. Java 并发和多线程教程"></a>1. Java 并发和多线程教程</h1><blockquote>
-<p>小结：</p>
-<ol>
-<li><p>什么是多线程：一个程序同时执行多个任务</p>
-</li>
-<li><p>为什么要使用多线程：</p>
-<ul>
-<li>更好地利用单个 CPU。</li>
-<li>更好地利用多个 CPU 或 CPU 内核。</li>
-<li>通过响应性获得更好的用户体验。</li>
-<li>通过公平地共享计算机资源获得更好的用户体验。</li>
-</ul>
-</li>
-<li><p>多线程与多任务：多任务是指在同一刻运行多个程序的能力，多线程程序在较低的层次上扩展了多任务的概念：一个程序同时执行多个任务。通常， 每一个任务称为一个线程 （ thread ) , 它是线程控制的简称。–《java核心技术卷一》</p>
-</li>
-<li><p>多线程难点：控制线程访问共享资源</p>
-</li>
-</ol>
-</blockquote>
-<h2 id="1-1-什么是多线程？"><a href="#1-1-什么是多线程？" class="headerlink" title="1.1 什么是多线程？"></a>1.1 什么是多线程？</h2><p>多线程意味着你在同一应用程序中具有多个<em>执行线程</em>。一个线程就像执行应用程序的独立 CPU。因此，多线程应用程序就像具有多个 CPU 同时执行代码不同部分的应用程序。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004044.png" alt="在其中执行两个线程的应用程序"></p>
-<p>线程不等于 CPU。通常，单个 CPU 将在多个线程之间共享其执行时间，并在给定的时间量内在每个线程的执行之间进行切换。也可以让应用程序的线程由不同的 CPU 执行。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004101.png" alt="具有线程由不同线程执行的多个应用程序"></p>
-<h2 id="1-2-为什么要使用多线程？"><a href="#1-2-为什么要使用多线程？" class="headerlink" title="1.2 为什么要使用多线程？"></a>1.2 为什么要使用多线程？</h2><p>为什么要在应用程序中使用多线程有几个原因。使用多线程的一些最常见原因是：</p>
-<ul>
-<li>更好地利用单个 CPU。</li>
-<li>更好地利用多个 CPU 或 CPU 内核。</li>
-<li>通过响应性获得更好的用户体验。</li>
-<li>通过公平地共享计算机资源获得更好的用户体验。</li>
-</ul>
-<p>我将在以下各节中详细解释每个原因。</p>
-<h3 id="1-2-1-更好地利用单个-CPU"><a href="#1-2-1-更好地利用单个-CPU" class="headerlink" title="1.2.1 更好地利用单个 CPU"></a>1.2.1 更好地利用单个 CPU</h3><p>最常见的原因之一是能够更好地利用计算机中的资源。例如，如果一个线程正在等待通过网络请求的响应，则另一线程可以同时使用 CPU 来执行其他操作。此外，如果计算机具有多个 CPU，或者 CPU 具有多个执行核心，则多线程还可以帮助你的应用程序利用这些额外的 CPU 核心。</p>
-<h3 id="1-2-2-更好地利用多个-CPU-或-CPU-内核"><a href="#1-2-2-更好地利用多个-CPU-或-CPU-内核" class="headerlink" title="1.2.2 更好地利用多个 CPU 或 CPU 内核"></a>1.2.2 更好地利用多个 CPU 或 CPU 内核</h3><p>如果计算机包含多个 CPU 或 CPU 包含多个执行核心，则你需要为应用程序使用多个线程才能使用所有 CPU 或 CPU 核心。单个线程最多只能使用一个 CPU，如上所述，有时甚至不能完全利用单个 CPU。</p>
-<p>###1.2.3 通过响应性获得更好的用户体验</p>
-<p>使用多线程的另一个原因是为了提供更好的用户体验。例如，如果你单击 GUI 中的按钮，并导致通过网络发送请求，那么哪个线程执行此请求就很重要。如果使用的线程也正在更新 GUI，则在 GUI 线程等待请求响应时，用户可能会遇到 GUI“挂起”的情况。取而代之的是，这样的请求可以由后台线程执行，因此 GUI 线程可以自由地同时响应其他用户请求。</p>
-<h3 id="1-2-4-通过公平地共享计算机资源获得更好的用户体验"><a href="#1-2-4-通过公平地共享计算机资源获得更好的用户体验" class="headerlink" title="1.2.4 通过公平地共享计算机资源获得更好的用户体验"></a>1.2.4 通过公平地共享计算机资源获得更好的用户体验</h3><p>第四个原因是在用户之间更公平地共享计算机资源。例如，假设一台服务器接收来自客户端的请求，并且只有一个线程来执行这些请求。如果客户端发送的请求要花费很长时间才能处理，则所有其他客户端的请求都必须等待，直到一个请求完成。通过让每个客户端的请求由其自己的线程执行，则没有一个任务可以完全垄断 CPU。</p>
-<h2 id="1-3-多线程与多任务"><a href="#1-3-多线程与多任务" class="headerlink" title="1.3 多线程与多任务"></a>1.3 多线程与多任务</h2><p>过去，一台计算机只有一个 CPU，并且一次只能执行一个程序。大多数小型计算机的功能实际上不足以同时执行多个程序，因此没有尝试过。公平地讲，许多大型机系统能够一次执行多个程序的时间比个人计算机长得多。</p>
-<h3 id="1-3-1-多任务"><a href="#1-3-1-多任务" class="headerlink" title="1.3.1 多任务"></a>1.3.1 多任务</h3><p>后来出现了多任务处理，这意味着计算机可以同时执行多个程序（AKA 任务或进程）。但是，这并不是真正的“同时”。单个 CPU 在程序之间共享。操作系统将在运行的程序之间进行切换，并在切换之前执行每个程序一会儿。</p>
-<p>随着多任务处理，软件开发人员面临着新的挑战。程序不再假定拥有所有可用的 CPU 时间，也不拥有所有的内存或任何其他计算机资源。一个“好公民”程序应释放不再使用的所有资源，以便其他程序可以使用它们。</p>
-<h3 id="1-3-2-多线程"><a href="#1-3-2-多线程" class="headerlink" title="1.3.2 多线程"></a>1.3.2 多线程</h3><p>后来出现了多线程，这意味着你可以在同一程序中拥有多个执行线程。可以将执行线程视为执行程序的 CPU。当你有多个线程执行同一程序时，就像在同一程序中执行多个 CPU。</p>
-<h2 id="1-4-多线程很难"><a href="#1-4-多线程很难" class="headerlink" title="1.4 多线程很难"></a>1.4 多线程很难</h2><p>多线程是提高某些类型程序性能的好方法。但是，多线程处理比多任务处理更具挑战性。这些线程在同一程序中执行，因此同时在读取和写入相同的内存。这可能会导致在单线程程序中看不到的错误。在单个 CPU 机器上可能看不到其中一些错误，因为两个线程从未真正“同时”执行。但是，现代计算机配备了多核 CPU，甚至还配备了多个 CPU。这意味着可以由单独的内核或 CPU 同时执行单独的线程。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004203.png" alt="多CPU计算机上的多线程"></p>
-<p>如果一个线程在另一个线程写入内存时读取了一个内存，那么第一个线程最终将读取什么值？旧值？第二个线程写的值？还是两者之间混合的值？或者，如果两个线程正在同时写入同一内存位置，那么完成后将剩下什么值？由第一个线程写的值？第二个线程写的值？还是两个值的混合写入？</p>
-<p>没有适当的预防措施，任何这些结果都是可能的。该行为甚至是不可预测的。结果可能会不时改变。因此，作为开发人员，重要的是要知道如何采取正确的预防措施-意味着要学习如何控制线程访问共享资源（如内存，文件，数据库等）。这是本 Java 并发教程所要解决的主题之一。</p>
-<h2 id="1-5-Java-中的多线程和并发"><a href="#1-5-Java-中的多线程和并发" class="headerlink" title="1.5 Java 中的多线程和并发"></a>1.5 Java 中的多线程和并发</h2><p>Java 是最早让开发人员可以使用多线程的语言之一。Java 从一开始就具有多线程功能。因此，Java 开发人员经常会遇到上述问题。这就是我在 Java 并发上编写此线索的原因。谨此提醒自己，以及提醒可能从中受益的其他 Java 开发人员。</p>
-<p>本教程主要关注 Java 中的多线程，但是多线程中发生的某些问题类似于多任务和分布式系统中发生的问题。因此，对多任务和分布式系统的引用也可能出现在此线索中。所以叫法上称为“并发”，而不是“多线程”。</p>
-<h2 id="1-6-并发模型"><a href="#1-6-并发模型" class="headerlink" title="1.6 并发模型"></a>1.6 并发模型</h2><p>第一个 Java <em>并发模型</em>假定在同一应用程序中执行的多个线程也将共享对象。这种类型的并发模型通常称为“共享状态并发模型”。许多并发语言构造和实用程序都旨在支持此并发模型。</p>
-<p>但是，自从编写第一本 Java 并发书籍以来，甚至自 Java 5 并发实用工具发布以来，并发体系结构和设计领域已经发生了很多事情。</p>
-<p>共享状态并发模型导致许多并发问题，这些问题很难优雅地解决。因此，被称为“无共享”或“分离状态”的替代并发模型已经普及。在单独的状态并发模型中，线程不共享任何对象或数据。这避免了共享状态并发模型的许多并发访问问题。</p>
-<p>出现了新的异步“独立状态”平台和工具包，例如 Netty，Vert.x 和 Play / Akka 和 Qbit。新的非阻塞并发算法已经发布，并且新的非阻塞工具（例如 LMax Disrupter）已添加到我们的工具箱中。Java 7 中的 Fork and Join 框架和 Java 8 中的 collection stream API 引入了新的函数式编程并行性。</p>
-<p>随着所有这些新的发展，现在是时候更新本 Java 并发教程了。因此，本教程再次<strong>进行中</strong>。只要有时间编写新教程，教程就会被发布。</p>
-<h2 id="1-7-Java-并发学习指南"><a href="#1-7-Java-并发学习指南" class="headerlink" title="1.7 Java 并发学习指南"></a>1.7 Java 并发学习指南</h2><p>如果你不熟悉 Java 并发，建议你遵循以下学习计划。你也可以在此页面左侧的菜单中找到所有主题的链接。</p>
-<p>通用并发和多线程理论：</p>
-<ul>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html" target="_blank" rel="noopener" title="多线程的好处">多线程的好处</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/costs.html" target="_blank" rel="noopener">多线程代价</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/concurrency-models.html" target="_blank" rel="noopener" title="并发模型">并发模型</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/same-threading.html" target="_blank" rel="noopener">相同线程</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/concurrency-vs-parallelism.html" target="_blank" rel="noopener" title="并发与并行">并发与并行</a></li>
-</ul>
-<p>Java 并发基础知识：</p>
-<ul>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/creating-and-starting-threads.html" target="_blank" rel="noopener" title="创建和启动Java线程">创建和启动 Java 线程</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/race-conditions-and-critical-sections.html" target="_blank" rel="noopener" title="竞态条件与临界区">竞态条件与临界区</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/thread-safety.html" target="_blank" rel="noopener" title="线程安全和共享资源">线程安全和共享资源</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/thread-safety-and-immutability.html" target="_blank" rel="noopener" title="线程安全和不变性">线程安全和不变性</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/java-memory-model.html" target="_blank" rel="noopener" title="Java内存模型">Java 内存模型</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/synchronized.html" target="_blank" rel="noopener" title="Java同步块">Java 同步块</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/volatile.html" target="_blank" rel="noopener" title="Java volatile关键字">Java volatile关键字</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/threadlocal.html" target="_blank" rel="noopener" title="Java ThreadLocal">Java ThreadLocal</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/thread-signaling.html" target="_blank" rel="noopener" title="Java线程信令">Java 线程信令</a></li>
-</ul>
-<p>Java 并发的典型问题：</p>
-<ul>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/deadlock.html" target="_blank" rel="noopener" title="死锁">死锁</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/deadlock-prevention.html" target="_blank" rel="noopener" title="防止死锁">防止死锁</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/starvation-and-fairness.html" target="_blank" rel="noopener" title="饥饿与公平">饥饿与公平</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/nested-monitor-lockout.html" target="_blank" rel="noopener">嵌套管程锁死</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/slipped-conditions.html" target="_blank" rel="noopener" title="Slipped Conditions">Slipped Conditions</a></li>
-</ul>
-<p>Java 并发构造可帮助解决上述问题：</p>
-<ul>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/locks.html" target="_blank" rel="noopener" title="Java锁">Java 中的锁</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/read-write-locks.html" target="_blank" rel="noopener" title="Java中的读/写锁">Java 中的读/写锁</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/reentrance-lockout.html" target="_blank" rel="noopener" title="重入锁死">重入锁死</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/semaphores.html" target="_blank" rel="noopener">信号量</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/blocking-queues.html" target="_blank" rel="noopener" title="阻塞队列">阻塞队列</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/thread-pools.html" target="_blank" rel="noopener" title="线程池">线程池</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/compare-and-swap.html" target="_blank" rel="noopener">CAS</a></li>
-</ul>
-<p>进一步的主题：</p>
-<ul>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/anatomy-of-a-synchronizer.html" target="_blank" rel="noopener" title="同步器的解剖">剖析同步器</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/non-blocking-algorithms.html" target="_blank" rel="noopener" title="非阻塞算法">非阻塞算法</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/amdahls-law.html" target="_blank" rel="noopener" title="阿姆达尔定律">阿姆达尔定律</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/references.html" target="_blank" rel="noopener" title="参考文献">参考文献</a></li>
-</ul>
-<h1 id="2-多线程的好处"><a href="#2-多线程的好处" class="headerlink" title="2. 多线程的好处"></a>2. 多线程的好处</h1><ul>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html#better-cpu-utilization" target="_blank" rel="noopener">更好的CPU使用率</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html#simpler-program-design" target="_blank" rel="noopener">程序设计更简单</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html#more-responsive-programs" target="_blank" rel="noopener">更多响应程序</a></li>
-<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html#more-fair-distribution-of-cpu-resources" target="_blank" rel="noopener">更公平地分配CPU资源</a></li>
-</ul>
-<p>多线程的最大好处是：</p>
-<ul>
-<li>更高的CPU利用率。</li>
-<li>在某些情况下，程序设计更简单。</li>
-<li>响应速度更快的程序。</li>
-<li>在不同任务之间更公平地分配CPU资源。</li>
-</ul>
-<h2 id="2-1-更好的CPU使用率"><a href="#2-1-更好的CPU使用率" class="headerlink" title="2.1 更好的CPU使用率"></a>2.1 更好的CPU使用率</h2><p>想象一个应用程序从本地文件系统读取和处理文件。假设从磁盘读取af文件需要5秒钟，而处理则需要2秒钟。然后处理两个文件</p>
-<pre><code>  5秒钟读取文件A
-  2秒处理文件A
-  5秒钟读取文件B
-  2秒处理文件B
------------------------
- 总共14秒</code></pre><p>从磁盘读取文件时，大部分的CPU时间都花在等待磁盘读取数据上。在这段时间内，CPU几乎处于空闲状态。它可能正在做其他事情。通过更改操作顺序，可以更好地利用CPU。查看以下顺序：</p>
-<pre><code>  5秒钟读取文件A
-  5秒读取文件B + 2秒处理文件A
-  2秒处理文件B
------------------------
- 总共12秒</code></pre><p>CPU等待读取第一个文件。然后，它开始读取第二个文件。当计算机的IO组件读取第二个文件时，CPU处理第一个文件。请记住，在等待从磁盘读取文件时，CPU大部分处于空闲状态。</p>
-<p>通常，CPU在等待IO时可以做其他事情。不必是磁盘IO。它也可以是网络IO，也可以是来自计算机用户的输入。网络和磁盘IO通常比CPU和内存IO慢很多。</p>
-<h2 id="2-2-程序设计更简单"><a href="#2-2-程序设计更简单" class="headerlink" title="2.2 程序设计更简单"></a>2.2 程序设计更简单</h2><p>如果要在单线程应用程序中手动编写上述读取和处理的顺序，则必须跟踪每个文件的读取和处理状态。相反，您可以启动两个线程，每个线程仅读取和处理一个文件。这些等待线程将在等待磁盘读取其文件时被阻止。在等待时，其他线程可以使用CPU处理已读取的文件部分。结果是磁盘始终保持忙碌状态，将各种文件读入内存。这样可以更好地利用磁盘和CPU。编程也更容易，因为每个线程只需要跟踪一个文件即可。</p>
-<h2 id="2-3-更多响应程序"><a href="#2-3-更多响应程序" class="headerlink" title="2.3 更多响应程序"></a>2.3 更多响应程序</h2><p>将单线程应用程序转换为多线程应用程序的另一个共同目标是实现响应速度更快的应用程序。想象一个服务器应用程序在某个端口上侦听传入的请求。收到请求后，它将处理该请求，然后返回监听。服务器循环如下所示：</p>
-<pre class=" language-java"><code class="language-java"> <span class="token keyword">while</span><span class="token punctuation">(</span>服务器处于活动状态<span class="token punctuation">)</span><span class="token punctuation">{</span>
-       监听请求
-    流程请求
- <span class="token punctuation">}</span></code></pre>
-<p>如果请求需要很长时间才能处理，则在这段时间内没有新客户端可以向服务器发送请求。只有在服务器正在侦听时，才能接收请求。</p>
-<p>另一种设计是侦听线程将请求传递给工作线程，然后立即返回侦听。工作线程将处理该请求，并将回复发送给客户端。该设计概述如下：</p>
-<pre class=" language-java"><code class="language-java">    <span class="token keyword">while</span><span class="token punctuation">(</span>服务器处于活动状态<span class="token punctuation">)</span> <span class="token punctuation">{</span> 
-    监听对
-    工作线程的请求请求
-  <span class="token punctuation">}</span></code></pre>
-<p>这样，服务器线程将尽快恢复监听。因此，更多的客户端可以将请求发送到服务器。服务器变得更加敏感。</p>
-<p>桌面应用程序也是如此。如果单击启动长任务的按钮，并且执行任务的线程是更新窗口，按钮等的线程，则任务执行时应用程序将显示为无响应。而是可以将任务移交给工作线程。当工作线程忙于任务时，窗口线程可以自由响应其他用户请求。当工作线程完成时，它向窗口线程发出信号。然后，窗口线程可以使用任务结果更新应用程序窗口。具有工作线程设计的程序将对用户响应更快。</p>
-<h2 id="2-4-更公平地分配CPU资源"><a href="#2-4-更公平地分配CPU资源" class="headerlink" title="2.4 更公平地分配CPU资源"></a>2.4 更公平地分配CPU资源</h2><p>假设有一个服务器正在接收来自客户端的请求。然后想象一下，其中一个客户端发送了一个处理时间很长的请求，例如10秒。如果服务器使用单个线程处理了所有任务，则处理缓慢的请求之后的所有请求将被迫等待，直到处理完整个请求为止。</p>
-<p>通过在多个线程之间划分CPU时间并在线程之间进行切换，CPU可以在多个请求之间更公平地共享其执行时间。这样，即使其中一个请求较慢，也可以与较慢的请求同时执行处理速度更快的其他请求。当然，这意味着执行慢速请求的速度甚至会更慢，因为它不会仅将CPU分配给处理它。但是，其他请求将不得不等待更短的时间来处理，因为它们不必等待缓慢的任务完成才可以处理它们。如果只有慢请求要处理，则仍可以将CPU单独分配给慢任务。</p>
  
       <!-- reward -->
       

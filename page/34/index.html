@@ -99,6 +99,83 @@
     
     
     <article
+  id="post-Java 泛型，你了解类型擦除吗？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2018/09/08/Java%20%E6%B3%9B%E5%9E%8B%EF%BC%8C%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4%E5%90%97%EF%BC%9F/"
+    >Java 泛型，你了解类型擦除吗？</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/09/08/Java%20%E6%B3%9B%E5%9E%8B%EF%BC%8C%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4%E5%90%97%EF%BC%9F/" class="article-date">
+  <time datetime="2018-09-08T13:37:22.000Z" itemprop="datePublished">2018-09-08</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>泛型，一个孤独的守门者。</p>
+<p>大家可能会有疑问，我为什么叫做泛型是一个守门者。这其实是我个人的看法而已，我的意思是说泛型没有其看起来那么深不可测，它并不神秘与神奇。泛型是 Java 中一个很小巧的概念，但同时也是一个很容易让人迷惑的知识点，它让人迷惑的地方在于它的许多表现有点违反直觉。</p>
+<p>文章开始的地方，先给大家奉上一道经典的测试题。</p>
+<pre><code class="java">List&lt;String&gt; l1 = new ArrayList&lt;String&gt;();
+List&lt;Integer&gt; l2 = new ArrayList&lt;Integer&gt;();
+
+System.out.println(l1.getClass() == l2.getClass());</code></pre>
+<p>请问，上面代码最终结果输出的是什么？不了解泛型的和很熟悉泛型的同学应该能够答出来，而对泛型有所了解，但是了解不深入的同学可能会答错。</p>
+<p>正确答案是 true。</p>
+<p>上面的代码中涉及到了泛型，而输出的结果缘由是<strong>类型擦除</strong>。先好好说说泛型。</p>
+<h1 id="泛型是什么？"><a href="#泛型是什么？" class="headerlink" title="泛型是什么？"></a>泛型是什么？</h1><p>泛型的英文是 generics，generic 的意思是通用,而翻译成中文，泛应该意为广泛，型是类型。所以泛型就是能广泛适用的类型。</p>
+<p><strong>但泛型还有一种较为准确的说法就是为了参数化类型，或者说可以将类型当作参数传递给一个类或者是方法。</strong></p>
+<p>那么，如何解释类型参数化呢？</p>
+<pre><code class="java">public class Cache {
+    Object value;
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+}</code></pre>
+<p>假设 Cache 能够存取任何类型的值，于是，我们可以这样使用它。</p> 
+      <a class="article-more-link" href="/2018/09/08/Java%20%E6%B3%9B%E5%9E%8B%EF%BC%8C%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4%E5%90%97%EF%BC%9F/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Mac IDEA 最常用快捷键"
   class="article article-type-post"
   itemscope
@@ -785,67 +862,6 @@
 <p>实际上 JDK1.7 的 switch 支持 String 也是在编译器层面实现的，在 Java 虚拟机和字节代码层面上依然只支持在 switch 语句中使用与整数类型兼容的类型。我们在 switch 中使用的 String 类型在编译的过程中会将字符串类型转换成与整数类型兼容的格式（譬如基于字符串常量的哈希码等），不同的 Java 编译器可能采用不同的方式和优化策略来完成这个转换。</p>
 <p><strong>问：Java 枚举会比静态常量更消耗内存吗？</strong></p>
 <p><strong>答：</strong>会更消耗，一般场景下不仅编译后的字节码会比静态常量多，而且运行时也会比静态常量需要更多的内存，不过这个多取决于场景和枚举的规模等等，不能明确的定论多多少（一般都至少翻倍以上），此外更不能因为多就一刀切的认为静态常量应该优于枚举使用，枚举有自己的特性和场景，优化也不能过度。我们在上一篇枚举实质原理中已经解释了每个枚举类中的具体枚举类型都是对应类中的一个静态常量，该常量在 static 块中被初始实例化，此外枚举类还有自己的一些特有方法，而静态常量实质却很简单，所以从对象占用内存大小方面来计算肯定是枚举类比静态常量更加占体积和消耗运行时内存，至于具体怎么算其实很简单，大家可以自己下去搜一下 java 对象占用内存大小即可了解更多，搞清楚特定场合下具体大多少没有什么实际意义，搞清楚为什么大和怎么算出来的本质原因即可。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Java8数组和List相互转换"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2018/08/11/Java8%E6%95%B0%E7%BB%84%E5%92%8CList%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2/"
-    >Java8数组和List相互转换</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2018/08/11/Java8%E6%95%B0%E7%BB%84%E5%92%8CList%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2/" class="article-date">
-  <time datetime="2018-08-11T12:06:22.000Z" itemprop="datePublished">2018-08-11</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文 <a href="https://blog.csdn.net/u010429286/article/details/53377836" target="_blank" rel="noopener">Java8数组和List相互转换</a></p>
-</blockquote>
-<h3 id="转换数组为List"><a href="#转换数组为List" class="headerlink" title="转换数组为List"></a><strong>转换数组为List</strong></h3><p>1.使用Stream中的Collector收集器，代码:</p>
-<pre class=" language-java"><code class="language-java">String<span class="token punctuation">[</span><span class="token punctuation">]</span> arrays <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span><span class="token string">"a"</span><span class="token punctuation">,</span> <span class="token string">"b"</span><span class="token punctuation">,</span> <span class="token string">"c"</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
-List<span class="token operator">&lt;</span>String<span class="token operator">></span> listStrings <span class="token operator">=</span> Stream<span class="token punctuation">.</span><span class="token function">of</span><span class="token punctuation">(</span>arrays<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">collector</span><span class="token punctuation">(</span>Collectors<span class="token punctuation">.</span><span class="token function">toList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-<p>2.使用java.util.Arrays工具类中的asList()方法（这个不是Java8中新增的内容）:</p>
-<pre class=" language-java"><code class="language-java">String<span class="token punctuation">[</span><span class="token punctuation">]</span> arrays <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span><span class="token string">"a"</span><span class="token punctuation">,</span> <span class="token string">"b"</span><span class="token punctuation">,</span> <span class="token string">"c"</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
-List<span class="token operator">&lt;</span>String<span class="token operator">></span> listStrings <span class="token operator">=</span> Arrays<span class="token punctuation">.</span><span class="token function">asList</span><span class="token punctuation">(</span>arrays<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-<h3 id="转换List为数组"><a href="#转换List为数组" class="headerlink" title="转换List为数组"></a><strong>转换List为数组</strong></h3><p>1.使用Stream:</p>
-<pre class=" language-java"><code class="language-java">String<span class="token punctuation">[</span><span class="token punctuation">]</span> ss <span class="token operator">=</span> listStrings<span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toArray</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">:</span><span class="token operator">:</span><span class="token keyword">new</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-<p>2.使用List中的toArray()方法</p>
-<pre class=" language-java"><code class="language-java">String<span class="token punctuation">[</span><span class="token punctuation">]</span> sss <span class="token operator">=</span> listStrings<span class="token punctuation">.</span><span class="token function">toArray</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">[</span>listStrings<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
  
       <!-- reward -->
       

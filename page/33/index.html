@@ -99,6 +99,150 @@
     
     
     <article
+  id="post-《阿里巴巴 Java开发手册》读后感 "
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2018/12/02/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%20Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F%20/"
+    >《 阿里巴巴 Java开发手册》读后感</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/12/02/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%20Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F%20/" class="article-date">
+  <time datetime="2018-12-02T05:23:00.000Z" itemprop="datePublished">2018-12-02</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原创： 公众号 Java3y <a href="https://mp.weixin.qq.com/s/0NI_Ljk0efF1wCkIWjTV_A" target="_blank" rel="noopener">《阿里巴巴 Java开发手册》读后感</a></p>
+</blockquote>
+<p>PDF官方地址：</p>
+<ul>
+<li><a href="https://github.com/alibaba/p3c" target="_blank" rel="noopener">https://github.com/alibaba/p3c</a></li>
+</ul>
+<h1 id="一、Java相关"><a href="#一、Java相关" class="headerlink" title="一、Java相关"></a>一、Java相关</h1><ol>
+<li><p>POJO是DO/DTO/BO/VO的统称，禁止命名为xxxPOJO</p>
+</li>
+<li><p>获取多个对象的方法中list作为前缀</p>
+</li>
+<li><p>获取统计值的方法用count作为前缀</p>
+</li>
+<li><p>POJO类中的布尔类型(Boolean)的变量都不要加is前缀，否则部分框架解析会引起序列化错误</p>
+</li>
+<li><ul>
+<li>如果你的变量名带is的话，比如isActive，框架解析的时候可能就当成active了。</li>
+</ul>
+</li>
+<li><p>如果是形容能力的接口名称，取对应的形容词为接口名(通常是-able的形式)</p>
+</li>
+<li><p>不允许任何魔法值(<strong>未经预先定义的常量</strong>)直接出现在代码中</p>
+</li>
+<li><p>Object的euqals方法容易抛出空指针异常，应使用常量或者有值的对象来调用equals。推荐使用<code>java.util.Object#equals</code>工具类</p>
+</li>
+<li><p>所有POJO<strong>类的属性</strong>全部使用<strong>包装数据类型</strong>，RPC的返回值和参数必须使用<strong>包装</strong>数据类型，所有的<strong>局部变量</strong>都使用<strong>基本数据</strong>类型。定义VO/DTO/DO等POJO类时，不要设定任何属性的默认值</p>
+</li>
+<li><ul>
+<li>如果你的类属性使用int这样的基本数据类型，默认值是0。一般情况下该变量没有赋值，一般想表达的是不存在(null)，而不是0。</li>
+</ul>
+</li>
+<li><p>构造方法禁止加入任何的业务逻辑，如果初始化逻辑可以放在init方法中。set/get方法也不要增加业务逻辑。</p>
+</li>
+<li><ul>
+<li>如果set/get方法放入业务逻辑，有时候排查问题就变得很麻烦了</li>
+</ul>
+</li>
+<li><p>工具类Arrays.asList()把数组转成List时，不能使用其修改集合的相关方法。比如说add、clear、remove</p>
+</li>
+<li><p>在JDK7以及以上版本中，Comparator要<strong>满足三个条件</strong>，不然调用<code>Arrays.sort()或者Collections.sort()</code>会报异常。</p>
+</li>
+<li><ul>
+<li>x，y 的比较结果和 y，x 的比较结果相反</li>
+<li>传递性：x&gt;y并且y&gt;z，那么x一定大于z</li>
+<li>对称性：x=y,则 x,z 比较结果和y，z比较结果相同</li>
+</ul>
+</li>
+<li><p>使用entrySet遍历Map类集合K/V，而不是用keySet方式遍历</p>
+</li>
+<li><ul>
+<li>keySet遍历了两次，一次是转成Iterator对象，一次是从hashMap中取出key所对应的value，如果JDK8可以使用Map.foreach方法</li>
+</ul>
+</li>
+<li><p>线程资源必须<strong>由线程池提供</strong>，不允许在应用中自行显示创建线程。线程池<strong>不允许用Executors创建</strong>，通过ThreadPoolExecutor的方式创建，这样的处理方式能够让编写代码的工程师更加明确线程池的运行规则，规避资源耗尽的风险。</p>
+</li>
+<li><p>SimpleDateFormat是<strong>线程不安全的类</strong>，一般不要定义为static变量，如果定义为static，必须加锁，或者使用DateUtils工具类</p>
+</li>
+<li><ul>
+<li>如果是JDK8应用，可以使用Instant(针对<strong>时间统计</strong>等场景)代替Date，LocalDateTime代替Calendar，DateTimeFormatter代替SimpleDateFormat</li>
+</ul>
+</li>
+<li><p>避免Random实例被多线程使用，虽然共享该实例是线程安全的，但会因竞争同一seed导致性能下降</p>
+</li>
+<li><ul>
+<li>在JDK7之后，可以<strong>直接使用API ThreadLocalRandom</strong>，而在JDK7 之前，需要编码保证每个线程持有一个实例。</li>
+</ul>
+</li>
+<li><p><strong>类、类属性、类方法的注释必须使用 Javadoc 规范</strong>，使用 <code>/**内容*/</code> 格式，不得使用 <code>//xxx</code> 方式</p>
+</li>
+<li><p>所有的<strong>抽象方法</strong>（包括接口中的方法）必须要用 Javadoc 注释，除了返回值、参数、异常说明外，还必须指出该方法做什么事情，实现什么功能。<strong>所有的类都必须添加创建者和创建日期</strong>。</p>
+</li>
+<li><p>对于暂时被注释掉，后续可能恢复使用的代码片断，在注释代码的上方，使用三个斜杠<code>///</code>来说明注释代码的理由</p>
+</li>
+<li><p>保证单元测试的<strong>独立性</strong>。为了保证单元测试稳定可靠且便于维护，单元测试之间<strong>不能互相调用</strong>，也<strong>不能依赖执行的先后顺序</strong>。</p>
+</li>
+<li><p>高并发服务器建议调小TCP协议的time_await超时时间，调大最大事件句柄数(fd)，</p>
+</li>
+</ol>
+<h2 id="1-1值得说明的点"><a href="#1-1值得说明的点" class="headerlink" title="1.1值得说明的点"></a>1.1值得说明的点</h2><p>一、不允许任何魔法值(<strong>未经预先定义的常量</strong>)直接出现在代码中</p>
+<p>例子：</p>
+<pre><code class="java">    Negative example:
+    //Magic values, except for predefined, are forbidden in coding.
+    if (key.equals(&quot;关注公众号：Java3y&quot;)) {
+        //...
+    }
+
+    Positive example:
+    String KEY_PRE = &quot;关注公众号：Java3y&quot;;
+    if (KEY_PRE.equals(key)) {
+        //...
+    }</code></pre>
+<p>ps:我猜是把先常量定义出来，后续引用/修改的时候就很方便了。</p> 
+      <a class="article-more-link" href="/2018/12/02/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%20Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F%20/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-java虚拟机之HotSpot垃圾收集器"
   class="article article-type-post"
   itemscope
@@ -916,83 +1060,6 @@ volatile只能保证被其修饰变量的内存可见性，但如果对该变量
 
 D CopyOnWriteArrayList适合读多写少的情况</code></pre> 
       <a class="article-more-link" href="/2018/09/09/%E9%9D%A2%E8%AF%95%E9%A2%98%E7%AD%94%E6%A1%88%E6%80%BB%E7%BB%93/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Java 泛型，你了解类型擦除吗？"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2018/09/08/Java%20%E6%B3%9B%E5%9E%8B%EF%BC%8C%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4%E5%90%97%EF%BC%9F/"
-    >Java 泛型，你了解类型擦除吗？</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2018/09/08/Java%20%E6%B3%9B%E5%9E%8B%EF%BC%8C%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4%E5%90%97%EF%BC%9F/" class="article-date">
-  <time datetime="2018-09-08T13:37:22.000Z" itemprop="datePublished">2018-09-08</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p>泛型，一个孤独的守门者。</p>
-<p>大家可能会有疑问，我为什么叫做泛型是一个守门者。这其实是我个人的看法而已，我的意思是说泛型没有其看起来那么深不可测，它并不神秘与神奇。泛型是 Java 中一个很小巧的概念，但同时也是一个很容易让人迷惑的知识点，它让人迷惑的地方在于它的许多表现有点违反直觉。</p>
-<p>文章开始的地方，先给大家奉上一道经典的测试题。</p>
-<pre><code class="java">List&lt;String&gt; l1 = new ArrayList&lt;String&gt;();
-List&lt;Integer&gt; l2 = new ArrayList&lt;Integer&gt;();
-
-System.out.println(l1.getClass() == l2.getClass());</code></pre>
-<p>请问，上面代码最终结果输出的是什么？不了解泛型的和很熟悉泛型的同学应该能够答出来，而对泛型有所了解，但是了解不深入的同学可能会答错。</p>
-<p>正确答案是 true。</p>
-<p>上面的代码中涉及到了泛型，而输出的结果缘由是<strong>类型擦除</strong>。先好好说说泛型。</p>
-<h1 id="泛型是什么？"><a href="#泛型是什么？" class="headerlink" title="泛型是什么？"></a>泛型是什么？</h1><p>泛型的英文是 generics，generic 的意思是通用,而翻译成中文，泛应该意为广泛，型是类型。所以泛型就是能广泛适用的类型。</p>
-<p><strong>但泛型还有一种较为准确的说法就是为了参数化类型，或者说可以将类型当作参数传递给一个类或者是方法。</strong></p>
-<p>那么，如何解释类型参数化呢？</p>
-<pre><code class="java">public class Cache {
-    Object value;
-
-    public Object getValue() {
-        return value;
-    }
-
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-}</code></pre>
-<p>假设 Cache 能够存取任何类型的值，于是，我们可以这样使用它。</p> 
-      <a class="article-more-link" href="/2018/09/08/Java%20%E6%B3%9B%E5%9E%8B%EF%BC%8C%E4%BD%A0%E4%BA%86%E8%A7%A3%E7%B1%BB%E5%9E%8B%E6%93%A6%E9%99%A4%E5%90%97%EF%BC%9F/"
         >阅读更多...</a
       >
        

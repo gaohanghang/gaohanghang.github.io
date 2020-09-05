@@ -99,6 +99,71 @@
     
     
     <article
+  id="post-迄今为止把同步-异步-阻塞-非阻塞-BIO-NIO-AIO讲的最清楚的好文章（建议收藏）"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/06/12/%E8%BF%84%E4%BB%8A%E4%B8%BA%E6%AD%A2%E6%8A%8A%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5-%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E-BIO-NIO-AIO%E8%AE%B2%E7%9A%84%E6%9C%80%E6%B8%85%E6%A5%9A%E7%9A%84%E5%A5%BD%E6%96%87%E7%AB%A0%EF%BC%88%E5%BB%BA%E8%AE%AE%E6%94%B6%E8%97%8F%EF%BC%89/"
+    >迄今为止把同步/异步/阻塞/非阻塞/BIO/NIO/AIO讲的最清楚的好文章（建议收藏）</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/12/%E8%BF%84%E4%BB%8A%E4%B8%BA%E6%AD%A2%E6%8A%8A%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5-%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E-BIO-NIO-AIO%E8%AE%B2%E7%9A%84%E6%9C%80%E6%B8%85%E6%A5%9A%E7%9A%84%E5%A5%BD%E6%96%87%E7%AB%A0%EF%BC%88%E5%BB%BA%E8%AE%AE%E6%94%B6%E8%97%8F%EF%BC%89/" class="article-date">
+  <time datetime="2019-06-12T12:05:06.000Z" itemprop="datePublished">2019-06-12</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址 <a href="https://juejin.im/post/5cff70c0f265da1ba56b14fd" target="_blank" rel="noopener">迄今为止把同步/异步/阻塞/非阻塞/BIO/NIO/AIO讲的最清楚的好文章（建议收藏）</a></p>
+</blockquote>
+<blockquote>
+<p>网上有很多讲同步/异步/阻塞/非阻塞/BIO/NIO/AIO的文章，但是都没有达到我的心里预期，于是自己写一篇出来。</p>
+</blockquote>
+<h4 id="常规的误区"><a href="#常规的误区" class="headerlink" title="常规的误区"></a>常规的误区</h4><p>假设有一个展示用户详情的需求，分两步，先调用一个HTTP接口拿到详情数据，然后使用适合的视图展示详情数据。</p>
+<p>如果网速很慢，代码发起一个HTTP请求后，就卡住不动了，直到十几秒后才拿到HTTP响应，然后继续往下执行。</p>
+<p>这个时候你问别人，刚刚代码发起的这个请求是不是一个同步请求，对方一定回答是。这是对的，它确实是。</p>
+<p>但你要问它为什么是呢？对方一定是这样回答的，<strong>“因为发起请求后，代码就卡住不动了，直到拿到响应后才可以继续往下执行”。</strong></p>
+<p>我相信很多人也都是这样认为的，其实这是不对的，是把因果关系搞反了： <strong>不是因为代码卡住不动了才叫同步请求，而是因为它是同步请求所以代码才卡住不动了</strong>。 至于为什么能卡住不动，这是由操作系统和CPU决定的： <strong>因为内核空间里的对应函数会卡住不动，造成用户空间发起的系统调用卡住不动，继而使程序里的用户代码卡住不动了</strong>。 因此卡住不动了只是同步请求的一个副作用，并不能用它来定义同步请求，那该如何定义呢？</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190612200647.png" alt=""></p>
+<h4 id="同步和异步"><a href="#同步和异步" class="headerlink" title="同步和异步"></a>同步和异步</h4><p>所谓同步，指的是协同步调。既然叫协同，所以至少要有2个以上的事物存在。协同的结果就是： <strong>多个事物不能同时进行，必须一个一个的来，上一个事物结束后，下一个事物才开始。 那当一个事物正在进行时，其它事物都在干嘛呢？</strong></p>
+<p>严格来讲这个并没有要求，但一般都是处于一种“等待”的状态，因为通常后面事物的正常进行都需要依赖前面事物的结果或前面事物正在使用的资源。 因此，可以认为，同步更希望关注的是从宏观整体来看，多个事物是一种逐个逐个的串行化关系，绝对不会出现交叉的情况。 所以，自然也不太会去关注某个瞬间某个具体事物是处于一个什么状态。</p> 
+      <a class="article-more-link" href="/2019/06/12/%E8%BF%84%E4%BB%8A%E4%B8%BA%E6%AD%A2%E6%8A%8A%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5-%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E-BIO-NIO-AIO%E8%AE%B2%E7%9A%84%E6%9C%80%E6%B8%85%E6%A5%9A%E7%9A%84%E5%A5%BD%E6%96%87%E7%AB%A0%EF%BC%88%E5%BB%BA%E8%AE%AE%E6%94%B6%E8%97%8F%EF%BC%89/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-PostgreSQL死锁进程及慢查询处理-原"
   class="article article-type-post"
   itemscope
@@ -1382,208 +1447,6 @@ private DemoInfoService demoInfoService;</code></pre>
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag">系统设计</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-IM表结构设计"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/06/05/IM%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/"
-    >IM表结构设计</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/06/05/IM%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="article-date">
-  <time datetime="2019-06-05T11:02:21.000Z" itemprop="datePublished">2019-06-05</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <pre><code>User(--用户表
-
-字段    字段类型    字段描述    备注
-U_ID    Int        主键、自增
-U_LoginID    Varchar（20）    (登陆账号)    
-U_NickName    Varchar（20）    (昵称)    
-U_PassWord    Varchar（20）    (密码)    
-U_SignaTure    Varchar（150）    (个性签名)    Null
-U_Sex    Bit    (性别)    Null
-U_Birthday    Datetime    (生日)    Null
-U_Telephone    Varchar（30）    (电话)    Null
-U_Name    Varchar（30）    (真实姓名)    Null
-U_Email    Varchar（50）    (邮箱)    Null
-U_Intro    Varchar（300）    (简介)    Null
-U_HeadPortrait     Varchar（100）    (头像)    
-U_ShengXiao    Char（2）    生肖    Null
-U_Age    Int    年龄    Null
-U_Constellation    Char(6)    星座    Null
-U_BloodType    Varchar（10）    血型    Null
-U_SchoolTag    Varchar（50）    毕业学校    Null
-U_Vocation    Varchar（30）    (职业)    Null
-U_NationID    Int    (国家ID)    外键
-U_ProvinceID    Int    （省份ID）    外键
-U_CityID    Int    （城市ID）    外键
-U_FriendshipPolicyID    Int    好友策略ID    外键
-U_UserStateID    Int    (用户状态ID)    外键
-U_FriendPolicyQuestion    Varchar(30)    好友策略问题    Null
-U_FriendPolicyAnswer    Varchar（30）    好友策略答案    Null
-U_FriendPolicyPassword    Varchar（30）    好友策略密码    Null
-)
-UserState(--用户状态表
-字段    字段类型    字段描述    备注
-US_ID    Int    (ID)    主键
-US _Name    Varchar（10）    (状态名字)    
-
-)
-
-
-Friends(--好友表
-字段    字段类型    字段描述    备注
-F_ID    Int    主键ID    主键
-F_FirendID    Int    朋友的ID    外键
-F_UserID    Int    自己的ID    外键
-F_Name    Varchar（30）    备注昵称    Null
-F_FriendTypeID    Int    (好友类型)    外键
-F_FriendGroupsID    Int    (所属分组ID)    外键
-
-) 
-User_FriendshipPolicy(--添加好友策略
-字段    字段类型    字段描述    备注
-U_FP_ID主键    Int    策略ID    主键
-U_FriendshipPolicy    varchar    好友添加方式    
-)
-FriendGroups(--好友分组表
-字段    字段类型    字段描述    备注
-FG_ID    Int    (分组ID)    主键
-FG_Name    Varchar    (分组名字)    
-FG_UserID    Int    用户ID    外键
-)
-FriendType (--好友类型
-字段    字段类型    字段描述    备注
-FT_ID    Int    （类型ID）    主键
-FT_Name    Varchar（20）    (类型名称)    
-)
-
-Messages(--聊天记录表
-字段    字段类型    字段描述    备注
-M_ID    Int    (消息ID)    主键，自增
-M_PostMessages    Text    (消息内容)    
-M_ status    Bit    (接收状态)    
-M_Time    Datetime    (发送时间)    默认值
-M_MessagesTypeID    Int    (消息类型ID)    外键
-M_ FromUserID     Int    (发送者ID)指向用户表    外键
-M_ToUserID     Int    (接收者ID)指向用户表    外键
-)
-
-MessagesType（--消息类型
-
-字段    字段类型    字段描述    备注
-MT_ID    Int    (类型ID)    主键
-MT_Name    Varchar（20）    类型名称    
-
-） 
-
-
-Nation (--国家
-字段    字段类型    字段描述    备注
-N_ID    Int    (国家ID)    主键
-N_Name    Varchar（30）    (名字)    
-)
-Province (--省份
-字段    字段类型    字段描述    备注
-P_ID    Int    （省份ID）    
-P_Name    Varchar（30）    (名字)    
-P_NationID    Int    所属国家ID    外键
-)
-
-City (--城市
-字段    字段类型    字段描述    备注
-C_ID    Int    （城市ID）    
-C_Name    Varchar（30）    (名字)    
-C_ProvinceID    Int    所属省份ID    外键
-)
-
-User_Groups(--用户群表
-字段    字段类型    字段描述    备注
-UG_ID    Int    群ID    主键
-UG_Name    Varchar（30）    群名称    
-UG_CreateTime    Datetime    创建时间    默认值
-UG_AdminID    Int    群主ID（指向用户表）    
-UG_ICon    Varchar（30）    群图标    
-UG_Notice    Varchar（200）    群公告    
-UG_Intro    Varchar（200）    群简介    
-）
-
-User_GroupsToUser(--群用户关联表
-字段    字段类型    字段描述    备注
-UG_ID    Int    ID    主键
-UG _UserID    Int    用户ID    外键
-UG _GroupID    Int    群ID    外键
-UG _CreateTime    Datetime    发送时间    Null
-UG _GroupNick    Varchar(15)    群内用户昵称    Null
-）
-
-
-
-User_GroupsMSGContent(--群消息内容表
-字段    字段类型    字段描述    备注
-GM _ID    Int    群消息ID    主键
-GM _Content    Text    消息内容    
-GM _FromID    Int    发送者ID    
-GM _FromUName    Varchar（30）    发送者昵称    
-GM _CreateTime    Datetime    发送时间    
-
-）
-User_GroupsMSGToUser(--群消息关联表
-字段    字段类型    字段描述    备注
-GM_ID    Int    ID    主键
-GM _UserID    Int    接收者ID    
-GM _GroupMessageID    Int    群消息ID    外键
-GM _State    Bit    接收状态    
-GM _CreateTime    Datetime    发送时间    
-
-）
-User_GroupsMSGUserToUser(--群内私聊消息关联表
-字段    字段类型    字段描述    备注
-GM _ID    Int    ID    主键
-GM _FromUserID    Int    发送者ID    
-GM _FromUserName    Varchar（30）    发送者昵称    
-GM _ToUserID    Int    接收者ID    
-GM _MSGContent    Varchar（300）    消息内容    
-GM _State    Bit    接收状态    
-GM _CreateTime    Datetime    发送时间    
-GM_ UserGroupID    Int    所属群ID    
-）</code></pre> 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/IM/" rel="tag">IM</a></li></ul>
 
     </footer>
   </div>

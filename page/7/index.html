@@ -99,6 +99,204 @@
     
     
     <article
+  id="post-java并发教程翻译"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/24/java%E5%B9%B6%E5%8F%91%E6%95%99%E7%A8%8B%E7%BF%BB%E8%AF%91/"
+    >java并发教程翻译</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/24/java%E5%B9%B6%E5%8F%91%E6%95%99%E7%A8%8B%E7%BF%BB%E8%AF%91/" class="article-date">
+  <time datetime="2019-11-24T02:49:02.000Z" itemprop="datePublished">2019-11-24</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a href="http://tutorials.jenkov.com/java-concurrency/index.html" target="_blank" rel="noopener">http://tutorials.jenkov.com/java-concurrency/index.html</a></p>
+<p>参考文章：</p>
+<p><a href="http://ifeve.com/java-concurrency-thread/" target="_blank" rel="noopener">并发译文</a></p>
+<p><a href="https://blog.csdn.net/JackLang/article/details/52294629" target="_blank" rel="noopener">https://blog.csdn.net/JackLang/article/details/52294629</a></p>
+<p><a href="https://www.codeboot.net/tutorials/java-concurrency/index/" target="_blank" rel="noopener">https://www.codeboot.net/tutorials/java-concurrency/index/</a></p>
+<p>该英文教程更新了，因此站在前人的肩膀上，斗胆进行舔砖加瓦。英文不是特别好，全靠 Google 翻译和前辈的博客 🤣</p>
+<p>译者：高行行</p>
+<p>该 java 并发教程汇总和修订地址：<a href="https://www.yuque.com/gaohanghang/og37t5/kqzsra" target="_blank" rel="noopener">https://www.yuque.com/gaohanghang/og37t5/kqzsra</a></p>
+</blockquote>
+<p>Java <em>并发</em> 是一个涵盖 Java 平台多线程，并发和并行的术语。其中包括 Java 并发工具、问题和解决方案。该 Java 并发教程涵盖了多线程的核心概念、并发构造·、并发问题、坏处以及与 Java 中多线程相关的好处。</p>
+<h1 id="1-Java-并发和多线程教程"><a href="#1-Java-并发和多线程教程" class="headerlink" title="1. Java 并发和多线程教程"></a>1. Java 并发和多线程教程</h1><blockquote>
+<p>小结：</p>
+<ol>
+<li><p>什么是多线程：一个程序同时执行多个任务</p>
+</li>
+<li><p>为什么要使用多线程：</p>
+<ul>
+<li>更好地利用单个 CPU。</li>
+<li>更好地利用多个 CPU 或 CPU 内核。</li>
+<li>通过响应性获得更好的用户体验。</li>
+<li>通过公平地共享计算机资源获得更好的用户体验。</li>
+</ul>
+</li>
+<li><p>多线程与多任务：多任务是指在同一刻运行多个程序的能力，多线程程序在较低的层次上扩展了多任务的概念：一个程序同时执行多个任务。通常， 每一个任务称为一个线程 （ thread ) , 它是线程控制的简称。–《java核心技术卷一》</p>
+</li>
+<li><p>多线程难点：控制线程访问共享资源</p>
+</li>
+</ol>
+</blockquote>
+<h2 id="1-1-什么是多线程？"><a href="#1-1-什么是多线程？" class="headerlink" title="1.1 什么是多线程？"></a>1.1 什么是多线程？</h2><p>多线程意味着你在同一应用程序中具有多个<em>执行线程</em>。一个线程就像执行应用程序的独立 CPU。因此，多线程应用程序就像具有多个 CPU 同时执行代码不同部分的应用程序。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004044.png" alt="在其中执行两个线程的应用程序"></p>
+<p>线程不等于 CPU。通常，单个 CPU 将在多个线程之间共享其执行时间，并在给定的时间量内在每个线程的执行之间进行切换。也可以让应用程序的线程由不同的 CPU 执行。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004101.png" alt="具有线程由不同线程执行的多个应用程序"></p>
+<h2 id="1-2-为什么要使用多线程？"><a href="#1-2-为什么要使用多线程？" class="headerlink" title="1.2 为什么要使用多线程？"></a>1.2 为什么要使用多线程？</h2><p>为什么要在应用程序中使用多线程有几个原因。使用多线程的一些最常见原因是：</p>
+<ul>
+<li>更好地利用单个 CPU。</li>
+<li>更好地利用多个 CPU 或 CPU 内核。</li>
+<li>通过响应性获得更好的用户体验。</li>
+<li>通过公平地共享计算机资源获得更好的用户体验。</li>
+</ul>
+<p>我将在以下各节中详细解释每个原因。</p>
+<h3 id="1-2-1-更好地利用单个-CPU"><a href="#1-2-1-更好地利用单个-CPU" class="headerlink" title="1.2.1 更好地利用单个 CPU"></a>1.2.1 更好地利用单个 CPU</h3><p>最常见的原因之一是能够更好地利用计算机中的资源。例如，如果一个线程正在等待通过网络请求的响应，则另一线程可以同时使用 CPU 来执行其他操作。此外，如果计算机具有多个 CPU，或者 CPU 具有多个执行核心，则多线程还可以帮助你的应用程序利用这些额外的 CPU 核心。</p>
+<h3 id="1-2-2-更好地利用多个-CPU-或-CPU-内核"><a href="#1-2-2-更好地利用多个-CPU-或-CPU-内核" class="headerlink" title="1.2.2 更好地利用多个 CPU 或 CPU 内核"></a>1.2.2 更好地利用多个 CPU 或 CPU 内核</h3><p>如果计算机包含多个 CPU 或 CPU 包含多个执行核心，则你需要为应用程序使用多个线程才能使用所有 CPU 或 CPU 核心。单个线程最多只能使用一个 CPU，如上所述，有时甚至不能完全利用单个 CPU。</p>
+<p>###1.2.3 通过响应性获得更好的用户体验</p>
+<p>使用多线程的另一个原因是为了提供更好的用户体验。例如，如果你单击 GUI 中的按钮，并导致通过网络发送请求，那么哪个线程执行此请求就很重要。如果使用的线程也正在更新 GUI，则在 GUI 线程等待请求响应时，用户可能会遇到 GUI“挂起”的情况。取而代之的是，这样的请求可以由后台线程执行，因此 GUI 线程可以自由地同时响应其他用户请求。</p>
+<h3 id="1-2-4-通过公平地共享计算机资源获得更好的用户体验"><a href="#1-2-4-通过公平地共享计算机资源获得更好的用户体验" class="headerlink" title="1.2.4 通过公平地共享计算机资源获得更好的用户体验"></a>1.2.4 通过公平地共享计算机资源获得更好的用户体验</h3><p>第四个原因是在用户之间更公平地共享计算机资源。例如，假设一台服务器接收来自客户端的请求，并且只有一个线程来执行这些请求。如果客户端发送的请求要花费很长时间才能处理，则所有其他客户端的请求都必须等待，直到一个请求完成。通过让每个客户端的请求由其自己的线程执行，则没有一个任务可以完全垄断 CPU。</p>
+<h2 id="1-3-多线程与多任务"><a href="#1-3-多线程与多任务" class="headerlink" title="1.3 多线程与多任务"></a>1.3 多线程与多任务</h2><p>过去，一台计算机只有一个 CPU，并且一次只能执行一个程序。大多数小型计算机的功能实际上不足以同时执行多个程序，因此没有尝试过。公平地讲，许多大型机系统能够一次执行多个程序的时间比个人计算机长得多。</p>
+<h3 id="1-3-1-多任务"><a href="#1-3-1-多任务" class="headerlink" title="1.3.1 多任务"></a>1.3.1 多任务</h3><p>后来出现了多任务处理，这意味着计算机可以同时执行多个程序（AKA 任务或进程）。但是，这并不是真正的“同时”。单个 CPU 在程序之间共享。操作系统将在运行的程序之间进行切换，并在切换之前执行每个程序一会儿。</p>
+<p>随着多任务处理，软件开发人员面临着新的挑战。程序不再假定拥有所有可用的 CPU 时间，也不拥有所有的内存或任何其他计算机资源。一个“好公民”程序应释放不再使用的所有资源，以便其他程序可以使用它们。</p>
+<h3 id="1-3-2-多线程"><a href="#1-3-2-多线程" class="headerlink" title="1.3.2 多线程"></a>1.3.2 多线程</h3><p>后来出现了多线程，这意味着你可以在同一程序中拥有多个执行线程。可以将执行线程视为执行程序的 CPU。当你有多个线程执行同一程序时，就像在同一程序中执行多个 CPU。</p>
+<h2 id="1-4-多线程很难"><a href="#1-4-多线程很难" class="headerlink" title="1.4 多线程很难"></a>1.4 多线程很难</h2><p>多线程是提高某些类型程序性能的好方法。但是，多线程处理比多任务处理更具挑战性。这些线程在同一程序中执行，因此同时在读取和写入相同的内存。这可能会导致在单线程程序中看不到的错误。在单个 CPU 机器上可能看不到其中一些错误，因为两个线程从未真正“同时”执行。但是，现代计算机配备了多核 CPU，甚至还配备了多个 CPU。这意味着可以由单独的内核或 CPU 同时执行单独的线程。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004203.png" alt="多CPU计算机上的多线程"></p>
+<p>如果一个线程在另一个线程写入内存时读取了一个内存，那么第一个线程最终将读取什么值？旧值？第二个线程写的值？还是两者之间混合的值？或者，如果两个线程正在同时写入同一内存位置，那么完成后将剩下什么值？由第一个线程写的值？第二个线程写的值？还是两个值的混合写入？</p>
+<p>没有适当的预防措施，任何这些结果都是可能的。该行为甚至是不可预测的。结果可能会不时改变。因此，作为开发人员，重要的是要知道如何采取正确的预防措施-意味着要学习如何控制线程访问共享资源（如内存，文件，数据库等）。这是本 Java 并发教程所要解决的主题之一。</p>
+<h2 id="1-5-Java-中的多线程和并发"><a href="#1-5-Java-中的多线程和并发" class="headerlink" title="1.5 Java 中的多线程和并发"></a>1.5 Java 中的多线程和并发</h2><p>Java 是最早让开发人员可以使用多线程的语言之一。Java 从一开始就具有多线程功能。因此，Java 开发人员经常会遇到上述问题。这就是我在 Java 并发上编写此线索的原因。谨此提醒自己，以及提醒可能从中受益的其他 Java 开发人员。</p>
+<p>本教程主要关注 Java 中的多线程，但是多线程中发生的某些问题类似于多任务和分布式系统中发生的问题。因此，对多任务和分布式系统的引用也可能出现在此线索中。所以叫法上称为“并发”，而不是“多线程”。</p>
+<h2 id="1-6-并发模型"><a href="#1-6-并发模型" class="headerlink" title="1.6 并发模型"></a>1.6 并发模型</h2><p>第一个 Java <em>并发模型</em>假定在同一应用程序中执行的多个线程也将共享对象。这种类型的并发模型通常称为“共享状态并发模型”。许多并发语言构造和实用程序都旨在支持此并发模型。</p>
+<p>但是，自从编写第一本 Java 并发书籍以来，甚至自 Java 5 并发实用工具发布以来，并发体系结构和设计领域已经发生了很多事情。</p>
+<p>共享状态并发模型导致许多并发问题，这些问题很难优雅地解决。因此，被称为“无共享”或“分离状态”的替代并发模型已经普及。在单独的状态并发模型中，线程不共享任何对象或数据。这避免了共享状态并发模型的许多并发访问问题。</p>
+<p>出现了新的异步“独立状态”平台和工具包，例如 Netty，Vert.x 和 Play / Akka 和 Qbit。新的非阻塞并发算法已经发布，并且新的非阻塞工具（例如 LMax Disrupter）已添加到我们的工具箱中。Java 7 中的 Fork and Join 框架和 Java 8 中的 collection stream API 引入了新的函数式编程并行性。</p>
+<p>随着所有这些新的发展，现在是时候更新本 Java 并发教程了。因此，本教程再次<strong>进行中</strong>。只要有时间编写新教程，教程就会被发布。</p>
+<h2 id="1-7-Java-并发学习指南"><a href="#1-7-Java-并发学习指南" class="headerlink" title="1.7 Java 并发学习指南"></a>1.7 Java 并发学习指南</h2><p>如果你不熟悉 Java 并发，建议你遵循以下学习计划。你也可以在此页面左侧的菜单中找到所有主题的链接。</p>
+<p>通用并发和多线程理论：</p>
+<ul>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html" target="_blank" rel="noopener" title="多线程的好处">多线程的好处</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/costs.html" target="_blank" rel="noopener">多线程代价</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/concurrency-models.html" target="_blank" rel="noopener" title="并发模型">并发模型</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/same-threading.html" target="_blank" rel="noopener">相同线程</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/concurrency-vs-parallelism.html" target="_blank" rel="noopener" title="并发与并行">并发与并行</a></li>
+</ul>
+<p>Java 并发基础知识：</p>
+<ul>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/creating-and-starting-threads.html" target="_blank" rel="noopener" title="创建和启动Java线程">创建和启动 Java 线程</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/race-conditions-and-critical-sections.html" target="_blank" rel="noopener" title="竞态条件与临界区">竞态条件与临界区</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/thread-safety.html" target="_blank" rel="noopener" title="线程安全和共享资源">线程安全和共享资源</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/thread-safety-and-immutability.html" target="_blank" rel="noopener" title="线程安全和不变性">线程安全和不变性</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/java-memory-model.html" target="_blank" rel="noopener" title="Java内存模型">Java 内存模型</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/synchronized.html" target="_blank" rel="noopener" title="Java同步块">Java 同步块</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/volatile.html" target="_blank" rel="noopener" title="Java volatile关键字">Java volatile关键字</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/threadlocal.html" target="_blank" rel="noopener" title="Java ThreadLocal">Java ThreadLocal</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/thread-signaling.html" target="_blank" rel="noopener" title="Java线程信令">Java 线程信令</a></li>
+</ul>
+<p>Java 并发的典型问题：</p>
+<ul>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/deadlock.html" target="_blank" rel="noopener" title="死锁">死锁</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/deadlock-prevention.html" target="_blank" rel="noopener" title="防止死锁">防止死锁</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/starvation-and-fairness.html" target="_blank" rel="noopener" title="饥饿与公平">饥饿与公平</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/nested-monitor-lockout.html" target="_blank" rel="noopener">嵌套管程锁死</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/slipped-conditions.html" target="_blank" rel="noopener" title="Slipped Conditions">Slipped Conditions</a></li>
+</ul>
+<p>Java 并发构造可帮助解决上述问题：</p>
+<ul>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/locks.html" target="_blank" rel="noopener" title="Java锁">Java 中的锁</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/read-write-locks.html" target="_blank" rel="noopener" title="Java中的读/写锁">Java 中的读/写锁</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/reentrance-lockout.html" target="_blank" rel="noopener" title="重入锁死">重入锁死</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/semaphores.html" target="_blank" rel="noopener">信号量</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/blocking-queues.html" target="_blank" rel="noopener" title="阻塞队列">阻塞队列</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/thread-pools.html" target="_blank" rel="noopener" title="线程池">线程池</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/compare-and-swap.html" target="_blank" rel="noopener">CAS</a></li>
+</ul>
+<p>进一步的主题：</p>
+<ul>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/anatomy-of-a-synchronizer.html" target="_blank" rel="noopener" title="同步器的解剖">剖析同步器</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/non-blocking-algorithms.html" target="_blank" rel="noopener" title="非阻塞算法">非阻塞算法</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/amdahls-law.html" target="_blank" rel="noopener" title="阿姆达尔定律">阿姆达尔定律</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/references.html" target="_blank" rel="noopener" title="参考文献">参考文献</a></li>
+</ul>
+<h1 id="2-多线程的好处"><a href="#2-多线程的好处" class="headerlink" title="2. 多线程的好处"></a>2. 多线程的好处</h1><ul>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html#better-cpu-utilization" target="_blank" rel="noopener">更好的CPU使用率</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html#simpler-program-design" target="_blank" rel="noopener">程序设计更简单</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html#more-responsive-programs" target="_blank" rel="noopener">更多响应程序</a></li>
+<li><a href="http://tutorials.jenkov.com/java-concurrency/benefits.html#more-fair-distribution-of-cpu-resources" target="_blank" rel="noopener">更公平地分配CPU资源</a></li>
+</ul>
+<p>多线程的最大好处是：</p>
+<ul>
+<li>更高的CPU利用率。</li>
+<li>在某些情况下，程序设计更简单。</li>
+<li>响应速度更快的程序。</li>
+<li>在不同任务之间更公平地分配CPU资源。</li>
+</ul>
+<h2 id="2-1-更好的CPU使用率"><a href="#2-1-更好的CPU使用率" class="headerlink" title="2.1 更好的CPU使用率"></a>2.1 更好的CPU使用率</h2><p>想象一个应用程序从本地文件系统读取和处理文件。假设从磁盘读取af文件需要5秒钟，而处理则需要2秒钟。然后处理两个文件</p>
+<pre><code>  5秒钟读取文件A
+  2秒处理文件A
+  5秒钟读取文件B
+  2秒处理文件B
+-----------------------
+ 总共14秒</code></pre><p>从磁盘读取文件时，大部分的CPU时间都花在等待磁盘读取数据上。在这段时间内，CPU几乎处于空闲状态。它可能正在做其他事情。通过更改操作顺序，可以更好地利用CPU。查看以下顺序：</p>
+<pre><code>  5秒钟读取文件A
+  5秒读取文件B + 2秒处理文件A
+  2秒处理文件B
+-----------------------
+ 总共12秒</code></pre><p>CPU等待读取第一个文件。然后，它开始读取第二个文件。当计算机的IO组件读取第二个文件时，CPU处理第一个文件。请记住，在等待从磁盘读取文件时，CPU大部分处于空闲状态。</p>
+<p>通常，CPU在等待IO时可以做其他事情。不必是磁盘IO。它也可以是网络IO，也可以是来自计算机用户的输入。网络和磁盘IO通常比CPU和内存IO慢很多。</p>
+<h2 id="2-2-程序设计更简单"><a href="#2-2-程序设计更简单" class="headerlink" title="2.2 程序设计更简单"></a>2.2 程序设计更简单</h2><p>如果要在单线程应用程序中手动编写上述读取和处理的顺序，则必须跟踪每个文件的读取和处理状态。相反，您可以启动两个线程，每个线程仅读取和处理一个文件。这些等待线程将在等待磁盘读取其文件时被阻止。在等待时，其他线程可以使用CPU处理已读取的文件部分。结果是磁盘始终保持忙碌状态，将各种文件读入内存。这样可以更好地利用磁盘和CPU。编程也更容易，因为每个线程只需要跟踪一个文件即可。</p>
+<h2 id="2-3-更多响应程序"><a href="#2-3-更多响应程序" class="headerlink" title="2.3 更多响应程序"></a>2.3 更多响应程序</h2><p>将单线程应用程序转换为多线程应用程序的另一个共同目标是实现响应速度更快的应用程序。想象一个服务器应用程序在某个端口上侦听传入的请求。收到请求后，它将处理该请求，然后返回监听。服务器循环如下所示：</p>
+<pre class=" language-java"><code class="language-java"> <span class="token keyword">while</span><span class="token punctuation">(</span>服务器处于活动状态<span class="token punctuation">)</span><span class="token punctuation">{</span>
+       监听请求
+    流程请求
+ <span class="token punctuation">}</span></code></pre>
+<p>如果请求需要很长时间才能处理，则在这段时间内没有新客户端可以向服务器发送请求。只有在服务器正在侦听时，才能接收请求。</p>
+<p>另一种设计是侦听线程将请求传递给工作线程，然后立即返回侦听。工作线程将处理该请求，并将回复发送给客户端。该设计概述如下：</p>
+<pre class=" language-java"><code class="language-java">    <span class="token keyword">while</span><span class="token punctuation">(</span>服务器处于活动状态<span class="token punctuation">)</span> <span class="token punctuation">{</span> 
+    监听对
+    工作线程的请求请求
+  <span class="token punctuation">}</span></code></pre>
+<p>这样，服务器线程将尽快恢复监听。因此，更多的客户端可以将请求发送到服务器。服务器变得更加敏感。</p>
+<p>桌面应用程序也是如此。如果单击启动长任务的按钮，并且执行任务的线程是更新窗口，按钮等的线程，则任务执行时应用程序将显示为无响应。而是可以将任务移交给工作线程。当工作线程忙于任务时，窗口线程可以自由响应其他用户请求。当工作线程完成时，它向窗口线程发出信号。然后，窗口线程可以使用任务结果更新应用程序窗口。具有工作线程设计的程序将对用户响应更快。</p>
+<h2 id="2-4-更公平地分配CPU资源"><a href="#2-4-更公平地分配CPU资源" class="headerlink" title="2.4 更公平地分配CPU资源"></a>2.4 更公平地分配CPU资源</h2><p>假设有一个服务器正在接收来自客户端的请求。然后想象一下，其中一个客户端发送了一个处理时间很长的请求，例如10秒。如果服务器使用单个线程处理了所有任务，则处理缓慢的请求之后的所有请求将被迫等待，直到处理完整个请求为止。</p>
+<p>通过在多个线程之间划分CPU时间并在线程之间进行切换，CPU可以在多个请求之间更公平地共享其执行时间。这样，即使其中一个请求较慢，也可以与较慢的请求同时执行处理速度更快的其他请求。当然，这意味着执行慢速请求的速度甚至会更慢，因为它不会仅将CPU分配给处理它。但是，其他请求将不得不等待更短的时间来处理，因为它们不必等待缓慢的任务完成才可以处理它们。如果只有慢请求要处理，则仍可以将CPU单独分配给慢任务。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-思考-11-不断update"
   class="article article-type-post"
   itemscope
@@ -1144,272 +1342,6 @@ Share：分享一篇有观点和思考的技术文章。主要为了输出你的
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TED/" rel="tag">TED</a></li></ul>
 
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Spring-Boot-中实现定时任务的两种方式"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/11/16/Spring-Boot-%E4%B8%AD%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/"
-    >Spring Boot 中实现定时任务的两种方式</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/11/16/Spring-Boot-%E4%B8%AD%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/" class="article-date">
-  <time datetime="2019-11-16T11:02:59.000Z" itemprop="datePublished">2019-11-16</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址：<a href="https://www.javaboy.org/2019/0418/springboot-schedule-task.html" target="_blank" rel="noopener">https://www.javaboy.org/2019/0418/springboot-schedule-task.html</a></p>
-</blockquote>
-<p>在 Spring + SpringMVC 环境中，一般来说，要实现定时任务，我们有两种方案，一种是使用 Spring 自带的定时任务处理器 @Scheduled 注解，另一种就是使用第三方框架 Quartz ，Spring Boot 源自 Spring+SpringMVC ，因此天然具备这两个 Spring 中的定时任务实现策略，当然也支持 Quartz，本文我们就来看下 Spring Boot 中两种定时任务的实现方式。</p>
-<h2 id="1-Scheduled"><a href="#1-Scheduled" class="headerlink" title="1. @Scheduled"></a>1. @Scheduled</h2><p>使用 @Scheduled 非常容易，直接创建一个 Spring Boot 项目，并且添加 web 依赖 <code>spring-boot-starter-web</code>，项目创建成功后，添加 <code>@EnableScheduling</code> 注解，开启定时任务：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
-<span class="token annotation punctuation">@EnableScheduling</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ScheduledApplication</span> <span class="token punctuation">{</span>
-
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>ScheduledApplication<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-
-<span class="token punctuation">}</span></code></pre>
-<p>接下来配置定时任务：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Scheduled</span><span class="token punctuation">(</span>fixedRate <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">fixedRate</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"fixedRate>>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    
-<span class="token punctuation">}</span>
-<span class="token annotation punctuation">@Scheduled</span><span class="token punctuation">(</span>fixedDelay <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">fixedDelay</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"fixedDelay>>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span class="token annotation punctuation">@Scheduled</span><span class="token punctuation">(</span>initialDelay <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">,</span>fixedDelay <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">initialDelay</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"initialDelay>>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<ol>
-<li>首先使用 @Scheduled 注解开启一个定时任务。</li>
-<li>fixedRate 表示任务执行之间的时间间隔，具体是指两次任务的开始时间间隔，即第二次任务开始时，第一次任务可能还没结束。</li>
-<li>fixedDelay 表示任务执行之间的时间间隔，具体是指本次任务结束到下次任务开始之间的时间间隔。</li>
-<li>initialDelay 表示首次任务启动的延迟时间。</li>
-<li>所有时间的单位都是毫秒。</li>
-</ol>
-<p>上面这是一个基本用法，除了这几个基本属性之外，@Scheduled 注解也支持 cron 表达式，使用 cron 表达式，可以非常丰富的描述定时任务的时间。cron 表达式格式如下：</p>
-<blockquote>
-<p>[秒] [分] [小时] [日] [月] [周] [年]</p>
-</blockquote>
-<p>具体取值如下：</p>
-<table>
-<thead>
-<tr>
-<th align="left">序号</th>
-<th align="left">说明</th>
-<th align="left">是否必填</th>
-<th align="left">允许填写的值</th>
-<th align="left">允许的通配符</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">1</td>
-<td align="left">秒</td>
-<td align="left">是</td>
-<td align="left">0-59</td>
-<td align="left">- * /</td>
-</tr>
-<tr>
-<td align="left">2</td>
-<td align="left">分</td>
-<td align="left">是</td>
-<td align="left">0-59</td>
-<td align="left">- * /</td>
-</tr>
-<tr>
-<td align="left">3</td>
-<td align="left">时</td>
-<td align="left">是</td>
-<td align="left">0-23</td>
-<td align="left">- * /</td>
-</tr>
-<tr>
-<td align="left">4</td>
-<td align="left">日</td>
-<td align="left">是</td>
-<td align="left">1-31</td>
-<td align="left">- * ? / L W</td>
-</tr>
-<tr>
-<td align="left">5</td>
-<td align="left">月</td>
-<td align="left">是</td>
-<td align="left">1-12 or JAN-DEC</td>
-<td align="left">- * /</td>
-</tr>
-<tr>
-<td align="left">6</td>
-<td align="left">周</td>
-<td align="left">是</td>
-<td align="left">1-7 or SUN-SAT</td>
-<td align="left">- * ? / L #</td>
-</tr>
-<tr>
-<td align="left">7</td>
-<td align="left">年</td>
-<td align="left">否</td>
-<td align="left">1970-2099</td>
-<td align="left">- * /</td>
-</tr>
-</tbody></table>
-<p><strong>这一块需要大家注意的是，月份中的日期和星期可能会起冲突，因此在配置时这两个得有一个是 <code>?</code></strong></p>
-<p><strong>通配符含义：</strong></p>
-<ul>
-<li><code>?</code> 表示不指定值，即不关心某个字段的取值时使用。需要注意的是，月份中的日期和星期可能会起冲突，因此在配置时这两个得有一个是 <code>?</code></li>
-<li><code>*</code> 表示所有值，例如:在秒的字段上设置 <code>*</code>,表示每一秒都会触发</li>
-<li><code>,</code> 用来分开多个值，例如在周字段上设置 “MON,WED,FRI” 表示周一，周三和周五触发</li>
-<li><code>-</code> 表示区间，例如在秒上设置 “10-12”,表示 10,11,12秒都会触发</li>
-<li><code>/</code> 用于递增触发，如在秒上面设置”5/15” 表示从5秒开始，每增15秒触发(5,20,35,50)</li>
-<li><code>#</code> 序号(表示每月的第几个周几)，例如在周字段上设置”6#3”表示在每月的第三个周六，(用 在母亲节和父亲节再合适不过了)</li>
-<li>周字段的设置，若使用英文字母是不区分大小写的 ，即 MON 与mon相同</li>
-<li><code>L</code> 表示最后的意思。在日字段设置上，表示当月的最后一天(依据当前月份，如果是二月还会自动判断是否是润年), 在周字段上表示星期六，相当于”7”或”SAT”（注意周日算是第一天）。如果在”L”前加上数字，则表示该数据的最后一个。例如在周字段上设置”6L”这样的格式,则表示”本月最后一个星期五”</li>
-<li><code>W</code> 表示离指定日期的最近工作日(周一至周五)，例如在日字段上设置”15W”，表示离每月15号最近的那个工作日触发。如果15号正好是周六，则找最近的周五(14号)触发, 如果15号是周未，则找最近的下周一(16号)触发，如果15号正好在工作日(周一至周五)，则就在该天触发。如果指定格式为 “1W”,它则表示每月1号往后最近的工作日触发。如果1号正是周六，则将在3号下周一触发。(注，”W”前只能设置具体的数字,不允许区间”-“)</li>
-<li><code>L</code> 和 <code>W</code> 可以一组合使用。如果在日字段上设置”LW”,则表示在本月的最后一个工作日触发(一般指发工资 )</li>
-</ul>
-<p>例如，在 @Scheduled 注解中来一个简单的 cron 表达式，每隔5秒触发一次，如下：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Scheduled</span><span class="token punctuation">(</span>cron <span class="token operator">=</span> <span class="token string">"0/5 * * * * *"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">cron</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p>上面介绍的是使用 @Scheduled 注解的方式来实现定时任务，接下来我们再来看看如何使用 Quartz 实现定时任务。</p>
-<h2 id="2-Quartz"><a href="#2-Quartz" class="headerlink" title="2. Quartz"></a>2. Quartz</h2><p>一般在项目中，除非定时任务涉及到的业务实在是太简单，使用 @Scheduled 注解来解决定时任务，否则大部分情况可能都是使用 Quartz 来做定时任务。在 Spring Boot 中使用 Quartz ，只需要在创建项目时，添加 Quartz 依赖即可：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/GvtDGKK4uYn4fichjPO6vdG7bdPv1m66BsxlrVP5ibahjnP7CBgmB7U7f63uKAoMbUOXba3hyw4JE4VsK0HNQcDQ/640?wx_fmt=png" alt=""></p>
-<p>项目创建完成后，也需要添加开启定时任务的注解：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
-<span class="token annotation punctuation">@EnableScheduling</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">QuartzApplication</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>QuartzApplication<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>Quartz 在使用过程中，有两个关键概念，一个是JobDetail（要做的事情），另一个是触发器（什么时候做），要定义 JobDetail，需要先定义 Job，Job 的定义有两种方式：</p>
-<p>第一种方式，直接定义一个Bean：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Component</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyJob1</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">sayHello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyJob1>>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>关于这种定义方式说两点：</p>
-<ol>
-<li>首先将这个 Job 注册到 Spring 容器中。</li>
-<li>这种定义方式有一个缺陷，就是无法传参。</li>
-</ol>
-<p>第二种定义方式，则是继承 QuartzJobBean 并实现默认的方法：</p>
-<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyJob2</span> <span class="token keyword">extends</span> <span class="token class-name">QuartzJobBean</span> <span class="token punctuation">{</span>
-    HelloService helloService<span class="token punctuation">;</span>
-    <span class="token keyword">public</span> HelloService <span class="token function">getHelloService</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> helloService<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setHelloService</span><span class="token punctuation">(</span>HelloService helloService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>helloService <span class="token operator">=</span> helloService<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">executeInternal</span><span class="token punctuation">(</span>JobExecutionContext jobExecutionContext<span class="token punctuation">)</span> <span class="token keyword">throws</span> JobExecutionException <span class="token punctuation">{</span>
-        helloService<span class="token punctuation">.</span><span class="token function">sayHello</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HelloService</span> <span class="token punctuation">{</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">sayHello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello service >>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>和第1种方式相比，这种方式支持传参，任务启动时，executeInternal 方法将会被执行。</p>
-<p>Job 有了之后，接下来创建类，配置 JobDetail 和 Trigger 触发器，如下：</p>
-<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">QuartzConfig</span> <span class="token punctuation">{</span>
-    <span class="token annotation punctuation">@Bean</span>
-    MethodInvokingJobDetailFactoryBean <span class="token function">methodInvokingJobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        MethodInvokingJobDetailFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MethodInvokingJobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setTargetBeanName</span><span class="token punctuation">(</span><span class="token string">"myJob1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setTargetMethod</span><span class="token punctuation">(</span><span class="token string">"sayHello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token annotation punctuation">@Bean</span>
-    JobDetailFactoryBean <span class="token function">jobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        JobDetailFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setJobClass</span><span class="token punctuation">(</span>MyJob2<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        JobDataMap map <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JobDataMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        map<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"helloService"</span><span class="token punctuation">,</span> <span class="token function">helloService</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setJobDataMap</span><span class="token punctuation">(</span>map<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token annotation punctuation">@Bean</span>
-    SimpleTriggerFactoryBean <span class="token function">simpleTriggerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        SimpleTriggerFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SimpleTriggerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setStartTime</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setRepeatCount</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setJobDetail</span><span class="token punctuation">(</span><span class="token function">methodInvokingJobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setRepeatInterval</span><span class="token punctuation">(</span><span class="token number">3000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token annotation punctuation">@Bean</span>
-    CronTriggerFactoryBean <span class="token function">cronTrigger</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        CronTriggerFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">CronTriggerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setCronExpression</span><span class="token punctuation">(</span><span class="token string">"0/10 * * * * ?"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setJobDetail</span><span class="token punctuation">(</span><span class="token function">jobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token annotation punctuation">@Bean</span>
-    SchedulerFactoryBean <span class="token function">schedulerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        SchedulerFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SchedulerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        bean<span class="token punctuation">.</span><span class="token function">setTriggers</span><span class="token punctuation">(</span><span class="token function">cronTrigger</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">simpleTriggerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-    <span class="token annotation punctuation">@Bean</span>
-    HelloService <span class="token function">helloService</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">HelloService</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
-<span class="token punctuation">}</span></code></pre>
-<p>关于这个配置说如下几点：</p>
-<ol>
-<li>JobDetail 的配置有两种方式：MethodInvokingJobDetailFactoryBean 和 JobDetailFactoryBean 。</li>
-<li>使用 MethodInvokingJobDetailFactoryBean 可以配置目标 Bean 的名字和目标方法的名字，这种方式不支持传参。</li>
-<li>使用 JobDetailFactoryBean 可以配置 JobDetail ，任务类继承自 QuartzJobBean ，这种方式支持传参，将参数封装在 JobDataMap 中进行传递。</li>
-<li>Trigger 是指触发器，Quartz 中定义了多个触发器，这里向大家展示其中两种的用法，SimpleTrigger 和 CronTrigger 。</li>
-<li>SimpleTrigger 有点类似于前面说的 @Scheduled 的基本用法。</li>
-<li>CronTrigger 则有点类似于 @Scheduled 中 cron 表达式的用法。</li>
-</ol>
-<p><img src="https://www.javaboy.org/images/boot/6-2.png" alt=""></p>
-<p>全部定义完成后，启动 Spring Boot 项目就可以看到定时任务的执行了。</p>
-<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>这里主要向大家展示了 Spring Boot 中整合两种定时任务的方法，整合成功之后，剩下的用法基本上就和在 SSM 中使用一致了，不再赘述。</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
     </footer>
   </div>
 

@@ -99,6 +99,272 @@
     
     
     <article
+  id="post-Spring-Boot-中实现定时任务的两种方式"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/16/Spring-Boot-%E4%B8%AD%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/"
+    >Spring Boot 中实现定时任务的两种方式</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/16/Spring-Boot-%E4%B8%AD%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/" class="article-date">
+  <time datetime="2019-11-16T11:02:59.000Z" itemprop="datePublished">2019-11-16</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a href="https://www.javaboy.org/2019/0418/springboot-schedule-task.html" target="_blank" rel="noopener">https://www.javaboy.org/2019/0418/springboot-schedule-task.html</a></p>
+</blockquote>
+<p>在 Spring + SpringMVC 环境中，一般来说，要实现定时任务，我们有两种方案，一种是使用 Spring 自带的定时任务处理器 @Scheduled 注解，另一种就是使用第三方框架 Quartz ，Spring Boot 源自 Spring+SpringMVC ，因此天然具备这两个 Spring 中的定时任务实现策略，当然也支持 Quartz，本文我们就来看下 Spring Boot 中两种定时任务的实现方式。</p>
+<h2 id="1-Scheduled"><a href="#1-Scheduled" class="headerlink" title="1. @Scheduled"></a>1. @Scheduled</h2><p>使用 @Scheduled 非常容易，直接创建一个 Spring Boot 项目，并且添加 web 依赖 <code>spring-boot-starter-web</code>，项目创建成功后，添加 <code>@EnableScheduling</code> 注解，开启定时任务：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
+<span class="token annotation punctuation">@EnableScheduling</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ScheduledApplication</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>ScheduledApplication<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span></code></pre>
+<p>接下来配置定时任务：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Scheduled</span><span class="token punctuation">(</span>fixedRate <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">fixedRate</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"fixedRate>>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    
+<span class="token punctuation">}</span>
+<span class="token annotation punctuation">@Scheduled</span><span class="token punctuation">(</span>fixedDelay <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">fixedDelay</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"fixedDelay>>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token annotation punctuation">@Scheduled</span><span class="token punctuation">(</span>initialDelay <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">,</span>fixedDelay <span class="token operator">=</span> <span class="token number">2000</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">initialDelay</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"initialDelay>>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<ol>
+<li>首先使用 @Scheduled 注解开启一个定时任务。</li>
+<li>fixedRate 表示任务执行之间的时间间隔，具体是指两次任务的开始时间间隔，即第二次任务开始时，第一次任务可能还没结束。</li>
+<li>fixedDelay 表示任务执行之间的时间间隔，具体是指本次任务结束到下次任务开始之间的时间间隔。</li>
+<li>initialDelay 表示首次任务启动的延迟时间。</li>
+<li>所有时间的单位都是毫秒。</li>
+</ol>
+<p>上面这是一个基本用法，除了这几个基本属性之外，@Scheduled 注解也支持 cron 表达式，使用 cron 表达式，可以非常丰富的描述定时任务的时间。cron 表达式格式如下：</p>
+<blockquote>
+<p>[秒] [分] [小时] [日] [月] [周] [年]</p>
+</blockquote>
+<p>具体取值如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">序号</th>
+<th align="left">说明</th>
+<th align="left">是否必填</th>
+<th align="left">允许填写的值</th>
+<th align="left">允许的通配符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1</td>
+<td align="left">秒</td>
+<td align="left">是</td>
+<td align="left">0-59</td>
+<td align="left">- * /</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">分</td>
+<td align="left">是</td>
+<td align="left">0-59</td>
+<td align="left">- * /</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">时</td>
+<td align="left">是</td>
+<td align="left">0-23</td>
+<td align="left">- * /</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">日</td>
+<td align="left">是</td>
+<td align="left">1-31</td>
+<td align="left">- * ? / L W</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">月</td>
+<td align="left">是</td>
+<td align="left">1-12 or JAN-DEC</td>
+<td align="left">- * /</td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="left">周</td>
+<td align="left">是</td>
+<td align="left">1-7 or SUN-SAT</td>
+<td align="left">- * ? / L #</td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="left">年</td>
+<td align="left">否</td>
+<td align="left">1970-2099</td>
+<td align="left">- * /</td>
+</tr>
+</tbody></table>
+<p><strong>这一块需要大家注意的是，月份中的日期和星期可能会起冲突，因此在配置时这两个得有一个是 <code>?</code></strong></p>
+<p><strong>通配符含义：</strong></p>
+<ul>
+<li><code>?</code> 表示不指定值，即不关心某个字段的取值时使用。需要注意的是，月份中的日期和星期可能会起冲突，因此在配置时这两个得有一个是 <code>?</code></li>
+<li><code>*</code> 表示所有值，例如:在秒的字段上设置 <code>*</code>,表示每一秒都会触发</li>
+<li><code>,</code> 用来分开多个值，例如在周字段上设置 “MON,WED,FRI” 表示周一，周三和周五触发</li>
+<li><code>-</code> 表示区间，例如在秒上设置 “10-12”,表示 10,11,12秒都会触发</li>
+<li><code>/</code> 用于递增触发，如在秒上面设置”5/15” 表示从5秒开始，每增15秒触发(5,20,35,50)</li>
+<li><code>#</code> 序号(表示每月的第几个周几)，例如在周字段上设置”6#3”表示在每月的第三个周六，(用 在母亲节和父亲节再合适不过了)</li>
+<li>周字段的设置，若使用英文字母是不区分大小写的 ，即 MON 与mon相同</li>
+<li><code>L</code> 表示最后的意思。在日字段设置上，表示当月的最后一天(依据当前月份，如果是二月还会自动判断是否是润年), 在周字段上表示星期六，相当于”7”或”SAT”（注意周日算是第一天）。如果在”L”前加上数字，则表示该数据的最后一个。例如在周字段上设置”6L”这样的格式,则表示”本月最后一个星期五”</li>
+<li><code>W</code> 表示离指定日期的最近工作日(周一至周五)，例如在日字段上设置”15W”，表示离每月15号最近的那个工作日触发。如果15号正好是周六，则找最近的周五(14号)触发, 如果15号是周未，则找最近的下周一(16号)触发，如果15号正好在工作日(周一至周五)，则就在该天触发。如果指定格式为 “1W”,它则表示每月1号往后最近的工作日触发。如果1号正是周六，则将在3号下周一触发。(注，”W”前只能设置具体的数字,不允许区间”-“)</li>
+<li><code>L</code> 和 <code>W</code> 可以一组合使用。如果在日字段上设置”LW”,则表示在本月的最后一个工作日触发(一般指发工资 )</li>
+</ul>
+<p>例如，在 @Scheduled 注解中来一个简单的 cron 表达式，每隔5秒触发一次，如下：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Scheduled</span><span class="token punctuation">(</span>cron <span class="token operator">=</span> <span class="token string">"0/5 * * * * *"</span><span class="token punctuation">)</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">cron</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<p>上面介绍的是使用 @Scheduled 注解的方式来实现定时任务，接下来我们再来看看如何使用 Quartz 实现定时任务。</p>
+<h2 id="2-Quartz"><a href="#2-Quartz" class="headerlink" title="2. Quartz"></a>2. Quartz</h2><p>一般在项目中，除非定时任务涉及到的业务实在是太简单，使用 @Scheduled 注解来解决定时任务，否则大部分情况可能都是使用 Quartz 来做定时任务。在 Spring Boot 中使用 Quartz ，只需要在创建项目时，添加 Quartz 依赖即可：</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/GvtDGKK4uYn4fichjPO6vdG7bdPv1m66BsxlrVP5ibahjnP7CBgmB7U7f63uKAoMbUOXba3hyw4JE4VsK0HNQcDQ/640?wx_fmt=png" alt=""></p>
+<p>项目创建完成后，也需要添加开启定时任务的注解：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
+<span class="token annotation punctuation">@EnableScheduling</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">QuartzApplication</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        SpringApplication<span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span>QuartzApplication<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Quartz 在使用过程中，有两个关键概念，一个是JobDetail（要做的事情），另一个是触发器（什么时候做），要定义 JobDetail，需要先定义 Job，Job 的定义有两种方式：</p>
+<p>第一种方式，直接定义一个Bean：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Component</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyJob1</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">sayHello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"MyJob1>>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>关于这种定义方式说两点：</p>
+<ol>
+<li>首先将这个 Job 注册到 Spring 容器中。</li>
+<li>这种定义方式有一个缺陷，就是无法传参。</li>
+</ol>
+<p>第二种定义方式，则是继承 QuartzJobBean 并实现默认的方法：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyJob2</span> <span class="token keyword">extends</span> <span class="token class-name">QuartzJobBean</span> <span class="token punctuation">{</span>
+    HelloService helloService<span class="token punctuation">;</span>
+    <span class="token keyword">public</span> HelloService <span class="token function">getHelloService</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> helloService<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setHelloService</span><span class="token punctuation">(</span>HelloService helloService<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span>helloService <span class="token operator">=</span> helloService<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">executeInternal</span><span class="token punctuation">(</span>JobExecutionContext jobExecutionContext<span class="token punctuation">)</span> <span class="token keyword">throws</span> JobExecutionException <span class="token punctuation">{</span>
+        helloService<span class="token punctuation">.</span><span class="token function">sayHello</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HelloService</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">sayHello</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"hello service >>>"</span><span class="token operator">+</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>和第1种方式相比，这种方式支持传参，任务启动时，executeInternal 方法将会被执行。</p>
+<p>Job 有了之后，接下来创建类，配置 JobDetail 和 Trigger 触发器，如下：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">QuartzConfig</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Bean</span>
+    MethodInvokingJobDetailFactoryBean <span class="token function">methodInvokingJobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        MethodInvokingJobDetailFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MethodInvokingJobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setTargetBeanName</span><span class="token punctuation">(</span><span class="token string">"myJob1"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setTargetMethod</span><span class="token punctuation">(</span><span class="token string">"sayHello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token annotation punctuation">@Bean</span>
+    JobDetailFactoryBean <span class="token function">jobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        JobDetailFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setJobClass</span><span class="token punctuation">(</span>MyJob2<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        JobDataMap map <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">JobDataMap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        map<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">"helloService"</span><span class="token punctuation">,</span> <span class="token function">helloService</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setJobDataMap</span><span class="token punctuation">(</span>map<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token annotation punctuation">@Bean</span>
+    SimpleTriggerFactoryBean <span class="token function">simpleTriggerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        SimpleTriggerFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SimpleTriggerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setStartTime</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setRepeatCount</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setJobDetail</span><span class="token punctuation">(</span><span class="token function">methodInvokingJobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setRepeatInterval</span><span class="token punctuation">(</span><span class="token number">3000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token annotation punctuation">@Bean</span>
+    CronTriggerFactoryBean <span class="token function">cronTrigger</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        CronTriggerFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">CronTriggerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setCronExpression</span><span class="token punctuation">(</span><span class="token string">"0/10 * * * * ?"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setJobDetail</span><span class="token punctuation">(</span><span class="token function">jobDetailFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token annotation punctuation">@Bean</span>
+    SchedulerFactoryBean <span class="token function">schedulerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        SchedulerFactoryBean bean <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SchedulerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        bean<span class="token punctuation">.</span><span class="token function">setTriggers</span><span class="token punctuation">(</span><span class="token function">cronTrigger</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token function">simpleTriggerFactoryBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getObject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token annotation punctuation">@Bean</span>
+    HelloService <span class="token function">helloService</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">HelloService</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>关于这个配置说如下几点：</p>
+<ol>
+<li>JobDetail 的配置有两种方式：MethodInvokingJobDetailFactoryBean 和 JobDetailFactoryBean 。</li>
+<li>使用 MethodInvokingJobDetailFactoryBean 可以配置目标 Bean 的名字和目标方法的名字，这种方式不支持传参。</li>
+<li>使用 JobDetailFactoryBean 可以配置 JobDetail ，任务类继承自 QuartzJobBean ，这种方式支持传参，将参数封装在 JobDataMap 中进行传递。</li>
+<li>Trigger 是指触发器，Quartz 中定义了多个触发器，这里向大家展示其中两种的用法，SimpleTrigger 和 CronTrigger 。</li>
+<li>SimpleTrigger 有点类似于前面说的 @Scheduled 的基本用法。</li>
+<li>CronTrigger 则有点类似于 @Scheduled 中 cron 表达式的用法。</li>
+</ol>
+<p><img src="https://www.javaboy.org/images/boot/6-2.png" alt=""></p>
+<p>全部定义完成后，启动 Spring Boot 项目就可以看到定时任务的执行了。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>这里主要向大家展示了 Spring Boot 中整合两种定时任务的方法，整合成功之后，剩下的用法基本上就和在 SSM 中使用一致了，不再赘述。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-如何避免回表查询？什么是索引覆盖？"
   class="article article-type-post"
   itemscope
@@ -1246,89 +1512,6 @@ firewall-cmd --reload</code></pre>
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
 
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-《刻意练习》高效学习的3F法则"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/11/03/%E3%80%8A%E5%88%BB%E6%84%8F%E7%BB%83%E4%B9%A0%E3%80%8B%E9%AB%98%E6%95%88%E5%AD%A6%E4%B9%A0%E7%9A%843F%E6%B3%95%E5%88%99/"
-    >《刻意练习》高效学习的3F法则</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/11/03/%E3%80%8A%E5%88%BB%E6%84%8F%E7%BB%83%E4%B9%A0%E3%80%8B%E9%AB%98%E6%95%88%E5%AD%A6%E4%B9%A0%E7%9A%843F%E6%B3%95%E5%88%99/" class="article-date">
-  <time datetime="2019-11-03T05:00:54.000Z" itemprop="datePublished">2019-11-03</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>视频地址: <a href="https://www.bilibili.com/video/av62616953" target="_blank" rel="noopener">https://www.bilibili.com/video/av62616953</a></p>
-</blockquote>
-<h2 id="Part-1-刻意练习的黄金法则-3F法则"><a href="#Part-1-刻意练习的黄金法则-3F法则" class="headerlink" title="Part 1 刻意练习的黄金法则-3F法则"></a>Part 1 刻意练习的黄金法则-3F法则</h2><h3 id="1-专注"><a href="#1-专注" class="headerlink" title="1. 专注"></a>1. 专注</h3><ul>
-<li><p>起步使用较短时段（交叉安排）</p>
-<p>可以开始先学十分钟，接着休息五分钟，然后再学十分钟，不断重复。</p>
-</li>
-<li><p>缓慢延长学习时间（循序渐进）</p>
-<p>坚持一段时间，再尝试二十分钟，三十分钟</p>
-</li>
-<li><p>若无法坚持则缩短（以退为进）</p>
-<p>如果在提升过程中遇到了瓶颈，再把学习时间缩短一点，等适应了之后，再继续延长学习时间。</p>
-</li>
-</ul>
-<h3 id="2-反馈"><a href="#2-反馈" class="headerlink" title="2. 反馈"></a>2. 反馈</h3><ul>
-<li><p>来自内部，自己发现自己的不足。</p>
-</li>
-<li><p>来自外部，其他人指出自己的不足。</p>
-<p>找个好导师，是各个领域学习的通用捷径，但外部反馈多了之后，也会引起内部反馈。</p>
-</li>
-</ul>
-<h3 id="3-纠正"><a href="#3-纠正" class="headerlink" title="3. 纠正"></a>3. 纠正</h3><ul>
-<li>给出反馈后的下一步，就是纠正不足。</li>
-</ul>
-<h2 id="Part-2-如何保持学习动力"><a href="#Part-2-如何保持学习动力" class="headerlink" title="Part 2 如何保持学习动力"></a>Part 2 如何保持学习动力</h2><h3 id="1-如何保持学习动力。"><a href="#1-如何保持学习动力。" class="headerlink" title="1. 如何保持学习动力。"></a>1. 如何保持学习动力。</h3><p>意志力不是天生，绝对的，我们可能在某件事上意志力充足，但在另一件事上毫无意志，这个差异的关键在于动机是不是足够。</p>
-<h3 id="2-保持动机的做法有两种："><a href="#2-保持动机的做法有两种：" class="headerlink" title="2 保持动机的做法有两种："></a>2 保持动机的做法有两种：</h3><h4 id="正向：强化进步的理由"><a href="#正向：强化进步的理由" class="headerlink" title="正向：强化进步的理由"></a>正向：强化进步的理由</h4><ul>
-<li><p>内部动机-Tips:</p>
-<p>①真心的喜欢</p>
-</li>
-<li><p>外部动机-Tips:</p>
-<p>①物质奖励<br>②团体约束感</p>
-</li>
-</ul>
-<h4 id="反向：弱化退步的理由"><a href="#反向：弱化退步的理由" class="headerlink" title="反向：弱化退步的理由"></a>反向：弱化退步的理由</h4><p>①拒绝会使你失败外界诱因。不要被杂七杂八事情拖累你</p>
-<blockquote>
-<p>做你喜欢的事就没有这么难</p>
-</blockquote>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
     </footer>
   </div>
 
