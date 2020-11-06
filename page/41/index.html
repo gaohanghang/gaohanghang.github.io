@@ -99,6 +99,80 @@
     
     
     <article
+  id="post-基于SSM的事务"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2017/12/01/%E5%9F%BA%E4%BA%8ESSM%E7%9A%84%E4%BA%8B%E5%8A%A1/"
+    >基于SSM的事务</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/12/01/%E5%9F%BA%E4%BA%8ESSM%E7%9A%84%E4%BA%8B%E5%8A%A1/" class="article-date">
+  <time datetime="2017-12-01T09:22:22.000Z" itemprop="datePublished">2017-12-01</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="1-1-准备工作"><a href="#1-1-准备工作" class="headerlink" title="1.1 准备工作"></a>1.1 准备工作</h2><p>在Spring的XML配置文件中必须配置<code>TransactionManager</code>和注解驱动：</p>
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>transactionManager<span class="token punctuation">"</span></span>
+<span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>org.springframework.jdbc.datasource.DataSourceTransactionManager<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    <span class="token comment" spellcheck="true">&lt;!-- 以下ref引用到的是数据库连接池的Bean对象 --></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>dataSource<span class="token punctuation">"</span></span> <span class="token attr-name">ref</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>dataSource<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span>
+
+<span class="token comment" spellcheck="true">&lt;!-- 以下配置的transaction-manager是以上Bean的id --></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span><span class="token namespace">tx:</span>annotation-driven</span> <span class="token attr-name">transaction-manager</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>transactionManager<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span></code></pre>
+<h2 id="1-2-使用事务"><a href="#1-2-使用事务" class="headerlink" title="1.2 使用事务"></a>1.2 使用事务</h2><p>应该保证在Service中存在与DAO/Mapper中对应的方法，即在DAO/Mapper中有什么方法，在Service中就存在直接调用它们的方法。</p>
+<p>当某个方法需要以事务的方式执行，则可以使用<code>@Transactional</code>进行注解，则在这个方法执行的所有数据库的增删改操作都会以事务的方式执行，即一系列的操作将整体成功，或整体失败！</p>
+<p>关于<code>@Transactional</code>注解，还可以用于注解整个类，则这个类中所有的方法都会以事务的方式执行，当然，这种做法是不推荐的！原因有：a)并不是所有方法都需要是以事务的方式执行的，例如单条增删改的操作，或者查询的操作；b)该注解还可以做其它配置，每个方法的配置可以不同！</p>
+<p>最后，Spring也严重不推荐使用<code>@Transactional</code>对接口或抽象方法进行注解！</p>
+<h2 id="1-3-事务的传播特性"><a href="#1-3-事务的传播特性" class="headerlink" title="1.3 事务的传播特性"></a>1.3 事务的传播特性</h2><p>在使用<code>@Transactional</code>注解时，可以配置注解参数，其中，<code>propagation</code>参数就是用于配置其传播特性的！语法为：</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Transactional</span><span class="token punctuation">(</span>propagation<span class="token operator">=</span>TransactionDefinition<span class="token punctuation">.</span>PROPAGATION_SUPPORTS<span class="token punctuation">)</span></code></pre>
+<pre><code>transaction 事务 propagation 传播  Definition 定义</code></pre><p>该配置的属性取值为枚举值，推荐使用<code>TransactionDefinition</code>中以<code>PROPAGATION_</code>作为前缀的常量，取值有：</p>
+<pre><code>PROPAGATION_REQUIRED
+PROPAGATION_SUPPORTS
+PROPAGATION_MANDATORY
+PROPAGATION_REQUIRES_NEW
+PROPAGATION_NOT_SUPPORTED
+PROPAGATION_NEVER
+PROPAGATION_NESTED</code></pre><p>如果没有配置<code>propagation</code>，则默认值是<code>PROPAGATION_SUPPORTS</code>，表示支持事务，当原本存在事务时，当次的执行将加入到事务中。</p>
+<p>以上各<code>PROPAGATION_</code>值的意义可参考<code>TransactionDefinition</code>的注释，或查阅资料。</p>
+<h2 id="1-4-小结"><a href="#1-4-小结" class="headerlink" title="1.4 小结"></a>1.4 小结</h2><p>如果需要使用事务，先在Spring的XML文件中配置。</p>
+<p>在编写Service类时，应该创建与DAO/Mapper中匹配所有方法，与其保持一致！然后，当需要以事务的方法执行时，另使用某个方法调用Service自身的方法来执行，同时，使用<code>@Transactional</code>进行注解！</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SSM/" rel="tag">SSM</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-秋意"
   class="article article-type-post"
   itemscope
@@ -726,64 +800,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Windows绝赞应用"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2017/04/20/Windows%E7%BB%9D%E8%B5%9E%E5%BA%94%E7%94%A8/"
-    >良心软件列表：Windows绝赞应用</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2017/04/20/Windows%E7%BB%9D%E8%B5%9E%E5%BA%94%E7%94%A8/" class="article-date">
-  <time datetime="2017-04-20T09:30:19.000Z" itemprop="datePublished">2017-04-20</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=422428548&auto=0&height=66"></iframe>
-
-<p><img src="http://omi0o6pp2.bkt.clouddn.com/006D2KSdly1fenpdc01r4g30f0069x6p.gif" alt=""></p>
-<blockquote>
-<p>《Windows 绝赞应用》是 @EMLVIRUS 在 Github 上维护的一个精选 Windows 应用的推荐列表，涉及良心国产、音频文件、即时聊天、压缩处理、美化工具等 20 多个分类的，皆在给用户提供一个更好的软件选择、参考平台。@Appinn</p>
-</blockquote>
-<p><img src="http://omi0o6pp2.bkt.clouddn.com/1.png" alt=""></p>
-<blockquote>
-<p>访问地址：<a href="https://emlvirus.gitbooks.io/windows-apps-that-amaze-us/content/" target="_blank" rel="noopener">Windows 绝赞应用</a></p>
-</blockquote>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%A8%E8%8D%90/" rel="tag">推荐</a></li></ul>
 
     </footer>
   </div>

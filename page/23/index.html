@@ -99,6 +99,83 @@
     
     
     <article
+  id="post-联合索引的最左前缀匹配原则"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/13/%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99/"
+    >联合索引的最左前缀匹配原则</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/13/%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99/" class="article-date">
+  <time datetime="2019-07-13T03:39:30.000Z" itemprop="datePublished">2019-07-13</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：Jokerone_</p>
+<p>链接：<a href="https://www.jianshu.com/p/b7911e0394b0" target="_blank" rel="noopener">https://www.jianshu.com/p/b7911e0394b0</a></p>
+</blockquote>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> <span class="token punctuation">`</span>user2<span class="token punctuation">`</span> <span class="token punctuation">(</span>
+  <span class="token punctuation">`</span>userid<span class="token punctuation">`</span> <span class="token keyword">int</span><span class="token punctuation">(</span><span class="token number">11</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">AUTO_INCREMENT</span><span class="token punctuation">,</span>
+  <span class="token punctuation">`</span>username<span class="token punctuation">`</span> <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">DEFAULT</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  <span class="token punctuation">`</span>password<span class="token punctuation">`</span> <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">DEFAULT</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  <span class="token punctuation">`</span>usertype<span class="token punctuation">`</span> <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">DEFAULT</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  <span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span> <span class="token punctuation">(</span><span class="token punctuation">`</span>userid<span class="token punctuation">`</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token keyword">KEY</span> <span class="token punctuation">`</span>a_b_c_index<span class="token punctuation">`</span> <span class="token punctuation">(</span><span class="token punctuation">`</span>username<span class="token punctuation">`</span><span class="token punctuation">,</span><span class="token punctuation">`</span>password<span class="token punctuation">`</span><span class="token punctuation">,</span><span class="token punctuation">`</span>usertype<span class="token punctuation">`</span><span class="token punctuation">)</span>
+<span class="token punctuation">)</span> <span class="token keyword">ENGINE</span><span class="token operator">=</span><span class="token keyword">InnoDB</span> <span class="token keyword">AUTO_INCREMENT</span><span class="token operator">=</span><span class="token number">2</span> <span class="token keyword">DEFAULT</span> <span class="token keyword">CHARSET</span><span class="token operator">=</span>utf8<span class="token punctuation">;</span></code></pre>
+<p>上表中有一个联合索引，下面开始验证最左匹配原则。<br> 当存在username时会使用索引查询：</p>
+<p>上表中有一个联合索引，下面开始验证最左匹配原则。<br>当存在username时会使用索引查询：</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> user2 <span class="token keyword">where</span> username <span class="token operator">=</span> <span class="token string">'1'</span> <span class="token operator">and</span> password <span class="token operator">=</span> <span class="token string">'1'</span><span class="token punctuation">;</span></code></pre>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114237.png" alt=""></p>
+<p>当没有username时，不会使用索引查询：</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> user2 <span class="token keyword">where</span> password <span class="token operator">=</span> <span class="token string">'1'</span><span class="token punctuation">;</span></code></pre>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114306.png" alt=""></p>
+<p>当有username，但顺序乱序时也可以使用索引：</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> user2 <span class="token keyword">where</span> password <span class="token operator">=</span> <span class="token string">'1'</span> <span class="token operator">and</span> username <span class="token operator">=</span> <span class="token string">'1'</span><span class="token punctuation">;</span></code></pre>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114326.png" alt=""></p>
+<p>在最左匹配原则中，有如下说明：</p>
+<ol>
+<li><p>最左前缀匹配原则，非常重要的原则，mysql会一直向右匹配直到遇到范围查询(&gt;、&lt;、between、like)就停止匹配，比如a = 1 and b = 2 and c &gt; 3 and d = 4 如果建立(a,b,c,d)顺序的索引，d是用不到索引的，如果建立(a,b,d,c)的索引则都可以用到，a,b,d的顺序可以任意调整。</p>
+</li>
+<li><p>=和in可以乱序，比如a = 1 and b = 2 and c = 3 建立(a,b,c)索引可以任意顺序，mysql的查询优化器会帮你优化成索引可以识别的形式</p>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Java-访问权限控制：你真的了解-protected-关键字吗？"
   class="article article-type-post"
   itemscope
@@ -812,59 +889,6 @@ public class MyObject {
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-【TEDx演讲】三个秘诀，让你成为自信的演讲者"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/07/%E3%80%90TEDx%E6%BC%94%E8%AE%B2%E3%80%91%E4%B8%89%E4%B8%AA%E7%A7%98%E8%AF%80%EF%BC%8C%E8%AE%A9%E4%BD%A0%E6%88%90%E4%B8%BA%E8%87%AA%E4%BF%A1%E7%9A%84%E6%BC%94%E8%AE%B2%E8%80%85/"
-    >【TEDx演讲】三个秘诀，让你成为自信的演讲者</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/07/%E3%80%90TEDx%E6%BC%94%E8%AE%B2%E3%80%91%E4%B8%89%E4%B8%AA%E7%A7%98%E8%AF%80%EF%BC%8C%E8%AE%A9%E4%BD%A0%E6%88%90%E4%B8%BA%E8%87%AA%E4%BF%A1%E7%9A%84%E6%BC%94%E8%AE%B2%E8%80%85/" class="article-date">
-  <time datetime="2019-07-07T12:45:22.000Z" itemprop="datePublished">2019-07-07</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <ol>
-<li>练习第一，唱歌法练习</li>
-<li>横膈膜呼吸法(深呼吸)</li>
-<li>适时闭嘴</li>
-</ol>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TED/" rel="tag">TED</a></li></ul>
 
     </footer>
   </div>

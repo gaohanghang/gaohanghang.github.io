@@ -99,6 +99,81 @@
     
     
     <article
+  id="post-优秀的代码都是如何分层的？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/"
+    >优秀的代码都是如何分层的？</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/" class="article-date">
+  <time datetime="2019-07-29T14:27:04.000Z" itemprop="datePublished">2019-07-29</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://mp.weixin.qq.com/s/YrTU-ZRYo7h2MN0GC6HdSQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/YrTU-ZRYo7h2MN0GC6HdSQ</a></p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222736.png" alt=""></p>
+<h2 id="1、背景"><a href="#1、背景" class="headerlink" title="1、背景"></a><strong>1、背景</strong></h2><p>说起应用分层，大部分人都会认为这个不是很简单嘛 就controller，service, mapper三层。看起来简单，很多人其实并没有把他们职责划分开，在很多代码中,controller做的逻辑比service还多,service往往当成透传了，这其实是很多人开发代码都没有注意到的地方，反正功能也能用，至于放哪无所谓呗。这样往往造成后面代码无法复用，层级关系混乱，对后续代码的维护非常麻烦。</p>
+<p>的确在这些人眼中分层只是一个形式，前辈们的代码这么写的，其他项目代码这么写的，那么我也这么跟着写。但是在真正的团队开发中每个人的习惯都不同，写出来的代码必然带着自己的标签，有的人习惯controller写大量的业务逻辑，有的人习惯在service中之间调用远程服务，这样就导致了每个人的开发代码风格完全不同，后续其他人修改的时候，一看，我靠这个人写的代码和我平常的习惯完全不同，修改的时候到底是按着自己以前的习惯改，还是跟着前辈们走，这又是个艰难的选择，选择一旦有偏差，你的后辈又维护你的代码的时候，恐怕就要骂人了。</p>
+<p>所以一个好的应用分层需要具备以下几点: </p>
+<ul>
+<li>方便后续代码进行维护扩展；</li>
+<li>分层的效果需要让整个团队都接受；</li>
+<li>各个层职责边界清晰。</li>
+</ul>
+<h2 id="2、如何进行分层"><a href="#2、如何进行分层" class="headerlink" title="2、如何进行分层"></a>2、如何进行分层</h2><h3 id="2-1、阿里规范"><a href="#2-1、阿里规范" class="headerlink" title="2.1、阿里规范"></a>2.1、阿里规范</h3><p>在阿里的编码规范中约束的分层如下:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222826.png" alt=""></p>
+<p><strong>开放接口层</strong>：可直接封装 Service 方法暴露成 RPC 接口;通过 Web 封装成 http 接口;进行 网关安全控制、流量控制等。</p>
+<p><strong>终端显示层</strong>：各个端的模板渲染并执行显示的层。当前主要是 velocity 渲染，JS 渲染， JSP 渲染，移动端展示等。</p>
+<p><strong>Web 层</strong>：主要是对访问控制进行转发，各类基本参数校验，或者不复用的业务简单处理等。</p>
+<p><strong>Service 层</strong>：相对具体的业务逻辑服务层。</p>
+<p><strong>Manager 层</strong>：通用业务处理层，它有如下特征:1. 对第三方平台封装的层，预处理返回结果及转化异常信息;2. 对Service层通用能力的下沉，如缓存方案、中间件通用处理;3. 与DAO层交互，对多个DAO的组合复用。</p>
+<p><strong>DAO 层</strong>：数据访问层，与底层 MySQL、Oracle、Hbase 进行数据交互。</p>
+<p>阿里巴巴规约中的分层比较清晰简单明了，但是描述得还是过于简单了，以及service层和manager层有很多同学还是有点分不清楚之间的关系，就导致了很多项目中根本没有Manager层的存在。下面介绍一下具体业务中应该如何实现分层。</p>
+<h3 id="2-2、优化分层"><a href="#2-2、优化分层" class="headerlink" title="2.2、优化分层"></a>2.2、优化分层</h3><p>从我们的业务开发中总结了一个较为的理想模型,这里要先说明一下由于我们的rpc框架选用的是thrift可能会比其他的一些rpc框架例如dubbo会多出一层,作用和controller层类似 </p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222858.png" alt=""></p>
+<p>最上层controller和TService是我们阿里分层规范里面的第一层：<strong>轻业务逻辑，参数校验，异常兜底</strong>。通常这种接口可以轻易更换接口类型，所以业务逻辑必须要轻，甚至不做具体逻辑。</p> 
+      <a class="article-more-link" href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-e-printStackTrace-会导致锁死？这仅仅是打印，怎么可能？"
   class="article article-type-post"
   itemscope
@@ -873,83 +948,6 @@ docker run -p 8080:8080 -t gaohanghang/springboot-jib-docker</code></pre><h2 id=
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag">读书笔记</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-联合索引的最左前缀匹配原则"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/13/%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99/"
-    >联合索引的最左前缀匹配原则</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/13/%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8C%B9%E9%85%8D%E5%8E%9F%E5%88%99/" class="article-date">
-  <time datetime="2019-07-13T03:39:30.000Z" itemprop="datePublished">2019-07-13</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>作者：Jokerone_</p>
-<p>链接：<a href="https://www.jianshu.com/p/b7911e0394b0" target="_blank" rel="noopener">https://www.jianshu.com/p/b7911e0394b0</a></p>
-</blockquote>
-<pre class=" language-sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> <span class="token punctuation">`</span>user2<span class="token punctuation">`</span> <span class="token punctuation">(</span>
-  <span class="token punctuation">`</span>userid<span class="token punctuation">`</span> <span class="token keyword">int</span><span class="token punctuation">(</span><span class="token number">11</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">AUTO_INCREMENT</span><span class="token punctuation">,</span>
-  <span class="token punctuation">`</span>username<span class="token punctuation">`</span> <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">DEFAULT</span> <span class="token string">''</span><span class="token punctuation">,</span>
-  <span class="token punctuation">`</span>password<span class="token punctuation">`</span> <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">DEFAULT</span> <span class="token string">''</span><span class="token punctuation">,</span>
-  <span class="token punctuation">`</span>usertype<span class="token punctuation">`</span> <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">DEFAULT</span> <span class="token string">''</span><span class="token punctuation">,</span>
-  <span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span> <span class="token punctuation">(</span><span class="token punctuation">`</span>userid<span class="token punctuation">`</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
-  <span class="token keyword">KEY</span> <span class="token punctuation">`</span>a_b_c_index<span class="token punctuation">`</span> <span class="token punctuation">(</span><span class="token punctuation">`</span>username<span class="token punctuation">`</span><span class="token punctuation">,</span><span class="token punctuation">`</span>password<span class="token punctuation">`</span><span class="token punctuation">,</span><span class="token punctuation">`</span>usertype<span class="token punctuation">`</span><span class="token punctuation">)</span>
-<span class="token punctuation">)</span> <span class="token keyword">ENGINE</span><span class="token operator">=</span><span class="token keyword">InnoDB</span> <span class="token keyword">AUTO_INCREMENT</span><span class="token operator">=</span><span class="token number">2</span> <span class="token keyword">DEFAULT</span> <span class="token keyword">CHARSET</span><span class="token operator">=</span>utf8<span class="token punctuation">;</span></code></pre>
-<p>上表中有一个联合索引，下面开始验证最左匹配原则。<br> 当存在username时会使用索引查询：</p>
-<p>上表中有一个联合索引，下面开始验证最左匹配原则。<br>当存在username时会使用索引查询：</p>
-<pre class=" language-sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> user2 <span class="token keyword">where</span> username <span class="token operator">=</span> <span class="token string">'1'</span> <span class="token operator">and</span> password <span class="token operator">=</span> <span class="token string">'1'</span><span class="token punctuation">;</span></code></pre>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114237.png" alt=""></p>
-<p>当没有username时，不会使用索引查询：</p>
-<pre class=" language-sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> user2 <span class="token keyword">where</span> password <span class="token operator">=</span> <span class="token string">'1'</span><span class="token punctuation">;</span></code></pre>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114306.png" alt=""></p>
-<p>当有username，但顺序乱序时也可以使用索引：</p>
-<pre class=" language-sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> user2 <span class="token keyword">where</span> password <span class="token operator">=</span> <span class="token string">'1'</span> <span class="token operator">and</span> username <span class="token operator">=</span> <span class="token string">'1'</span><span class="token punctuation">;</span></code></pre>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190713114326.png" alt=""></p>
-<p>在最左匹配原则中，有如下说明：</p>
-<ol>
-<li><p>最左前缀匹配原则，非常重要的原则，mysql会一直向右匹配直到遇到范围查询(&gt;、&lt;、between、like)就停止匹配，比如a = 1 and b = 2 and c &gt; 3 and d = 4 如果建立(a,b,c,d)顺序的索引，d是用不到索引的，如果建立(a,b,d,c)的索引则都可以用到，a,b,d的顺序可以任意调整。</p>
-</li>
-<li><p>=和in可以乱序，比如a = 1 and b = 2 and c = 3 建立(a,b,c)索引可以任意顺序，mysql的查询优化器会帮你优化成索引可以识别的形式</p>
-</li>
-</ol>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
 
     </footer>
   </div>

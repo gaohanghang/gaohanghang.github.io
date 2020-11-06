@@ -99,6 +99,112 @@
     
     
     <article
+  id="post-这样设计-Java-异常更优雅，赶紧学！"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/24/%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1-Java-%E5%BC%82%E5%B8%B8%E6%9B%B4%E4%BC%98%E9%9B%85%EF%BC%8C%E8%B5%B6%E7%B4%A7%E5%AD%A6%EF%BC%81/"
+    >这样设计 Java 异常更优雅，赶紧学！</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/24/%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1-Java-%E5%BC%82%E5%B8%B8%E6%9B%B4%E4%BC%98%E9%9B%85%EF%BC%8C%E8%B5%B6%E7%B4%A7%E5%AD%A6%EF%BC%81/" class="article-date">
+  <time datetime="2019-08-24T09:24:12.000Z" itemprop="datePublished">2019-08-24</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190824191750.png" alt=""></p>
+<blockquote>
+<p>原文地址: <a href="https://mp.weixin.qq.com/s/L8VhKrZ1_w3mYHI0lif3YQ" target="_blank" rel="noopener">这样设计 Java 异常更优雅，赶紧学！</a></p>
+</blockquote>
+<h2 id="导语"><a href="#导语" class="headerlink" title="导语"></a><strong>导语</strong></h2><p>异常处理是程序开发中必不可少操作之一，但如何正确优雅的对异常进行处理确是一门学问，笔者根据自己的开发经验来谈一谈我是如何对异常进行处理的。</p>
+<p>由于本文只作一些经验之谈，不涉及到基础知识部分，如果读者对异常的概念还很模糊，请先查看基础知识。</p>
+<h2 id="如何选择异常类型"><a href="#如何选择异常类型" class="headerlink" title="如何选择异常类型"></a><strong>如何选择异常类型</strong></h2><h3 id="异常的类别"><a href="#异常的类别" class="headerlink" title="异常的类别"></a><strong>异常的类别</strong></h3><p>正如我们所知道的，java中的异常的超类是java.lang.Throwable(后文省略为Throwable),它有两个比较重要的子类,java.lang.Exception(后文省略为Exception)和java.lang.Error(后文省略为Error)，其中Error由JVM虚拟机进行管理,如我们所熟知的OutOfMemoryError异常等，所以我们本文不关注Error异常，那么我们细说一下Exception异常。</p>
+<p>Exception异常有个比较重要的子类，叫做RuntimeException。我们将RuntimeException或其他继承自RuntimeException的子类称为非受检异常(unchecked Exception)，其他继承自Exception异常的子类称为受检异常(checked Exception)。本文重点来关注一下受检异常和非受检异常这两种异常。</p>
+<h3 id="如何选择异常"><a href="#如何选择异常" class="headerlink" title="如何选择异常"></a><strong>如何选择异常</strong></h3><p>从笔者的开发经验来看，如果在一个应用中，需要开发一个方法(如某个功能的service方法)，这个方法如果中间可能出现异常，那么你需要考虑这个异常出现之后是否调用者可以处理，并且你是否希望调用者进行处理，如果调用者可以处理，并且你也希望调用者进行处理，那么就要抛出受检异常，提醒调用者在使用你的方法时，考虑到如果抛出异常时如果进行处理，相似的，如果在写某个方法时，你认为这是个偶然异常，理论上说，你觉得运行时可能会碰到什么问题，而这些问题也许不是必然发生的，也不需要调用者显示的通过异常来判断业务流程操作的，那么这时就可以使用一个RuntimeException这样的非受检异常.</p>
+<p>好了，估计我上边说的这段话，你读了很多遍也依然觉得晦涩了。</p>
+<p>那么，请跟着我的思路，在慢慢领会一下。</p>
+<h3 id="什么时候才需要抛异常"><a href="#什么时候才需要抛异常" class="headerlink" title="什么时候才需要抛异常"></a><strong>什么时候才需要抛异常</strong></h3><p>首先我们需要了解一个问题，什么时候才需要抛异常？异常的设计是方便给开发者使用的，但不是乱用的，笔者对于什么时候抛异常这个问题也问了很多朋友，能给出准确答案的确实不多。其实这个问题很简单，如果你觉得某些”问题”解决不了了，那么你就可以抛出异常了。比如，你在写一个service,其中在写到某段代码处,你发现可能会产生问题，那么就请抛出异常吧，相信我，你此时抛出异常将是一个最佳时机。</p>
+<h3 id="应该抛出怎样的异常"><a href="#应该抛出怎样的异常" class="headerlink" title="应该抛出怎样的异常"></a><strong>应该抛出怎样的异常</strong></h3><p>了解完了什么时候才需要抛出异常后，我们再思考一个问题，真的当我们抛出异常时，我们应该选用怎样的异常呢？究竟是受检异常还是非受检异常呢(RuntimeException)呢？我来举例说明一下这个问题，先从受检异常说起,比如说有这样一个业务逻辑，需要从某文件中读取某个数据，这个读取操作可能是由于文件被删除等其他问题导致无法获取从而出现读取错误，那么就要从redis或mysql数据库中再去获取此数据,参考如下代码，getKey(Integer)为入口程序.</p>
+<blockquote>
+<p>public String getKey(Integer key){</p>
+<p>​    String  value;</p>
+<p>​    try {</p>
+<p>​        InputStream inputStream = getFiles(“/file/nofile”);</p>
+<p>​        //接下来从流中读取key的value指</p>
+<p>​        value = …;</p>
+<p>​    } catch (Exception e) {</p>
+<p>​        //如果抛出异常将从mysql或者redis进行取之</p>
+<p>​        value = …;</p>
+<p>​    }</p>
+<p>}</p>
+<p>public InputStream getFiles(String path) throws Exception {</p>
+<p>​    File file = new File(path);</p>
+<p>​    InputStream inputStream = null;</p>
+<p>​    try {</p>
+<p>​        inputStream = new BufferedInputStream(new FileInputStream(file));</p>
+<p>​    } catch (FileNotFoundException e) {</p>
+<p>​        throw new Exception(“I/O读取错误”,e.getCause());</p>
+<p>​    }</p>
+<p>​    return inputStream;</p>
+<p>}</p>
+</blockquote>
+<p>ok，看了以上代码以后，你也许心中有一些想法，原来受检异常可以控制义务逻辑，对，没错，通过受检异常真的可以控制业务逻辑，但是切记不要这样使用，我们应该合理的抛出异常，因为程序本身才是流程，异常的作用仅仅是当你进行不下去的时候找到的一个借口而已，它并不能当成控制程序流程的入口或出口，如果这样使用的话，是在将异常的作用扩大化，这样将会导致代码复杂程度的增加，耦合性会提高，代码可读性降低等问题。那么就一定不要使用这样的异常吗？其实也不是，在真的有这样的需求的时候，我们可以这样使用，只是切记，不要把它真的当成控制流程的工具或手段。那么究竟什么时候才要抛出这样的异常呢？要考虑，如果调用者调用出错后，一定要让调用者对此错误进行处理才可以，满足这样的要求时，我们才会考虑使用受检异常。</p>
+<p>接下来，我们来看一下非受检异常呢(RuntimeException)，对于RuntimeException这种异常，我们其实很多见，比如java.lang.NullPointerException／java.lang.IllegalArgumentException等，那么这种异常我们时候抛出呢？当我们在写某个方法的时候，可能会偶然遇到某个错误，我们认为这个问题时运行时可能为发生的，并且理论上讲，没有这个问题的话，程序将会正常执行的时候，它不强制要求调用者一定要捕获这个异常，此时抛出RuntimeException异常,举个例子，当传来一个路径的时候，需要返回一个路径对应的File对象:</p>
+<blockquote>
+<p>public void test() {</p>
+<p>​    myTest.getFiles(“”);</p>
+<p>}</p>
+<p>public File getFiles(String path) {</p>
+<p>​    if(null == path || “”.equals(path)){</p>
+<p>​        throw  new NullPointerException(“路径不能为空!”);</p>
+<p>​    }</p>
+<p>​    File file = new File(path);</p>
+<p>​    return file;</p>
+<p>}</p>
+</blockquote>
+<p>上述例子表明，如果调用者调用getFiles(String)的时候如果path是空，那么就抛出空指针异常(它是RuntimeException的子类),调用者不用显示的进行try…catch…操作进行强制处理.这就要求调用者在调用这样的方法时先进行验证，避免发生RuntimeException.如下:</p>
+<h3 id="应该选用哪种异常"><a href="#应该选用哪种异常" class="headerlink" title="应该选用哪种异常"></a><strong>应该选用哪种异常</strong></h3><p>通过以上的描述和举例，可以总结出一个结论，RuntimeException异常和受检异常之间的区别就是:是否强制要求调用者必须处理此异常，如果强制要求调用者必须进行处理，那么就使用受检异常，否则就选择非受检异常(RuntimeException)。一般来讲，如果没有特殊的要求，我们建议使用RuntimeException异常。</p>
+<h2 id="场景介绍和技术选型"><a href="#场景介绍和技术选型" class="headerlink" title="场景介绍和技术选型"></a><strong>场景介绍和技术选型</strong></h2><h3 id="架构描述"><a href="#架构描述" class="headerlink" title="架构描述"></a><strong>架构描述</strong></h3><p>正如我们所知，传统的项目都是以MVC框架为基础进行开发的，本文主要从使用restful风格接口的设计来体验一下异常处理的优雅。</p>
+<p>我们把关注点放在restful的api层(和web中的controller层类似)和service层，研究一下在service中如何抛出异常，然后api层如何进行捕获并且转化异常。</p>
+<p>使用的技术是:spring-boot,jpa(hibernate),mysql,如果对这些技术不是太熟悉，读者需要自行阅读相关材料。</p> 
+      <a class="article-more-link" href="/2019/08/24/%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1-Java-%E5%BC%82%E5%B8%B8%E6%9B%B4%E4%BC%98%E9%9B%85%EF%BC%8C%E8%B5%B6%E7%B4%A7%E5%AD%A6%EF%BC%81/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-盘口数据频繁变化，100W用户如何实时通知？"
   class="article article-type-post"
   itemscope
@@ -815,103 +921,6 @@ Share：分享一篇有观点和思考的技术文章。主要为了输出你的
 <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818195941.png" alt=""></p>
 <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818200127.png" alt=""></p>
  
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-熵：宇宙的终极规则"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/18/%E7%86%B5%EF%BC%9A%E5%AE%87%E5%AE%99%E7%9A%84%E7%BB%88%E6%9E%81%E8%A7%84%E5%88%99/"
-    >熵：宇宙的终极规则</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/18/%E7%86%B5%EF%BC%9A%E5%AE%87%E5%AE%99%E7%9A%84%E7%BB%88%E6%9E%81%E8%A7%84%E5%88%99/" class="article-date">
-  <time datetime="2019-08-18T05:31:07.000Z" itemprop="datePublished">2019-08-18</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文作者: 阮一峰</p>
-<p>原文地址: <a href="http://www.ruanyifeng.com/survivor/future/entropy.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/survivor/future/entropy.html</a></p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818135107.png" alt=""></p>
-<blockquote>
-<p><strong>如果不施加外力影响，事物永远向着更混乱的状态发展</strong></p>
-<p><strong>没有办法消除熵和混乱，我们只是让某些局部变得更有秩序，把混乱转移到另一些领域。</strong></p>
-<p><strong>个人理解</strong></p>
-<ol>
-<li>唯有通过不断学习，注入能量，才能保持发展</li>
-<li>让局部有序，比如专精某一领域，让自己成为某个领域的专家；把混乱转移到另一些领域，比如专精编程，不去精通物理、化学等，就是将混乱转移。</li>
-</ol>
-</blockquote>
-<p>1、</p>
-<p>有人曾经问我：“成年后，有没有书籍改变过你的世界观？”</p>
-<p>我想了想，还真有这样的书。那时，我已经工作好几年了，偶然在图书馆翻到一本旧书《熵：一种新的世界观》（上海译文出版社，1987）。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818133708.png" alt=""></p>
-<p>那本书是科普著作，介绍物理学概念“熵”。中学毕业后，我再没有碰过物理学，但是没想到读完以后，我看待世界的眼光都变了。</p>
-<p>“熵”这个概念非常简单，很容易理解，但又异常强大，可以解释很多事情。这篇文章，我就来谈谈，为什么你应该懂得熵是什么，它可能也会改变你的世界观。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818133742.png" alt=""></p>
-<p>2、</p>
-<p>为了理解熵，必须讲一点物理学。</p>
-<p>19世纪，物理学家开始认识到，世界的动力是能量，并且提出<a href="https://zh.wikipedia.org/wiki/能量守恒定律" target="_blank" rel="noopener">“能量守恒定律”</a>，即能量的总和是不变的。但是，有一个现象让他们很困惑。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818133757.png" alt=""></p>
-<p>（上图的单摆，在两侧的最高点，势能最大，动能为零；在中间的低点，动能最大，势能为零，能量始终守恒。）</p>
-<p>物理学家发现，能量无法百分百地转换。比如，蒸汽机使用的是热能，将其转换为推动机器的机械能。这个过程中，总是有一些热能损耗掉，无法完全转变为机械能。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818133840.png" alt=""></p>
-<p>一开始，物理学家以为是技术水平不高导致的，但后来发现，技术再进步，也无法将能量损耗降到零。<strong>他们就将那些在能量转换过程中浪费掉的、无法再利用的能量称为熵。</strong></p>
-<p>后来，这个概念被总结成了<a href="https://zh.wikipedia.org/wiki/热力学第二定律" target="_blank" rel="noopener">“热力学第二定律”</a>：能量转换总是会产生熵，如果是封闭系统，所有能量最终都会变成熵。</p>
-<p>3、</p>
-<p>熵既然是能量，为什么无法利用？它又是怎么产生的？为什么所有能量最后都会变成熵？这些问题我想了很久。</p>
-<p>物理学家有很多种解释，有一种我觉得最容易懂：能量转换的时候，大部分能量会转换成预先设定的状态，比如热能变成机械能、电能变成光能。但是，就像细胞突变那样，还有一部分能量会生成新的状态。这部分能量就是熵，由于状态不同，所以很难利用，除非外部注入新的能量，专门处理熵。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818133854.png" alt=""></p>
-<p>（上图，能量转换过程中，创造出许多新状态。）</p>
-<p><strong>总之，能量转换会创造出新的状态，熵就是进入这些状态的能量。</strong></p>
-<p>4、</p>
-<p>现在请大家思考：状态多意味着什么？</p>
-<p>状态多，就是可能性多，表示比较混乱；状态少，就是可能性少，相对来说就比较有秩序。因此，上面结论的另一种表达是：<strong>能量转换会让系统的混乱度增加，熵就是系统的混乱度。</strong></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818133926.png" alt=""></p>
-<p>（上图中，熵低则混乱度低，熵高则混乱度高。）</p>
-<p>转换的能量越大，创造出来的新状态就会越多。高能量系统不如低能量系统稳定，不仅因为前者更容易发生能量转换，还因为在转化过程中会创造出更多的状态（即更多的熵）。而且，凡是运动的系统都会有能量转换，热力学第二定律就是在说，所有封闭系统最终都会趋向混乱度最大的状态，除非外部注入能量。</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818133950.png" alt=""></p>
-<p>（上图中，冰块是分子的有序排列，吸收能量后，变成液体水，分子排列变得无序。）</p>
-<p>5、</p>
-<p>熵让我理解了一件事，<strong>如果不施加外力影响，事物永远向着更混乱的状态发展。</strong>比如，房间如果没人打扫，只会越来越乱，不可能越来越干净。</p> 
-      <a class="article-more-link" href="/2019/08/18/%E7%86%B5%EF%BC%9A%E5%AE%87%E5%AE%99%E7%9A%84%E7%BB%88%E6%9E%81%E8%A7%84%E5%88%99/"
-        >阅读更多...</a
-      >
-       
       <!-- reward -->
       
     </div>

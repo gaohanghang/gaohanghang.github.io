@@ -99,6 +99,367 @@
     
     
     <article
+  id="post-傻傻分不清之-Cookie、Session、Token、JWT"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/01/04/%E5%82%BB%E5%82%BB%E5%88%86%E4%B8%8D%E6%B8%85%E4%B9%8B-Cookie%E3%80%81Session%E3%80%81Token%E3%80%81JWT/"
+    >傻傻分不清之 Cookie、Session、Token、JWT</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/01/04/%E5%82%BB%E5%82%BB%E5%88%86%E4%B8%8D%E6%B8%85%E4%B9%8B-Cookie%E3%80%81Session%E3%80%81Token%E3%80%81JWT/" class="article-date">
+  <time datetime="2020-01-04T05:19:48.000Z" itemprop="datePublished">2020-01-04</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a href="https://juejin.im/post/5e055d9ef265da33997a42cc" target="_blank" rel="noopener">https://juejin.im/post/5e055d9ef265da33997a42cc</a></p>
+<p>作者：秋天不落叶</p>
+</blockquote>
+<h2 id="1-什么是认证（Authentication）"><a href="#1-什么是认证（Authentication）" class="headerlink" title="1. 什么是认证（Authentication）"></a>1. 什么是认证（Authentication）</h2><ul>
+<li>通俗地讲就是<strong>验证当前用户的身份</strong>，证明“你是你自己”（比如：你每天上下班打卡，都需要通过指纹打卡，当你的指纹和系统里录入的指纹相匹配时，就打卡成功）</li>
+<li>互联网中的认证：<ul>
+<li>用户名密码登录</li>
+<li>邮箱发送登录链接</li>
+<li>手机号接收验证码</li>
+<li>只要你能收到邮箱/验证码，就默认你是账号的主人</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-什么是授权（Authorization）"><a href="#2-什么是授权（Authorization）" class="headerlink" title="2. 什么是授权（Authorization）"></a>2. 什么是授权（Authorization）</h2><ul>
+<li>用户授予第三方应用访问该用户某些资源的权限<ul>
+<li>你在安装手机应用的时候，APP 会询问是否允许授予权限（访问相册、地理位置等权限）</li>
+<li>你在访问微信小程序时，当登录时，小程序会询问是否允许授予权限（获取昵称、头像、地区、性别等个人信息）</li>
+</ul>
+</li>
+<li>实现授权的方式有：cookie、session、token、OAuth</li>
+</ul>
+<h2 id="3-什么是凭证（Credentials）"><a href="#3-什么是凭证（Credentials）" class="headerlink" title="3. 什么是凭证（Credentials）"></a>3. 什么是凭证（Credentials）</h2><ul>
+<li><p>实现认证和授权的前提</p>
+<p>是需要一种</p>
+<p>媒介（证书）</p>
+<p>来标记访问者的身份</p>
+<ul>
+<li>在战国时期，商鞅变法，发明了照身帖。照身帖由官府发放，是一块打磨光滑细密的竹板，上面刻有持有人的头像和籍贯信息。国人必须持有，如若没有就被认为是黑户，或者间谍之类的。</li>
+<li>在现实生活中，每个人都会有一张专属的<a href="https://baike.baidu.com/item/居民身份证/2080960" target="_blank" rel="noopener" title="居民身份证">居民身份证</a>，是用于证明持有人身份的一种法定<a href="https://baike.baidu.com/item/证件/5804999" target="_blank" rel="noopener" title="证件">证件</a>。通过身份证，我们可以办理手机卡/银行卡/个人贷款/交通出行等等，这就是<strong>认证的凭证。</strong></li>
+<li>在互联网应用中，一般网站（如掘金）会有两种模式，游客模式和登录模式。游客模式下，可以正常浏览网站上面的文章，一旦想要点赞/收藏/分享文章，就需要登录或者注册账号。当用户登录成功后，服务器会给该用户使用的浏览器颁发一个令牌（token），这个令牌用来表明你的身份，每次浏览器发送请求时会带上这个令牌，就可以使用游客模式下无法使用的功能。</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-什么是-Cookie"><a href="#4-什么是-Cookie" class="headerlink" title="4. 什么是 Cookie"></a>4. 什么是 Cookie</h2><ul>
+<li><strong>HTTP 是无状态的协议（对于事务处理没有记忆能力，每次客户端和服务端会话完成时，服务端不会保存任何会话信息</strong>）：每个请求都是完全独立的，服务端无法确认当前访问者的身份信息，无法分辨上一次的请求发送者和这一次的发送者是不是同一个人。所以服务器与浏览器为了进行会话跟踪（知道是谁在访问我），就必须主动的去维护一个状态，这个状态用于告知服务端前后两个请求是否来自同一浏览器。而这个状态需要通过 cookie 或者 session 去实现。</li>
+<li><strong>cookie 存储在客户端：</strong> cookie 是服务器发送到用户浏览器并保存在本地的一小块数据，它会在浏览器下次向同一服务器再发起请求时被携带并发送到服务器上。</li>
+<li><strong>cookie 是不可跨域的：</strong> 每个 cookie 都会绑定单一的域名，无法在别的域名下获取使用，<strong>一级域名和二级域名之间是允许共享使用的</strong>（<strong>靠的是 domain）</strong>。</li>
+</ul>
+<p><strong>cookie 重要的属性</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">属性</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>name=value</strong></td>
+<td align="left">键值对，设置 Cookie 的名称及相对应的值，都必须是<strong>字符串类型</strong> - 如果值为 Unicode 字符，需要为字符编码。 - 如果值为二进制数据，则需要使用 BASE64 编码。</td>
+</tr>
+<tr>
+<td align="left"><strong>domain</strong></td>
+<td align="left">指定 cookie 所属域名，默认是当前域名</td>
+</tr>
+<tr>
+<td align="left"><strong>path</strong></td>
+<td align="left"><strong>指定 cookie 在哪个路径（路由）下生效，默认是 ‘/‘</strong>。 如果设置为 <code>/abc</code>，则只有 <code>/abc</code> 下的路由可以访问到该 cookie，如：<code>/abc/read</code>。</td>
+</tr>
+<tr>
+<td align="left"><strong>maxAge</strong></td>
+<td align="left">cookie 失效的时间，单位秒。如果为整数，则该 cookie 在 maxAge 秒后失效。如果为负数，该 cookie 为临时 cookie ，关闭浏览器即失效，浏览器也不会以任何形式保存该 cookie 。如果为 0，表示删除该 cookie 。默认为 -1。 - <strong>比 expires 好用</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>expires</strong></td>
+<td align="left">过期时间，在设置的某个时间点后该 cookie 就会失效。 一般浏览器的 cookie 都是默认储存的，当关闭浏览器结束这个会话的时候，这个 cookie 也就会被删除</td>
+</tr>
+<tr>
+<td align="left"><strong>secure</strong></td>
+<td align="left">该 cookie 是否仅被使用安全协议传输。安全协议有 HTTPS，SSL 等，在网络上传输数据之前先将数据加密。默认为 false。 当 secure 值为 true 时，cookie 在 HTTP 中是无效，在 HTTPS 中才有效。</td>
+</tr>
+<tr>
+<td align="left"><strong>httpOnly</strong></td>
+<td align="left"><strong>如果给某个 cookie 设置了 httpOnly 属性，则无法通过 JS 脚本 读取到该 cookie 的信息，但还是能通过 Application 中手动修改 cookie，所以只是在一定程度上可以防止 XSS 攻击，不是绝对的安全</strong></td>
+</tr>
+<tr>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody></table>
+<h2 id="5-什么是-Session"><a href="#5-什么是-Session" class="headerlink" title="5. 什么是 Session"></a>5. 什么是 Session</h2><ul>
+<li><strong>session 是另一种记录服务器和客户端会话状态的机制</strong></li>
+<li><strong>session 是基于 cookie 实现的，session 存储在服务器端，sessionId 会被存储到客户端的 cookie 中</strong></li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04d0b3cf5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="session.png"></p>
+<ul>
+<li>session 认证流程：<ul>
+<li>用户第一次请求服务器的时候，服务器根据用户提交的相关信息，创建对应的 Session</li>
+<li>请求返回时将此 Session 的唯一标识信息 SessionID 返回给浏览器</li>
+<li>浏览器接收到服务器返回的 SessionID 信息后，会将此信息存入到 Cookie 中，同时 Cookie 记录此 SessionID 属于哪个域名</li>
+<li>当用户第二次访问服务器的时候，请求会自动判断此域名下是否存在 Cookie 信息，如果存在自动将 Cookie 信息也发送给服务端，服务端会从 Cookie 中获取 SessionID，再根据 SessionID 查找对应的 Session 信息，如果没有找到说明用户没有登录或者登录失效，如果找到 Session 证明用户已经登录可执行后面操作。</li>
+</ul>
+</li>
+</ul>
+<p>根据以上流程可知，<strong>SessionID 是连接 Cookie 和 Session 的一道桥梁</strong>，大部分系统也是根据此原理来验证用户登录状态。</p>
+<h2 id="6-Cookie-和-Session-的区别"><a href="#6-Cookie-和-Session-的区别" class="headerlink" title="6. Cookie 和 Session 的区别"></a>6. Cookie 和 Session 的区别</h2><ul>
+<li><strong>安全性：</strong> Session 比 Cookie 安全，Session 是存储在服务器端的，Cookie 是存储在客户端的。</li>
+<li><strong>存取值的类型不同</strong>：Cookie 只支持存字符串数据，想要设置其他类型的数据，需要将其转换成字符串，Session 可以存任意数据类型。</li>
+<li><strong>有效期不同：</strong> Cookie 可设置为长时间保持，比如我们经常使用的默认登录功能，Session 一般失效时间较短，客户端关闭（默认情况下）或者 Session 超时都会失效。</li>
+<li><strong>存储大小不同：</strong> 单个 Cookie 保存的数据不能超过 4K，Session 可存储数据远高于 Cookie，但是当访问量过多，会占用过多的服务器资源。</li>
+</ul>
+<h2 id="7-什么是-Token（令牌）"><a href="#7-什么是-Token（令牌）" class="headerlink" title="7. 什么是 Token（令牌）"></a>7. 什么是 Token（令牌）</h2><h3 id="7-1-Acesss-Token"><a href="#7-1-Acesss-Token" class="headerlink" title="7.1 Acesss Token"></a>7.1 Acesss Token</h3><ul>
+<li><strong>访问资源接口（API）时所需要的资源凭证</strong></li>
+<li><strong>简单 token 的组成：</strong> uid(用户唯一的身份标识)、time(当前时间的时间戳)、sign（签名，token 的前几位以哈希算法压缩成的一定长度的十六进制字符串）</li>
+<li>特点：<ul>
+<li><strong>服务端无状态化、可扩展性好</strong></li>
+<li><strong>支持移动端设备</strong></li>
+<li>安全</li>
+<li>支持跨程序调用</li>
+</ul>
+</li>
+<li><strong>token 的身份验证流程：</strong></li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04d9c745f?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<ol>
+<li>客户端使用用户名跟密码请求登录</li>
+<li>服务端收到请求，去验证用户名与密码</li>
+<li>验证成功后，服务端会签发一个 token 并把这个 token 发送给客户端</li>
+<li>客户端收到 token 以后，会把它存储起来，比如放在 cookie 里或者 localStorage 里</li>
+<li>客户端每次向服务端请求资源的时候需要带着服务端签发的 token</li>
+<li>服务端收到请求，然后去验证客户端请求里面带着的 token ，如果验证成功，就向客户端返回请求的数据</li>
+</ol>
+<ul>
+<li><strong>每一次请求都需要携带 token，需要把 token 放到 HTTP 的 Header 里</strong></li>
+<li><strong>基于 token 的用户认证是一种服务端无状态的认证方式，服务端不用存放 token 数据。用解析 token 的计算时间换取 session 的存储空间，从而减轻服务器的压力，减少频繁的查询数据库</strong></li>
+<li><strong>token 完全由应用管理，所以它可以避开同源策略</strong></li>
+</ul>
+<h3 id="7-2-Refresh-Token"><a href="#7-2-Refresh-Token" class="headerlink" title="7.2 Refresh Token"></a>7.2 Refresh Token</h3><ul>
+<li>另外一种 token——refresh token</li>
+<li>refresh token 是专用于刷新 access token 的 token。如果没有 refresh token，也可以刷新 access token，但每次刷新都要用户输入登录用户名与密码，会很麻烦。有了 refresh token，可以减少这个麻烦，客户端直接用 refresh token 去更新 access token，无需用户进行额外的操作。</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04d1c887b?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<ul>
+<li>Access Token 的有效期比较短，当 Acesss Token 由于过期而失效时，使用 Refresh Token 就可以获取到新的 Token，如果 Refresh Token 也失效了，用户就只能重新登录了。</li>
+<li>Refresh Token 及过期时间是存储在服务器的数据库中，只有在申请新的 Acesss Token 时才会验证，不会对业务接口响应时间造成影响，也不需要向 Session 一样一直保持在内存中以应对大量的请求。</li>
+</ul>
+<h2 id="8-Token-和-Session-的区别"><a href="#8-Token-和-Session-的区别" class="headerlink" title="8. Token 和 Session 的区别"></a>8. Token 和 Session 的区别</h2><ul>
+<li>Session 是一种<strong>记录服务器和客户端会话状态的机制，使服务端有状态化，可以记录会话信息</strong>。而 Token 是<strong>令牌</strong>，<strong>访问资源接口（API）时所需要的资源凭证</strong>。Token <strong>使服务端无状态化，不会存储会话信息。</strong></li>
+<li>Session 和 Token 并不矛盾，作为身份认证 Token 安全性比 Session 好，因为每一个请求都有签名还能防止监听以及重放攻击，而 Session 就必须依赖链路层来保障通讯安全了。<strong>如果你需要实现有状态的会话，仍然可以增加 Session 来在服务器端保存一些状态。</strong></li>
+<li>所谓 Session 认证只是简单的把 User 信息存储到 Session 里，因为 SessionID 的不可预测性，暂且认为是安全的。而 Token ，如果指的是 OAuth Token 或类似的机制的话，提供的是 认证 和 授权 ，认证是针对用户，授权是针对 App 。其目的是让某 App 有权利访问某用户的信息。这里的 Token 是唯一的。不可以转移到其它 App 上，也不可以转到其它用户上。Session 只提供一种简单的认证，即只要有此 SessionID ，即认为有此 User 的全部权利。是需要严格保密的，这个数据应该只保存在站方，不应该共享给其它网站或者第三方 App。所以简单来说：<strong>如果你的用户数据可能需要和第三方共享，或者允许第三方调用 API 接口，用 Token 。如果永远只是自己的网站，自己的 App，用什么就无所谓了。</strong></li>
+</ul>
+<h2 id="9-什么是-JWT"><a href="#9-什么是-JWT" class="headerlink" title="9. 什么是 JWT"></a>9. 什么是 JWT</h2><ul>
+<li>JSON Web Token（简称 JWT）是目前最流行的<strong>跨域认证</strong>解决方案。</li>
+<li>是一种<strong>认证授权机制</strong>。</li>
+<li>JWT 是为了在网络应用环境间<strong>传递声明</strong>而执行的一种基于 JSON 的开放标准（<a href="https://tools.ietf.org/html/rfc7519" target="_blank" rel="noopener" title="RFC 7519">RFC 7519</a>）。JWT 的声明一般被用来在身份提供者和服务提供者间传递被认证的用户身份信息，以便于从资源服务器获取资源。比如用在用户登录上。</li>
+<li>可以使用 HMAC 算法或者是 RSA 的公/私秘钥对 JWT 进行签名。因为数字签名的存在，这些传递的信息是可信的。</li>
+<li><strong>阮一峰老师的 <a href="http://www.ruanyifeng.com/blog/2018/07/json_web_token-tutorial.html" target="_blank" rel="noopener" title="JSON Web Token 入门教程">JSON Web Token 入门教程</a> 讲的非常通俗易懂，这里就不再班门弄斧了</strong></li>
+</ul>
+<h3 id="9-1-生成-JWT"><a href="#9-1-生成-JWT" class="headerlink" title="9.1 生成 JWT"></a>9.1 生成 JWT</h3><p><a href="https://jwt.io/" target="_blank" rel="noopener" title="jwt.io/">jwt.io/</a><br><a href="https://www.jsonwebtoken.io/" target="_blank" rel="noopener" title="www.jsonwebtoken.io/">www.jsonwebtoken.io/</a></p>
+<h3 id="9-2-JWT-的原理"><a href="#9-2-JWT-的原理" class="headerlink" title="9.2 JWT 的原理"></a>9.2 JWT 的原理</h3><p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04e881087?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<ul>
+<li>JWT 认证流程：<ul>
+<li>用户输入用户名/密码登录，服务端认证成功后，会返回给客户端一个 JWT</li>
+<li>客户端将 token 保存到本地（通常使用 localstorage，也可以使用 cookie）</li>
+<li>当用户希望访问一个受保护的路由或者资源的时候，需要请求头的 Authorization 字段中使用 Bearer 模式添加 JWT，其内容看起来是下面这样</li>
+</ul>
+</li>
+</ul>
+<pre class=" language-http"><code class="language-http"><span class="token header-name keyword">Authorization:</span> Bearer &lt;token></code></pre>
+<ul>
+<li>服务端的保护路由将会检查请求头 Authorization 中的 JWT 信息，如果合法，则允许用户的行为</li>
+<li>因为 JWT 是自包含的（内部包含了一些会话信息），因此减少了需要查询数据库的需要</li>
+<li>因为 JWT 并不使用 Cookie 的，所以你可以使用任何域名提供你的 API 服务而不需要担心跨域资源共享问题（CORS）</li>
+<li>因为用户的状态不再存储在服务端的内存中，所以这是一种无状态的认证机制</li>
+</ul>
+<h3 id="9-3-JWT-的使用方式"><a href="#9-3-JWT-的使用方式" class="headerlink" title="9.3 JWT 的使用方式"></a>9.3 JWT 的使用方式</h3><ul>
+<li>客户端收到服务器返回的 JWT，可以储存在 Cookie 里面，也可以储存在 localStorage。</li>
+</ul>
+<h4 id="方式一"><a href="#方式一" class="headerlink" title="方式一"></a>方式一</h4><ul>
+<li><p>当用户希望访问一个受保护的路由或者资源的时候，可以把它放在 Cookie 里面自动发送，但是这样不能跨域，所以更好的做法是放在 HTTP 请求头信息的 Authorization 字段里，使用 Bearer 模式添加 JWT。</p>
+<pre class=" language-http"><code class="language-http">GET /calendar/v1/events
+<span class="token header-name keyword">Host:</span> api.example.com
+<span class="token header-name keyword">Authorization:</span> Bearer &lt;token></code></pre>
+</li>
+<li><p>用户的状态不会存储在服务端的内存中，这是一种 <strong>无状态的认证机制</strong></p>
+<ul>
+<li>服务端的保护路由将会检查请求头 Authorization 中的 JWT 信息，如果合法，则允许用户的行为。</li>
+<li>由于 JWT 是自包含的，因此减少了需要查询数据库的需要</li>
+<li>JWT 的这些特性使得我们可以完全依赖其无状态的特性提供数据 API 服务，甚至是创建一个下载流服务。</li>
+<li>因为 JWT 并不使用 Cookie ，所以你可以使用任何域名提供你的 API 服务而<strong>不需要担心跨域资源共享问题</strong>（CORS）</li>
+</ul>
+</li>
+</ul>
+<h4 id="方式二"><a href="#方式二" class="headerlink" title="方式二"></a>方式二</h4><ul>
+<li>跨域的时候，可以把 JWT 放在 POST 请求的数据体里。</li>
+</ul>
+<h4 id="方式三"><a href="#方式三" class="headerlink" title="方式三"></a>方式三</h4><ul>
+<li>通过 URL 传输</li>
+</ul>
+<pre class=" language-http"><code class="language-http"><span class="token header-name keyword">http:</span>//www.example.com/user?token=xxx</code></pre>
+<h3 id="9-4-项目中使用-JWT"><a href="#9-4-项目中使用-JWT" class="headerlink" title="9.4 项目中使用 JWT"></a>9.4 项目中使用 JWT</h3><p><a href="https://github.com/yjdjiayou/jwt-demo" target="_blank" rel="noopener" title="**项目地址**"><strong>项目地址</strong></a></p>
+<h2 id="10-Token-和-JWT-的区别"><a href="#10-Token-和-JWT-的区别" class="headerlink" title="10. Token 和 JWT 的区别"></a>10. Token 和 JWT 的区别</h2><p><strong>相同：</strong></p>
+<ul>
+<li>都是访问资源的令牌</li>
+<li>都可以记录用户的信息</li>
+<li>都是使服务端无状态化</li>
+<li>都是只有验证成功后，客户端才能访问服务端上受保护的资源</li>
+</ul>
+<p><strong>区别：</strong></p>
+<ul>
+<li>Token：服务端验证客户端发送过来的 Token 时，还需要查询数据库获取用户信息，然后验证 Token 是否有效。</li>
+<li>JWT： 将 Token 和 Payload 加密后存储于客户端，服务端只需要使用密钥解密进行校验（校验也是 JWT 自己实现的）即可，不需要查询或者减少查询数据库，因为 JWT 自包含了用户信息和加密的数据。</li>
+</ul>
+<h2 id="11-常见的前后端鉴权方式"><a href="#11-常见的前后端鉴权方式" class="headerlink" title="11. 常见的前后端鉴权方式"></a>11. 常见的前后端鉴权方式</h2><ol>
+<li>Session-Cookie</li>
+<li>Token 验证（包括 JWT，SSO）</li>
+<li>OAuth2.0（开放授权）</li>
+</ol>
+<h2 id="12-常见的加密算法"><a href="#12-常见的加密算法" class="headerlink" title="12. 常见的加密算法"></a>12. 常见的加密算法</h2><p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04f17f2fc?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="image.png"></p>
+<ul>
+<li>哈希算法(Hash Algorithm)又称散列算法、散列函数、哈希函数，是一种从任何一种数据中创建小的数字“指纹”的方法。哈希算法将数据重新打乱混合，重新创建一个哈希值。</li>
+<li>哈希算法主要用来保障数据真实性(即完整性)，即发信人将原始消息和哈希值一起发送，收信人通过相同的哈希函数来校验原始数据是否真实。</li>
+<li>哈希算法通常有以下几个特点：<ul>
+<li>正像快速：原始数据可以快速计算出哈希值</li>
+<li>逆向困难：通过哈希值基本不可能推导出原始数据</li>
+<li>输入敏感：原始数据只要有一点变动，得到的哈希值差别很大</li>
+<li>冲突避免：很难找到不同的原始数据得到相同的哈希值，宇宙中原子数大约在 10 的 60 次方到 80 次方之间，所以 2 的 256 次方有足够的空间容纳所有的可能，算法好的情况下冲突碰撞的概率很低：<ul>
+<li>2 的 128 次方为 340282366920938463463374607431768211456，也就是 10 的 39 次方级别</li>
+<li>2 的 160 次方为 1.4615016373309029182036848327163e+48，也就是 10 的 48 次方级别</li>
+<li>2 的 256 次方为 1.1579208923731619542357098500869 × 10 的 77 次方，也就是 10 的 77 次方</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>注意：</strong></p>
+<ol>
+<li>以上不能保证数据被恶意篡改，原始数据和哈希值都可能被恶意篡改，要保证不被篡改，可以使用 RSA 公钥私钥方案，再配合哈希值。</li>
+<li>哈希算法主要用来防止计算机传输过程中的错误，早期计算机通过前 7 位数据第 8 位奇偶校验码来保障（12.5% 的浪费效率低），对于一段数据或文件，通过哈希算法生成 128bit 或者 256bit 的哈希值，如果校验有问题就要求重传。</li>
+</ol>
+<h2 id="13-常见问题"><a href="#13-常见问题" class="headerlink" title="13. 常见问题"></a>13. 常见问题</h2><h3 id="13-1-使用-cookie-时需要考虑的问题"><a href="#13-1-使用-cookie-时需要考虑的问题" class="headerlink" title="13.1 使用 cookie 时需要考虑的问题"></a>13.1 使用 cookie 时需要考虑的问题</h3><ul>
+<li>因为存储在客户端，容易被客户端篡改，使用前需要验证合法性</li>
+<li>不要存储敏感数据，比如用户密码，账户余额</li>
+<li>使用 httpOnly 在一定程度上提高安全性</li>
+<li>尽量减少 cookie 的体积，能存储的数据量不能超过 4kb</li>
+<li>设置正确的 domain 和 path，减少数据传输</li>
+<li><strong>cookie 无法跨域</strong></li>
+<li>一个浏览器针对一个网站最多存 20 个 Cookie，浏览器一般只允许存放 300 个 Cookie</li>
+<li><strong>移动端对 cookie 的支持不是很好，而 session 需要基于 cookie 实现，所以移动端常用的是 token</strong></li>
+</ul>
+<h3 id="13-2-使用-session-时需要考虑的问题"><a href="#13-2-使用-session-时需要考虑的问题" class="headerlink" title="13.2 使用 session 时需要考虑的问题"></a>13.2 使用 session 时需要考虑的问题</h3><ul>
+<li>将 session 存储在服务器里面，当用户同时在线量比较多时，这些 session 会占据较多的内存，需要在服务端定期的去清理过期的 session</li>
+<li>当网站采用<strong>集群部署</strong>的时候，会遇到多台 web 服务器之间如何做 session 共享的问题。因为 session 是由单个服务器创建的，但是处理用户请求的服务器不一定是那个创建 session 的服务器，那么该服务器就无法拿到之前已经放入到 session 中的登录凭证之类的信息了。</li>
+<li>当多个应用要共享 session 时，除了以上问题，还会遇到跨域问题，因为不同的应用可能部署的主机不一样，需要在各个应用做好 cookie 跨域的处理。</li>
+<li><strong>sessionId 是存储在 cookie 中的，假如浏览器禁止 cookie 或不支持 cookie 怎么办？</strong> 一般会把 sessionId 跟在 url 参数后面即重写 url，所以 session 不一定非得需要靠 cookie 实现</li>
+<li><strong>移动端对 cookie 的支持不是很好，而 session 需要基于 cookie 实现，所以移动端常用的是 token</strong></li>
+</ul>
+<h3 id="13-3-使用-token-时需要考虑的问题"><a href="#13-3-使用-token-时需要考虑的问题" class="headerlink" title="13.3 使用 token 时需要考虑的问题"></a>13.3 使用 token 时需要考虑的问题</h3><ul>
+<li>如果你认为用数据库来存储 token 会导致查询时间太长，可以选择放在内存当中。比如 redis 很适合你对 token 查询的需求。</li>
+<li><strong>token 完全由应用管理，所以它可以避开同源策略</strong></li>
+<li><strong>token 可以避免 CSRF 攻击(因为不需要 cookie 了)</strong></li>
+<li><strong>移动端对 cookie 的支持不是很好，而 session 需要基于 cookie 实现，所以移动端常用的是 token</strong></li>
+</ul>
+<h3 id="13-4-使用-JWT-时需要考虑的问题"><a href="#13-4-使用-JWT-时需要考虑的问题" class="headerlink" title="13.4 使用 JWT 时需要考虑的问题"></a>13.4 使用 JWT 时需要考虑的问题</h3><ul>
+<li>因为 JWT 并不依赖 Cookie 的，所以你可以使用任何域名提供你的 API 服务而不需要担心跨域资源共享问题（CORS）</li>
+<li>JWT 默认是不加密，但也是可以加密的。生成原始 Token 以后，可以用密钥再加密一次。</li>
+<li>JWT 不加密的情况下，不能将秘密数据写入 JWT。</li>
+<li>JWT 不仅可以用于认证，也可以用于交换信息。有效使用 JWT，可以降低服务器查询数据库的次数。</li>
+<li>JWT 最大的优势是服务器不再需要存储 Session，使得服务器认证鉴权业务可以方便扩展。但这也是 JWT 最大的缺点：由于服务器不需要存储 Session 状态，因此使用过程中无法废弃某个 Token 或者更改 Token 的权限。也就是说一旦 JWT 签发了，到期之前就会始终有效，除非服务器部署额外的逻辑。</li>
+<li>JWT 本身包含了认证信息，一旦泄露，任何人都可以获得该令牌的所有权限。为了减少盗用，JWT 的有效期应该设置得比较短。对于一些比较重要的权限，使用时应该再次对用户进行认证。</li>
+<li>JWT 适合一次性的命令认证，颁发一个有效期极短的 JWT，即使暴露了危险也很小，由于每次操作都会生成新的 JWT，因此也没必要保存 JWT，真正实现无状态。</li>
+<li>为了减少盗用，JWT 不应该使用 HTTP 协议明码传输，要使用 HTTPS 协议传输。</li>
+</ul>
+<h3 id="13-5-使用加密算法时需要考虑的问题"><a href="#13-5-使用加密算法时需要考虑的问题" class="headerlink" title="13.5 使用加密算法时需要考虑的问题"></a>13.5 使用加密算法时需要考虑的问题</h3><ul>
+<li>绝不要以<strong>明文存储</strong>密码</li>
+<li><strong>永远使用 哈希算法 来处理密码，绝不要使用 Base64 或其他编码方式来存储密码，这和以明文存储密码是一样的，使用哈希，而不要使用编码</strong>。编码以及加密，都是双向的过程，而密码是保密的，应该只被它的所有者知道， 这个过程必须是单向的。哈希正是用于做这个的，从来没有解哈希这种说法， 但是编码就存在解码，加密就存在解密。</li>
+<li>绝不要使用弱哈希或已被破解的哈希算法，像 MD5 或 SHA1 ，只使用强密码哈希算法。</li>
+<li>绝不要以明文形式显示或发送密码，即使是对密码的所有者也应该这样。如果你需要 “忘记密码” 的功能，可以随机生成一个新的 <strong>一次性的</strong>（这点很重要）密码，然后把这个密码发送给用户。</li>
+</ul>
+<h3 id="13-6-分布式架构下-session-共享方案"><a href="#13-6-分布式架构下-session-共享方案" class="headerlink" title="13.6 分布式架构下 session 共享方案"></a>13.6 分布式架构下 session 共享方案</h3><h4 id="1-session-复制"><a href="#1-session-复制" class="headerlink" title="1. session 复制"></a>1. session 复制</h4><ul>
+<li>任何一个服务器上的 session 发生改变（增删改），该节点会把这个 session 的所有内容序列化，然后广播给所有其它节点，不管其他服务器需不需要 session ，以此来保证 session 同步</li>
+</ul>
+<p><strong>优点：</strong> 可容错，各个服务器间 session 能够实时响应。<br><strong>缺点：</strong> 会对网络负荷造成一定压力，如果 session 量大的话可能会造成网络堵塞，拖慢服务器性能。</p>
+<h4 id="2-粘性-session-IP-绑定策略"><a href="#2-粘性-session-IP-绑定策略" class="headerlink" title="2. 粘性 session /IP 绑定策略"></a>2. 粘性 session /IP 绑定策略</h4><ul>
+<li><strong>采用 Ngnix 中的 ip_hash 机制，将某个 ip 的所有请求都定向到同一台服务器上，即将用户与服务器绑定。</strong> 用户第一次请求时，负载均衡器将用户的请求转发到了 A 服务器上，如果负载均衡器设置了粘性 session 的话，那么用户以后的每次请求都会转发到 A 服务器上，相当于把用户和 A 服务器粘到了一块，这就是粘性 session 机制。</li>
+</ul>
+<p><strong>优点：</strong> 简单，不需要对 session 做任何处理。<br><strong>缺点：</strong> 缺乏容错性，如果当前访问的服务器发生故障，用户被转移到第二个服务器上时，他的 session 信息都将失效。<br><strong>适用场景：</strong> 发生故障对客户产生的影响较小；服务器发生故障是低概率事件 。<br><strong>实现方式：</strong> 以 Nginx 为例，在 upstream 模块配置 ip_hash 属性即可实现粘性 session。</p>
+<h4 id="3-session-共享（常用）"><a href="#3-session-共享（常用）" class="headerlink" title="3. session 共享（常用）"></a>3. session 共享（常用）</h4><ul>
+<li>使用分布式缓存方案比如 Memcached 、Redis 来缓存 session，但是要求 Memcached 或 Redis 必须是集群</li>
+<li>把 session 放到 Redis 中存储，虽然架构上变得复杂，并且需要多访问一次 Redis ，但是这种方案带来的好处也是很大的：<ul>
+<li>实现了 session 共享；</li>
+<li>可以水平扩展（增加 Redis 服务器）；</li>
+<li>服务器重启 session 不丢失（不过也要注意 session 在 Redis 中的刷新/失效机制）；</li>
+<li>不仅可以跨服务器 session 共享，甚至可以跨平台（例如网页端和 APP 端）</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/12/29/16f523a04fb8b4b8?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<h4 id="4-session-持久化"><a href="#4-session-持久化" class="headerlink" title="4. session 持久化"></a>4. session 持久化</h4><ul>
+<li>将 session 存储到数据库中，保证 session 的持久化</li>
+</ul>
+<p><strong>优点：</strong> 服务器出现问题，session 不会丢失<br><strong>缺点：</strong> 如果网站的访问量很大，把 session 存储到数据库中，会对数据库造成很大压力，还需要增加额外的开销维护数据库。</p>
+<h3 id="13-7-只要关闭浏览器-，session-真的就消失了？"><a href="#13-7-只要关闭浏览器-，session-真的就消失了？" class="headerlink" title="13.7 只要关闭浏览器 ，session 真的就消失了？"></a>13.7 <strong>只要关闭浏览器 ，session 真的就消失了？</strong></h3><p>不对。对 session 来说，除非程序通知服务器删除一个 session，否则服务器会一直保留，程序一般都是在用户做 log off 的时候发个指令去删除 session。<br>然而浏览器从来不会主动在关闭之前通知服务器它将要关闭，因此服务器根本不会有机会知道浏览器已经关闭，之所以会有这种错觉，是大部分 session 机制都使用会话 cookie 来保存 session id，而关闭浏览器后这个 session id 就消失了，再次连接服务器时也就无法找到原来的 session。如果服务器设置的 cookie 被保存在硬盘上，或者使用某种手段改写浏览器发出的 HTTP 请求头，把原来的 session id 发送给服务器，则再次打开浏览器仍然能够打开原来的 session。<br>恰恰是<strong>由于关闭浏览器不会导致 session 被删除，迫使服务器为 session 设置了一个失效时间，当距离客户端上一次使用 session 的时间超过这个失效时间时，服务器就认为客户端已经停止了活动，才会把 session 删除以节省存储空间。</strong></p>
+<h2 id="14-项目地址"><a href="#14-项目地址" class="headerlink" title="14. 项目地址"></a>14. 项目地址</h2><p><a href="https://github.com/yjdjiayou/jwt-demo" target="_blank" rel="noopener" title="**在项目中使用 JWT**"><strong>在项目中使用 JWT</strong></a></p>
+<h2 id="15-后语"><a href="#15-后语" class="headerlink" title="15. 后语"></a>15. 后语</h2><ul>
+<li>本文只是基于自己的理解讲了理论知识，因为对后端/算法知识不是很熟，如有谬误，还请告知，万分感谢</li>
+<li>如果本文对你有所帮助，还请点个赞~~</li>
+</ul>
+<h2 id="16-参考"><a href="#16-参考" class="headerlink" title="16. 参考"></a>16. 参考</h2><p><a href="https://baike.baidu.com/item/cookie/1119?fr=aladdin" target="_blank" rel="noopener" title="**百度百科-cookie**"><strong>百度百科-cookie</strong></a></p>
+<p><a href="https://baike.baidu.com/item/session/479100?fr=aladdin#3" target="_blank" rel="noopener" title="**百度百科-session**"><strong>百度百科-session</strong></a></p>
+<p><a href="https://juejin.im/post/5d01f82cf265da1b67210869" target="_blank" rel="noopener" title="**详解 Cookie，Session，Token**"><strong>详解 Cookie，Session，Token</strong></a></p>
+<p><a href="https://juejin.im/post/5de4c3c76fb9a071b86cc482#heading-0" target="_blank" rel="noopener" title="**一文彻底搞懂Cookie、Session、Token到底是什么**"><strong>一文彻底搞懂 Cookie、Session、Token 到底是什么</strong></a></p>
+<p><strong><a href="https://www.cnblogs.com/lyzg/p/6067766.html" target="_blank" rel="noopener" title="3种web会话管理的方式">3 种 web 会话管理的方式</a>！！！</strong></p>
+<p><strong><a href="https://www.cnblogs.com/JamesWang1993/p/8593494.html" target="_blank" rel="noopener" title="Token ，Cookie和Session的区别">Token ，Cookie 和 Session 的区别</a>！！！</strong></p>
+<p><strong><a href="https://www.cnblogs.com/moyand/p/9047978.html" target="_blank" rel="noopener" title="彻底理解 cookie、session、token">彻底理解 cookie、session、token</a>！！！</strong></p>
+<p><a href="https://juejin.im/post/5c6e6063f265da2da53ec8f3" target="_blank" rel="noopener" title="**前端鉴权**"><strong>前端鉴权</strong></a></p>
+<p><a href="https://zh.wikipedia.org/wiki/SHA-1" target="_blank" rel="noopener" title="**SHA-1**"><strong>SHA-1</strong></a></p>
+<p><a href="https://zh.wikipedia.org/wiki/SHA-2" target="_blank" rel="noopener" title="**SHA-2**"><strong>SHA-2</strong></a></p>
+<p><a href="https://zh.wikipedia.org/wiki/SHA-3" target="_blank" rel="noopener" title="**SHA-3**"><strong>SHA-3</strong></a></p>
+<p><a href="https://blog.csdn.net/zhezhebie/article/details/71631077" target="_blank" rel="noopener" title="**不要再使用MD5和SHA1加密密码了！**"><strong>不要再使用 MD5 和 SHA1 加密密码了！</strong></a></p>
+<p><a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1023025778520640" target="_blank" rel="noopener" title="**廖雪峰 Node 教程之 crypto**"><strong>廖雪峰 Node 教程之 crypto</strong></a><a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1023025778520640" target="_blank" rel="noopener" title=" "> </a></p>
+<h2 id="17-推荐阅读"><a href="#17-推荐阅读" class="headerlink" title="17. 推荐阅读"></a>17. 推荐阅读</h2><p><a href="https://juejin.im/post/5df648836fb9a016526eba01" target="_blank" rel="noopener" title="**你真的了解 React 生命周期吗**"><strong>你真的了解 React 生命周期吗</strong></a></p>
+<p><strong><a href="https://juejin.im/post/5dbbdbd5f265da4d4b5fe57d" target="_blank" rel="noopener" title="React Hooks 详解 【近 1W 字】+ 项目实战">React Hooks 详解 【近 1W 字】+ 项目实战</a></strong></p>
+<p><strong><a href="https://juejin.im/post/5def0816f265da33aa6aa7fe" target="_blank" rel="noopener" title="React SSR 详解【近 1W 字】+ 2个项目实战">React SSR 详解【近 1W 字】+ 2 个项目实战</a></strong></p>
+<p><strong><a href="https://juejin.im/post/5da56e34f265da5b932e73fa" target="_blank" rel="noopener" title="从 0 到 1 实现一款简易版 Webpack">从 0 到 1 实现一款简易版 Webpack</a></strong></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-反射的基本原理"
   class="article article-type-post"
   itemscope
@@ -1688,142 +2049,6 @@ Document doc <span class="token operator">=</span> <span class="token function">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%AB%99%E6%8E%A8%E8%8D%90/" rel="tag">网站推荐</a></li></ul>
 
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-毁了你职业生涯的三个错误认知！"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/12/15/%E6%AF%81%E4%BA%86%E4%BD%A0%E8%81%8C%E4%B8%9A%E7%94%9F%E6%B6%AF%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E8%AF%AF%E8%AE%A4%E7%9F%A5%EF%BC%81/"
-    >毁了你职业生涯的三个错误认知！</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/12/15/%E6%AF%81%E4%BA%86%E4%BD%A0%E8%81%8C%E4%B8%9A%E7%94%9F%E6%B6%AF%E7%9A%84%E4%B8%89%E4%B8%AA%E9%94%99%E8%AF%AF%E8%AE%A4%E7%9F%A5%EF%BC%81/" class="article-date">
-  <time datetime="2019-12-15T06:10:08.000Z" itemprop="datePublished">2019-12-15</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址：<a href="https://mp.weixin.qq.com/s/4J_4Mfwd8PYd8VyBB0LXbA" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/4J_4Mfwd8PYd8VyBB0LXbA</a></p>
-<p>小结：</p>
-<p>三个错误认知：</p>
-<ol>
-<li><p><strong>进行大量重复练习？</strong></p>
-<p>反复练习是效率最低的一种方式。这种学习方法是在助长人的惰性。单纯地重复练习意味着我们在机械地、快速地重复一些东西，想把它们烙在自己的记忆里</p>
-<p>读书-思考-行动-反思</p>
-</li>
-<li><p><strong>努力努力再努力？</strong></p>
-<p>底层逻辑是我们在思考问题的时候，最先的核心切入点，从这个点开始思考，从而作出之后的决定。</p>
-<p>当围绕着底层逻辑思考时，做出的决定才是和初心一致，最贴合内心的，也是真实的人性反馈。</p>
-</li>
-<li><p><strong>一定要用最新，最流行的工具？</strong> </p>
-<p>在尝试了使用工具便捷的甜头后，于是，我们容易掉进一个误区：追求使用最新，最流行的工具。</p>
-<p>技术人，不要老是埋头敲代码，要有点产品思维，要注重思想上的提升。语言只是一种工具，一种实现的手段，不要只做工具的奴隶，而要做思想上的巨人。</p>
-<p>一个只会熟练使用编程语言的程序员，如果只是一味地追求编程技术上的精进，而不注重编程思维的提升，那么也很难以获得新的突破。</p>
-<p>技法固然重要，但凌驾于技法之上的，却是一个人的思想高度</p>
-</li>
-<li><p><strong>最后</strong></p>
-<p>我们之所以努力，是因为努力本身能拓展我们的能力。你所做的事情决定了你会成为什么样的人，决定了你有能力做什么。你做的事情越多，你能做的事情也就越多。</p>
-</li>
-</ol>
-<p>个人思考：</p>
-<p>重复练习是在助长人的惰性，习得-思考-行动-反思</p>
-<p>找到问题的底层逻辑</p>
-<p>要注重编程思维的提升</p>
-</blockquote>
-<p>众所周知，在技术迅速转变、业务要求不断变化的 IT 行业，重塑职业道路似乎成为一个关乎生存的问题。</p>
-<p>那么，程序员想要不被淘汰，避免自己在职场上过早地走入死胡同，最稳妥的办法–接受新技术，保持终身学习。</p>
-<p>问题是，如何学？该避免哪些认知误区？</p>
-<h2 id="1-进行大量重复练习？"><a href="#1-进行大量重复练习？" class="headerlink" title="1. 进行大量重复练习？"></a><strong>1. 进行大量重复练习？</strong></h2><p>在开始之前，我先跟大家分享一个故事：</p>
-<p>上高中的第一天，班里来了一位学习非常刻苦勤奋的同学。这位同学勤奋到什么程度呢？书桌上的资料书堆起来后，可以完全把她淹没。课余时间，我们一般都会稍作休息，聊聊天，活动活动之类。</p>
-<p>但她是那种一刻钟都不肯浪费的人。当我们在玩耍时，她在读书学习；当我们在学习时，她也在学习；当我们午休时，她还在争分夺秒学习。晚上宿舍关灯休息时，她就会走到楼道里，借着昏暗的灯光继续学。</p>
-<p>像她这种勤奋的孩子，我们都以为她成绩很厉害。结果考试成绩出来，吓了我们一跳：全班倒数第五名。</p>
-<p>后来我们发现，她所谓的勤奋，其实不过就是在不断重复背题，实践题海战术。好读书，但不求甚解。是典型的“死记硬背”类型。碰巧背对了题，成绩就会上升。一旦题目“变”了身，成绩就急剧下降。</p>
-<p>我们一直以来接受的教育就是，倘若想要学好某门技能，就应把注意力完全放在这上面，然后通过不断重复的练习、练习、练习，直到掌握为止。</p>
-<p>而我们大多数人，都对这个方法深信不疑。因为曾经在考试期间，通过在集中练习后，在短期内效果显著，尝过甜头。</p>
-<p>像这种不断重复的练习，往往见效快，但时间一长，就暴露出其弊端。</p>
-<p>在《认知天性》一书中，作者认为，<strong>反复练习是效率最低的一种方式。这种学习方法是在助长人的惰性。单纯地重复练习意味着我们在机械地、快速地重复一些东西，想把它们烙在自己的记忆里。</strong></p>
-<p><strong>最熟悉的例子就是考前的”填鸭”，这种错误的方式让人觉得自己已经很熟练了，已经掌握了知识，但实际上这种方法不仅做不到真正的精通，也不会产生持久的记忆。</strong></p>
-<p>那么正确的方法是什么呢？书中提出了一些解决方案，而我感受最深的莫过于间隔练习。</p>
-<p> 我曾经有过这样的经历：</p>
-<p>记得有一次，项目中要引入新技术，需要我们自己折腾学习。当时在学习的时候，遇到了一个技术性问题，而周遭又没有人可以指导，只能自己上网搜索。</p>
-<p>当时只有一个心里念头：今晚不把问题解决，誓不罢休！</p>
-<p>于是，加班加点，反复尝试，不断折腾。可是无论怎么折腾，结果还是没有任何进展，反而效果越来越糟糕。</p>
-<p>夜已深。无奈之下，只好先行放弃。可待睡一觉后，第二天再尝试时，发现好像突然开窍，完成得比前一天更好。</p>
-<p>这里，涉及到一个“间隔练习”的问题。间隔练习，在这里，我把它称之为“爱迪生工作法”，这个工作方式，类似于我们平时所说的“劳逸结合”方式。</p>
-<p>据说爱迪生在工作一段时间后，就会躺在躺椅上小憩。每次他手里都会抓住一个铁球，如果不小心进入了深度睡眠，手里的铁球就会掉到地上把自己弄醒。这样，他就可以享受那种半梦半醒的状态，也是最有创造力的一段时间。</p>
-<p>这也是我比较喜欢的一种工作方式。每学习或者工作一段时间后，休息一小段时间放松，这样让身心保持在一个舒适的状态，更容易让大脑建立新的连接，效率比持续工作/学习要好很多。这也是间隔练习带来的好处。</p>
-<p>关于该如何有效学习，在《认知心理学》里，提出了<strong>PQ4R</strong>法，即<strong>预习-提问-阅读-反思-复述-复习</strong>。</p>
-<p>简单可以归结为，<strong>“读书-思考-行动-反思”循环模式</strong>。通过这个循环进行读书，才能把一本书逐渐读透。这个模式应用在学习，工作流程上也同样适用。</p>
-<p>学习是反人性的事情，当你感觉难，那就是正确的状态！在安德斯·艾利克森的《刻意练习》这本书的理论基础是<strong>“刻意练习自己不擅长的部分”。</strong>这个过程会让大脑处于一种非常不舒服的状态，会非常艰辛，若想有所成，前路必然艰辛。</p>
-<p>关键是，要在正确的方向上使力。认知错了，一切努力都是徒劳。</p>
-<h2 id="2-努力努力再努力？"><a href="#2-努力努力再努力？" class="headerlink" title="2. 努力努力再努力？"></a><strong>2. 努力努力再努力？</strong></h2><p>有时候会发现，明明自己已经很努力，却依然还是没有找到解决问题的方法，别人稍稍发力，就能迅速地找到突破口。这里涉及到另一个关键点–底层逻辑。</p>
-<p>滴滴打车的创始人程维说过，“遇到任何难以解决的问题，就会去想，最关键的底层逻辑是什么？” </p>
-<p>那么，什么是底层逻辑？这里，可以理解为<strong>我们在思考问题的时候，最先的核心切入点，从这个点开始思考，从而作出之后的决定。</strong></p>
-<p><strong>当围绕着底层逻辑思考时，做出的决定才是和初心一致，最贴合内心的，也是真实的人性反馈。</strong></p>
-<p>这个怎么说呢？</p>
-<p>在《颠覆认知》一书中，作者曾列举过一个例子：</p>
-<p>你教小朋友骑自行车，如果跟他说一大堆平衡理论，动力理论，他还是学不会。你只要告诉他底层逻辑–向前奔跑的自行车不会倒下，那么他自己捣鼓一下，很快就能学会。</p>
-<p>它的底层逻辑是什么，关键就是要看它能在根本上解决什么问题。作为新手，这个需要花时间去折腾，通过对事物的深入理解，熟悉后才能找到。</p>
-<p>而在商业模式里，一个公司的底层逻辑，往往与其定位密切相关。 </p>
-<p>例如，苹果公司的底层逻辑是“极致的人机交互体验”，所以苹果的产品设计都是“体验优先于性能”；</p>
-<p>腾讯的底层逻辑是“用户体验”，所以腾讯员工的动作靠两个东西来约束：一个是KPI，另一个就是“用户体验”这个核心价值认知，而且用户体验大于KPI；</p>
-<p>有了底层逻辑，公司在遇到难以解决的问题时，也就有了破题的切入点，这也是公司成功的一个关键。</p>
-<p>同理，可以引申到学习与工作中去。</p>
-<p>类比到学习。当学习java编程语言时，学过c语言的人可能更容易上手，因为学习语言的底层逻辑相同；当物理上讲到加速度时，有玩过过山车经验的人可能更容易理解。</p>
-<p><strong>这个学习的过程，就像滚雪球一样，越滚越大。随着经验的丰富，看待世界更为成熟，面对新知识时也就更容易触类旁通，举一反三和迁移。</strong></p>
-<p><strong>这些禀赋，在切换到新领域之后，都可以顺利移植，构成我们常说的底层逻辑。</strong></p>
-<p>这种底层逻辑，与法纳姆街博客上解释说的心智模型有着异曲同工之处。</p>
-<p>引用法纳姆街博客上的话来解释说，心智模型就是我们大脑做决定时所用的工具箱。工具箱里有的工具越多，你就更有可能做出正确的决定。因此，<strong>心智模型是工具，也是举一反三和学习迁移的基础，其重要性不言而喻。</strong></p>
-<h2 id="3-一定要用最新，最流行的工具？"><a href="#3-一定要用最新，最流行的工具？" class="headerlink" title="3. 一定要用最新，最流行的工具？"></a><strong>3. 一定要用最新，最流行的工具？</strong></h2><p>荀子在《荀子·劝学》中说：“假舟楫者，非能水也，而绝江河。君子生非异也，善假于物也。”</p>
-<p>由此可见，善于利用已有的条件，是我们成功的一个重要途径。</p>
-<p>同理，引申至我们的学习，工作中，同样适用。例如，在处理大量的数据统计上，使用计算器，或借助程序演算，会比口算或者笔算来得便捷高效，从而节省了多余的时间，可以投入到深度工作中去。</p>
-<p>例如，在项目趋向稳定阶段，需求变更较小，大量重复性验证的测试工作，可以通过使用自动化工具辅助解决，从而释放了更多的人力去做更重要的事情；</p>
-<p>设计师熟练使用各种设计软件，借助设计软件，能快速高效地完成精美的设计图；</p>
-<p>程序员熟悉使用编程语言，能开发出各种改变人类生活方式，甚至改变世界的软件；</p>
-<p>产品经理借助原型工具，能有效地把用户需求转换成一张张“会说话”的原型图。</p>
-<p>可以说，在信息科技发达的今天，善于利用身边已有的条件资源进行配置，会让你事半功倍。</p>
-<p>在尝试了使用工具便捷的甜头后，于是，我们容易掉进一个误区：追求使用最新，最流行的工具。</p>
-<p>正所谓，水能载舟，亦能覆舟。过度依赖工具，只会适得其反。</p>
-<p>例如，一个精通使用各种设计软件的设计师，如果一直只是在对使用工具的技巧上精进，不断在新工具，流行工具的使用上打磨，而不注重创新，不注重设计理念的提升，那么充其量也只能算是个设计“工匠”；</p>
-<p>一个只会熟练使用编程语言的程序员，如果只是一味地追求编程技术上的精进，而不注重编程思维的提升，那么也很难以获得新的突破。</p>
-<p>以前的一个技术总监对我们说过一番话，“技术人，不要老是埋头敲代码，要有点产品思维，要注重思想上的提升。语言只是一种工具，一种实现的手段，不要只做工具的奴隶，而要做思想上的巨人。”</p>
-<p>特里说：“即便你拥有一种专业技能，也会潮起潮落，新的热潮会开始涌现。如果你想站在最前沿，你的思想就要变得更开阔。关键不再仅仅是找到从A点到B点的最短捷径。”</p>
-<p>由此可见，技法固然重要，但凌驾于技法之上的，却是一个人的思想高度。</p>
-<h2 id="4-最-后"><a href="#4-最-后" class="headerlink" title="4. 最 后"></a><strong>4. 最 后</strong></h2><p>在《认知天性》里有一段话，“我们之所以努力，是因为努力本身能拓展我们的能力。你所做的事情决定了你会成为什么样的人，决定了你有能力做什么。你做的事情越多，你能做的事情也就越多。”</p>
-<p>虽然我不太苟同，在 IT 行业有所谓的‘走入死胡同的工作’。但是技术在更新，工作一直在变化，这对IT人来说是个真正的痛点。</p>
-<p>保持终身学习的习惯，拥有可迁移的底层能力以及不断提升的思想高度，即使有一天，AI替代了现在的我们，我们依然能去制造另一个AI，BI，CI……</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
     </footer>
   </div>
 

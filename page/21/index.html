@@ -99,6 +99,82 @@
     
     
     <article
+  id="post-Redis-为什么使用单进程单线程方式也这么快"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/05/Redis-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E5%8D%95%E8%BF%9B%E7%A8%8B%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%96%B9%E5%BC%8F%E4%B9%9F%E8%BF%99%E4%B9%88%E5%BF%AB/"
+    >Redis 为什么使用单进程单线程方式也这么快</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/05/Redis-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E5%8D%95%E8%BF%9B%E7%A8%8B%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%96%B9%E5%BC%8F%E4%B9%9F%E8%BF%99%E4%B9%88%E5%BF%AB/" class="article-date">
+  <time datetime="2019-08-05T12:09:41.000Z" itemprop="datePublished">2019-08-05</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>Redis 采用的是基于内存的采用的是单进程单线程模型的 KV 数据库，由 C 语言编写。官方提供的数据是可以达到100000+的 qps。这个数据不比采用单进程多线程的同样基于内存的 KV 数据库 Memcached 差。</p>
+<p>Redis 快的主要原因有：</p>
+<ol>
+<li>完全基于内存；</li>
+<li>数据结构简单，对数据操作也简单；</li>
+<li>使用多路 I/O 复用模型；</li>
+</ol>
+<p>第一、二点不细讲，主要围绕第三点采用多路 I/O 复用技术来展开。</p>
+<p>多路 I/O 复用模型是利用 select、poll、epoll 可以<strong>同时监察多个流的 I/O 事件</strong>的能力，在空闲的时候，会把当前线程阻塞掉，当有一个或多个流有 I/O 事件时，就从阻塞态中唤醒，于是程序就会轮询一遍所有的流（epoll 是只轮询那些真正发出了事件的流），并且只依次顺序的处理就绪的流，这种做法就避免了大量的无用操作。这里“多路”指的是多个网络连接，“复用”指的是复用同一个线程。采用多路 I/O 复用技术可以让单个线程高效的处理多个连接请求（尽量减少网络 IO 的时间消耗），且 Redis 在内存中操作数据的速度非常快（内存内的操作不会成为这里的性能瓶颈），主要以上两点造就了 Redis 具有很高的吞吐量。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190805201023.png" alt=""></p>
+<p>和 Memcached 不同，Redis 并没有直接使用 Libevent，而是自己完成了一个非常轻量级的对 select、epoll、evport、kqueue 这些通用的接口的实现。在不同的系统调用选用适合的接口，linux 下默认是 epoll。因为 Libevent 比较重，更通用，代码量也就很庞大，拥有很多 Redis 用不上的功能，Redis 为了追求“轻巧”并且去除依赖，就选择自己去封装了一套。</p>
+<h3 id="单进程单线程好处"><a href="#单进程单线程好处" class="headerlink" title="单进程单线程好处"></a>单进程单线程好处</h3><ol>
+<li>代码更清晰，处理逻辑更简单</li>
+<li>不用去考虑各种锁的问题，不存在加锁释放锁操作，没有因为可能出现死锁而导致的性能消耗</li>
+<li>不存在多进程或者多线程导致的切换而消耗 CPU</li>
+</ol>
+<h3 id="单进程单线程弊端"><a href="#单进程单线程弊端" class="headerlink" title="单进程单线程弊端"></a>单进程单线程弊端</h3><ol>
+<li>无法发挥多核 CPU 性能，不过可以通过在单机开多个 Redis 实例来完善；</li>
+</ol>
+<h3 id="其他一些优秀的开源软件采用的模型"><a href="#其他一些优秀的开源软件采用的模型" class="headerlink" title="其他一些优秀的开源软件采用的模型"></a>其他一些优秀的开源软件采用的模型</h3><ul>
+<li>多进程单线程模型：Nginx</li>
+<li>单进程多线程模型：Memcached</li>
+</ul>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><ul>
+<li><a href="https://en.wikipedia.org/wiki/Epoll" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Epoll</a></li>
+<li><a href="https://segmentfault.com/a/1190000003063859#articleHeader6" target="_blank" rel="noopener">https://segmentfault.com/a/1190000003063859#articleHeader6</a></li>
+<li>[<a href="http://www.ibm.com/developerworks/cn/linux/l-async/" target="_blank" rel="noopener">http://www.ibm.com/developerworks/cn/linux/l-async/</a>]<a href="http://www.ibm.com/developerworks/cn/linux/l-async/" target="_blank" rel="noopener">http://www.ibm.com/developerworks/cn/linux/l-async/</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/redis/" rel="tag">redis</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-分布式全局ID生成方案"
   class="article article-type-post"
   itemscope
@@ -834,81 +910,6 @@ Java3y    30  7月15号</code></pre>
 <p>记住：<strong>先分组，后统计</strong>(先把数据归类后，再对相同的数据进行统计)</p>
 <h3 id="1-3-group查询最常用的SQL"><a href="#1-3-group查询最常用的SQL" class="headerlink" title="1.3 group查询最常用的SQL"></a>1.3 group查询最常用的SQL</h3><p><strong>去重</strong>是我们经常会遇到的问题，打个比方说，由于各种原因（不管是业务上还是说是脏数据），现在我有两条重复的数据（除了ID，其余的字段都是相同的）：</p> 
       <a class="article-more-link" href="/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-优秀的代码都是如何分层的？"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/"
-    >优秀的代码都是如何分层的？</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/" class="article-date">
-  <time datetime="2019-07-29T14:27:04.000Z" itemprop="datePublished">2019-07-29</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址: <a href="https://mp.weixin.qq.com/s/YrTU-ZRYo7h2MN0GC6HdSQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/YrTU-ZRYo7h2MN0GC6HdSQ</a></p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222736.png" alt=""></p>
-<h2 id="1、背景"><a href="#1、背景" class="headerlink" title="1、背景"></a><strong>1、背景</strong></h2><p>说起应用分层，大部分人都会认为这个不是很简单嘛 就controller，service, mapper三层。看起来简单，很多人其实并没有把他们职责划分开，在很多代码中,controller做的逻辑比service还多,service往往当成透传了，这其实是很多人开发代码都没有注意到的地方，反正功能也能用，至于放哪无所谓呗。这样往往造成后面代码无法复用，层级关系混乱，对后续代码的维护非常麻烦。</p>
-<p>的确在这些人眼中分层只是一个形式，前辈们的代码这么写的，其他项目代码这么写的，那么我也这么跟着写。但是在真正的团队开发中每个人的习惯都不同，写出来的代码必然带着自己的标签，有的人习惯controller写大量的业务逻辑，有的人习惯在service中之间调用远程服务，这样就导致了每个人的开发代码风格完全不同，后续其他人修改的时候，一看，我靠这个人写的代码和我平常的习惯完全不同，修改的时候到底是按着自己以前的习惯改，还是跟着前辈们走，这又是个艰难的选择，选择一旦有偏差，你的后辈又维护你的代码的时候，恐怕就要骂人了。</p>
-<p>所以一个好的应用分层需要具备以下几点: </p>
-<ul>
-<li>方便后续代码进行维护扩展；</li>
-<li>分层的效果需要让整个团队都接受；</li>
-<li>各个层职责边界清晰。</li>
-</ul>
-<h2 id="2、如何进行分层"><a href="#2、如何进行分层" class="headerlink" title="2、如何进行分层"></a>2、如何进行分层</h2><h3 id="2-1、阿里规范"><a href="#2-1、阿里规范" class="headerlink" title="2.1、阿里规范"></a>2.1、阿里规范</h3><p>在阿里的编码规范中约束的分层如下:</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222826.png" alt=""></p>
-<p><strong>开放接口层</strong>：可直接封装 Service 方法暴露成 RPC 接口;通过 Web 封装成 http 接口;进行 网关安全控制、流量控制等。</p>
-<p><strong>终端显示层</strong>：各个端的模板渲染并执行显示的层。当前主要是 velocity 渲染，JS 渲染， JSP 渲染，移动端展示等。</p>
-<p><strong>Web 层</strong>：主要是对访问控制进行转发，各类基本参数校验，或者不复用的业务简单处理等。</p>
-<p><strong>Service 层</strong>：相对具体的业务逻辑服务层。</p>
-<p><strong>Manager 层</strong>：通用业务处理层，它有如下特征:1. 对第三方平台封装的层，预处理返回结果及转化异常信息;2. 对Service层通用能力的下沉，如缓存方案、中间件通用处理;3. 与DAO层交互，对多个DAO的组合复用。</p>
-<p><strong>DAO 层</strong>：数据访问层，与底层 MySQL、Oracle、Hbase 进行数据交互。</p>
-<p>阿里巴巴规约中的分层比较清晰简单明了，但是描述得还是过于简单了，以及service层和manager层有很多同学还是有点分不清楚之间的关系，就导致了很多项目中根本没有Manager层的存在。下面介绍一下具体业务中应该如何实现分层。</p>
-<h3 id="2-2、优化分层"><a href="#2-2、优化分层" class="headerlink" title="2.2、优化分层"></a>2.2、优化分层</h3><p>从我们的业务开发中总结了一个较为的理想模型,这里要先说明一下由于我们的rpc框架选用的是thrift可能会比其他的一些rpc框架例如dubbo会多出一层,作用和controller层类似 </p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222858.png" alt=""></p>
-<p>最上层controller和TService是我们阿里分层规范里面的第一层：<strong>轻业务逻辑，参数校验，异常兜底</strong>。通常这种接口可以轻易更换接口类型，所以业务逻辑必须要轻，甚至不做具体逻辑。</p> 
-      <a class="article-more-link" href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/"
         >阅读更多...</a
       >
        
