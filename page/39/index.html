@@ -99,6 +99,97 @@
     
     
     <article
+  id="post-成神之路4 Java的垃圾回收机制"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2018/06/26/%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF4%20Java%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/"
+    >成神之路4  Java的垃圾回收机制</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/06/26/%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF4%20Java%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2018-06-26T09:22:22.000Z" itemprop="datePublished">2018-06-26</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>参考资料：</p>
+<p>《深入理解Java虚拟机》</p>
+<p>《Hotspot实战》</p>
+<p><a href="http://jayfeng.com/2016/03/11/%E7%90%86%E8%A7%A3Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">理解Java垃圾回收机制</a></p>
+<p><a href="http://icyfenix.iteye.com/blog/715301" target="_blank" rel="noopener">一个面试官对GC问题的分析</a></p>
+<p><a href="http://jayfeng.com/2016/03/11/%E7%90%86%E8%A7%A3Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">理解Java垃圾回收机制</a></p>
+<p><a href="http://gityuan.com/2016/01/09/java-memory/" target="_blank" rel="noopener">Jvm内存模型</a></p>
+<p><a href="https://blog.csdn.net/justloveyou_/article/details/71216049" target="_blank" rel="noopener">图解Java 垃圾回收机制</a></p>
+</blockquote>
+<h2 id="0-序"><a href="#0-序" class="headerlink" title="0. 序"></a>0. 序</h2><p>Java 垃圾回收机制要考虑的问题很复杂，本文将阐述其三个核心问题，包括：</p>
+<ul>
+<li><p><strong>What 哪些内存需要回收？</strong></p>
+<p>判断对象是否可以被回收的两种经典算法: </p>
+<ol>
+<li>引用计数法 </li>
+<li>可达性分析算法</li>
+</ol>
+</li>
+<li><p><strong>When 什么时候回收？</strong>（堆的新生代、老年代、永久代的垃圾回收时机，MinorGC 和 FullGC）</p>
+</li>
+<li><p><strong>How 如何回收？</strong>(三种经典垃圾回收算法(标记清除算法、复制算法、标记整理算法)及分代收集算法 和 七种垃圾收集器)</p>
+</li>
+</ul>
+<h2 id="1-首先回顾Java内存模型"><a href="#1-首先回顾Java内存模型" class="headerlink" title="1. 首先回顾Java内存模型"></a>1. 首先回顾Java内存模型</h2><p>运行时内存模型，分为线程私有和共享数据区两大类，其中线程私有的数据区包含程序计数器、虚拟机栈、本地方法栈，所有线程共享的数据区包含Java堆、方法区，在方法区内有一个常量池。</p>
+<p><img src="http://gityuan.com/images/jvm/jvm_memory_1.png" alt="运行时数据区域"></p>
+<p>（1）线程私有区：</p>
+<ul>
+<li>程序计数器：记录正在执行的虚拟机字节码的地址；</li>
+<li>虚拟机栈：方法执行的内存区，每个方法执行时会在虚拟机栈中创建栈帧；</li>
+<li>本地方法栈：虚拟机的Native方法执行的内存区；</li>
+</ul>
+<p>（2）线程共享区：</p>
+<ul>
+<li>Java堆：对象分配内存的区域；</li>
+<li>方法区：存放类信息、常量、静态变量、编译器编译后的代码等数据；<ul>
+<li>常量池：存放编译器生成的各种字面量和符号引用，是方法区的一部分。</li>
+</ul>
+</li>
+</ul> 
+      <a class="article-more-link" href="/2018/06/26/%E6%88%90%E7%A5%9E%E4%B9%8B%E8%B7%AF4%20Java%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Java 5 新特性"
   class="article article-type-post"
   itemscope
@@ -679,62 +770,6 @@ public class myController {
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-赠与今年的大学毕业生（胡适）"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2018/01/20/%E8%B5%A0%E4%B8%8E%E4%BB%8A%E5%B9%B4%E7%9A%84%E5%A4%A7%E5%AD%A6%E6%AF%95%E4%B8%9A%E7%94%9F%EF%BC%88%E8%83%A1%E9%80%82%EF%BC%89/"
-    >赠与今年的大学毕业生（胡适）</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2018/01/20/%E8%B5%A0%E4%B8%8E%E4%BB%8A%E5%B9%B4%E7%9A%84%E5%A4%A7%E5%AD%A6%E6%AF%95%E4%B8%9A%E7%94%9F%EF%BC%88%E8%83%A1%E9%80%82%EF%BC%89/" class="article-date">
-  <time datetime="2018-01-20T09:22:22.000Z" itemprop="datePublished">2018-01-20</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <p>这一两个星期里，各地的大学都有毕业的班次，都有很多的毕业生离开学校去开始他们的成人事业。学生的生活是一种享有特殊优待的生活，不妨幼稚一点，不妨吵吵闹闹，社会都能纵容他们，不肯严格的要他们负行为的责任。现在他们要撑起自己的肩膀来挑他们自己的担子了。在这个国难最紧急的年头，他们的担子真不轻！ 我们祝他们的成功，同时也不忍不依据我们自己的经验，赠与他们几句送行的赠言——虽未必是救命毫毛，也许作个防身的锦囊罢！</p>
-<p>你们毕业之后，可走的路不出这几条：绝少数的人还可以在国内或国外的研究院继续作学术研究；少数的人可以寻着相当的职业；此外还有做官，办党，革命三条路；此外就是在家享福或者失业闲居了。第一条继续求学之路，我们可以不讨论。走其余几条路的人，都不能没有堕落的危险。堕落的方式很多，总括起来，约有这两大类：</p>
-<p>第一是容易抛弃学生时代的求知识的欲望。你们到了实际社会里，往往所用非所学，往往所学全无用处，往往可以完全用不着学问，而一样可以胡乱混饭吃，混官做。在这种环境里，即使向来抱有求知识学问的决心的人，也不免心灰意懒，把求知的欲望渐渐冷淡下去。况且学问是要有相当的设备的；书籍，试验室，师友的切磋指导，闲暇的工夫，都不是一个平常要糊口养家的人所能容易办到的。没有做学问的环境，又谁能怪我们抛弃学问呢？</p>
-<p>第二是容易抛弃学生时代的理想的人生的追求。少年人初次与冷酷的社会接触，容易感觉理想与事实相去太远，容易发生悲观和失望。多年怀抱的人生理想，改造的热诚，奋斗的勇气，到此时候，好像全不是那么一回事。渺小的个人在那强烈的社会炉火里，往往经不起长时期的烤炼就镕化了，一点高尚的理想不久就幻灭了。抱着改造社会的梦想而来，往往是弃甲曳兵而走，或者做了恶势力的俘虏。你在那俘虏牢狱里，回想那少年气壮时代的种种理想主义，好像都成了自误误人的迷梦！从此以后，你就甘心放弃理想人生的追求，甘心做现成社会的顺民了。</p>
-<p>要防御这两方面的堕落，一面要保持我们求知识的欲望，一面要保持我们对于理想人生的追求。有什么好法子呢？依我个人的观察和经验，有三种防身的药方是值得一试的。</p> 
-      <a class="article-more-link" href="/2018/01/20/%E8%B5%A0%E4%B8%8E%E4%BB%8A%E5%B9%B4%E7%9A%84%E5%A4%A7%E5%AD%A6%E6%AF%95%E4%B8%9A%E7%94%9F%EF%BC%88%E8%83%A1%E9%80%82%EF%BC%89/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E5%AD%A6/" rel="tag">文学</a></li></ul>
 
     </footer>
   </div>

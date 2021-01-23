@@ -99,6 +99,76 @@
     
     
     <article
+  id="post-我对-RESTful-API、GraphQL、RPC-API-的思考"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/05/31/%E6%88%91%E5%AF%B9-RESTful-API%E3%80%81GraphQL%E3%80%81RPC-API-%E7%9A%84%E6%80%9D%E8%80%83/"
+    >我对 RESTful API、GraphQL、RPC API 的思考</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/05/31/%E6%88%91%E5%AF%B9-RESTful-API%E3%80%81GraphQL%E3%80%81RPC-API-%E7%9A%84%E6%80%9D%E8%80%83/" class="article-date">
+  <time datetime="2019-05-31T12:40:05.000Z" itemprop="datePublished">2019-05-31</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文作者：梁桂钊</p>
+<p>原文链接：<a href="https://www.infoq.cn/article/ZgAAVBZZaoo4I0-pkgV8" target="_blank" rel="noopener">人人都是 API 设计师：我对 RESTful API、GraphQL、RPC API 的思考</a></p>
+</blockquote>
+<h2 id="一、定义好的规范，已经成功了一大半"><a href="#一、定义好的规范，已经成功了一大半" class="headerlink" title="一、定义好的规范，已经成功了一大半"></a>一、定义好的规范，已经成功了一大半</h2><p>通常情况下，规范就是大家约定俗成的标准，如果大家都遵守这套标准，那么自然沟通成本大大降低。例如，大家都希望从阿里的规范上面学习，在自己的业务中也定义几个领域模型：VO、BO、DO、DTO。其中，DO（Data Object）与数据库表结构一一对应，通过 DAO 层向上传输数据源对象。 而 DTO（Data Transfer Object）是远程调用对象，它是 RPC 服务提供的领域模型。对于 BO（Business Object），它是业务逻辑层封装业务逻辑的对象，一般情况下，它是聚合了多个数据源的复合对象。那么，VO（View Object） 通常是请求处理层传输的对象，它通过 Spring 框架的转换后，往往是一个 JSON 对象。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190531211947.png" alt=""></p>
+<p>事实上，阿里这种复杂的业务中如果不划分清楚 DO、BO、DTO、VO 的领域模型，其内部代码很容易就混乱了，内部的 RPC 在 service 层的基础上又增加了 manager 层，从而实现内部的规范统一化。但是，如果只是单独的域又没有太多外部依赖，那么，完全不要设计这么复杂，除非预期到可能会变得庞大和复杂化。对此，设计过程中因地制宜就显得特别重要了。</p>
+<p>另外一个规范的例子是 RESTful API。在 REST 架构风格中，每一个 URI 代表一种资源。因此，URI 是每一个资源的地址的唯一资源定位符。所谓资源，实际上就是一个信息实体，它可以是服务器上的一段文本、一个文件、一张图片、一首歌曲，或者是一种服务。RESTful API 规定了通过 GET、 POST、 PUT、 PATCH、 DELETE 等方式对服务端的资源进行操作。</p>
+<pre><code>【GET】          /users                 # 查询用户信息列表
+【GET】          /users/1001            # 查看某个用户信息
+【POST】         /users                 # 新建用户信息
+【PUT】          /users/1001            # 更新用户信息 (全部字段)
+【PATCH】        /users/1001            # 更新用户信息 (部分字段)
+【DELETE】       /users/1001            # 删除用户信息</code></pre><p>事实上，RESTful API 的实现分了四个层级。第一层次（Level 0）的 Web API 服务只是使用 HTTP 作为传输方式。第二层次（Level 1）的 Web API 服务引入了资源的概念。每个资源有对应的标识符和表达。第三层次（Level 2）的 Web API 服务使用不同的 HTTP 方法来进行不同的操作，并且使用 HTTP 状态码来表示不同的结果。第四层次（Level 3）的 Web API 服务使用 HATEOAS。在资源的表达中包含了链接信息。客户端可以根据链接来发现可以执行的动作。通常情况下，伪 RESTful API 都是基于第一层次与第二层次设计的。例如，我们的 Web API 中使用各种动词，例如 get_menu 和 save_menu ，而真正意义上的 RESTful API 需要满足第三层级以上。如果我们遵守了这套规范，我们就很可能就设计出通俗易懂的 API。</p>
+<p>注意的是，定义好的规范，我们已经成功了一大半。如果这套规范是业内标准，那么我们可以大胆实践，不要担心别人不会用，只要把业界标准丢给他好好学习一下就可以啦。例如，Spring 已经在 Java 的生态中举足轻重，如果一个新人不懂 Spring 就有点说不过去了。但是，很多时候因为业务的限制和公司的技术，我们可能使用基于第一层次与第二层次设计的伪 RESTful API，但是它不一定就是落后的，不好的，只要团队内部形成规范，降低大家的学习成本即可。很多时候，我们试图改变团队的习惯去学习一个新的规范，所带来的收益（投入产出比）甚微，那就得不偿失了。</p>
+<p>总结一下，定义好的规范的目的在于，降低学习成本，使得 API 尽可能通俗易懂。当然，设计的 API 通俗易懂还有其他方式，例如我们定义的 API 的名字易于理解，API 的实现尽可能通用等。</p>
+<h2 id="二、探讨-API-接口的兼容性"><a href="#二、探讨-API-接口的兼容性" class="headerlink" title="二、探讨 API 接口的兼容性"></a>二、探讨 API 接口的兼容性</h2><p>API 接口都是不断演进的。因此，我们需要在一定程度上适应变化。在 RESTful API 中，API 接口应该尽量兼容之前的版本。但是，在实际业务开发场景中，可能随着业务需求的不断迭代，现有的 API 接口无法支持旧版本的适配，此时如果强制升级服务端的 API 接口将导致客户端旧有功能出现故障。实际上，Web 端是部署在服务器，因此它可以很容易为了适配服务端的新的 API 接口进行版本升级，然而像 Android 端、IOS 端、PC 端等其他客户端是运行在用户的机器上，因此当前产品很难做到适配新的服务端的 API 接口，从而出现功能故障，这种情况下，用户必须升级产品到最新的版本才能正常使用。为了解决这个版本不兼容问题，在设计 RESTful API 的一种实用的做法是使用版本号。一般情况下，我们会在 url 中保留版本号，并同时兼容多个版本。</p>
+<pre><code>【GET】  /v1/users/{user_id}  // 版本 v1 的查询用户列表的 API 接口
+【GET】  /v2/users/{user_id}  // 版本 v2 的查询用户列表的 API 接口</code></pre> 
+      <a class="article-more-link" href="/2019/05/31/%E6%88%91%E5%AF%B9-RESTful-API%E3%80%81GraphQL%E3%80%81RPC-API-%E7%9A%84%E6%80%9D%E8%80%83/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-纯干货，Spring-data-jpa详解，全方位介绍。"
   class="article article-type-post"
   itemscope
@@ -755,78 +825,6 @@ mysql:5.7</code></pre>
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AF%E4%BB%B6/" rel="tag">软件</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-打造-Mac-下高颜值好用的终端环境"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/05/22/%E6%89%93%E9%80%A0-Mac-%E4%B8%8B%E9%AB%98%E9%A2%9C%E5%80%BC%E5%A5%BD%E7%94%A8%E7%9A%84%E7%BB%88%E7%AB%AF%E7%8E%AF%E5%A2%83/"
-    >打造 Mac 下高颜值好用的终端环境 </a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/05/22/%E6%89%93%E9%80%A0-Mac-%E4%B8%8B%E9%AB%98%E9%A2%9C%E5%80%BC%E5%A5%BD%E7%94%A8%E7%9A%84%E7%BB%88%E7%AB%AF%E7%8E%AF%E5%A2%83/" class="article-date">
-  <time datetime="2019-05-22T14:04:51.000Z" itemprop="datePublished">2019-05-22</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文链接 <a href="https://blog.biezhi.me/2018/11/build-a-beautiful-mac-terminal-environment.html" target="_blank" rel="noopener">打造 Mac 下高颜值好用的终端环境</a></p>
-</blockquote>
-<p>如果你觉得当前的终端操作不符合你的气质，可以看看我今天来介绍的 Mac 终端利器，不过不会介绍太多细节操作。</p>
-<p><a href="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/biezhi_iterm2.png" target="_blank" rel="noopener"><img src="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/biezhi_iterm2.png" alt="biezhi iterm"></a></p>
-<h2 id="它们是谁？"><a href="#它们是谁？" class="headerlink" title="它们是谁？"></a>它们是谁？</h2><ul>
-<li>iTerm2：号称 Mac 下最好的终端工具（嗯，我也这么认为，毕竟我不会别的了）</li>
-<li>zsh：一款强大的终端工具，能帮助你更高效地编写和执行命令。</li>
-</ul>
-<h2 id="安装-iTerm2"><a href="#安装-iTerm2" class="headerlink" title="安装 iTerm2"></a>安装 iTerm2</h2><p>下面的安装我几乎都用 <a href="https://brew.sh/" target="_blank" rel="noopener">brew</a> 方式了，如果你还不懂什么是 brew 可以看看 <a href="http://zhailiange.com/2016/06/04/Homebrew/" target="_blank" rel="noopener">这个</a>。</p>
-<p>所以下面我假设你已经安装了 <code>Homebrew</code>。</p>
-<p>如果你从来没有运行过 <code>brew cask</code> 命令，可以先执行：</p>
-<pre><code>brew tap caskroom/cask</code></pre><blockquote>
-<p>多执行也不会怀孕的，放心！</p>
-</blockquote>
-<p>然后开始安装 <code>iTerm2</code></p>
-<pre><code>brew cask install iterm2</code></pre><p>安装成功后在 Launchpad 中可以看到有一个新图标出现，打开 iTerm2。</p>
-<h3 id="代码配色"><a href="#代码配色" class="headerlink" title="代码配色"></a>代码配色</h3><p>默认的界面还是略显丑陋的，我们来设置一下代码配色吧。</p>
-<p><a href="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/open_settings.png" target="_blank" rel="noopener"><img src="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/open_settings.png" alt="iTerm2 设置"></a></p>
-<p>先检查下终端颜色配置为 <code>xterm-256color</code>，位置在 <code>iTerm2 -&gt; Preferences -&gt; Profiles -&gt; Terminal</code>。</p>
-<p><a href="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/iterm_terminal_color.png" target="_blank" rel="noopener"><img src="https://blog-biezhi-me-1251171175.cos.ap-shanghai.myqcloud.com/public/images/2018/11/iterm_terminal_color.png" alt="iTerm2 终端颜色值"></a></p> 
-      <a class="article-more-link" href="/2019/05/22/%E6%89%93%E9%80%A0-Mac-%E4%B8%8B%E9%AB%98%E9%A2%9C%E5%80%BC%E5%A5%BD%E7%94%A8%E7%9A%84%E7%BB%88%E7%AB%AF%E7%8E%AF%E5%A2%83/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mac/" rel="tag">Mac</a></li></ul>
 
     </footer>
   </div>

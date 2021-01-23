@@ -99,6 +99,95 @@
     
     
     <article
+  id="post-缓存穿透、缓存击穿和缓存雪崩实践"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/15/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E3%80%81%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%E5%92%8C%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%AE%9E%E8%B7%B5/"
+    >缓存穿透、缓存击穿和缓存雪崩实践</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/15/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E3%80%81%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%E5%92%8C%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%AE%9E%E8%B7%B5/" class="article-date">
+  <time datetime="2019-08-15T10:55:49.000Z" itemprop="datePublished">2019-08-15</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：xiaolyuh</p>
+<p><a href="https://my.oschina.net/u/3748347/blog/2995017" target="_blank" rel="noopener">https://my.oschina.net/u/3748347/blog/2995017</a></p>
+</blockquote>
+<p>我们使用缓存的主要目是提升查询速度和保护数据库等稀缺资源不被占满。而缓存最常见的问题是缓存穿透、击穿和雪崩，在高并发下这三种情况都会有大量请求落到数据库，导致数据库资源占满，引起数据库故障。今天我主要分享一下layering-cache缓存框架在这个三个问题上的实践方案。</p>
+<p><strong>概念</strong></p>
+<p><strong>缓存穿透</strong></p>
+<p>在高并发下，查询一个不存在的值时，缓存不会被命中，导致大量请求直接落到数据库上，如活动系统里面查询一个不存在的活动。</p>
+<p><strong>缓存击穿</strong></p>
+<p>在高并发下，对一个特定的值进行查询，但是这个时候缓存正好过期了，缓存没有命中，导致大量请求直接落到数据库上，如活动系统里面查询活动信息，但是在活动进行过程中活动缓存突然过期了。</p>
+<p><strong>缓存雪崩</strong></p>
+<p>在高并发下，大量的缓存key在同一时间失效，导致大量的请求落到数据库上，如活动系统里面同时进行着非常多的活动，但是在某个时间点所有的活动缓存全部过期。</p>
+<p><strong>常见解决方案</strong></p>
+<ul>
+<li>直接缓存NULL值</li>
+<li>限流</li>
+<li>缓存预热</li>
+<li>分级缓存</li>
+<li>缓存永远不过期</li>
+</ul>
+<p><strong>layering-cache实践</strong></p>
+<p>在layering-cache里面结合了缓存NULL值，缓存预热，限流、分级缓存和间接的实现”永不过期”等几种方案来应对缓存穿透、击穿和雪崩问题。</p>
+<p><strong>直接缓存NULL值</strong></p>
+<p>应对缓存穿透最有效的方法是直接缓存NULL值，但是缓存NULL的时间不能太长，否则NULL数据长时间得不到更新，也不能太短，否则达不到防止缓存击穿的效果。</p>
+<p>我在layering-cache对NULL值进行了特殊处理，一级缓存不允许存NULL值，二级缓存可以配置缓存是否允许存NULL值，如果配置可以允许存NULL值，框架还支持配置缓存非空值和NULL值之间的过期时间倍率，这使得我们能精准的控制每一个缓存的NULL值过期时间，控制粒度非常细。当NULL缓存过期我还可以使用限流，缓存预热等手段来防止穿透。</p>
+<p>示例：</p>
+<pre><code class="java">@Cacheable(value = &quot;people&quot;, key = &quot;#person.id&quot;, depict = &quot;用户信息缓存&quot;,
+        firstCache = @FirstCache(expireTime = 10, timeUnit = TimeUnit.MINUTES),
+        secondaryCache = @SecondaryCache(expireTime = 10, timeUnit = TimeUnit.HOURS,
+                isAllowNullValue = true, magnification = 10))
+public Person findOne(Person person) {
+    Person p = personRepository.findOne(Example.of(person));
+    logger.info(&quot;为id、key为:&quot; + p.getId() + &quot;数据做了缓存&quot;);
+    return p;
+}</code></pre>
+<p>在这个例子里面isAllowNullValue = true表示允许换存NULL值，magnification = 10表示NULL值和非NULL值之间的时间倍率是10，也就是说当缓存值为NULL是，二级缓存的有效时间将是1个小时。</p>
+<p><strong>限流</strong></p>
+<p>应对缓存穿透的常用方法之一是限流，常见的限流算法有滑动窗口，令牌桶算法和漏桶算法，或者直接使用队列、加锁等，在layering-cache里面我主要使用分布式锁来做限流。</p> 
+      <a class="article-more-link" href="/2019/08/15/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E3%80%81%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%E5%92%8C%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9%E5%AE%9E%E8%B7%B5/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-是什么让你成为团队中的优秀程序员？"
   class="article article-type-post"
   itemscope
@@ -801,60 +890,6 @@ LOGGER.error(&quot;excepiton occurs when run Java3y {}, exception{}&quot;, id, e
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-data-jpa/" rel="tag">spring data jpa</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-学生的三个阶段"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/11/%E5%AD%A6%E7%94%9F%E7%9A%84%E4%B8%89%E4%B8%AA%E9%98%B6%E6%AE%B5/"
-    >学生的三个阶段</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/11/%E5%AD%A6%E7%94%9F%E7%9A%84%E4%B8%89%E4%B8%AA%E9%98%B6%E6%AE%B5/" class="article-date">
-  <time datetime="2019-08-11T09:36:54.000Z" itemprop="datePublished">2019-08-11</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>来源视频: <a href="https://www.bilibili.com/video/av61712206" target="_blank" rel="noopener">https://www.bilibili.com/video/av61712206</a></p>
-</blockquote>
-<p>优秀的学生练思维</p>
-<p>良好的学生找方法</p>
-<p>一般的学生学知识</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0/" rel="tag">学习</a></li></ul>
 
     </footer>
   </div>

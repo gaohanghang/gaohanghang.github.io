@@ -99,6 +99,71 @@
     
     
     <article
+  id="post-Java中泛型的生存时间（泛型只存在于编译期）"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/01/08/Java%E4%B8%AD%E6%B3%9B%E5%9E%8B%E7%9A%84%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4%EF%BC%88%E6%B3%9B%E5%9E%8B%E5%8F%AA%E5%AD%98%E5%9C%A8%E4%BA%8E%E7%BC%96%E8%AF%91%E6%9C%9F%EF%BC%89/"
+    >Java中泛型的生存时间（泛型只存在于编译期）</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/01/08/Java%E4%B8%AD%E6%B3%9B%E5%9E%8B%E7%9A%84%E7%94%9F%E5%AD%98%E6%97%B6%E9%97%B4%EF%BC%88%E6%B3%9B%E5%9E%8B%E5%8F%AA%E5%AD%98%E5%9C%A8%E4%BA%8E%E7%BC%96%E8%AF%91%E6%9C%9F%EF%BC%89/" class="article-date">
+  <time datetime="2019-01-08T10:39:00.000Z" itemprop="datePublished">2019-01-08</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p> Java中在使用集合的是往往会涉及泛型，那么泛型在Java中的生存时间是多少呢？</p>
+<p>当我问这个问题的时候可能有的人不是太明白怎么还会有这么奇怪的问法。是的，问的就是Java中泛型的生存时间是多少，泛型的作用是申明集合中存储元素的类别，避免存储元素类型不统一混乱。</p>
+<pre class=" language-java"><code class="language-java"> ArrayList<span class="token operator">&lt;</span>Integer<span class="token operator">></span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span>Integer<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+         list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">111</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+         list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">222</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+         list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"Hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//编译报错</span></code></pre>
+<p>如上面的代码实例：创建了一个数组集合泛型是Integer类型的，存储字符串“Hello”会立即报错，这是在编译期报错，当然了这种类型不匹配运行时肯定也会是报错的；</p>
+<pre class=" language-java"><code class="language-java"> ArrayList<span class="token operator">&lt;</span>Integer<span class="token operator">></span> list <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token operator">&lt;</span>Integer<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+         list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">111</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+         list<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token number">222</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+         Class <span class="token class-name">clazz3</span> <span class="token operator">=</span> Class<span class="token punctuation">.</span><span class="token function">forName</span><span class="token punctuation">(</span><span class="token string">"java.util.ArrayList"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//获取ArrayList的字节码文件</span>
+         Method m <span class="token operator">=</span> clazz3<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token string">"add"</span><span class="token punctuation">,</span> Object<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//获取add() 方法，Object.class 代表任意对象类型的数据</span>
+         m<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span>list<span class="token punctuation">,</span><span class="token string">"Hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//通过反射添加字符串类型元素数据</span>
+         System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>list<span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//运行结果：[111, 222, Hello]</span></code></pre>
+<p>上面代码通过反射给Integer类型的数组集合添加了一个“Hello”字符串类型的数据并且正常的将数组打印了出来；</p>
+<p>这是没有报错的；说明泛型只是在java的编译期会产生错误但是在java的运行期（已经生成字节码文件后）是会被擦除的，这个期间并没泛型的存在；</p>
+<p>由此可见：泛型值存在于java的编译期，编译后生产字节码文件泛型是被擦除的；</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-排序算法的思想"
   class="article article-type-post"
   itemscope
@@ -866,65 +931,6 @@ public class Run {
         >阅读更多...</a
       >
        
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-TCPIP 协议族各层的作用"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2018/12/15/TCPIP%20%E5%8D%8F%E8%AE%AE%E6%97%8F%E5%90%84%E5%B1%82%E7%9A%84%E4%BD%9C%E7%94%A8/"
-    >TCP/IP 协议族各层的作用</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2018/12/15/TCPIP%20%E5%8D%8F%E8%AE%AE%E6%97%8F%E5%90%84%E5%B1%82%E7%9A%84%E4%BD%9C%E7%94%A8/" class="article-date">
-  <time datetime="2018-12-15T02:19:00.000Z" itemprop="datePublished">2018-12-15</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文出自《图解HTTP》</p>
-</blockquote>
-<h2 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h2><p>应用层决定了向用户提供应用服务时通信的活动。</p>
-<p>TMC/IP 协议族内预存了各类通用的应用服务，比如，FTP（File Transfer Protocol，文件传输协议）和 DNS（Domain Name System）服务就是其中两类。</p>
-<p>HTTP 协议也处于该层。</p>
-<h2 id="传输层"><a href="#传输层" class="headerlink" title="传输层"></a>传输层</h2><p>传输层对上层应用层，提供处于网络连接中的两台计算机之间的数据传输。</p>
-<p>在传输层有两个性质不同的协议，TCP（Transmission Controller Protocol，传输控制协议）和 UDP（User Data Protocol，用户数据报协议）。</p>
-<h2 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h2><p>网络层用来处理在网络上流动的数据包，数据包是网络传输的最小单位。该层规定了通过怎样的路径（所谓的传输路线）到达对方计算机，并把数据包传送给对方。</p>
-<p>与对方计算机之间通过多台计算机或网络设备进行传输时，网络层所起的作用就是在众多的选项内选择一条传输路线。</p>
-<h2 id="链路层（又名数据链路层，网络接口层）"><a href="#链路层（又名数据链路层，网络接口层）" class="headerlink" title="链路层（又名数据链路层，网络接口层）"></a>链路层（又名数据链路层，网络接口层）</h2><p>用来处理连接网络的硬件部分，包括控制操作系统、硬件的设备驱动、NIC（Network Interface Card，网络适配器，即网卡）及光纤等物理可见部分（还包括连接器等一切传输媒介）。硬件上的范畴均在链路层的作用范围之内。</p>
- 
       <!-- reward -->
       
     </div>

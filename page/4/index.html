@@ -99,6 +99,198 @@
     
     
     <article
+  id="post-Redis-数据类型及应用场景"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2020/02/24/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/"
+    >Redis 数据类型及应用场景</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/02/24/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" class="article-date">
+  <time datetime="2020-02-24T11:53:22.000Z" itemprop="datePublished">2020-02-24</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a href="https://segmentfault.com/a/1190000012212663" target="_blank" rel="noopener">https://segmentfault.com/a/1190000012212663</a></p>
+<p>作者：<a href="https://segmentfault.com/u/waterandair" target="_blank" rel="noopener">waterandair</a></p>
+</blockquote>
+<h3 id="一、-redis-特点"><a href="#一、-redis-特点" class="headerlink" title="一、 redis 特点"></a>一、 redis 特点</h3><ul>
+<li>所有数据存储在内存中，高速读写</li>
+<li>提供丰富多样的数据类型：string、 hash、 set、 sorted set、bitmap、hyperloglog</li>
+<li>提供了 AOF 和 RDB 两种数据的持久化保存方式，保证了 Redis 重启后数据不丢失</li>
+<li>Redis 的所有操作都是原子性的，还支持对几个操作合并后的原子性操作，支持事务</li>
+</ul>
+<p>　通常我们都把数据存到关系型数据库中，但为了提升应用的性能，我们应该把访频率高且不会经常变动的数据缓存到内存中。。Redis 没有像 MySQL 这类关系型数据库那样强大的查询功能，需要考虑如何把关系型数据库中的数据，合理的对应到缓存的 key-value 数据结构中。</p>
+<h3 id="二、-设计-Redis-Key"><a href="#二、-设计-Redis-Key" class="headerlink" title="二、 设计 Redis Key"></a>二、 设计 Redis Key</h3><h4 id="分段设计法"><a href="#分段设计法" class="headerlink" title="分段设计法"></a>分段设计法</h4><p>　　使用冒号把 key 中要表达的多种含义分开表示，步骤如下：</p>
+<ol>
+<li>把表名转化为 key 前缀</li>
+<li>主键名（或其他常用于搜索的字段）</li>
+<li>主键值</li>
+<li>要存储的字段。</li>
+</ol>
+<p>eg. 用户表（user）</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>email</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>zj</td>
+<td><a href="mailto:156577812@qq.com">156577812@qq.com</a></td>
+</tr>
+<tr>
+<td>2</td>
+<td>ai</td>
+<td><a href="mailto:156577813@qq.com">156577813@qq.com</a></td>
+</tr>
+</tbody></table>
+<p>这个简单的表可能经常会有这个的需求：&gt;根据用户 id 查询用户邮箱地址，可以选择把邮箱地址这个数据存到 redis 中：</p>
+<pre><code>set user:id:1:email 156577812@qq.com;
+set user:id:2:email 156577812@qq.com;</code></pre><h3 id="三、-String数据类型的应用场景"><a href="#三、-String数据类型的应用场景" class="headerlink" title="三、 String数据类型的应用场景"></a>三、 String数据类型的应用场景</h3><h4 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　string 类型是 Redis 中最基本的数据类型，最常用的数据类型，甚至被很多玩家当成 redis 唯一的数据类型去使用。string 类型在 redis 中是二进制安全(binary safe)的,这意味着 string 值关心二进制的字符串，不关心具体格式，你可以用它存储 json 格式或 JPEG 图片格式的字符串。
+　　</p>
+<h4 id="2-数据模型"><a href="#2-数据模型" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p>　　string 类型是基本的 Key-Value 结构，Key 是某个数据在 Redis 中的唯一标识，Value 是具体的数据。</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>‘name’</td>
+<td>‘redis’</td>
+</tr>
+<tr>
+<td>‘type’</td>
+<td>‘string’</td>
+</tr>
+</tbody></table>
+<h4 id="3-应用场景"><a href="#3-应用场景" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><h5 id="1-存储-MySQL-中某个字段的值"><a href="#1-存储-MySQL-中某个字段的值" class="headerlink" title="(1) 存储 MySQL 中某个字段的值"></a>(1) 存储 MySQL 中某个字段的值</h5><p>把 key 设计为 表名：主键名：主键值：字段名<br>eg.</p>
+<pre><code>set user:id:1:email 156577812@qq.com</code></pre><h5 id="2-存储对象"><a href="#2-存储对象" class="headerlink" title="(2) 存储对象"></a>(2) 存储对象</h5><p>string 类型支持任何格式的字符串，应用最多的就是存储 json 或其他对象格式化的字符串。(这种场景下推荐使用 hash 数据类型)</p>
+<pre><code>set user:id:1 &#39;[{&quot;id&quot;:1,&quot;name&quot;:&quot;zj&quot;,&quot;email&quot;:&quot;156577812@qq.com&quot;},{&quot;id&quot;:1,&quot;name&quot;:&quot;zj&quot;,&quot;email&quot;:&quot;156577812@qq.com&quot;}]&#39;</code></pre><h5 id="3-生成自增-id"><a href="#3-生成自增-id" class="headerlink" title="(3) 生成自增 id"></a>(3) 生成自增 id</h5><p>当 redis 的 string 类型的值为整数形式时，redis 可以把它当做是整数一样进行自增（incr）自减（decr）操作。由于 redis 所有的操作都是原子性的，所以<code>不必担心多客户端连接时可能出现的事务</code>问题。</p>
+<h3 id="四、hash-数据类型的应用场景"><a href="#四、hash-数据类型的应用场景" class="headerlink" title="四、hash 数据类型的应用场景"></a>四、hash 数据类型的应用场景</h3><h4 id="1-简介-1"><a href="#1-简介-1" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　hash 类型很像一个关系型数据库的数据表，hash 的 Key 是一个唯一值，Value 部分是一个 hashmap 的结构。
+　　</p>
+<h4 id="2-数据模型-1"><a href="#2-数据模型-1" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p>　　假设有一张数据库表如下：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>redis</td>
+<td>hash</td>
+</tr>
+</tbody></table>
+<p>　　如果要用 redis 的 hash 结构存储，数据模型如下：</p>
+<p><img src="https://segmentfault.com/img/bVVQ6K?w=403&h=191" alt="clipboard.png"></p>
+<p>　　hash数据类型在存储上述类型的数据时具有比 string 类型更灵活、更快的优势，具体的说，使用 string 类型存储，必然需要转换和解析 json 格式的字符串，即便不需要转换，在内存开销方面，还是 hash 占优势。
+　　</p>
+<h4 id="3-应用场景-1"><a href="#3-应用场景-1" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><p>hash 类型十分适合存储对象类数据，相对于在 string 中介绍的把对象转化为 json 字符串存储，hash 的结构可以任意添加或删除‘字段名’，更加高效灵活。</p>
+<pre><code>hmset user:1 name zj email 156577812@qq.com</code></pre><h3 id="五、list-数据类型的应用场景"><a href="#五、list-数据类型的应用场景" class="headerlink" title="五、list 数据类型的应用场景"></a>五、list 数据类型的应用场景</h3><h4 id="1-简介-2"><a href="#1-简介-2" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　list 是按照插入顺序排序的字符串链表，可以在头部和尾部插入新的元素（双向链表实现，两端添加元素的时间复杂度为 O(1)）。插入元素时，如果 key 不存在，redis 会为该 key 创建一个新的链表，如果链表中所有的元素都被移除，该 key 也会从 redis 中移除。</p>
+<h4 id="2-数据模型-2"><a href="#2-数据模型-2" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p><img src="https://segmentfault.com/img/bVVRaU?w=483&h=159" alt="clipboard.png"></p>
+<p>　　常见操作时用 lpush 命令在 list 头部插入元素， 用 rpop 命令在 list 尾取出数据。
+　　</p>
+<h4 id="3-应用场景-2"><a href="#3-应用场景-2" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><h5 id="1-消息队列"><a href="#1-消息队列" class="headerlink" title="(1) 消息队列"></a>(1) 消息队列</h5><p>　　redis 的 list 数据类型对于大部分使用者来说，是实现队列服务的最经济，最简单的方式。
+　　</p>
+<h5 id="2-“最新内容”"><a href="#2-“最新内容”" class="headerlink" title="(2) “最新内容”"></a>(2) “最新内容”</h5><p>因为 list 结构的数据查询两端附近的数据性能非常好，所以适合一些需要获取最新数据的场景，比如新闻类应用的 “最近新闻”。
+　　</p>
+<h4 id="4-优化建议"><a href="#4-优化建议" class="headerlink" title="4.优化建议"></a>4.优化建议</h4><h5 id="1-list-是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。"><a href="#1-list-是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。" class="headerlink" title="(1) list 是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。"></a>(1) list 是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。</h5><h3 id="六、set-数据类型的应用场景"><a href="#六、set-数据类型的应用场景" class="headerlink" title="六、set 数据类型的应用场景"></a>六、set 数据类型的应用场景</h3><h4 id="1-简介-3"><a href="#1-简介-3" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　set 数据类型是一个集合（没有排序，不重复），可以对 set 类型的数据进行添加、删除、判断是否存在等操作（时间复杂度是 O(1) ）<br>　　set 集合不允许数据重复，如果添加的数据在 set 中已经存在，将只保留一份。<br>　　set 类型提供了多个 set 之间的聚合运算，如求交集、并集、补集，这些操作在 redis 内部完成，效率很高。</p>
+<h4 id="2-数据模型-3"><a href="#2-数据模型-3" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p><img src="https://segmentfault.com/img/bVVRdw?w=385&h=274" alt="clipboard.png"></p>
+<h4 id="3-应用场景-3"><a href="#3-应用场景-3" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><p>　　set 类型的特点是——不重复且无序的一组数据，并且具有丰富的计算功能，在一些特定的场景中可以高效的解决一般关系型数据库不方便做的工作。</p>
+<h5 id="1-“共同好友列表”"><a href="#1-“共同好友列表”" class="headerlink" title="1. “共同好友列表”"></a>1. “共同好友列表”</h5><p>　　社交类应用中，获取两个人或多个人的共同好友，两个人或多个人共同关注的微博这样类似的功能，用 MySQL 的话操作很复杂，可以把每个人的好友 id 存到集合中，获取共同好友的操作就可以简单到一个取交集的命令就搞定。</p>
+<pre><code>// 这里为了方便阅读，把 id 替换成姓名
+sadd user:wade james melo paul kobe
+sadd user:james wade melo paul kobe
+sadd user:paul wade james melo kobe
+sadd user:melo wade james paul kobe
+
+// 获取 wade 和 james 的共同好友
+sinter user:wade user:james
+/* 输出：
+ *      1) &quot;kobe&quot;
+ *      2) &quot;paul&quot;
+ *      3) &quot;melo&quot;
+ */
+
+ // 获取香蕉四兄弟的共同好友
+ sinter user:wade user:james user:paul user:melo
+ /* 输出：
+ *      1) &quot;kobe&quot;
+ */
+
+ /*
+     类似的需求还有很多 , 必须把每个标签下的文章 id 存到集合中，可以很容易的求出几个不同标签下的共同文章；
+ 把每个人的爱好存到集合中，可以很容易的求出几个人的共同爱好。 
+ */</code></pre><h3 id="七、sorted-set-数据类型的应用场景"><a href="#七、sorted-set-数据类型的应用场景" class="headerlink" title="七、sorted set 数据类型的应用场景"></a>七、sorted set 数据类型的应用场景</h3><h4 id="1-简介-4"><a href="#1-简介-4" class="headerlink" title="1.简介"></a>1.简介</h4><p>　　在 set 的基础上给集合中每个元素关联了一个分数，往有序集合中插入数据时会自动根据这个分数排序。</p>
+<h4 id="2-应用场景"><a href="#2-应用场景" class="headerlink" title="2.应用场景"></a>2.应用场景</h4><p>　　在集合类型的场景上加入排序就是有序集合的应用场景了。比如根据好友的“亲密度”排序显示好友列表。</p>
+<pre><code>// 用元素的分数（score）表示与好友的亲密度
+zadd user:kobe 80 james 90 wade  85 melo  90 paul
+
+// 根据“亲密度”给好友排序
+zrevrange user:kobe 0 -1
+
+/**
+ * 输出：
+ *      1) &quot;wade&quot;
+ *      2) &quot;paul&quot;
+ *      3) &quot;melo&quot;
+ *      4) &quot;james&quot;
+ */
+
+// 增加好友的亲密度
+zincrby user:kobe 15 james
+
+// 再次根据“亲密度”给好友排序
+zrevrange user:kobe 0 -1
+
+/**
+ * 输出：
+ *      1) &quot;james&quot;
+ *      2) &quot;wade&quot;
+ *      3) &quot;paul&quot;
+ *      2) &quot;melo&quot;</code></pre> 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-JSON-Web-Token-入门教程"
   class="article article-type-post"
   itemscope
@@ -1846,108 +2038,6 @@ PinType{code=100001, message=&#39;忘记密码使用&#39;}</code></pre><p>这样
 <p>4.静态方法加锁，能和所有其他静态方法加锁的 进行互斥</p>
 <p>5.静态方法加锁，和xx.class 锁效果一样，直接属于类的</p>
 <p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1gat00jvxyig30p00dw4qq.gif" alt=""></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-mysql优化：覆盖索引（延迟关联）"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2020/01/06/mysql%E4%BC%98%E5%8C%96%EF%BC%9A%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95%EF%BC%88%E5%BB%B6%E8%BF%9F%E5%85%B3%E8%81%94%EF%BC%89/"
-    >mysql优化：覆盖索引、延迟关联</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2020/01/06/mysql%E4%BC%98%E5%8C%96%EF%BC%9A%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95%EF%BC%88%E5%BB%B6%E8%BF%9F%E5%85%B3%E8%81%94%EF%BC%89/" class="article-date">
-  <time datetime="2020-01-06T15:14:17.000Z" itemprop="datePublished">2020-01-06</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>作者：<a href="https://www.cnblogs.com/wang-meng/" target="_blank" rel="noopener" title="一枝花算不算浪漫">一枝花算不算浪漫</a></p>
-<p>原文地址：<a href="https://www.cnblogs.com/wang-meng/p/ae6d1c4a7b553e9a5c8f46b67fb3e3aa.html" target="_blank" rel="noopener">https://www.cnblogs.com/wang-meng/p/ae6d1c4a7b553e9a5c8f46b67fb3e3aa.html</a></p>
-<p>小结：</p>
-<p><strong>回表</strong>：回到主键索引树搜索的过程，我们称为回表。</p>
-<p><strong>覆盖索引</strong>：就是 select 的数据列只用从索引中就能够取得，不必从数据表中读取。简单点说就是你要查的数据索引里都有，一次搞定，美滋滋 😎。</p>
-<p><strong>延迟关联</strong>：通过使用覆盖索引查询返回需要的主键，再根据主键关联原表获得需要的数据。</p>
-</blockquote>
-<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h2><p>上周新系统改版上线，上线第二天就出现了较多的线上<strong>慢 sql</strong> 查询，紧接着 dba 给出了定位及解决方案，这里较多的是使用<strong>延迟关联</strong>去优化。</p>
-<p>而我对于这个<strong>延迟关联</strong>也是第一次听说（o(╥﹏╥)o），所以今天一定要学习并产出一篇学习笔记。(<em>^▽^</em>)</p>
-<h2 id="2-回表"><a href="#2-回表" class="headerlink" title="2. 回表"></a>2. 回表</h2><p>我们都知道 InnoDB 采用的 B+ tree 来实现索引的，索引又分为主键索引(聚簇索引)和普通索引(二级索引)。</p>
-<p>那么我们就来看下<strong>基于主键索引和普通索引的查询有什么区别？</strong></p>
-<ul>
-<li>如果语句是 select * from T where ID=500，即主键查询方式，则只需要搜索 ID 这棵 B+树；</li>
-<li>如果语句是 select * from T where k=5，即普通索引查询方式，则需要先搜索 k 索引树，得到 ID 的值为 500，再到 ID 索引树搜索一次。这个过程称为回表。</li>
-</ul>
-<p>举个栗子：</p>
-<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganac2wt4kj30l505b3yq.jpg" alt=""></p>
-<p>可以看出我们有一个普通索引 k，那么两颗 B+树的示意图如下：</p>
-<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganacgk91rj30vq0nsgnf.jpg" alt=""></p>
-<p><strong>（注：图来自极客时间专栏）</strong></p>
-<p>当我们查询 <strong><code>select \* from T where k=5</code></strong> 其实会先到 k 那个索引树上查询 k = 5，然后找到对应的 id 为 500，最后回表到主键索引的索引树找返回所需数据。</p>
-<p>如果我们查询<strong><code>select id from T where k=5</code></strong> 则不需要回表就直接返回。</p>
-<p>也就是说，基于非主键索引的查询需要多扫描一棵索引树。因此，我们在应用中应该尽量使用主键查询。</p>
-<h2 id="3-覆盖索引"><a href="#3-覆盖索引" class="headerlink" title="3. 覆盖索引"></a>3. 覆盖索引</h2><ul>
-<li>解释一： 就是 select 的数据列只用从索引中就能够取得，不必从数据表中读取，换句话说查询列要被所使用的索引覆盖。</li>
-<li>解释二： 索引是高效找到行的一个方法，当能通过检索索引就可以读取想要的数据，那就不需要再到数据表中读取行了。如果一个索引包含了（或覆盖了）满足查询语句中字段与条件的数据就叫做覆盖索引。</li>
-<li>解释三：是非聚集组合索引的一种形式，它包括在查询里的 Select、Join 和 Where 子句用到的所有列（即建立索引的字段正好是覆盖查询语句[select 子句]与查询条件[Where 子句]中所涉及的字段，也即，索引包含了查询正在查找的所有数据）。</li>
-<li><strong>不是所有类型的索引都可以成为覆盖索引。覆盖索引必须要存储索引的列，而哈希索引、空间索引和全文索引等都不存储索引列的值，所以 MySQL 只能使用 B-Tree 索引做覆盖索引</strong></li>
-<li><strong>当发起一个被索引覆盖的查询(也叫作索引覆盖查询)时，在 EXPLAIN 的 Extra 列可以看到“Using index”的信息</strong></li>
-</ul>
-<p>概念如上，这里我们还是用例子来说明：</p>
-<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganad2p4unj30vq0nsgnf.jpg" alt=""></p>
-<p><strong>（注：图来自极客时间专栏）</strong></p>
-<p>现在，我们一起来看看这条 SQL 查询语句的执行流程： select * from T where k between 3 and 5</p>
-<ol>
-<li>在 k 索引树上找到 k=3 的记录，取得 ID = 300；</li>
-<li>再到 ID 索引树查到 ID=300 对应的 R3；</li>
-<li>在 k 索引树取下一个值 k=5，取得 ID=500；</li>
-<li>再回到 ID 索引树查到 ID=500 对应的 R4；</li>
-<li>在 k 索引树取下一个值 k=6，不满足条件，循环结束。</li>
-</ol>
-<p>在这个过程中，<strong>回到主键索引树搜索的过程，我们称为回表。</strong>可以看到，这个查询过程读了 k 索引树的 3 条记录（步骤 1、3 和 5），回表了两次（步骤 2 和 4）。</p>
-<p>在这个例子中，由于查询结果所需要的数据只在主键索引上有，所以不得不回表。那么，有没有可能经过索引优化，避免回表过程呢？</p>
-<p>如果执行的语句是 select ID from T where k between 3 and 5，这时只需要查 ID 的值，而 ID 的值已经在 k 索引树上了，因此可以直接提供查询结果，不需要回表。也就是说，在这个查询里面，索引 k 已经“覆盖了”我们的查询需求，我们称为覆盖索引。</p>
-<p><strong>由于覆盖索引可以减少树的搜索次数，显著提升查询性能，所以使用覆盖索引是一个常用的性能优化手段。</strong></p>
-<p>需要注意的是，在引擎内部使用覆盖索引在索引 k 上其实读了三个记录，R3~R5（对应的索引 k 上的记录项），但是对于 MySQL 的 Server 层来说，它就是找引擎拿到了两条记录，因此 MySQL 认为扫描行数是 2。</p>
-<h2 id="4-延迟关联"><a href="#4-延迟关联" class="headerlink" title="4. 延迟关联"></a>4. 延迟关联</h2><p>上面介绍了那么多 其实是在为延迟关联做铺垫，这里直接续上我们本次慢查询的 sql：</p>
-<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganadnaw4nj30w70a4dhu.jpg" alt=""></p>
-<p>我们都知道在做分页时会用到 Limit 关键字去筛选所需数据，limit 接受 1 个或者 2 个参数，接受两个参数时第一个参数表示偏移量，即从哪一行开始取数据，第二个参数表示要取的行数。 如果只有一个参数，相当于偏移量为 0。</p>
-<p>当偏移量很大时，如 limit 100000,10 取第 100001-100010 条记录，mysql 会取出 100010 条记录然后将前 100000 条记录丢弃，这无疑是一种巨大的性能浪费。</p>
-<p>这个 sql 并没有利用索引覆盖，因为所要 select 的字段不全都在索引上，每次根据二级索引（expert_id） 查询到一条记录，都要再走一遍主键索引去表里找出所需要的其他列，速度自然慢。</p>
-<p>当有这种写法时，我们可以采用延迟关联来进行优化，重点关注：<strong>SELECT id FROM qa_question WHERE expert_id = 69 AND STATUS = 30 ORDER BY over_time DESC LIMIT 0, 10</strong>， 这里其实利用了索引覆盖，where 条件后的 expert_id 是有添加索引的，这里查询 id 可以避免回表，大大提升效率。</p>
-<h2 id="5-结语"><a href="#5-结语" class="headerlink" title="5. 结语"></a>5. 结语</h2><p>工作中会遇到各种各样的问题，对于一个研发来说最重要的是能够从这些问题中学到什么。好久没有写博客了，究其原因还是自己变得懒惰了。 (￣ェ￣)</p>
-<p>最后以《高性能 Mysql》中的一段话结束：</p>
-<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1ganae8vmo7j30na0awq66.jpg" alt=""></p>
  
       <!-- reward -->
       
