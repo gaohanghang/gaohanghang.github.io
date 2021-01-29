@@ -99,6 +99,102 @@
     
     
     <article
+  id="post-Spring-data-jpa-query使用原生SQl，需要注意的坑"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/12/Spring-data-jpa-query%E4%BD%BF%E7%94%A8%E5%8E%9F%E7%94%9FSQl%EF%BC%8C%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E5%9D%91/"
+    >Spring data jpa@query使用原生SQl，需要注意的坑</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/12/Spring-data-jpa-query%E4%BD%BF%E7%94%A8%E5%8E%9F%E7%94%9FSQl%EF%BC%8C%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E5%9D%91/" class="article-date">
+  <time datetime="2019-08-12T15:16:44.000Z" itemprop="datePublished">2019-08-12</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://blog.csdn.net/weixin_38608626/article/details/83183556" target="_blank" rel="noopener">https://blog.csdn.net/weixin_38608626/article/details/83183556</a></p>
+</blockquote>
+<h4 id="根据代码来解说"><a href="#根据代码来解说" class="headerlink" title="根据代码来解说:"></a>根据代码来解说:</h4><pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Query</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"select bill.id_ as id, bill.created_date as date, bill.no, lawyer_case .case_no as caseNo, "</span> <span class="token operator">+</span>
+            <span class="token string">"lawyer_case .case_name as caseName, customer.no as customerNo, customer.cn_name as customerName, "</span> <span class="token operator">+</span>
+            <span class="token string">"bill.total_expense_after_tax, bill.collected_money, bill.book_ticket_amount, bill.version "</span> <span class="token operator">+</span>
+            <span class="token string">"e1.name as creator, bill.status"</span> <span class="token operator">+</span>
+            <span class="token string">"from bill "</span> <span class="token operator">+</span>
+            <span class="token string">"left join lawyer_case on lawyer_case .case_no=bill.case_no "</span> <span class="token operator">+</span>
+            <span class="token string">"left join customer on customer.no=bill.customer_no "</span> <span class="token operator">+</span>
+            <span class="token string">"left join employee e1 on e1.id_=bill.creator "</span> <span class="token operator">+</span>
+            <span class="token string">"where IF (?1!='', customer_no=?1, 1=1) "</span> <span class="token operator">+</span>
+            <span class="token string">"and   IF (?2!='', case_no=?2, 1=1) "</span> <span class="token operator">+</span>
+            <span class="token string">"and   IF (?3!='', status=?3, 1=1) "</span> <span class="token operator">+</span>
+            <span class="token string">"and   IF (?4!='', creator'%',?4,'%')), 1=1) "</span> <span class="token operator">+</span>
+            <span class="token string">"and   create_by=?5 "</span> <span class="token operator">+</span>
+            <span class="token string">"ORDER BY ?#{#pageable} "</span><span class="token punctuation">,</span>
+            countQuery <span class="token operator">=</span> <span class="token string">"select count(*) "</span> <span class="token operator">+</span>
+                    <span class="token string">"from bill "</span> <span class="token operator">+</span>
+                    <span class="token string">"left join lawyer_case on lawyer_case .case_no=bill.case_no "</span> <span class="token operator">+</span>
+                    <span class="token string">"left join customer on customer.no=bill.customer_no "</span> <span class="token operator">+</span>
+                    <span class="token string">"left join employee e1 on e1.id_=bill.creator "</span> <span class="token operator">+</span>
+                    <span class="token string">"where IF (?1!='', customer_no=?1, 1=1) "</span> <span class="token operator">+</span>
+                    <span class="token string">"and   IF (?2!='', case_no=?2, 1=1) "</span> <span class="token operator">+</span>
+                    <span class="token string">"and   IF (?3!='', status=?3, 1=1) "</span> <span class="token operator">+</span>
+                    <span class="token string">"and   IF (?4!='', creator'%',?4,'%')), 1=1) "</span> <span class="token operator">+</span>
+                    <span class="token string">"and   create_by=?5 "</span><span class="token operator">+</span>
+                    <span class="token string">"ORDER BY ?#{#pageable} "</span><span class="token punctuation">,</span>
+            nativeQuery <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">)</span>
+    Page<span class="token operator">&lt;</span>Object<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token operator">></span> <span class="token function">findAllBill</span><span class="token punctuation">(</span>String customerNo<span class="token punctuation">,</span> String caseNo<span class="token punctuation">,</span> Integer status<span class="token punctuation">,</span> String creator<span class="token punctuation">,</span>
+                               String createBy<span class="token punctuation">,</span> Pageable pageable<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p> 需要注意的方法有以下几点:</p>
+<pre><code>1. From 不支持重命名.
+2. 返回的是一个page&lt;Object[]&gt;，数组中只保存了数据，没有对应的key，只能根据返回数据的顺序，依次注入到DTO中。
+3. 对于使用分页，需要：“ORDER BY ?#{#pageable}”，可以直接传入一个pageable对象，会自动解析。
+4. 注意格式问题，很多时候就是换行的时候，没有空格。
+5. 仔细对应数据库中表字段，很多时候报某个字段找不到，就是因为字段名写错，和数据库中对应不上。
+6. 这是解决使用微服务，大量的数据都需要远程调用，会降低程序的性能。
+7. 使用Pageabel作为参数的时候，去进行分页。刚开始的时候，觉得还是一个可行的办法，但是得注意的时候，当需要排序的时候，是无法加入sort字段的。 会一直报错left*。
+8. 针对7的解决方案，把原生SQL的数据查询和countQuery分成两个查询方法。得到count，然后进行判断，若是等于0，则直接返回空集合；反之，则取获取数据。 需要自己进行分页计算，传入正确的pageNumber和pageSize。 大部分系统都是按照修改时间进行降序排序。 所以，order by可以写死。然后pageNumber和pageSize动态传入。 pageNumber的算法= (pageNumber - 1) * pageSize, 前提是PageNumber是从1开始，若0，则pageNumber=pageNumber * PageSize； 这样就可以保证数据的正确。</code></pre><pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">/**
+* pageInfos: 转换之后的数据。
+* pageable：传入的pageable.
+* totalPage: 第一条SQL算好的返回值。
+* 这样就可以统一的返回各种pageDTO。
+*/</span>
+<span class="token keyword">private</span> Page<span class="token operator">&lt;</span>T<span class="token operator">></span> <span class="token function">convertForPage</span><span class="token punctuation">(</span>List<span class="token operator">&lt;</span>T<span class="token operator">></span> pageInfos<span class="token punctuation">,</span> Pageable pageable<span class="token punctuation">,</span> Integer totalPage<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">PageImpl</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span>pageInfos<span class="token punctuation">,</span> pageable<span class="token punctuation">,</span> totalPage<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-data-jpa/" rel="tag">spring data jpa</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-学生的三个阶段"
   class="article article-type-post"
   itemscope
@@ -813,114 +909,6 @@ List<span class="token operator">&lt;</span>TestNew<span class="token operator">
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-data-jpa/" rel="tag">spring data jpa</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Docker-部署Jira8-1-0"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/08/09/Docker-%E9%83%A8%E7%BD%B2Jira8-1-0/"
-    >Docker 部署Jira8.1.0</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/08/09/Docker-%E9%83%A8%E7%BD%B2Jira8-1-0/" class="article-date">
-  <time datetime="2019-08-08T17:06:10.000Z" itemprop="datePublished">2019-08-09</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文地址: <a href="https://www.cnblogs.com/tchua/p/10862670.html" target="_blank" rel="noopener">https://www.cnblogs.com/tchua/p/10862670.html</a></p>
-</blockquote>
-<p> Jira与Confluence一样，都需要用到独立的数据库，对于数据库的安装我们不做介绍，主要介绍如何用Docker部署Jira以及对Jira进行破解的操作。</p>
-<p>1、数据库准备</p>
-<blockquote>
-<p>关于数据库官方文档说明：<a href="https://confluence.atlassian.com/adminjiraserver/connecting-jira-applications-to-mysql-5-7-966063305.html" target="_blank" rel="noopener">https://confluence.atlassian.com/adminjiraserver/connecting-jira-applications-to-mysql-5-7-966063305.html</a></p>
-</blockquote>
-<p>注意：我使用的数据库版本为mysql5.7，请认真阅读官方文档中给出的不同版本不同的mysql授权命令，以及对应的参数修改，否则下面安装时会失败。</p>
-<p>2、Jira安装</p>
-<p>1）获取镜像</p>
-<p>官方镜像地址：<a href="https://hub.docker.com/r/cptactionhank/atlassian-jira-software/tags" target="_blank" rel="noopener">cptactionhank/atlassian-jira-software:8.1.0</a></p>
-<pre><code>[root@vanje-dev01 ~]# docker pull cptactionhank/atlassian-jira-software:8.1.0</code></pre><p>2) 启动jira </p>
-<pre><code>docker run -d -p 7081:8080 \
-    --name jira-software \
-    cptactionhank/atlassian-jira-software:8.1.0</code></pre><p>这里并没有对数据持久化(后面会想办法优化)，因为jira容器中是daemon启动的jira服务，如果进行数据持久化，需要在宿主机目录授权对应目录让daemon用户有权限访问；7081为jira外部访问端口。</p>
-<p>3）配置</p>
-<p>浏览器打开<a href="http://172.16.11.248:7081" target="_blank" rel="noopener">http://172.16.11.248:7081</a></p>
-<p>　　a) 选择语言(选择适合自己的语言)</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212345.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212415.png" alt=""></p>
-<p>　　b) 配置数据库信息(信息填好，点击下面的测试连接，显示成功即可，否则根据提示去官网文档查看是否修改对mysql应参数)</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212433.png" alt=""></p>
-<p>注意：点击下一步，需要等待一会因为程序需要往数据库中写数据。</p>
-<p>　　c) 获取授权码</p>
-<blockquote>
-<p>这里破解跟confluence略有不同，jira破解需要先按照提示去官方获取试用授权码，这样才可以进入系统，然后进行破解包的替换，重启服务即可。</p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212449.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212509.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212523.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212545.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212558.png" alt=""></p>
-<p> 　　d) 创建admin用户，然后按照提示点击下一步，即可完成jira的安装</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212614.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212626.png" alt=""></p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212658.png" alt=""></p>
-<p>4）破解</p>
-<p>   a）下载破解包</p>
-<p>　　地址：<a href="https://files.cnblogs.com/files/tchua/atlassian-extras-3.2.rar" target="_blank" rel="noopener">atlassian-extras-3.2.jar</a></p>
-<pre><code>wget https://files.cnblogs.com/files/tchua/atlassian-extras-3.2.rar
-
-安装解压rar的软件，参考网址: https://www.jianshu.com/p/b660f8c7445b
-wget http://www.rarsoft.com/rar/rarlinux-x64-5.5.b2.tar.gz
-下载之后直接解压 tar -zxvf rarlinux-x64-5.5.b2.tar.gz
-切换目录至rar(解压后目录下) cd rar
-然后需要借用权限 sudo make
-cd ../
-
-解压rar
-rar a atlassian-extras-3.2.rar dir</code></pre><p>　b）替换破解包</p>
-<blockquote>
-<p>　　通过docker ps 获取jira容器id，然后把破解包上传至宿主机通过docker cp 命令复制到容器中，重启jira容器　</p>
-</blockquote>
-<pre><code>[root@vanje-dev01 tmp]# docker cp atlassian-extras-3.2.jar  cc9cbeac803e0084:/opt/atlassian/jira/atlassian-jira/WEB-INF/lib
-[root@vanje-dev01 tmp]# docker restart cc9cbeac803e0084</code></pre><p>　c) 查看破解</p>
-<p>登陆jira&gt;&gt;右上角设置按钮&gt;&gt;应用程序，即可看到破解已成功</p>
-<p><img src="https://img2018.cnblogs.com/blog/1143489/201905/1143489-20190514161554153-327630432.png" alt="img"></p>
-<p>5) jira邮件配置</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811020428.png" alt=""></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
 
     </footer>
   </div>

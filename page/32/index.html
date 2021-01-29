@@ -99,6 +99,101 @@
     
     
     <article
+  id="post-GIT提交规范的使用和总结"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/01/10/GIT%E6%8F%90%E4%BA%A4%E8%A7%84%E8%8C%83%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E6%80%BB%E7%BB%93/"
+    >GIT提交规范的使用和总结</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/01/10/GIT%E6%8F%90%E4%BA%A4%E8%A7%84%E8%8C%83%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E6%80%BB%E7%BB%93/" class="article-date">
+  <time datetime="2019-01-10T13:08:00.000Z" itemprop="datePublished">2019-01-10</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>原文地址：<a href="https://www.jianshu.com/p/1850c040271f" target="_blank" rel="noopener">https://www.jianshu.com/p/1850c040271f</a><br>原作者：wizarot</p>
+<ul>
+<li><h1 id="Why"><a href="#Why" class="headerlink" title="Why"></a>Why</h1></li>
+</ul>
+<ol>
+<li>在接手新项目时候</li>
+</ol>
+<ul>
+<li>你希望看到git的commit记录是这样的?</li>
+</ul>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fz1r53r4i2j30u00e3tcy.jpg" alt=""></p>
+<ul>
+<li>还是这样的?? WTF!?</li>
+</ul>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fz1r5kri9sj30re0vq42a.jpg" alt=""></p>
+<ol start="2">
+<li>听说鱼的记忆只有7秒钟, 但是我看人的记忆也不怎么样,反正我能记清楚之前写的代码细节,最多只有7天</li>
+<li>那么问题来了,git提交记录如果不能提供有效信息,项目上线一段时间之后出bug需要修复,或者临时接手其他同事项目时,看到git记录里只有一堆的Update心情如何?</li>
+</ol>
+<h1 id="What"><a href="#What" class="headerlink" title="What"></a>What</h1><ul>
+<li>git 提交commit部分,规范模板,提供尽量详细的信息</li>
+<li>用最少得话把事说清楚,格式统一,方便快速阅读和定位</li>
+<li>不用想太多，简洁操作 , 无需额外增加大量时间</li>
+<li>与gitlab数据issue关联，获取更多信息, 例如当时这个需求细节是怎么样的?或者客户提出了什么样的奇葩要求,才有这段shi~一样的代码?</li>
+</ul>
+<h1 id="How"><a href="#How" class="headerlink" title="How"></a>How</h1><ul>
+<li>复制模板(之后分享这个文件)到你的home目录.</li>
+<li>执行命令: git config –global commit.template ~/.git-commit-template</li>
+<li>看一下是否正确配置了: git config commit.template</li>
+<li>每次体检时简单修改一下即可,一般不会超过1分钟</li>
+<li>举一些完成的例子:<br> 1.&lt;修改&gt;: (后台MGTOMedia/AppBundle/Controller/NewsController.php) &lt;为了保持前后台新闻排序一致,这里统一修改为按照position desc &gt; issue#17<br> 2.&lt;bug修复&gt;: (MGTOMedia/CommonBundle/Services/ElasticSearchService.php)&lt;搜索的queryBuilder忘記跟著改過來了,这里统一改一下&gt; issue#18<br> 3.&lt;测试代码&gt;: (尝试composer引入phpoffice)composer 引入phpOffice读取doc文件遇到一些问题<br> 4.&lt;文档改动&gt;: (新增文档) &lt;ElasticSearch相关&gt;新增Ela搜索News的Mapping文档和搜索使用的query例子伪代码</li>
+<li>如果你针对自己的模板有什么改进,请记得分享给我一份!</li>
+<li>我的文档范本: (你看,真的很简单,只有3行)</li>
+</ul>
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span>新功能<span class="token operator">|</span>bug修复<span class="token operator">|</span>文档改动<span class="token operator">|</span>格式化<span class="token operator">|</span>重构<span class="token operator">|</span>测试代码<span class="token operator">></span><span class="token operator">:</span> <span class="token punctuation">(</span>影响范围<span class="token punctuation">)</span> <span class="token operator">&lt;</span>主题<span class="token operator">></span> 
+# 解释为什么要做这些改动
+issue #<span class="token operator">?</span></code></pre>
+<h1 id="How-good"><a href="#How-good" class="headerlink" title="How good"></a>How good</h1><ul>
+<li>总结我个人在2018年下半年使用情况来看,这个确实是有必要的.几乎不花费额外精力和时间,但是之后查找问题效率很高.</li>
+<li>可以通过 issue#? 关联到gitlab. 这样如果之前关于每个需求细节都在issue中讨论的话,那么这几乎就是一套非常完整而且有细节,有代码的项目文档了.也不需要额外花费时间来写文档. 我知道写文档这工作基本没人愿意做. 等到真的需要的时候,也没人能记得清楚到底该写什么了.</li>
+<li>写清关联信息，方便事后查找，同事协作</li>
+<li>别给自己挖坑，提高问题解决的效率</li>
+<li>合作的时候能快速理解一些设计的原因</li>
+<li>出问题的时候可以快速定位到位置，并且理解逻辑快速修正</li>
+<li>你不能确保自己能在一个月后，自己还能记住项目的每个细节</li>
+</ul>
+<p><img src="https://upload-images.jianshu.io/upload_images/316824-a553cb05e6787e82.png" alt=""></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/" rel="tag">git</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Java中泛型的生存时间（泛型只存在于编译期）"
   class="article article-type-post"
   itemscope
@@ -836,111 +931,6 @@ String str = new String(data);</code></pre>
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-JAVA多线程之线程间的通信方式"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2018/12/16/JAVA%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/"
-    >JAVA多线程之线程间的通信方式</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2018/12/16/JAVA%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/" class="article-date">
-  <time datetime="2018-12-16T11:38:00.000Z" itemprop="datePublished">2018-12-16</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>作者：hapjin</p>
-<p>链接：<a href="http://www.cnblogs.com/hapjin" target="_blank" rel="noopener">http://www.cnblogs.com/hapjin</a></p>
-</blockquote>
-<h3 id="一，介绍"><a href="#一，介绍" class="headerlink" title="一，介绍"></a>一，介绍</h3><p>本总结我对于JAVA多线程中线程之间的通信方式的理解，主要以代码结合文字的方式来讨论线程间的通信，故摘抄了书中的一些示例代码。</p>
-<h3 id="二，线程间的通信方式"><a href="#二，线程间的通信方式" class="headerlink" title="二，线程间的通信方式"></a>二，线程间的通信方式</h3><h5 id="①同步"><a href="#①同步" class="headerlink" title="①同步"></a>①同步</h5><p>这里讲的同步是指多个线程通过synchronized关键字这种方式来实现线程间的通信。</p>
-<p>参考示例：</p>
-<pre><code class="java">public class MyObject {
-
-    synchronized public void methodA() {
-        //do something....
-    }
-
-    synchronized public void methodB() {
-        //do some other thing
-    }
-}
-
-public class ThreadA extends Thread {
-
-    private MyObject object;
-//省略构造方法
-    @Override
-    public void run() {
-        super.run();
-        object.methodA();
-    }
-}
-
-public class ThreadB extends Thread {
-
-    private MyObject object;
-//省略构造方法
-    @Override
-    public void run() {
-        super.run();
-        object.methodB();
-    }
-}
-
-public class Run {
-    public static void main(String[] args) {
-        MyObject object = new MyObject();
-
-        //线程A与线程B 持有的是同一个对象:object
-        ThreadA a = new ThreadA(object);
-        ThreadB b = new ThreadB(object);
-        a.start();
-        b.start();
-    }
-}</code></pre>
-<p>由于线程A和线程B持有同一个MyObject类的对象object，尽管这两个线程需要调用不同的方法，但是它们是同步执行的，比如：线程B需要等待线程A执行完了methodA()方法之后，它才能执行methodB()方法。这样，线程A和线程B就实现了 通信。</p>
-<p>这种方式，本质上就是“共享内存”式的通信。多个线程需要访问同一个共享变量，谁拿到了锁（获得了访问权限），谁就可以执行。</p>
-<h6 id="②while轮询的方式"><a href="#②while轮询的方式" class="headerlink" title="②while轮询的方式"></a>②while轮询的方式</h6><p>代码如下：</p> 
-      <a class="article-more-link" href="/2018/12/16/JAVA%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
 
     </footer>
   </div>

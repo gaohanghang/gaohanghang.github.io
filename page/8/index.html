@@ -99,6 +99,120 @@
     
     
     <article
+  id="post-再叙TIME-WAIT"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/11/19/%E5%86%8D%E5%8F%99TIME-WAIT/"
+    >再叙TIME_WAIT</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/19/%E5%86%8D%E5%8F%99TIME-WAIT/" class="article-date">
+  <time datetime="2019-11-19T05:01:32.000Z" itemprop="datePublished">2019-11-19</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：<a href="https://blog.huoding.com/" target="_blank" rel="noopener" title="火丁笔记">火丁笔记</a></p>
+<p>原文地址：<a href="https://blog.huoding.com/2013/12/31/316" target="_blank" rel="noopener">https://blog.huoding.com/2013/12/31/316</a></p>
+<p>总结：</p>
+<ol>
+<li><p>为什么会存在 TIME_WAIT？</p>
+<p>主动关闭的一方收到被动关闭的一方发出的 FIN 包后，回应 ACK 包，同时进入 TIME_WAIT 状态，但是因为网络原因，主动关闭的一方发送的这个 ACK 包很可能延迟，从而触发被动连接一方重传 FIN 包。极端情况下，这一去一回，就是两倍的 MSL 时长。如果主动关闭的一方跳过 TIME_WAIT 直接进入 CLOSED，或者在 TIME_WAIT 停留的时长不足两倍的 MSL，那么当被动关闭的一方早先发出的延迟包到达后，就可能出现类似下面的问题：</p>
+<ul>
+<li><p>旧的 TCP 连接已经不存在了，系统此时只能返回 RST 包</p>
+</li>
+<li><p>新的 TCP 连接被建立起来了，延迟包可能干扰新的连接</p>
+</li>
+</ul>
+</li>
+<li><p>如何控制 TIME_WAIT 的数量？</p>
+<ul>
+<li><strong>ip_conntrack</strong>：顾名思义就是跟踪连接，不建议使用。</li>
+<li><strong>tcp_tw_recycle</strong>：回收 TIME_WAIT 连接</li>
+<li><strong>tcp_tw_reuse</strong>：顾名思义就是复用 TIME_WAIT 连接。既然我们要复用连接，那么当然应该在连接的发起方使用，而不能在被连接方使用。</li>
+<li><strong>tcp_max_tw_buckets</strong>：顾名思义就是控制 TIME_WAIT 总数。</li>
+<li>如果客户端可控的话，那么在服务端打开 <a href="http://en.wikipedia.org/wiki/HTTP_persistent_connection" target="_blank" rel="noopener" title="KeepAlive">KeepAlive</a>，尽可能不让服务端主动关闭连接，而让客户端主动关闭连接，如此一来问题便迎刃而解了。</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<p>之所以起这样一个题目是因为很久以前我曾经写过一篇介绍 TIME_WAIT 的<a href="https://blog.huoding.com/2012/01/19/142" target="_blank" rel="noopener" title="文章">文章</a>，不过当时基本属于浅尝辄止，并没深入说明问题的来龙去脉，碰巧这段时间反复被别人问到相关的问题，让我觉得有必要全面总结一下，以备不时之需。</p>
+<p>讨论前大家可以拿手头的服务器摸摸底，记住「ss」比「netstat」快：</p>
+<pre class=" language-bash"><code class="language-bash">shell<span class="token operator">></span> ss -ant <span class="token operator">|</span> <span class="token function">awk</span> <span class="token string">'
+    NR>1 {++s[<span class="token variable">$1</span>]} END {for(k in s) print k,s[k]}
+'</span></code></pre>
+<p>如果你只是想单独查询一下 TIME_WAIT 的数量，那么还可以更简单一些：</p>
+<pre class=" language-bash"><code class="language-bash">shell<span class="token operator">></span> <span class="token function">cat</span> /proc/net/sockstat</code></pre>
+<p>我猜你一定被巨大无比的 TIME_WAIT 网络连接总数吓到了！以我个人的经验，对于一台繁忙的 Web 服务器来说，如果主要以短连接为主，那么其 TIME_WAIT 网络连接总数很可能会达到几万，甚至十几万。虽然一个 TIME_WAIT 网络连接耗费的资源无非就是一个端口、一点内存，但是架不住基数大，所以这始终是一个需要面对的问题。</p>
+<h2 id="1-为什么会存在-TIME-WAIT？"><a href="#1-为什么会存在-TIME-WAIT？" class="headerlink" title="1. 为什么会存在 TIME_WAIT？"></a>1. 为什么会存在 TIME_WAIT？</h2><p>TCP 在建立连接的时候需要握手，同理，在关闭连接的时候也需要握手。为了更直观的说明关闭连接时握手的过程，我们引用「<a href="http://www.tcpipguide.com/free/index.htm" target="_blank" rel="noopener" title="The TCP/IP Guide">The TCP/IP Guide</a>」中的<a href="http://www.tcpipguide.com/free/t_TCPConnectionTermination.htm" target="_blank" rel="noopener" title="例子">例子</a>：</p>
+<p>[<img src="https://blog.huoding.com/wp-content/uploads/2013/12/tcp_close.png" alt="TCP Close" title="![TCP Close">](<a href="https://blog.huoding.com/wp-content/uploads/2013/12/tcp_close.png" target="_blank" rel="noopener">https://blog.huoding.com/wp-content/uploads/2013/12/tcp_close.png</a>)</p>
+<p>TCP Close</p>
+<p>因为 TCP 连接是双向的，所以在关闭连接的时候，两个方向各自都需要关闭。先发 FIN 包的一方执行的是主动关闭；后发 FIN 包的一方执行的是被动关闭。主动关闭的一方会进入 TIME_WAIT 状态，并且在此状态停留两倍的<a href="http://en.wikipedia.org/wiki/Maximum_Segment_Lifetime" target="_blank" rel="noopener" title="MSL">MSL</a>时长。</p>
+<p>穿插一点 MSL 的知识：MSL 指的是报文段的最大生存时间，如果报文段在网络活动了 MSL 时间，还没有被接收，那么会被丢弃。关于 MSL 的大小，<a href="http://tools.ietf.org/search/rfc793" target="_blank" rel="noopener" title="RFC 793">RFC 793</a>协议中给出的建议是两分钟，不过实际上不同的操作系统可能有不同的设置，以 Linux 为例，通常是半分钟，两倍的 MSL 就是一分钟，也就是 60 秒，并且这个数值是硬编码在<a href="https://github.com/torvalds/linux/blob/master/include/net/tcp.h" target="_blank" rel="noopener" title="内核">内核</a>中的，也就是说除非你重新编译内核，否则没法修改它：</p>
+<pre class=" language-bash"><code class="language-bash"><span class="token comment" spellcheck="true">#define TCP_TIMEWAIT_LEN (60*HZ)</span></code></pre>
+<p>如果每秒的连接数是一千的话，那么一分钟就可能会产生六万个 TIME_WAIT。</p>
+<p>为什么主动关闭的一方不直接进入 CLOSED 状态，而是进入 TIME_WAIT 状态，并且停留两倍的 MSL 时长呢？这是因为 TCP 是建立在不可靠网络上的可靠的协议。例子：主动关闭的一方收到被动关闭的一方发出的 FIN 包后，回应 ACK 包，同时进入 TIME_WAIT 状态，但是因为网络原因，主动关闭的一方发送的这个 ACK 包很可能延迟，从而触发被动连接一方重传 FIN 包。极端情况下，这一去一回，就是两倍的 MSL 时长。如果主动关闭的一方跳过 TIME_WAIT 直接进入 CLOSED，或者在 TIME_WAIT 停留的时长不足两倍的 MSL，那么当被动关闭的一方早先发出的延迟包到达后，就可能出现类似下面的问题：</p>
+<ul>
+<li>旧的 TCP 连接已经不存在了，系统此时只能返回 RST 包</li>
+<li>新的 TCP 连接被建立起来了，延迟包可能干扰新的连接</li>
+</ul>
+<p>不管是哪种情况都会让 TCP 不再可靠，所以 TIME_WAIT 状态有存在的必要性。</p>
+<h2 id="2-如何控制-TIME-WAIT-的数量？"><a href="#2-如何控制-TIME-WAIT-的数量？" class="headerlink" title="2. 如何控制 TIME_WAIT 的数量？"></a>2. 如何控制 TIME_WAIT 的数量？</h2><p>从前面的描述我们可以得出这样的结论：TIME_WAIT 这东西没有的话不行，不过太多可能也是个麻烦事。下面让我们看看有哪些方法可以控制 TIME_WAIT 数量，这里只说一些常规方法，另外一些诸如 SO_LINGER 之类的方法太过偏门，略过不谈。</p>
+<p><strong>ip_conntrack</strong>：顾名思义就是跟踪连接。一旦激活了此模块，就能在系统参数里发现很多用来控制网络连接状态超时的设置，其中自然也包括 TIME_WAIT：</p>
+<pre class=" language-bash"><code class="language-bash">shell<span class="token operator">></span> modprobe ip_conntrack
+shell<span class="token operator">></span> sysctl net.ipv4.netfilter.ip_conntrack_tcp_timeout_time_wait</code></pre>
+<p>我们可以尝试缩小它的设置，比如十秒，甚至一秒，具体设置成多少合适取决于网络情况而定，当然也可以参考相关的<a href="http://blog.engineyard.com/2012/linux-scalability" target="_blank" rel="noopener" title="案例">案例</a>。不过就我的个人意见来说，ip_conntrack 引入的问题比解决的还多，比如性能会大幅下降，所以不建议使用。</p>
+<p><strong>tcp_tw_recycle</strong>：顾名思义就是回收 TIME_WAIT 连接。可以说这个内核参数已经变成了大众处理 TIME_WAIT 的万金油，如果你在网络上搜索 TIME_WAIT 的解决方案，十有八九会推荐设置它，不过这里隐藏着一个不易察觉的<a href="http://www.litrin.net/2013/03/01/android之网络丢包事件/" target="_blank" rel="noopener" title="陷阱">陷阱</a>：</p>
+<p>当多个客户端通过 NAT 方式联网并与服务端交互时，服务端看到的是同一个 IP，也就是说对服务端而言这些客户端实际上等同于一个，可惜由于这些客户端的时间戳可能存在差异，于是乎从服务端的视角看，便可能出现时间戳错乱的现象，进而直接导致时间戳小的数据包被丢弃。参考：<a href="http://blog.sina.com.cn/s/blog_781b0c850100znjd.html" target="_blank" rel="noopener" title="tcp_tw_recycle和tcp_timestamps导致connect失败问题">tcp_tw_recycle 和 tcp_timestamps 导致 connect 失败问题</a>。</p>
+<p><strong>tcp_tw_reuse</strong>：顾名思义就是复用 TIME_WAIT 连接。当创建新连接的时候，如果可能的话会考虑复用相应的 TIME_WAIT 连接。通常认为「tcp_tw_reuse」比「tcp_tw_recycle」安全一些，这是因为一来 TIME_WAIT 创建时间必须超过一秒才可能会被复用；二来只有连接的时间戳是递增的时候才会被复用。<a href="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt" target="_blank" rel="noopener" title="官方文档">官方文档</a>里是这样说的：如果从协议视角看它是安全的，那么就可以使用。这简直就是外交辞令啊！按我的看法，如果网络比较稳定，比如都是内网连接，那么就可以尝试使用。</p>
+<p>不过需要注意的是在哪里使用，既然我们要复用连接，那么当然应该在连接的发起方使用，而不能在被连接方使用。举例来说：客户端向服务端发起 HTTP 请求，服务端响应后主动关闭连接，于是 TIME_WAIT 便留在了服务端，此类情况使用「tcp_tw_reuse」是无效的，因为服务端是被连接方，所以不存在复用连接一说。让我们延伸一点来看，比如说服务端是 PHP，它查询另一个 MySQL 服务端，然后主动断开连接，于是 TIME_WAIT 就落在了 PHP 一侧，此类情况下使用「tcp_tw_reuse」是有效的，因为此时 PHP 相对于 MySQL 而言是客户端，它是连接的发起方，所以可以复用连接。</p>
+<p>说明：如果使用 tcp_tw_reuse，请激活 tcp_timestamps，否则无效。</p>
+<p><strong>tcp_max_tw_buckets</strong>：顾名思义就是控制 TIME_WAIT 总数。<a href="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt" target="_blank" rel="noopener" title="官网文档">官网文档</a>说这个选项只是为了阻止一些简单的 DoS 攻击，平常不要人为的降低它。如果缩小了它，那么系统会将多余的 TIME_WAIT 删除掉，日志里会显示：「TCP: time wait bucket table overflow」。</p>
+<p>需要提醒大家的是物极必反，曾经看到有人把「tcp_max_tw_buckets」设置成 0，也就是说完全抛弃 TIME_WAIT，这就有些冒险了，用一句围棋谚语来说：入界宜缓。</p>
+<p>…</p>
+<p>有时候，如果我们换个角度去看问题，往往能得到四两拨千斤的效果。前面提到的例子：客户端向服务端发起 HTTP 请求，服务端响应后主动关闭连接，于是 TIME_WAIT 便留在了服务端。这里的关键在于主动关闭连接的是服务端！在关闭 TCP 连接的时候，先出手的一方注定逃不开 TIME_WAIT 的宿命，套用一句歌词：把我的悲伤留给自己，你的美丽让你带走。如果客户端可控的话，那么在服务端打开<a href="http://en.wikipedia.org/wiki/HTTP_persistent_connection" target="_blank" rel="noopener" title="KeepAlive">KeepAlive</a>，尽可能不让服务端主动关闭连接，而让客户端主动关闭连接，如此一来问题便迎刃而解了。</p>
+<p>参考文档：</p>
+<ol>
+<li><a href="http://blog.csdn.net/yunhua_lee/article/details/8146830" target="_blank" rel="noopener" title="tcp短连接TIME_WAIT问题解决方法大全（1）——高屋建瓴">tcp 短连接 TIME_WAIT 问题解决方法大全（1）——高屋建瓴</a></li>
+<li><a href="http://blog.csdn.net/yunhua_lee/article/details/8146837" target="_blank" rel="noopener" title="tcp短连接TIME_WAIT问题解决方法大全（2）——SO_LINGER">tcp 短连接 TIME_WAIT 问题解决方法大全（2）——SO_LINGER</a></li>
+<li><a href="http://blog.csdn.net/yunhua_lee/article/details/8146845" target="_blank" rel="noopener" title="tcp短连接TIME_WAIT问题解决方法大全（3）——tcp_tw_recycle">tcp 短连接 TIME_WAIT 问题解决方法大全（3）——tcp_tw_recycle</a></li>
+<li><a href="http://blog.csdn.net/yunhua_lee/article/details/8146856" target="_blank" rel="noopener" title="tcp短连接TIME_WAIT问题解决方法大全（4）——tcp_tw_reuse">tcp 短连接 TIME_WAIT 问题解决方法大全（4）——tcp_tw_reuse</a></li>
+<li><a href="http://blog.csdn.net/yunhua_lee/article/details/8146862" target="_blank" rel="noopener" title="tcp短连接TIME_WAIT问题解决方法大全（5）——tcp_max_tw_buckets">tcp 短连接 TIME_WAIT 问题解决方法大全（5）——tcp_max_tw_buckets</a></li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-ARTS-9"
   class="article article-type-post"
   itemscope
@@ -1265,80 +1379,6 @@ sex <span class="token keyword">varchar</span><span class="token punctuation">(<
     
     <footer class="article-footer">
        
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-CentOS-7-安装GUI界面及远程连接"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/11/06/CentOS-7-%E5%AE%89%E8%A3%85GUI%E7%95%8C%E9%9D%A2%E5%8F%8A%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/"
-    >CentOS 7 安装GUI界面及远程连接</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/11/06/CentOS-7-%E5%AE%89%E8%A3%85GUI%E7%95%8C%E9%9D%A2%E5%8F%8A%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/" class="article-date">
-  <time datetime="2019-11-05T16:04:29.000Z" itemprop="datePublished">2019-11-06</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h1 id="CentOS-7-安装GUI界面及远程连接"><a href="#CentOS-7-安装GUI界面及远程连接" class="headerlink" title="CentOS 7 安装GUI界面及远程连接"></a>CentOS 7 安装GUI界面及远程连接</h1><blockquote>
-<p>参考文章：</p>
-<p><a href="https://segmentfault.com/a/1190000019557600" target="_blank" rel="noopener">https://segmentfault.com/a/1190000019557600</a></p>
-</blockquote>
-<h2 id="1-安装GUI界面"><a href="#1-安装GUI界面" class="headerlink" title="1. 安装GUI界面"></a>1. 安装GUI界面</h2><p>大多数云服务器厂商提供的镜像都无GUI界面，所以要先安装图形环境。本文使用GNOME桌面环境：</p>
-<pre class=" language-shell"><code class="language-shell">yum -y groups install "GNOME Desktop"</code></pre>
-<p>这条命令将安装GNOME桌面的必要软件包，执行完后配置X系统使用GNOME:</p>
-<pre class=" language-shell"><code class="language-shell">echo "exec gnome-session" >> ~/.xinitrc</code></pre>
-<h2 id="2-安装xrdp"><a href="#2-安装xrdp" class="headerlink" title="2. 安装xrdp"></a>2. 安装xrdp</h2><p><strong>安装源</strong></p>
-<pre class=" language-shell"><code class="language-shell">yum install  epel* -y</code></pre>
-<p><strong>安装xrdp</strong></p>
-<pre class=" language-shell"><code class="language-shell">yum --enablerepo=epel -y install xrdp</code></pre>
-<p><strong>启动xrdp</strong></p>
-<pre class=" language-shell"><code class="language-shell">systemctl start xrdp
-systemctl enable xrdp</code></pre>
-<p><strong>关闭防火墙</strong></p>
-<pre class=" language-shell"><code class="language-shell">firewall-cmd --permanent --zone=public --add-port=3389/tcp
-firewall-cmd --reload</code></pre>
-<h2 id="3-连接效果"><a href="#3-连接效果" class="headerlink" title="3. 连接效果"></a>3. 连接效果</h2><blockquote>
-<p>因为我使用的是mac笔记本，所以远程桌面的软件使用的是 Microsoft Remote Desktop </p>
-</blockquote>
-<p><img src="https://cdn.nlark.com/yuque/0/2019/png/576791/1572968622527-691107d9-ba99-4c31-913a-2888d37ec280.png" alt=""></p>
-<p>输入 centos 用户名，密码</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2019/png/576791/1572854480147-f945623c-df74-4f5d-94bb-6276258742bb.png" alt=""></p>
-<p>连接后的效果</p>
-<p><img src="https://cdn.nlark.com/yuque/0/2019/png/576791/1572854436441-bb8e6d1d-6908-477e-b80b-26bcec2f055d.png" alt=""></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8E%9F%E5%88%9B/" rel="tag">原创</a></li></ul>
-
     </footer>
   </div>
 

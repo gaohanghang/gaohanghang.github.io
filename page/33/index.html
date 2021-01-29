@@ -99,6 +99,111 @@
     
     
     <article
+  id="post-JAVA多线程之线程间的通信方式"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2018/12/16/JAVA%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/"
+    >JAVA多线程之线程间的通信方式</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/12/16/JAVA%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/" class="article-date">
+  <time datetime="2018-12-16T11:38:00.000Z" itemprop="datePublished">2018-12-16</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：hapjin</p>
+<p>链接：<a href="http://www.cnblogs.com/hapjin" target="_blank" rel="noopener">http://www.cnblogs.com/hapjin</a></p>
+</blockquote>
+<h3 id="一，介绍"><a href="#一，介绍" class="headerlink" title="一，介绍"></a>一，介绍</h3><p>本总结我对于JAVA多线程中线程之间的通信方式的理解，主要以代码结合文字的方式来讨论线程间的通信，故摘抄了书中的一些示例代码。</p>
+<h3 id="二，线程间的通信方式"><a href="#二，线程间的通信方式" class="headerlink" title="二，线程间的通信方式"></a>二，线程间的通信方式</h3><h5 id="①同步"><a href="#①同步" class="headerlink" title="①同步"></a>①同步</h5><p>这里讲的同步是指多个线程通过synchronized关键字这种方式来实现线程间的通信。</p>
+<p>参考示例：</p>
+<pre><code class="java">public class MyObject {
+
+    synchronized public void methodA() {
+        //do something....
+    }
+
+    synchronized public void methodB() {
+        //do some other thing
+    }
+}
+
+public class ThreadA extends Thread {
+
+    private MyObject object;
+//省略构造方法
+    @Override
+    public void run() {
+        super.run();
+        object.methodA();
+    }
+}
+
+public class ThreadB extends Thread {
+
+    private MyObject object;
+//省略构造方法
+    @Override
+    public void run() {
+        super.run();
+        object.methodB();
+    }
+}
+
+public class Run {
+    public static void main(String[] args) {
+        MyObject object = new MyObject();
+
+        //线程A与线程B 持有的是同一个对象:object
+        ThreadA a = new ThreadA(object);
+        ThreadB b = new ThreadB(object);
+        a.start();
+        b.start();
+    }
+}</code></pre>
+<p>由于线程A和线程B持有同一个MyObject类的对象object，尽管这两个线程需要调用不同的方法，但是它们是同步执行的，比如：线程B需要等待线程A执行完了methodA()方法之后，它才能执行methodB()方法。这样，线程A和线程B就实现了 通信。</p>
+<p>这种方式，本质上就是“共享内存”式的通信。多个线程需要访问同一个共享变量，谁拿到了锁（获得了访问权限），谁就可以执行。</p>
+<h6 id="②while轮询的方式"><a href="#②while轮询的方式" class="headerlink" title="②while轮询的方式"></a>②while轮询的方式</h6><p>代码如下：</p> 
+      <a class="article-more-link" href="/2018/12/16/JAVA%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B9%8B%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E6%96%B9%E5%BC%8F/"
+        >阅读更多...</a
+      >
+       
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-TCPIP 协议族各层的作用"
   class="article article-type-post"
   itemscope
@@ -919,82 +1024,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-Spring JPA 使用@CreatedDate、@CreatedBy、@LastModifiedDate、@LastModifiedBy 自动生成时间和修改"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2018/10/31/Spring%20JPA%20%E4%BD%BF%E7%94%A8@CreatedDate%E3%80%81@CreatedBy%E3%80%81@LastModifiedDate%E3%80%81@LastModifiedBy%20%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E6%97%B6%E9%97%B4%E5%92%8C%E4%BF%AE%E6%94%B9/"
-    >Spring JPA 使用@CreatedDate、@CreatedBy、@LastModifiedDate、@LastModifiedBy 自动生成时间和修改者</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2018/10/31/Spring%20JPA%20%E4%BD%BF%E7%94%A8@CreatedDate%E3%80%81@CreatedBy%E3%80%81@LastModifiedDate%E3%80%81@LastModifiedBy%20%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E6%97%B6%E9%97%B4%E5%92%8C%E4%BF%AE%E6%94%B9/" class="article-date">
-  <time datetime="2018-10-31T13:11:22.000Z" itemprop="datePublished">2018-10-31</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>转载地址  <a href="https://www.jianshu.com/p/14cb69646195" target="_blank" rel="noopener">Spring JPA 使用@CreatedDate、@CreatedBy、@LastModifiedDate、@LastModifiedBy 自动生成时间和修改者</a></p>
-</blockquote>
-<h3 id="JPA-Audit"><a href="#JPA-Audit" class="headerlink" title="JPA Audit"></a>JPA Audit</h3><p>在spring jpa中，支持在字段或者方法上进行注解<code>@CreatedDate</code>、<code>@CreatedBy</code>、<code>@LastModifiedDate</code>、<code>@LastModifiedBy</code>，从字面意思可以很清楚的了解，这几个注解的用处。</p>
-<p><code>@CreatedDate</code><br>表示该字段为创建时间时间字段，在这个实体被insert的时候，会设置值</p>
-<p><code>@CreatedBy</code><br>表示该字段为创建人，在这个实体被insert的时候，会设置值</p>
-<p><code>@LastModifiedDate</code>、<code>@LastModifiedBy</code>同理。</p>
-<h3 id="如何使用？"><a href="#如何使用？" class="headerlink" title="如何使用？"></a>如何使用？</h3><p>首先申明实体类，需要在类上加上注解<code>@EntityListeners(AuditingEntityListener.class)</code>，其次在application启动类中加上注解<code>EnableJpaAuditing</code>，同时在需要的字段上加上<code>@CreatedDate</code>、<code>@CreatedBy</code>、<code>@LastModifiedDate</code>、<code>@LastModifiedBy</code>等注解。</p>
-<p>这个时候，在jpa.save方法被调用的时候，时间字段会自动设置并插入数据库，但是CreatedBy和LastModifiedBy并没有赋值，因为需要实现<code>AuditorAware</code>接口来返回你需要插入的值。</p>
-<ul>
-<li>Application</li>
-</ul>
-<pre><code class="java">import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-
-
-@SpringBootApplication
-@EnableJpaAuditing
-public class WalletApplication {
-    public static void main(String[] args) {
-        new SpringApplicationBuilder(WalletApplication.class).web(true).run(args);
-    }
-}</code></pre> 
-      <a class="article-more-link" href="/2018/10/31/Spring%20JPA%20%E4%BD%BF%E7%94%A8@CreatedDate%E3%80%81@CreatedBy%E3%80%81@LastModifiedDate%E3%80%81@LastModifiedBy%20%E8%87%AA%E5%8A%A8%E7%94%9F%E6%88%90%E6%97%B6%E9%97%B4%E5%92%8C%E4%BF%AE%E6%94%B9/"
-        >阅读更多...</a
-      >
-       
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spring-JPA/" rel="tag">Spring JPA</a></li></ul>
 
     </footer>
   </div>

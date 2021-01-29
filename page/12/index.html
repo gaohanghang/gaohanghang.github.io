@@ -99,6 +99,98 @@
     
     
     <article
+  id="post-static方法能否被重写？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/10/03/static%E6%96%B9%E6%B3%95%E8%83%BD%E5%90%A6%E8%A2%AB%E9%87%8D%E5%86%99%EF%BC%9F/"
+    >static方法能否被重写？</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/10/03/static%E6%96%B9%E6%B3%95%E8%83%BD%E5%90%A6%E8%A2%AB%E9%87%8D%E5%86%99%EF%BC%9F/" class="article-date">
+  <time datetime="2019-10-03T14:03:35.000Z" itemprop="datePublished">2019-10-03</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://blog.csdn.net/yueluoqianjiang/article/details/84989430" target="_blank" rel="noopener">（技术点）能不能重写静态方法？</a></p>
+</blockquote>
+<p><strong>答案: 不能</strong></p>
+<p>我们在子类重写父类的静态方法在编译过程是不会报错的，但是却达不到预期的效果。</p>
+<p>也就是说，重写静态方法，java不会阻止你这么做， 但是你却得不到预期的结果（父类的引用指向子类对象的时候，调用的仍然是父类的静态方法）。</p>
+<p>下面我们来写几个方法看一下结果：</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">SuperClass</span><span class="token punctuation">{</span> 
+    <span class="token comment" spellcheck="true">//父类静态方法</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">staticMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span> 
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"SuperClass: inside staticMethod"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> 
+<span class="token punctuation">}</span>
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SubClass</span> <span class="token keyword">extends</span> <span class="token class-name">SuperClass</span><span class="token punctuation">{</span> 
+    <span class="token comment" spellcheck="true">//重写父类静态方法</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">staticMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span> 
+      System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"SubClass: inside staticMethod"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>  
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String <span class="token punctuation">[</span><span class="token punctuation">]</span>args<span class="token punctuation">)</span><span class="token punctuation">{</span> 
+        <span class="token comment" spellcheck="true">//父类引用指向父类对象</span>
+        SuperClass superClassWithSuperCons <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SuperClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token comment" spellcheck="true">//父类引用指向子类对象（多态）</span>
+        SuperClass superClassWithSubCons <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SubClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        <span class="token comment" spellcheck="true">//子类引用指向子类对象</span>
+        SubClass subClassWithSubCons <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SubClass</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        superClassWithSuperCons<span class="token punctuation">.</span><span class="token function">staticMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
+        superClassWithSubCons<span class="token punctuation">.</span><span class="token function">staticMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        subClassWithSubCons<span class="token punctuation">.</span><span class="token function">staticMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>   
+<span class="token punctuation">}</span> </code></pre>
+<p>运行结果：</p>
+<pre><code>SuperClass: inside staticMethod 
+SuperClass: inside staticMethod   // 输出的还是父类的静态方法
+SubClass: inside staticMethod </code></pre><p>我们预期的superClassWithSubCons（第二个） 输出的应该是子类的静态方法，然而却输出了父类的静态方法。</p>
+<p><strong>为什么静态方法这么特殊呢？</strong></p>
+<p>原因是因为静态方法是属于类的方法，他在编译期就已经存储在了方法区，当我们使用父类引用调用子类静态方法时，会直接在方法区去找这个方法，找到的当然是属于父类的静态方法。</p>
+<blockquote>
+<p>一个类的静态方法和静态变量都在方法区</p>
+</blockquote>
+<p><strong>静态方法是在编译阶段使用了编译类型信息，进行静态绑定的。</strong></p>
+<p>而普通方法使用父类引用调用子类方法时，我们java栈里面找到引用，然后在堆里面找到了子类的对象，那么调用的是子类的方法。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-思考-4-网络是否在使我们的思考变得同质化"
   class="article article-type-post"
   itemscope
@@ -999,63 +1091,6 @@ time=1536809054173
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-线程池"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/09/22/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"
-    >线程池</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/09/22/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" class="article-date">
-  <time datetime="2019-09-22T08:11:05.000Z" itemprop="datePublished">2019-09-22</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>原文来自 《码出高效：Java开发手册》</p>
-</blockquote>
-<h2 id="线程池的好处"><a href="#线程池的好处" class="headerlink" title="线程池的好处"></a>线程池的好处</h2><ul>
-<li>利用线程池管理并复用线程、控制最大并发数等。</li>
-<li>实现任务线程队列缓存策略和拒绝机制</li>
-<li>实现某些与时间相关的功能，如定时执行、周期执行等</li>
-<li>隔离线程环境。比如，交易服务和搜索服务在同一台服务器上，分别开启两个线程池，交易线程的资源消耗明显更大；因此，通过配置独立的线程池，将较慢的交易服务与搜索服务隔离开，避免各服务线程相互影响。</li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
 
     </footer>
   </div>

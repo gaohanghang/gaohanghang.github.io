@@ -99,6 +99,114 @@
     
     
     <article
+  id="post-Docker-部署Jira8-1-0"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2019/08/09/Docker-%E9%83%A8%E7%BD%B2Jira8-1-0/"
+    >Docker 部署Jira8.1.0</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/09/Docker-%E9%83%A8%E7%BD%B2Jira8-1-0/" class="article-date">
+  <time datetime="2019-08-08T17:06:10.000Z" itemprop="datePublished">2019-08-09</time>
+</a>    
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a href="https://www.cnblogs.com/tchua/p/10862670.html" target="_blank" rel="noopener">https://www.cnblogs.com/tchua/p/10862670.html</a></p>
+</blockquote>
+<p> Jira与Confluence一样，都需要用到独立的数据库，对于数据库的安装我们不做介绍，主要介绍如何用Docker部署Jira以及对Jira进行破解的操作。</p>
+<p>1、数据库准备</p>
+<blockquote>
+<p>关于数据库官方文档说明：<a href="https://confluence.atlassian.com/adminjiraserver/connecting-jira-applications-to-mysql-5-7-966063305.html" target="_blank" rel="noopener">https://confluence.atlassian.com/adminjiraserver/connecting-jira-applications-to-mysql-5-7-966063305.html</a></p>
+</blockquote>
+<p>注意：我使用的数据库版本为mysql5.7，请认真阅读官方文档中给出的不同版本不同的mysql授权命令，以及对应的参数修改，否则下面安装时会失败。</p>
+<p>2、Jira安装</p>
+<p>1）获取镜像</p>
+<p>官方镜像地址：<a href="https://hub.docker.com/r/cptactionhank/atlassian-jira-software/tags" target="_blank" rel="noopener">cptactionhank/atlassian-jira-software:8.1.0</a></p>
+<pre><code>[root@vanje-dev01 ~]# docker pull cptactionhank/atlassian-jira-software:8.1.0</code></pre><p>2) 启动jira </p>
+<pre><code>docker run -d -p 7081:8080 \
+    --name jira-software \
+    cptactionhank/atlassian-jira-software:8.1.0</code></pre><p>这里并没有对数据持久化(后面会想办法优化)，因为jira容器中是daemon启动的jira服务，如果进行数据持久化，需要在宿主机目录授权对应目录让daemon用户有权限访问；7081为jira外部访问端口。</p>
+<p>3）配置</p>
+<p>浏览器打开<a href="http://172.16.11.248:7081" target="_blank" rel="noopener">http://172.16.11.248:7081</a></p>
+<p>　　a) 选择语言(选择适合自己的语言)</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212345.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212415.png" alt=""></p>
+<p>　　b) 配置数据库信息(信息填好，点击下面的测试连接，显示成功即可，否则根据提示去官网文档查看是否修改对mysql应参数)</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212433.png" alt=""></p>
+<p>注意：点击下一步，需要等待一会因为程序需要往数据库中写数据。</p>
+<p>　　c) 获取授权码</p>
+<blockquote>
+<p>这里破解跟confluence略有不同，jira破解需要先按照提示去官方获取试用授权码，这样才可以进入系统，然后进行破解包的替换，重启服务即可。</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212449.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212509.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212523.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212545.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212558.png" alt=""></p>
+<p> 　　d) 创建admin用户，然后按照提示点击下一步，即可完成jira的安装</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212614.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212626.png" alt=""></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190810212658.png" alt=""></p>
+<p>4）破解</p>
+<p>   a）下载破解包</p>
+<p>　　地址：<a href="https://files.cnblogs.com/files/tchua/atlassian-extras-3.2.rar" target="_blank" rel="noopener">atlassian-extras-3.2.jar</a></p>
+<pre><code>wget https://files.cnblogs.com/files/tchua/atlassian-extras-3.2.rar
+
+安装解压rar的软件，参考网址: https://www.jianshu.com/p/b660f8c7445b
+wget http://www.rarsoft.com/rar/rarlinux-x64-5.5.b2.tar.gz
+下载之后直接解压 tar -zxvf rarlinux-x64-5.5.b2.tar.gz
+切换目录至rar(解压后目录下) cd rar
+然后需要借用权限 sudo make
+cd ../
+
+解压rar
+rar a atlassian-extras-3.2.rar dir</code></pre><p>　b）替换破解包</p>
+<blockquote>
+<p>　　通过docker ps 获取jira容器id，然后把破解包上传至宿主机通过docker cp 命令复制到容器中，重启jira容器　</p>
+</blockquote>
+<pre><code>[root@vanje-dev01 tmp]# docker cp atlassian-extras-3.2.jar  cc9cbeac803e0084:/opt/atlassian/jira/atlassian-jira/WEB-INF/lib
+[root@vanje-dev01 tmp]# docker restart cc9cbeac803e0084</code></pre><p>　c) 查看破解</p>
+<p>登陆jira&gt;&gt;右上角设置按钮&gt;&gt;应用程序，即可看到破解已成功</p>
+<p><img src="https://img2018.cnblogs.com/blog/1143489/201905/1143489-20190514161554153-327630432.png" alt="img"></p>
+<p>5) jira邮件配置</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811020428.png" alt=""></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Spring-Data-JPA学习"
   class="article article-type-post"
   itemscope
@@ -848,73 +956,6 @@ WHERE  o.id IN (SELECT id
 <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730005054.png" alt=""></p>
 <h2 id="02-下意识对英语学习的重要帮助"><a href="#02-下意识对英语学习的重要帮助" class="headerlink" title="02 下意识对英语学习的重要帮助"></a>02 下意识对英语学习的重要帮助</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730005251.png" alt=""></p>
 <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730005447.png" alt=""></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0/" rel="tag">学习</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-在家自律性都能暴涨200-的小技巧分享"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2019/07/30/%E5%9C%A8%E5%AE%B6%E8%87%AA%E5%BE%8B%E6%80%A7%E9%83%BD%E8%83%BD%E6%9A%B4%E6%B6%A8200-%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB/"
-    >在家自律性都能暴涨200%的小技巧分享</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2019/07/30/%E5%9C%A8%E5%AE%B6%E8%87%AA%E5%BE%8B%E6%80%A7%E9%83%BD%E8%83%BD%E6%9A%B4%E6%B6%A8200-%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB/" class="article-date">
-  <time datetime="2019-07-29T16:22:19.000Z" itemprop="datePublished">2019-07-30</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>视频地址: <a href="https://www.bilibili.com/video/av41654978" target="_blank" rel="noopener">https://www.bilibili.com/video/av41654978</a></p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730002329.png" alt=""></p>
-<blockquote>
-<p>《单核工作法》-升级版的时间管理方法</p>
-<p>本期目标<br>防止走神 提升专注 善用手机 增强自律</p>
-</blockquote>
-<h2 id="一、恶性反馈循环：揭露走神的生理原因"><a href="#一、恶性反馈循环：揭露走神的生理原因" class="headerlink" title="一、恶性反馈循环：揭露走神的生理原因"></a>一、恶性反馈循环：揭露走神的生理原因</h2><p>我们学习时容易走神，搞小动作，但请别太自责，这不是你一个人的问题，本书指出这是生理本能的锅。</p>
-<h3 id="1-让人无奈的本能：多巴胺会鼓励你走神"><a href="#1-让人无奈的本能：多巴胺会鼓励你走神" class="headerlink" title="1.让人无奈的本能：多巴胺会鼓励你走神"></a>1.让人无奈的本能：多巴胺会鼓励你走神</h3><p>当我们完成走神行为时，大脑就会获得一份多巴胺奖励。然后进入走神→爽→走神→爽→走神……的恶性反馈循环，这使走神成为一件上瘾的事。<br>所以每当你学习时，就蠢蠢欲动，总想再做点什么来消遣一下，作者倡导“单核”的原因就在于此。<br>小妙招：</p>
-<h4 id="⑴-手边管理法：把你的学习区域划分成-高危区-中危区-低危区-三个区域依次远离你的“手边”"><a href="#⑴-手边管理法：把你的学习区域划分成-高危区-中危区-低危区-三个区域依次远离你的“手边”" class="headerlink" title="⑴ 手边管理法：把你的学习区域划分成 高危区 中危区 低危区 三个区域依次远离你的“手边”"></a>⑴ 手边管理法：把你的学习区域划分成 高危区 中危区 低危区 三个区域依次远离你的“手边”</h4><p>①高危区只能存放当前任务必要的用品<br>②中危区是你站起来才能触达的区域，存放当前不太需要的用品<br>③低危区是离你最远的区域，需要走很多步才能拿到的(手机 电脑等高诱惑物品要放在这个区域)<br>④“手边管理”的本质：提高屈服诱惑的成本。<br>(手机放在手边肯定动不动就看一眼，但是如果把手机放在离你10米远的地方充电，就可以大大降低你玩它的频率</p>
-<h4 id="⑵-化“被动推送”为“主动收取”"><a href="#⑵-化“被动推送”为“主动收取”" class="headerlink" title="⑵ 化“被动推送”为“主动收取”"></a>⑵ 化“被动推送”为“主动收取”</h4><p>为了避免诱惑，我们可以将“被动推送”的逻辑转换成“主动收取”，关掉所以的手机推送消息，掌握主动权，你自己决定什么时候去查看app消息，而不是接受被动轰炸</p>
-<h2 id="二、“时间错觉”：你总觉得当下是最忙的"><a href="#二、“时间错觉”：你总觉得当下是最忙的" class="headerlink" title="二、“时间错觉”：你总觉得当下是最忙的"></a>二、“时间错觉”：你总觉得当下是最忙的</h2><p>研究显示 人们对时间的判断都存在一种错觉，给事情安排时间的时候，总觉得当下很忙没空做，未来很闲有空做，实际上这是一种是误区，未来也许会更忙，只是因为未来还没有来到，让你误以为未来的时间多的是，这也是造成拖延的心理因素之一<br>当我们遇到重要的事情时候，总会想着以后有时间再做，结果往往是未来也没有空做，拖延拖到死。<br>启示：对于重要的事现在就做不要等，否则你就做好事情“泡汤”的准备吧</p>
-<h2 id="三、学习时要不要听音乐"><a href="#三、学习时要不要听音乐" class="headerlink" title="三、学习时要不要听音乐"></a>三、学习时要不要听音乐</h2><p>①对于学习和工作这种“认知活动”来讲，可能安静环境是最佳选择<br>②不具备安静环境时，听音乐确实可以帮你起到隔绝喧嚣，提高专注力<br>③音乐的类型很重要：<br>不会调动情绪的熟悉的纯音乐更好<br>安静的比聒噪的好 熟悉的比陌生的好 没歌词的比有歌词的好<br>▲up主建议⊂(˃̶͈̀㉨ ˂̶͈́ ⊂ )))≡=─<br>①音乐能提高你的效率吗？<br>↓<br>↓﹉﹉﹉﹉﹉﹉﹉﹉↓<br>不能 能<br>↓ ↓<br>不听 ②音乐消失，效率会不会随之消失<br>↓<br>↓﹉﹉﹉﹉﹉﹉﹉↓<br>会 不会<br>↓ ↓<br>不听 听</p>
-<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730002749.png" alt=""></p>
-<h2 id="四、服务生效应：害人匪浅的的生理本能"><a href="#四、服务生效应：害人匪浅的的生理本能" class="headerlink" title="四、服务生效应：害人匪浅的的生理本能"></a>四、服务生效应：害人匪浅的的生理本能</h2><h3 id="1-什么是服务生效应？"><a href="#1-什么是服务生效应？" class="headerlink" title="1. 什么是服务生效应？"></a>1. 什么是服务生效应？</h3><p>人类对于”还没完成的任务”记得特别清楚，催促你去完成它</p>
-<h3 id="2-如何妙用”服务生效应”缓解拖延"><a href="#2-如何妙用”服务生效应”缓解拖延" class="headerlink" title="2. 如何妙用”服务生效应”缓解拖延?"></a>2. 如何妙用”服务生效应”缓解拖延?</h3><p>学习留两个步骤</p>
-<h2 id="3-如何规避”服务生效应”的消极作用？"><a href="#3-如何规避”服务生效应”的消极作用？" class="headerlink" title="3. 如何规避”服务生效应”的消极作用？"></a>3. 如何规避”服务生效应”的消极作用？</h2><p>可以先记下来，放一边</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730003537.png" alt=""></p>
  
       <!-- reward -->
       
