@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>漫画算法：什么是跳跃表？ |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-漫画算法：什么是跳跃表？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  漫画算法：什么是跳跃表？
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/07/10/%E6%BC%AB%E7%94%BB%E7%AE%97%E6%B3%95%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%B3%E8%B7%83%E8%A1%A8%EF%BC%9F/" class="article-date">
+  <time datetime="2018-07-10T04:22:22.000Z" itemprop="datePublished">2018-07-10</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">926</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">3 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>跳跃表的优点是维持结构平衡的成本比较低，完全依靠随机。而二叉树在多次插入删除后，需要Rebalance来重新调整结构平衡。</p>
+<p>来源<a target="_blank" rel="noopener" href="http://blog.jobbole.com/111731/">漫画算法：什么是跳跃表？</a></p>
+</blockquote>
+<p>这是发生在很多年以前的故事……</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-aae76253d7cf855f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-bfe4662112d364fd.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-62c350930cb6a65f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-433448f7258e5c7f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p>几天以前……</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-db836e09661845cc.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-67cd5c101216cea1.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-e862669791d7e07b.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-ec47a7050ce91262.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<span id="more"></span>
+
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-4016da101c012f2c.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p>几天之后……</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-b7240e029eef05db.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/300" alt="img"></p>
+<p>拍卖行的商品总数量有几十万件，对应数据库商品表的几十万条记录。</p>
+<p>如果是按照商品名称精确查询还好办，可以直接从数据库查出来，最多也就上百条记录。</p>
+<p>如果是没有商品名称的全量查询怎么办？总不可能把数据库里的所有记录全查出来吧，而且还要支持不同字段的排序。</p>
+<p>所以，只能提前在内存中存储有序的全量商品集合，每一种排序方式都保存成独立的集合，每次请求的时候按照请求的排序种类，返回对应的集合。</p>
+<p>比如按价格字段排序的集合：</p>
+<p>比如按等级字段排序的集合：</p>
+<p>需要注意的是，当时还没有Redis这样的内存数据库，所以小灰只能自己实现一套合适的数据结构来存储。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-832cb827cafab609.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/300" alt="img"></p>
+<p>拍卖行商品列表是线性的，最容易表达线性结构的自然是数组和链表。可是，无论是数组还是链表，在插入新商品的时候，都会存在性能问题。</p>
+<p>按照商品等级排序的集合为例，如果使用数组，插入新商品的方式如下：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-a8d3675c4381ef84.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/531" alt="img"></p>
+<p>如果要插入一个等级是3的商品，首先要知道这个商品应该插入的位置。使用二分查找可以最快定位，这一步时间复杂度是O（logN）。</p>
+<p>插入过程中，原数组中所有大于3的商品都要右移，这一步时间复杂度是O（N）。所以总体时间复杂度是O（N）。</p>
+<p>如果使用链表，插入新商品的方式如下：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-06525b1b986d86bc.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/599" alt="img"></p>
+<p>如果要插入一个等级是3的商品，首先要知道这个商品应该插入的位置。链表无法使用二分查找，只能和原链表中的节点逐一比较大小来确定位置。这一步的时间复杂度是O（N）。</p>
+<p>插入的过程倒是很容易，直接改变节点指针的目标，时间复杂度O（1）。因此总体的时间复杂度也是O（N）。</p>
+<p>这对于拥有几十万商品的集合来说，这两种方法显然都太慢了。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-c3b1bb295f3b1ce9.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/300" alt="img"></p>
+<p>——————————————</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-109c779cf5530dfa.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-04ccd1e1913aa41f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-7a077e4bab28e3e8.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-0b0e67ff317ada87.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-d4e51069e35a76be.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-ad0f138e47cd2bbc.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-41976fad6d25bbeb.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-8832cdba57064bad.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-84f61c94726411d1.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-013d8f1e47280044.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-ceb3ab54109fb02a.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-fe1cf5850593b065.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-2a5a6cafcfaaa05b.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-815e64fe75acb616.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-ebb2ec9b0c17afa2.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-cc6db3a990decec9.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-3e92cfa4382db9de.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-35484e3044a3be7d.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-e97ddeda7f31df34.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-5a9000ff34bf6e01.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-b0e10edf04cb0a06.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-b66235183b571fb2.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-4446b9cb4a716ca0.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-37977d82bf4c999c.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-fa5522d8ea75b569.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-b93e8deda2beb3bc.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-fce52f8c4914125f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-67c2561d821357fb.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-f9fe1b7a2bada665.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-e3d35758538928b7.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-a8c7f7ce43e548ae.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-d139022d1086dd09.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-97a85673592af9c7.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-cb853252cfd0e0b6.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-be2a86cc903d51f4.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-c464c96bde1cc236.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p>新节点和各层索引节点逐一比较，确定原链表的插入位置。O（logN）</p>
+<p>把索引插入到原链表。O（1）</p>
+<p>利用抛硬币的随机方式，决定新节点是否提升为上一级索引。结果为“正”则提升并继续抛硬币，结果为“负”则停止。O（logN）</p>
+<p>总体上，跳跃表插入操作的时间复杂度是O（logN），而这种数据结构所占空间是2N，既空间复杂度是 O（N）。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-00840e7be2e910f2.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-d5f796d4a9e235ab.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-6c617e32fabf766e.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-b0b812756bcea352.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-5108b7e4ea265978.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-dcd78d0ccb71b7e6.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p>自上而下，查找第一次出现节点的索引，并逐层找到每一层对应的节点。O（logN）</p>
+<p>删除每一层查找到的节点，如果该层只剩下1个节点，删除整个一层（原链表除外）。O（logN）</p>
+<p>总体上，跳跃表删除操作的时间复杂度是O（logN）。</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-94d20a6cf42d395d.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-97c288f3c3716b79.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6954572-b344ffccbec6e2a7.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
+<p>小灰和大黄并不知道，他们的这一解决方案和若干年后Redis当中的Sorted-set不谋而合。而Sorted-set这种有序集合，正是对于跳跃表的改进和应用。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2018/07/10/%E6%BC%AB%E7%94%BB%E7%AE%97%E6%B3%95%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%B3%E8%B7%83%E8%A1%A8%EF%BC%9F/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2018/07/10/%E4%BD%BF%E7%94%A8%E9%80%9A%E4%BF%97%E7%9A%84%E8%AF%AD%E8%A8%80%E7%90%86%E8%A7%A3Rstful/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            使用通俗的语言理解Restful
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/07/09/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%90%86%E8%A7%A3/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">面向对象的理解</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

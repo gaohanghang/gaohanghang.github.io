@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>神一样的CAP理论被应用在何方 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-神一样的CAP理论被应用在何方"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  神一样的CAP理论被应用在何方
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/13/%E7%A5%9E%E4%B8%80%E6%A0%B7%E7%9A%84CAP%E7%90%86%E8%AE%BA%E8%A2%AB%E5%BA%94%E7%94%A8%E5%9C%A8%E4%BD%95%E6%96%B9/" class="article-date">
+  <time datetime="2019-11-13T12:52:01.000Z" itemprop="datePublished">2019-11-13</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">7.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">25 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：陈于喆</p>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://juejin.im/post/5d720e86f265da03cc08de74">https://juejin.im/post/5d720e86f265da03cc08de74</a></p>
+<p>参考文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/lmb55/article/details/78495629" title="基于数据库的分布式锁实现">基于数据库的分布式锁实现</a></p>
+<p>总结：</p>
+<ol>
+<li><p>CAP：C 是一致性（Consistency），A 是可用性(Availability），P 是分区容错性(Partition Tolerance)，CAP 定理中，要么只能 CP，要么只能 AP</p>
+<p>网络无法做到 100%可靠，因此必须选择 CP 或 AP 架构。</p>
+</li>
+<li><p>分布式事务 BASE 理论：基本可用，AP 方案，采用适合的方式达到最终一致性</p>
+</li>
+<li><p>服务注册选择 AP，可用性比数据一致更加的重要</p>
+</li>
+<li><p>分布式锁方案选择：搞社交的选 redis 实现分布式锁，AP架构。搞支付金融的选 Zookeeper 实现分布式锁，CP架构。</p>
+</li>
+<li><p>分布式事务：</p>
+<ul>
+<li>两阶段提交（2PC）：CP架构，没被改造过的两阶段提交基本很少被业界应用</li>
+<li>补偿事务（TCC）：TCC是服务化的两阶段变成模型，每个业务服务都必须实现 try，confirm，calcel三个方法，这三个方式可以对应到SQL事务中Lock，Commit，Rollback。</li>
+<li>本地消息表：本地消息表这种实现方式应该是业界使用最多的，其核心思想是将分布式事务拆分成本地事务进行处理。</li>
+<li>MQ 事务消息：RocketMQ中实现了分布式事务，实际上是对本地消息表的一个封装，将本地消息表移动到了MQ内部。</li>
+</ul>
+</li>
+</ol>
+<p>究竟是选AP还是选CP，真的在于对业务的了解，例如金钱，库存相关会优先考虑CP模型，例如社区发帖相关可以优先选择AP模型，这个说白了其实基于对业务的了解是一个选择和妥协的过程。</p>
+</blockquote>
+<p>对于开发或设计分布式系统的架构师工程师来说，CAP 是必须要掌握的理论。</p>
+<p>But：这个文章的重点并不是讨论 CAP 理论和细节，重点是说说 CAP 在微服务中的开发怎么起到一个指引作用，会通过几个微服务开发的例子说明，尽量的去贴近开发。</p>
+<p>CAP 定理又被称为布鲁尔定理，是加州大学计算机科学家埃里克·布鲁尔提出来的猜想，后来被证明成为分布式计算领域公认的定理。</p>
+<p>不过布鲁尔在出来 CAP 的时候并没有对 CAP 三者（Consistency，Availability，Partition tolerance）进行详细的定义，所以在网上也出现了不少对 CAP 不同解读的声音。</p>
+<h3 id="1-CAP-定理"><a href="#1-CAP-定理" class="headerlink" title="1. CAP 定理"></a>1. CAP 定理</h3><p>CAP 定理在发展中存在过两个版本，我们以第二个版本为准</p>
+<blockquote>
+<p>在一个分布式系统中（指互相连接并共享数据的节点集合）中，当涉及到读写操作时，只能保证一致性（Consistence）、可用性(Availability）、分区容错性（Partition Tolerance）三者中的两个，另外一个必须被牺牲。</p>
+</blockquote>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05888f809b3bc?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>这个版本的 CAP 理论在探讨分布式系统，更加强调两点是互联和共享数据，其实也是理清楚了第一个版本中三选二的一些缺陷。</p>
+<p>分布式系统不一定都存在互联和共享数据，例如 Memcached 集群相互间就没有存在连接和共享数据。</p>
+<p>所以 Memcached 集群这类的分布式系统并不在 CAP 理论讨论的范围，而像 MySQL 集群就是互联和数据共享复制，因此 MySQL 集群是属于 CAP 理论讨论的对象。</p>
+<h4 id="1-1-一致性（Consistency）"><a href="#1-1-一致性（Consistency）" class="headerlink" title="1.1 一致性（Consistency）"></a>1.1 一致性（Consistency）</h4><p>一致性意思就是写操作之后进行读操作无论在哪个节点都需要返回写操作的值</p>
+<h4 id="1-2-可用性-Availability）"><a href="#1-2-可用性-Availability）" class="headerlink" title="1.2 可用性(Availability）"></a>1.2 可用性(Availability）</h4><p>非故障的节点在合理的时间内返回合理的响应</p>
+<h4 id="1-3-分区容错性-Partition-Tolerance"><a href="#1-3-分区容错性-Partition-Tolerance" class="headerlink" title="1.3 分区容错性(Partition Tolerance)"></a>1.3 分区容错性(Partition Tolerance)</h4><p>在分布式的环境下，网络无法做到 100% 可靠，有可能出现故障，因此分区是一个必须的选项。</p>
+<p>如果选择了 CA 而放弃了 P，若发生分区现象，为了保证 C，系统需要禁止写入，此时就与 A 发生冲突；如果是为了保证 A，则会出现正常的分区可以写入数据，有故障的分区不能写入数据，则与 C 就冲突了。</p>
+<p>因此分布式系统理论上不可能选择 CA 架构，而必须选择 CP 或 AP 架构</p>
+<h4 id="1-4-分布式事务-BASE-理论"><a href="#1-4-分布式事务-BASE-理论" class="headerlink" title="1.4 分布式事务 BASE 理论"></a>1.4 分布式事务 BASE 理论</h4><p>BASE 理论是对 CAP 的延伸和补充，是对 CAP 中的 AP 方案的一个补充，即在选择 AP 方案的情况下，如何更好的最终达到 C。</p>
+<p>BASE 是基本可用，柔性状态，最终一致性三个短语的缩写，核心的思想是即使无法做到强一致性，但应用可以采用适合的方式达到最终一致性。</p>
+<h3 id="2-CAP-在服务中实际的应用例子"><a href="#2-CAP-在服务中实际的应用例子" class="headerlink" title="2. CAP 在服务中实际的应用例子"></a>2. CAP 在服务中实际的应用例子</h3><p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05888f63920ec?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>理解貌似讲多了，项目的 CAP 可以参考下李运华的《从零开始学架构》的书，里面的 21，22 章比较详细的描绘了 CAP 的理论细节和 CAP 的版本演化过程。</p>
+<p>这里着重的讲解的是神一样的 CAP 在我们的微服务中怎么去指导和应用起来，大概会举几个平时常见的例子</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05888f5068452?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<h3 id="3-服务注册中心，是选择-AP-还是选择-CP-？"><a href="#3-服务注册中心，是选择-AP-还是选择-CP-？" class="headerlink" title="3. 服务注册中心，是选择 AP 还是选择 CP ？"></a>3. 服务注册中心，是选择 AP 还是选择 CP ？</h3><h4 id="3-1-服务注册中心解决的问题"><a href="#3-1-服务注册中心解决的问题" class="headerlink" title="3.1 服务注册中心解决的问题"></a>3.1 服务注册中心解决的问题</h4><p>在讨论 CAP 之前先明确下服务注册中心主要是解决什么问题：一个是服务注册，一个是服务发现。</p>
+<ul>
+<li>服务注册：实例将自身服务信息注册到注册中心，这部分信息包括服务的主机 IP 和服务的 Port，以及暴露服务自身状态和访问协议信息等。</li>
+<li>服务发现：实例请求注册中心所依赖的服务信息，服务实例通过注册中心，获取到注册到其中的服务实例的信息，通过这些信息去请求它们提供的服务。</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05888feb8431b?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>目前作为注册中心的一些组件大致有：</p>
+<ul>
+<li><strong>Dubbo 的 Zookeeper</strong></li>
+<li><strong>Spring Cloud 的 Eureka，Consul</strong></li>
+<li><strong>RocketMQ 的 nameServer</strong></li>
+<li><strong>HDFS 的 nameNode</strong></li>
+</ul>
+<p>目前微服务主流是 Dubbo 和 Spring Cloud，使用最多是 Zookeeper 和 Eureka，我们就来看看应该根据 CAP 理论怎么去选择注册中心。（Spring Cloud 也可以用 ZK，不过不是主流不讨论）</p>
+<h4 id="3-2-zookeeper-选择-CP"><a href="#3-2-zookeeper-选择-CP" class="headerlink" title="3.2 zookeeper 选择 CP"></a>3.2 zookeeper 选择 CP</h4><p>Zookeeper 保证 CP，即任何时刻对 Zookeeper 的访问请求能得到一致性的数据结果，同时系统对网络分割具备容错性，但是它不能保证每次服务的可用性。</p>
+<p>从实际情况来分析，在使用 Zookeeper 获取服务列表时，如果 ZK 正在选举或者 ZK 集群中半数以上的机器不可用，那么将无法获取数据。所以说，ZK 不能保证服务可用性。</p>
+<h4 id="3-3-eureka-选择-AP"><a href="#3-3-eureka-选择-AP" class="headerlink" title="3.3 eureka 选择 AP"></a>3.3 eureka 选择 AP</h4><p>Eureka 保证 AP，Eureka 在设计时优先保证可用性，每一个节点都是平等的。</p>
+<p>一部分节点挂掉不会影响到正常节点的工作，不会出现类似 ZK 的选举 Leader 的过程，客户端发现向某个节点注册或连接失败，会自动切换到其他的节点。</p>
+<p>只要有一台 Eureka 存在，就可以保证整个服务处在可用状态，只不过有可能这个服务上的信息并不是最新的信息。</p>
+<h4 id="3-4-zookeeper-和-eureka-的数据一致性问题"><a href="#3-4-zookeeper-和-eureka-的数据一致性问题" class="headerlink" title="3.4 zookeeper 和 eureka 的数据一致性问题"></a>3.4 zookeeper 和 eureka 的数据一致性问题</h4><p>先要明确一点，Eureka 的创建初心就是为一个注册中心，但是 ZK 更多是作为分布式协调服务的存在。</p>
+<p>只不过因为它的特性被 Dubbo 赋予了注册中心，它的职责更多是保证数据（配置数据，状态数据）在管辖下的所有服务之间保持一致。</p>
+<p>所以这个就不难理解为何 ZK 被设计成 CP 而不是 AP，ZK 最核心的算法 ZAB，就是为了解决分布式系统下数据在多个服务之间一致同步的问题。</p>
+<p>更深层的原因，ZK 是按照 CP 原则构建，也就是说它必须保持每一个节点的数据都保持一致。</p>
+<p>如果 ZK 下节点断开或者集群中出现网络分割（例如交换机的子网间不能互访），那么 ZK 会将它们从自己的管理范围中剔除，外界不能访问这些节点，即使这些节点是健康的可以提供正常的服务，所以导致这些节点请求都会丢失。</p>
+<p>而 Eureka 则完全没有这方面的顾虑，它的节点都是相对独立，不需要考虑数据一致性的问题，这个应该是 Eureka 的诞生就是为了注册中心而设计。</p>
+<p>相对 ZK 来说剔除了 Leader 节点选取和事务日志机制，这样更有利于维护和保证 Eureka 在运行的健壮性。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05888fc2f78b3?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>再来看看，数据不一致性在注册服务中会给 Eureka 带来什么问题，无非就是某一个节点被注册的服务多，某个节点注册的服务少，在某一个瞬间可能导致某些 IP 节点被调用数多，某些 IP 节点调用数少的问题。</p>
+<p>也有可能存在一些本应该被删除而没被删除的脏数据。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05888f75401e9?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<h4 id="3-5-小结：服务注册应该选择-AP-还是-CP"><a href="#3-5-小结：服务注册应该选择-AP-还是-CP" class="headerlink" title="3.5 小结：服务注册应该选择 AP 还是 CP"></a>3.5 小结：服务注册应该选择 AP 还是 CP</h4><p>对于服务注册来说，针对同一个服务，即使注册中心的不同节点保存的服务注册信息不相同，也并不会造成灾难性的后果。</p>
+<p>对于服务消费者来说，能消费才是最重要的，就算拿到的数据不是最新的数据，消费者本身也可以进行尝试失败重试。总比为了追求数据的一致性而获取不到实例信息整个服务不可用要好。</p>
+<p>所以，对于服务注册来说，可用性比数据一致性更加的重要，选择 AP。</p>
+<h3 id="4-分布式锁，是选择-AP-还是选择-CP-？"><a href="#4-分布式锁，是选择-AP-还是选择-CP-？" class="headerlink" title="4. 分布式锁，是选择 AP 还是选择 CP ？"></a>4. 分布式锁，是选择 AP 还是选择 CP ？</h3><p>这里实现分布式锁的方式选取了三种：</p>
+<ul>
+<li><p>基于数据库实现分布式锁</p>
+</li>
+<li><p>基于 Redis 实现分布式锁</p>
+</li>
+<li><p>基于 Zookeeper 实现分布式锁</p>
+</li>
+</ul>
+<h4 id="4-1-基于数据库实现分布式锁"><a href="#4-1-基于数据库实现分布式锁" class="headerlink" title="4.1 基于数据库实现分布式锁"></a>4.1 基于数据库实现分布式锁</h4><p>构建表结构</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588a12368882?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>利用表的 UNIQUE KEY <code>idx_lock</code> (<code>method_lock</code>) 作为唯一主键，当进行上锁时进行 insert 动作，数据库成功录入则以为上锁成功，当数据库报出 Duplicate entry 则表示无法获取该锁。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588a11076d99?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>不过这种方式对于单主却无法自动切换主从的 MySQL 来说，基本就无法实现 P 分区容错性（MySQL 自动主从切换在目前并没有十分完美的解决方案）。</p>
+<p>可以说这种方式强依赖于数据库的可用性，数据库写操作是一个单点，一旦数据库挂掉，就导致锁的不可用。这种方式基本不在 CAP 的一个讨论范围。。</p>
+<h4 id="4-2-基于-Redis-实现分布式锁"><a href="#4-2-基于-Redis-实现分布式锁" class="headerlink" title="4.2 基于 Redis 实现分布式锁"></a>4.2 基于 <strong>Redis</strong> 实现分布式锁</h4><p>Redis 单线程串行处理天然就是解决串行化问题，用来解决分布式锁是再适合不过。</p>
+<p>实现方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setnx key value Expire_time</span><br><span class="line">获取到锁 返回 1 ， 获取失败 返回 0</span><br></pre></td></tr></table></figure>
+
+<p>为了解决数据库锁的无主从切换的问题，可以选择 Redis 集群，或者是 Sentinel 哨兵模式，实现主从故障转移，当 Master 节点出现故障，哨兵会从 Slave 中选取节点，重新变成新的 Master 节点。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05889f092fb7f?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>所以 Redis 的复制模式是属于 AP 的模式。保证可用性，在主从复制中“主”有数据，但是可能“从”还没有数据。</p>
+<p>这个时候，一旦主挂掉或者网络抖动等各种原因，可能会切换到“从”节点，这个时候可能会导致两个业务线程同时获取得两把锁。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05889f24be477?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>这个过程如下：</p>
+<ol>
+<li>业务线程-1 向主节点请求锁</li>
+<li>业务线程-1 获取锁</li>
+<li>业务线程-1 获取到锁并开始执行业务</li>
+<li>这个时候 redis 刚生成的锁在主从之间还未进行同步</li>
+<li>redis 这时候主节点挂掉了</li>
+<li>redis 的从节点升级为主节点</li>
+<li>业务线程-2 向新的主节点请求锁</li>
+<li>业务线程-2 获取到新的主节点返回的锁</li>
+<li>业务线程-2 获取到锁开始执行业务</li>
+<li>这个时候 业务线程-1 和 业务线程-2 同时在执行任务</li>
+</ol>
+<p>上述的问题其实并不是 Redis 的缺陷，只是 Redis 采用了 AP 模型，它本身无法确保我们对一致性的要求。</p>
+<p>Redis 官方推荐 Redlock 算法来保证，问题是 Redlock 至少需要三个 Redis 主从实例来实现，维护成本比较高。</p>
+<p>相当于 Redlock 使用三个 Redis 集群实现了自己的另一套一致性算法，比较繁琐，在业界也使用得比较少。</p>
+<h5 id="4-2-1-能否使用-redis-作为分布式锁？"><a href="#4-2-1-能否使用-redis-作为分布式锁？" class="headerlink" title="4.2.1 能否使用 redis 作为分布式锁？"></a>4.2.1 能否使用 redis 作为分布式锁？</h5><p>这个本身就不是 Redis 的问题，还是取决于业务场景。</p>
+<p>我们先要自己确认我们的场景是适合 AP 还是 CP ， 如果在社交发帖等场景下，我们并没有非常强的事务一致性问题，Redis 提供给我们高性能的 AP 模型是非常适合的。</p>
+<p>但如果是交易类型，对数据一致性非常敏感的场景，我们可能要寻找一种更加适合的 CP 模型。</p>
+<h4 id="4-3-基于-Zookeeper-实现分布式锁"><a href="#4-3-基于-Zookeeper-实现分布式锁" class="headerlink" title="4.3 基于 Zookeeper 实现分布式锁"></a>4.3 基于 <strong>Zookeeper</strong> 实现分布式锁</h4><p>刚刚也分析过，Redis 其实无法确保数据的一致性，先来看 Zookeeper 是否适合作为我们需要的分布式锁。</p>
+<p>首先 ZK 的模式是 CP 模型，也就是说，当 ZK 锁提供给我们进行访问的时候，在 ZK 集群中能确保这把锁在 ZK 的每一个节点都存在。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d05889f6a5ce1c?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>这个实际上是 ZK 的 Leader 通过二阶段提交写请求来保证的，这个也是 ZK 的集群规模大了的一个瓶颈点。</p>
+<h5 id="4-3-1-ZK-锁实现的原理"><a href="#4-3-1-ZK-锁实现的原理" class="headerlink" title="4.3.1 ZK 锁实现的原理"></a>4.3.1 ZK 锁实现的原理</h5><p>说 ZK 的锁问题之前先看看 Zookeeper 中几个特性，这几个特性构建了 ZK 的一把分布式锁。</p>
+<p>ZK 的特性如下：</p>
+<ul>
+<li><strong>有序节点：</strong> 当在一个父目录下如 &#x2F;lock 下创建 有序节点，节点会按照严格的先后顺序创建出自节点 lock000001，lock000002，lock0000003，以此类推，有序节点能严格保证各个自节点按照排序命名生成。</li>
+<li><strong>临时节点：</strong> 客户端建立了一个临时节点，在客户端的会话结束或会话超时，Zookepper 会自动删除该节点 ID。</li>
+<li><strong>事件监听：</strong> 在读取数据时，我们可以对节点设置监听，当节点的数据发生变化（1 节点创建 2 节点删除 3 节点数据变成 4 自节点变成）时，Zookeeper 会通知客户端。</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588a51620561?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>结合这几个特点，来看下 zk 是怎么组合分布式锁。</p>
+<ol>
+<li>业务线程-1 业务线程-2 分别向 zk 的&#x2F;lock 目录下，申请创建有序的临时节点</li>
+<li>业务线程-1 抢到&#x2F;lock0001 的文件，也就是在整个目录下最小序的节点，也就是线程-1 获取到了锁</li>
+<li>业务线程-2 只能抢到&#x2F;lock0002 的文件，并不是最小序的节点，线程 2 未能获取锁</li>
+<li>业务线程-1 与 lock0001 建立了连接，并维持了心跳，维持的心跳也就是这把锁的租期</li>
+<li>当业务线程-1 完成了业务，将释放掉与 zk 的连接，也就是释放了这把锁</li>
+</ol>
+<h5 id="4-3-2-zk-分布式锁的代码实现"><a href="#4-3-2-zk-分布式锁的代码实现" class="headerlink" title="4.3.2 zk 分布式锁的代码实现"></a>4.3.2 zk 分布式锁的代码实现</h5><p>ZK 官方提供的客户端并不支持分布式锁的直接实现，我们需要自己写代码去利用 ZK 的这几个特性去进行实现。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588a68844a5a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<h4 id="4-4-小结：究竟该用-CP-还是-AP-的分布式锁"><a href="#4-4-小结：究竟该用-CP-还是-AP-的分布式锁" class="headerlink" title="4.4 小结：究竟该用 CP 还是 AP 的分布式锁"></a>4.4 小结：究竟该用 CP 还是 AP 的分布式锁</h4><p>首先得了解清楚我们使用分布式锁的场景，为何使用分布式锁，用它来帮我们解决什么问题，先聊场景后聊分布式锁的技术选型。</p>
+<p>无论是 Redis，ZK，例如 Redis 的 AP 模型会限制很多使用场景，但它却拥有了几者中最高的性能。</p>
+<p>Zookeeper 的分布式锁要比 Redis 可靠很多，但他繁琐的实现机制导致了它的性能不如 Redis，而且 ZK 会随着集群的扩大而性能更加下降。</p>
+<p>简单来说，先了解业务场景，后进行技术选型。</p>
+<h3 id="5-分布式事务，是怎么从-ACID-解脱，投身-CAP-x2F-BASE"><a href="#5-分布式事务，是怎么从-ACID-解脱，投身-CAP-x2F-BASE" class="headerlink" title="5. 分布式事务，是怎么从 ACID 解脱，投身 CAP&#x2F;BASE"></a>5. 分布式事务，是怎么从 ACID 解脱，投身 CAP&#x2F;BASE</h3><p>如果说到事务，ACID 是传统数据库常用的设计理念，追求强一致性模型，关系数据库的 ACID 模型拥有高一致性+可用性，所以很难进行分区。</p>
+<p>在微服务中 ACID 已经是无法支持，我们还是回到 CAP 去寻求解决方案，不过根据上面的讨论，CAP 定理中，要么只能 CP，要么只能 AP。</p>
+<p>如果我们追求数据的一致性而忽略可用性这个在微服务中肯定是行不通的，如果我们追求可用性而忽略一致性，那么在一些重要的数据（例如支付，金额）肯定出现漏洞百出，这个也是无法接受。所以我们既要一致性，也要可用性。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588a859246f5?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>都要是无法实现的，但我们能不能在一致性上作出一些妥协，不追求强一致性，转而追求最终一致性，所以引入 BASE 理论。</p>
+<p>在分布式事务中，BASE 最重要是为 CAP 提出了最终一致性的解决方案，BASE 强调牺牲高一致性，从而获取可用性，数据允许在一段时间内不一致，只要保证最终一致性就可以了。</p>
+<h4 id="5-1-实现最终一致性"><a href="#5-1-实现最终一致性" class="headerlink" title="5.1 实现最终一致性"></a>5.1 实现最终一致性</h4><p><strong>弱一致性</strong>：系统不能保证后续访问返回更新的值。需要在一些条件满足之后，更新的值才能返回。</p>
+<p>从更新操作开始，到系统保证任何观察者总是看到更新的值的这期间被称为不一致窗口。</p>
+<p><strong>最终一致性</strong>：这是弱一致性的特殊形式；存储系统保证如果没有对某个对象的新更新操作，最终所有的访问将返回这个对象的最后更新的值。</p>
+<h4 id="5-2-BASE-模型"><a href="#5-2-BASE-模型" class="headerlink" title="5.2 BASE 模型"></a>5.2 BASE 模型</h4><p>BASE 模型是传统 ACID 模型的反面，不同于 ACID，BASE 强调牺牲高一致性，从而获得可用性，数据允许在一段时间内的不一致，只要保证最终一致就可以了。</p>
+<p>BASE 模型反 ACID 模型，完全不同 ACID 模型，牺牲高一致性，获得可用性或可靠性：Basically Available 基本可用。</p>
+<p>支持分区失败（e.g. sharding碎片划分数据库）Soft state 软状态，状态可以有一段时间不同步，异步。</p>
+<p>Eventually consistent 最终一致，最终数据是一致的就可以了，而不是时时一致。</p>
+<h4 id="5-3-分布式事务"><a href="#5-3-分布式事务" class="headerlink" title="5.3 分布式事务"></a>5.3 分布式事务</h4><p>在分布式系统中，要实现分布式事务，无外乎几种解决方案。方案各有不同，不过其实都是遵循 BASE 理论，是最终一致性模型。</p>
+<ul>
+<li><strong>两阶段提交（2PC）</strong></li>
+<li><strong>补偿事务（TCC）</strong></li>
+<li><strong>本地消息表</strong></li>
+<li><strong>MQ 事务消息</strong></li>
+</ul>
+<h4 id="5-4-两阶段提交（2PC）"><a href="#5-4-两阶段提交（2PC）" class="headerlink" title="5.4 两阶段提交（2PC）"></a>5.4 两阶段提交（2PC）</h4><p>其实还有一个数据库的 XA 事务，不过目前在真正的互联网中实际的应用基本很少，两阶段提交就是使用 XA 原理。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588a87ee0c96?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>在 XA 协议中分为两阶段：</p>
+<ol>
+<li>事务管理器要求每个涉及到事务的数据库预提交(precommit)此操作，并反映是否可以提交。</li>
+<li>事务协调器要求每个数据库提交数据，或者回滚数据。</li>
+</ol>
+<p>说一下，为何在互联网的系统中没被改造过的两阶段提交基本很少被业界应用，最大的缺点就是同步阻塞问题。</p>
+<p>在资源准备就绪之后，资源管理器中的资源就一直处于阻塞，直到提交完成之后，才进行资源释放。</p>
+<p>这个在互联网高并发大数据的今天，两阶段的提交是不能满足现在互联网的发展。</p>
+<p>还有就是两阶段提交协议虽然为分布式数据强一致性所设计，但仍然存在数据不一致性的可能。</p>
+<p>例如：在第二阶段中，假设协调者发出了事务 Commit 的通知，但是因为网络问题该通知仅被一部分参与者所收到并执行了 Commit 操作，其余的参与者则因为没有收到通知一直处于阻塞状态，这时候就产生了数据的不一致性。</p>
+<h4 id="5-5-补偿事务（TCC）"><a href="#5-5-补偿事务（TCC）" class="headerlink" title="5.5 补偿事务（TCC）"></a>5.5 补偿事务（TCC）</h4><p>TCC 是服务化的两阶段变成模型，每个业务服务都必须实现 try，confirm，calcel 三个方法，这三个方式可以对应到 SQL 事务中 Lock，Commit，Rollback。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588aa354cd70?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p><strong>相比两阶段提交，TCC 解决了几个问题：</strong> 同步阻塞，引入了超时机制，超时后进行补偿，并不会像两阶段提交锁定了整个资源，将资源转换为业务逻辑形式，粒度变小。</p>
+<p>因为有了补偿机制，可以由业务活动管理器进行控制，保证数据一致性。</p>
+<p><strong>Try 阶段：</strong> Try 只是一个初步的操作，进行初步的确认，它的主要职责是完成所有业务的检查，预留业务资源。</p>
+<p><strong>Confirm 阶段：</strong> Confirm 是在 Try 阶段检查执行完毕后，继续执行的确认操作，必须满足幂等性操作，如果 Confirm 中执行失败，会有事务协调器触发不断的执行，直到满足为止。</p>
+<p><strong>Cancel 是取消执行：</strong> 在 Try 没通过并释放掉 Try 阶段预留的资源，也必须满足幂等性，跟 Confirm 一样有可能被不断执行。</p>
+<p>一个下订单，生成订单扣库存的例子：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588aa9cf1fed?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>接下来看看，我们的下单扣减库存的流程怎么加入 TCC</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588ab8cd2a20?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>在 Try 的时候，会让库存服务预留 N 个库存给这个订单使用，让订单服务产生一个“未确认”订单，同时产生这两个预留的资源。</p>
+<p>在 Confirm 的时候，会使用在 Try 预留的资源，在 TCC 事务机制中认为，如果在 Try 阶段能正常预留的资源，那么在 Confirm 一定能完整的提交。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588ab8c51652?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>在 Try 的时候，有任务一方为执行失败，则会执行 Cancel 的接口操作，将在 Try 阶段预留的资源进行释放。</p>
+<p>这个并不是重点要论 TCC 事务是怎么实现，重点还是讨论分布式事务在 CAP+BASE 理论的应用。实现可以参考：<a target="_blank" rel="noopener" href="https://github.com/changmingxie/tcc-transaction" title="github.com/changmingxi…">github.com&#x2F;changmingxi…</a></p>
+<h4 id="5-6-本地消息表"><a href="#5-6-本地消息表" class="headerlink" title="5.6 本地消息表"></a>5.6 本地消息表</h4><p>本地消息表这个方案最初是 eBay 提出的，eBay 的完整方案 <a target="_blank" rel="noopener" href="https://queue.acm.org/detail.cfm?id=1394128%E3%80%82" title="queue.acm.org/detail.cfm?…">queue.acm.org&#x2F;detail.cfm?…</a></p>
+<p>本地消息表这种实现方式应该是业界使用最多的，其核心思想是将分布式事务拆分成本地事务进行处理。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588acde414a6?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>对于本地消息队列来说，核心就是将大事务转变为小事务，还是用上面下订单扣库存的例子说说明</p>
+<ol>
+<li>当我们去创建订单的时候，我们新增一个本地消息表，把创建订单和扣减库存写入到本地消息表，放在同一个事务（依靠数据库本地事务保证一致性）</li>
+<li>配置一个定时任务去轮训这个本地事务表，扫描这个本地事务表，把没有发送出去的消息，发送给库存服务，当库存服务收到消息后，会进行减库存，并写入服务器的事务表，更新事务表的状态。</li>
+<li>库存服务器通过定时任务或直接通知订单服务，订单服务在本地消息表更新状态。</li>
+</ol>
+<p>这里须注意的是，对于一些扫描发送未成功的任务，会进行重新发送，所以必须保证接口的幂等性。</p>
+<p>本地消息队列是 BASE 理论，是最终一致性模型，适用对一致性要求不高的情况。</p>
+<h4 id="5-7-MQ-事务"><a href="#5-7-MQ-事务" class="headerlink" title="5.7 MQ 事务"></a>5.7 MQ 事务</h4><p>RocketMq 在 4.3 版本已经正式宣布支持分布式事务，在选择 Rokcetmq 做分布式事务请务必选择 4.3 以上的版本。</p>
+<p>RocketMQ 中实现了分布式事务，实际上是对本地消息表的一个封装，将本地消息表移动到了 MQ 内部。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588ae2844970?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>事务消息作为一种异步确保型事务， 将两个事务分支通过 MQ 进行异步解耦，RocketMQ 事务消息的设计流程同样借鉴了两阶段提交理论，整体交互流程如下图所示：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588aeba679cf?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>MQ 事务是对本地消息表的一层封装，将本地消息表移动到了 MQ 内部，所以也是基于 BASE 理论，是最终一致性模式，对强一致性要求不那么高的事务适用，同时 MQ 事务将整个流程异步化了，也非常适合在高并发情况下使用。</p>
+<h3 id="6-RocketMQ-选择异步-x2F-同步刷盘，异步-x2F-同步复制，背后的-CP-和-AP-思考"><a href="#6-RocketMQ-选择异步-x2F-同步刷盘，异步-x2F-同步复制，背后的-CP-和-AP-思考" class="headerlink" title="6. RocketMQ 选择异步&#x2F;同步刷盘，异步&#x2F;同步复制，背后的 CP 和 AP 思考"></a>6. RocketMQ 选择异步&#x2F;同步刷盘，异步&#x2F;同步复制，背后的 CP 和 AP 思考</h3><p>虽然同步刷盘&#x2F;异步刷盘，同步&#x2F;异步复制，并没有对 CAP 直接的应用，但在配置的过程中也一样涉及到可用性和一致性的考虑。</p>
+<h4 id="6-1-同步刷盘-x2F-异步刷盘"><a href="#6-1-同步刷盘-x2F-异步刷盘" class="headerlink" title="6.1 同步刷盘&#x2F;异步刷盘"></a>6.1 同步刷盘&#x2F;异步刷盘</h4><p>RocketMQ 的消息是可以做到持久化的，数据会持久化到磁盘，RocketMQ 为了提高性能，尽可能保证磁盘的顺序写入，消息在 Producer 写入 RocketMq 的时候，有两种写入磁盘方式：</p>
+<ol>
+<li>异步刷盘：消息快速写入到内存的 Pagecache，就立马返回写成功状态，当内存的消息累计到一定程度的时候，会触发统一的写磁盘操作。这种方式可以保证大吞吐量，但也存在着消息可能未存入磁盘丢失的风险。</li>
+<li>同步刷盘：消息快速写入内存的 Pagecahe，立刻通知刷盘线程进行刷盘，等待刷盘完成之后，唤醒等待的线程，返回消息写成功的状态。</li>
+</ol>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588b056e080a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<h4 id="6-2-同步复制-x2F-异步复制"><a href="#6-2-同步复制-x2F-异步复制" class="headerlink" title="6.2 同步复制&#x2F;异步复制"></a>6.2 同步复制&#x2F;异步复制</h4><p>一个 Broker 组有 Master 和 Slave，消息需要从 Master 复制到 Slave 上，所以有同步和异步两种复制方式：</p>
+<ol>
+<li>同步复制：是等 Master 和 Slave 均写成功后才反馈给客户端写成功状态。</li>
+<li>异步复制：是只要 Master 写成功即可反馈给客户端写成功状态。</li>
+</ol>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588af130c763?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>异步复制的优点是可以提高响应速度，但牺牲了一致性 ，一般实现该类协议的算法需要增加额外的补偿机制。</p>
+<p>同步复制的优点是可以保证一致性（一般通过两阶段提交协议），但是开销较大，可用性不好（参见 CAP 定理），带来了更多的冲突和死锁等问题。</p>
+<p>值得一提的是 Lazy+Primary&#x2F;Copy 的复制协议在实际生产环境中是非常实用的。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588b16477dcb?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+<p>RocketMQ 的设置要结合业务场景，合理设置刷盘方式和主从复制方式，尤其是 SYNC_FLUSH 方式，由于频繁的触发写磁盘动作，会明显降低性能。</p>
+<p>通常情况下，应该把 Master 和 Slave 设置成 ASYNC_FLUSH 的刷盘方式，主从之间配置成 SYNC_MASTER 的复制方式，这样即使有一台机器出故障，仍然可以保证数据不丢。</p>
+<h3 id="7-总结"><a href="#7-总结" class="headerlink" title="7. 总结"></a>7. 总结</h3><p>在微服务的构建中，永远都逃离不了 CAP 理论，因为网络永远不稳定，硬件总会老化，软件可能出现 Bug，所以分区容错性在微服务中是躲不过的命题。</p>
+<p>可以这么说，只要是分布式，只要是集群都面临着 AP 或者 CP 的选择，但你很贪心的时候，既要一致性又要可用性，那只能对一致性作出一点妥协，也就是引入了 BASE 理论，在业务允许的情况下实现最终一致性。</p>
+<p>究竟是选 AP 还是选 CP，真的在于对业务的了解，例如金钱，库存相关会优先考虑 CP 模型，例如社区发帖相关可以优先选择 AP 模型，这个说白了其实基于对业务的了解是一个选择和妥协的过程。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/9/6/16d0588b1ea4e045?imageView2/0/w/1280/h/960/format/webp/ignore-error/1"></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/11/13/%E7%A5%9E%E4%B8%80%E6%A0%B7%E7%9A%84CAP%E7%90%86%E8%AE%BA%E8%A2%AB%E5%BA%94%E7%94%A8%E5%9C%A8%E4%BD%95%E6%96%B9/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/11/14/%E5%90%8C%E6%AD%A5%E5%92%8C%E5%BC%82%E6%AD%A5%E7%9A%84%E5%8C%BA%E5%88%AB/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            同步和异步的区别
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/11/12/%E6%80%9D%E8%80%83-9-%E6%B2%A1%E6%9C%89%E6%89%80%E8%B0%93%E7%9A%84%E4%B8%80%E6%88%90%E4%B8%8D%E5%8F%98%20%F0%9F%A4%94/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">思考 9 没有所谓的一成不变 🤔</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>通过 Docker 快速搭建各种测试环境(Mysql, Redis, Elasticsearch, MongoDB) |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-通过-Docker-快速搭建各种测试环境-Mysql-Redis-Elasticsearch-MongoDB"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  通过 Docker 快速搭建各种测试环境(Mysql, Redis, Elasticsearch, MongoDB)
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/05/28/%E9%80%9A%E8%BF%87-Docker-%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%90%84%E7%A7%8D%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83-Mysql-Redis-Elasticsearch-MongoDB/" class="article-date">
+  <time datetime="2019-05-28T00:37:25.000Z" itemprop="datePublished">2019-05-28</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">11 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址 <a target="_blank" rel="noopener" href="https://juejin.im/post/5ce531b65188252d215ed8b7">一文教您如何通过 Docker 快速搭建各种测试环境(Mysql, Redis, Elasticsearch, MongoDB) </a></p>
+</blockquote>
+<h2 id="一、镜像加速"><a href="#一、镜像加速" class="headerlink" title="一、镜像加速"></a>一、镜像加速</h2><p>Docker 默认是从官方镜像地址 Docker Hub 下下载镜像，由于服务器在国外的缘故，导致经常下载速度非常慢。为了提升镜像的下载速度，我们可以手动配置国内镜像加速器，让下载速度飚起来。</p>
+<p>国内的镜像加速器选项较多，如：阿里云，DaoCloud 等。</p>
+<p>本文主要说说如何配置阿里云的镜像加速器。</p>
+<h3 id="2-1-登录阿里云获取加速信息"><a href="#2-1-登录阿里云获取加速信息" class="headerlink" title="2.1 登录阿里云获取加速信息"></a>2.1 登录阿里云获取加速信息</h3><ol>
+<li>首先你需要注册一个阿里云账号，没有的话，通过下面的连接跳转注册：</li>
+</ol>
+<p><a href="https://link.juejin.im/?target=https://dev.aliyun.com/">dev.aliyun.com&#x2F;</a></p>
+<ol>
+<li>跳转镜像加速页 <a href="https://link.juejin.im/?target=https://cr.console.aliyun.com/">cr.console.aliyun.com&#x2F;</a>，获取加速配置信息：</li>
+</ol>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528191157.png"></p>
+<h3 id="2-2-配置-Docker"><a href="#2-2-配置-Docker" class="headerlink" title="2.2 配置 Docker"></a>2.2 配置 Docker</h3><h4 id="2-2-1-确定-Docker-Client-版本"><a href="#2-2-1-确定-Docker-Client-版本" class="headerlink" title="2.2.1 确定 Docker Client 版本"></a>2.2.1 确定 Docker Client 版本</h4><p>在配置之前，首先需要<strong>确定 Docker Client 的版本，推荐是 1.10.0+</strong>:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528191324.png"></p>
+<h4 id="2-2-2-配置镜像加速器"><a href="#2-2-2-配置镜像加速器" class="headerlink" title="2.2.2 配置镜像加速器"></a>2.2.2 配置镜像加速器</h4><blockquote>
+<p>PS: 这里以 CentOS 系统为例，如果你是别的系统，可以参考阿里云配置加速器官方文档。</p>
+</blockquote>
+<p>通过修改 daemon 配置文件 <code>/etc/docker/daemon.json</code> 来使用加速器：</p>
+<p>执行下面命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir -p /etc/docker</span><br><span class="line">sudo tee /etc/docker/daemon.json &lt;&lt;-&#x27;EOF&#x27;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;registry-mirrors&quot;: [&quot;https://bjtzu1jb.mirror.aliyuncs.com&quot;]</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-验证一下速度"><a href="#2-3-验证一下速度" class="headerlink" title="2.3 验证一下速度"></a>2.3 验证一下速度</h3><p>以下载 mongodb 为例，看下速度：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528191423.png"></p>
+<p>配置了加速器过后，速度终于飚起来了。</p>
+<h2 id="二、快速安装-amp-搭建-Mysql-环境"><a href="#二、快速安装-amp-搭建-Mysql-环境" class="headerlink" title="二、快速安装&amp;搭建 Mysql 环境"></a>二、快速安装&amp;搭建 Mysql 环境</h2><p>本节中，我们将学习如何通过 Docker 快速安装与搭建 Mysql 环境。</p>
+<h3 id="2-1-下载-Mysql-镜像"><a href="#2-1-下载-Mysql-镜像" class="headerlink" title="2.1 下载 Mysql 镜像"></a>2.1 下载 Mysql 镜像</h3><p>这里以 Mysql 5.7 为例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull mysql:5.7</span><br></pre></td></tr></table></figure>
+
+<p>下载完成后，通过 <code>docker images</code> 检查一下镜像是否下载成功:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192208.png"></p>
+<h3 id="2-2-先以最简单方式启动"><a href="#2-2-先以最简单方式启动" class="headerlink" title="2.2 先以最简单方式启动"></a>2.2 先以最简单方式启动</h3><p>先以简单的方式启动：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">--name mysql \</span><br><span class="line">-p <span class="number">3306</span>:<span class="number">3306</span> \</span><br><span class="line">-e MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line"><span class="function">mysql:5.7</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>-d</code>：以后台的方式运行；</li>
+<li><code>--name mysql</code>：指定容器的名称为 mysql;</li>
+<li><code>-p 3306:3306</code> 将容器的 3306 端口挂载到宿主机的 3306 端口上；</li>
+<li><code>-e MYSQL_ROOT_PASSWORD=123456</code>：指定 root 的密码为 123456</li>
+</ul>
+<p>命令执行完成后，你也可以通过 <code>docker ps</code>命令来确认下容器是否启动成功。若成功，我们需要将容器中的目录文件复制到宿主机中，分别包括：</p>
+<ul>
+<li>mysql 配置文件；</li>
+<li>数据存储目录，以便挂载(PS: 若不挂载到宿主机，每次启动容器数据都会丢失)</li>
+</ul>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 将容器中的 mysql 配置文件复制到宿主机中指定路径下，路径你可以根据需要，自行修改</span><br><span class="line">docker cp mysql:/etc/mysql/mysql.conf.d/mysqld.cnf /usr/local/docker/mysql/config</span><br><span class="line"># 将容器中的 mysql 存储目录复制到宿主机中</span><br><span class="line">docker cp mysql:/var/lib/mysql/ /usr/local/docker/mysql/data</span><br></pre></td></tr></table></figure>
+
+<p>完成这一切后，让我们将刚刚运行的容器删除掉。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm -f mysql</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>PS: mysql 是我们运行容器时，指定的名称，当然，你也可以先执行 <code>docker ps</code>, 通过容器 ID 来删除。</p>
+</blockquote>
+<h3 id="2-3-正式运行-Mysql-容器"><a href="#2-3-正式运行-Mysql-容器" class="headerlink" title="2.3 正式运行 Mysql 容器"></a>2.3 正式运行 Mysql 容器</h3><p>接下来，正式运行 Mysql 容器：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">--name mysql \</span><br><span class="line">-p <span class="number">3306</span>:<span class="number">3306</span> \</span><br><span class="line">-v /usr/local/docker/mysql/config/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \</span><br><span class="line">-v /usr/local/docker/mysql/data/mysql:/var/lib/mysql \</span><br><span class="line">-e MYSQL_ROOT_PASSWORD=<span class="number">123456</span> \</span><br><span class="line"><span class="function">mysql:5.7</span></span><br></pre></td></tr></table></figure>
+
+<p>其他不变，额外添加了两个挂载子命令：</p>
+<ul>
+<li><code>-v /usr/local/docker/mysql/config/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf</code>: 将容器中 &#x2F;etc&#x2F;mysql&#x2F;mysql.conf.d&#x2F;mysqld.cnf 配置文件挂载到宿主机的 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;mysql&#x2F;config&#x2F;mysqld.cnf 文件上；</li>
+<li><code>-v /usr/local/docker/mysql/data:/var/lib/mysql</code>: 将容器中 &#x2F;var&#x2F;lib&#x2F;mysql 数据目录挂载到宿主机的 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;mysql&#x2F;data 目录下；</li>
+</ul>
+<p>执行命令完成后，查看下容器是否启动：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192248.png"></p>
+<p>可以看到，容器运行成功</p>
+<h3 id="2-4-通过-Mysql-客户端连接一下试试"><a href="#2-4-通过-Mysql-客户端连接一下试试" class="headerlink" title="2.4 通过 Mysql 客户端连接一下试试"></a>2.4 通过 Mysql 客户端连接一下试试</h3><p>通过 MySQL 客户端连接刚刚创建的 mysql, 看看能否连接成功：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192313.png"></p>
+<p>连接成功了！</p>
+<h2 id="三、快速安装-amp-搭建-Redis-环境"><a href="#三、快速安装-amp-搭建-Redis-环境" class="headerlink" title="三、快速安装&amp;搭建 Redis 环境"></a>三、快速安装&amp;搭建 Redis 环境</h2><p>本节中，我们将学习如何利用 Docker 安装&amp;搭建 Redis 环境。</p>
+<span id="more"></span>
+
+<h3 id="3-1-下载-Redis-镜像"><a href="#3-1-下载-Redis-镜像" class="headerlink" title="3.1 下载 Redis 镜像"></a>3.1 下载 Redis 镜像</h3><p>首先拉取 Redis 镜像, 这里我选择的是 <code>redis:alpine</code> 轻量级镜像版本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker pull redis:alpine</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+
+<p>下载完成后，通过 <code>docker images</code> 确认镜像是否已经下载到本地：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192405.png"></p>
+<h3 id="3-2-运行-Redis-容器"><a href="#3-2-运行-Redis-容器" class="headerlink" title="3.2 运行 Redis 容器"></a>3.2 运行 Redis 容器</h3><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -p <span class="number">6379</span>:<span class="number">6379</span> --name redis -v /usr/local/docker/redis/redis.conf:/etc/redis/redis.conf -v /usr/local/docker/redis/data:/data -d redis:alpine redis-server /etc/redis/redis.conf --appendonly yes</span><br></pre></td></tr></table></figure>
+
+<p>命令说明：</p>
+<ul>
+<li><code>-p 6379:6379</code>: 将容器的 6379 端口映射到宿主机的 6379 端口；</li>
+<li><code>-v /usr/local/docker/redis/data:/data</code> : 将容器中的 &#x2F;data 数据存储目录, 挂载到宿主机中 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;redis&#x2F;data 目录下；</li>
+<li><code>-v /usr/local/docker/redis/redis.conf:/etc/redis/redis.conf</code> ： 将容器中 &#x2F;etc&#x2F;redis&#x2F;redis.conf 配置文件，挂载到宿主机的 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;redis&#x2F;redis.conf 文件上；</li>
+<li><code>redis-server --appendonly yes</code>: 在容器执行 redis-server 启动命令，并打开 redis 持久化配置;</li>
+</ul>
+<p>命令运行完成后，查看容器是否启动成功：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192500.png"></p>
+<p>可以看到 redis 容器已经启动成功了！</p>
+<h3 id="3-3-连接刚刚创建好的容器"><a href="#3-3-连接刚刚创建好的容器" class="headerlink" title="3.3 连接刚刚创建好的容器"></a>3.3 连接刚刚创建好的容器</h3><p>执行如下命令，连接 redis：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -it redis:alpine redis-cli -h 172.17.0.1</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192525.png"></p>
+<h2 id="四、快速安装-amp-搭建-MongDB-环境"><a href="#四、快速安装-amp-搭建-MongDB-环境" class="headerlink" title="四、快速安装&amp;搭建 MongDB 环境"></a>四、快速安装&amp;搭建 MongDB 环境</h2><p>本节中，我们将学习如何通过 Docker 快速安装与搭建 MongoDB 环境。</p>
+<h3 id="4-1-下载-MongoDB-镜像"><a href="#4-1-下载-MongoDB-镜像" class="headerlink" title="4.1 下载 MongoDB 镜像"></a>4.1 下载 MongoDB 镜像</h3><p>这里以 mongo 4 版本为例，下载镜像：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull mongo:4</span><br></pre></td></tr></table></figure>
+
+<p>下载完成后，确认一下镜像是否下载成功:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192547.png"></p>
+<h3 id="4-2-运行-MongoDB-镜像"><a href="#4-2-运行-MongoDB-镜像" class="headerlink" title="4.2 运行 MongoDB 镜像"></a>4.2 运行 MongoDB 镜像</h3><p>下载成功后，运行 mongoDB 镜像：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">--name mongo \</span><br><span class="line">-v /usr/local/docker/mongo/configdb:/data/configdb \</span><br><span class="line">-v /usr/local/docker/mongo/data:/data/db \</span><br><span class="line">-p 27017:27017 \</span><br><span class="line">mongo:4 \</span><br><span class="line">--auth</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>-d</code>: 以后台的方式运行；</li>
+<li><code>--name mongo</code>: 指定容器名称为 mongo;</li>
+<li><code>-v /usr/local/docker/mongo/configdb:/data/configdb</code>: 将容器中 &#x2F;data&#x2F;configdb 目录挂载到宿主机的 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;mongo&#x2F;configdb 目录下；</li>
+<li><code>-v /usr/local/docker/mongo/data:/data/db</code>: 将容器中 &#x2F;data&#x2F;db 数据目录挂载到宿主机的 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;mongo&#x2F;data 目录下；</li>
+<li><code>-p 27017:27017</code>: 将容器的 27017 端口映射到宿主机的 27017 端口；</li>
+</ul>
+<p>执行命令完成后，查看下容器是否启动：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192618.png"></p>
+<h3 id="4-3-添加管理员账号"><a href="#4-3-添加管理员账号" class="headerlink" title="4.3 添加管理员账号"></a>4.3 添加管理员账号</h3><p>执行命令：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it mongo mongo admin</span><br></pre></td></tr></table></figure>
+
+<p>然后，创建一个拥有最高权限 root 账号:</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">db.createUser(&#123; user: &#x27;admin&#x27;, pwd: &#x27;<span class="number">123456</span>&#x27;, roles: [ &#123; role: &quot;root&quot;, db: &quot;admin&quot; &#125; ] &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>创建成功后，你会看到 <code>Successfully added user</code>:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192644.png"></p>
+<h3 id="4-4-用新创建的-root-账户连接，测试一下"><a href="#4-4-用新创建的-root-账户连接，测试一下" class="headerlink" title="4.4 用新创建的 root 账户连接，测试一下"></a>4.4 用新创建的 root 账户连接，测试一下</h3><figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --rm --link mongo:mongo mongo mongo -u admin -p <span class="number">123456</span> --authenticationDatabase admin mongo/admin</span><br></pre></td></tr></table></figure>
+
+<p>连接成功后，我们可以执行相关 sql：</p>
+<p><strong>显示所有的数据库：</strong></p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show dbs</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用某个数据库：</strong></p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">use admin</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192752.png"></p>
+<p>输入命令 <code>exit</code>，退出连接！</p>
+<h2 id="五、快速安装-amp-搭建-Elasticsearch-环境"><a href="#五、快速安装-amp-搭建-Elasticsearch-环境" class="headerlink" title="五、快速安装&amp;搭建 Elasticsearch 环境"></a>五、快速安装&amp;搭建 Elasticsearch 环境</h2><p>本节中，我们将学习如何通过 Docker 快速安装与搭建 Elasticsearch 环境。</p>
+<h3 id="5-1-下载-Elasticsearch-镜像"><a href="#5-1-下载-Elasticsearch-镜像" class="headerlink" title="5.1 下载 Elasticsearch 镜像"></a>5.1 下载 Elasticsearch 镜像</h3><p>这里以 Elasticsearch 6.5.0 为快速安装&amp;搭建 Elasticsearch 环境例：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull elasticsearch:<span class="number">6</span>.<span class="number">5</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>下载完成后，通过 <code>docker images</code> 检查一下镜像是否下载成功:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192849.png"></p>
+<h3 id="5-2-先简单运行-Elasticsearch-镜像"><a href="#5-2-先简单运行-Elasticsearch-镜像" class="headerlink" title="5.2 先简单运行 Elasticsearch 镜像"></a>5.2 先简单运行 Elasticsearch 镜像</h3><p>下载成功后，简单运行 Elasticsearch 镜像：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">--name es \</span><br><span class="line">-p <span class="number">9200</span>:<span class="number">9200</span> -p <span class="number">9300</span>:<span class="number">9300</span> \</span><br><span class="line">-e &quot;discovery.<span class="built_in">type</span>=single-node&quot; -e ES_JAVA_OPTS=&quot;-Xms200m -Xmx200m&quot; \</span><br><span class="line"><span class="function">elasticsearch:6.5.0</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>-d</code>：以后台的方式运行；</li>
+<li><code>--name es</code>：指定容器的名称为 es;</li>
+<li><code>-p 9200:9200 -p 9300:9300</code> 将容器的 9200、9300 端口挂载到宿主机的 9200、9300 端口上；</li>
+<li><code>-e &quot;discovery.type=single-node&quot; -e ES_JAVA_OPTS=&quot;-Xms200m -Xmx200m&quot;</code>：指定为单节点模式，JVM 内存占用 200m</li>
+</ul>
+<p>命令执行完成后，你也可以通过 <code>docker ps</code>命令来确认下容器是否启动成功。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528192931.png"></p>
+<p>可以看到 es 容器运行成功了，接下来，进入容器中：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it es /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>安装 <strong>analysis-ik</strong> 中文分词插件：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.<span class="number">5</span>.<span class="number">0</span>/elasticsearch-analysis-ik-<span class="number">6</span>.<span class="number">5</span>.<span class="number">0</span>.zip</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>PS: es 从 v5.5.1 版本开始支持自带的 es 插件命令来安装，如果你安装的版本不是 6.5.0，需要将命令中的版本号修改一下，具体参考 <a href="https://link.juejin.im/?target=https://github.com/medcl/elasticsearch-analysis-ik">github.com&#x2F;medcl&#x2F;elast…</a></p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528193036.png"></p>
+<p>安装成功后，退出容器：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">exit</span></span><br></pre></td></tr></table></figure>
+
+<p>删除刚刚运行的容器：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm -f es</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>PS: 当然了，你也可以通过容器的 ID 来删除。</p>
+</blockquote>
+<h3 id="5-3-复制相关文件"><a href="#5-3-复制相关文件" class="headerlink" title="5.3 复制相关文件"></a>5.3 复制相关文件</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 复制 es 配置文件目录到宿主机指定目录，目标目录你可以根据需要，自行修改</span><br><span class="line">docker cp es:/usr/share/elasticsearch/config /usr/local/docker/es</span><br><span class="line"># 复制 es 持久化数据目录到宿主机指定目录</span><br><span class="line">docker cp es:/usr/share/elasticsearch/data /usr/local/docker/es</span><br><span class="line"># 复制 es 插件目录到宿主机指定目录</span><br><span class="line">docker cp es:/usr/share/elasticsearch/plugins /usr/local/docker/es</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-4-修改-es-相关配置"><a href="#5-4-修改-es-相关配置" class="headerlink" title="5.4 修改 es 相关配置"></a>5.4 修改 es 相关配置</h3><p>进入我们刚刚指定的 config 配置目录，修改 <code>jvm.options</code> 文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-Xms300m</span><br><span class="line">-Xmx300m</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>PS: 因为小哈测试服务器就 2G 内存，这里我改成了 JVM 内存占用 300m, 如果你的内存够用，可不用改。</p>
+</blockquote>
+<p>修改 <code>elasticsearch.yml</code>文件, 添加如下配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node.name: master</span><br><span class="line">http.cors.enabled: true</span><br><span class="line">http.cors.allow-origin: &quot;*&quot;</span><br></pre></td></tr></table></figure>
+
+<p>解释一下添加的配置，设置节点为 master 节点，并允许跨域访问，以便后面使用 head 插件图形化界面访问。</p>
+<h3 id="5-5-运行-Elasticsearch-容器"><a href="#5-5-运行-Elasticsearch-容器" class="headerlink" title="5.5 运行 Elasticsearch 容器"></a>5.5 运行 Elasticsearch 容器</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">--name es \</span><br><span class="line">-p 9200:9200 -p 9300:9300 \</span><br><span class="line">-v /usr/local/docker/es/config:/usr/share/elasticsearch/config \</span><br><span class="line">-v /usr/local/docker/es/data:/usr/share/elasticsearch/data \</span><br><span class="line">-v /usr/local/docker/es/plugins:/usr/share/elasticsearch/plugins \</span><br><span class="line">elasticsearch:6.5.0 </span><br></pre></td></tr></table></figure>
+
+<p>这次，我们额外添加了相关挂载命令：</p>
+<ul>
+<li><code>-v /usr/local/docker/es/config:/usr/share/elasticsearch/config</code>: 将容器中的 &#x2F;usr&#x2F;share&#x2F;elasticsearch&#x2F;config 配置目录挂载到宿主机的 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;es&#x2F;config 目录下；</li>
+<li><code>-v /usr/local/docker/es/data:/usr/share/elasticsearch/data</code>： 将容器中的 &#x2F;usr&#x2F;share&#x2F;elasticsearch&#x2F;data 数据目录挂载到宿主机的 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;es&#x2F;data 目录下；</li>
+<li><code>-v /usr/local/docker/es/plugins:/usr/share/elasticsearch/plugins</code>：将容器中的 &#x2F;usr&#x2F;share&#x2F;elasticsearch&#x2F;plugins 插件目录挂载到宿主机的 &#x2F;usr&#x2F;local&#x2F;docker&#x2F;es&#x2F;plugins 目录下；</li>
+</ul>
+<h3 id="5-6-测试一下，瞅瞅-es-是否能够正常访问"><a href="#5-6-测试一下，瞅瞅-es-是否能够正常访问" class="headerlink" title="5.6 测试一下，瞅瞅 es 是否能够正常访问"></a>5.6 测试一下，瞅瞅 es 是否能够正常访问</h3><p>测试一下，看 es 是否启动成功：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:<span class="number">9200</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190528193130.png"></p>
+<p>OK, 到此 es 的单节点环境就搭建好了！</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/05/28/%E9%80%9A%E8%BF%87-Docker-%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%90%84%E7%A7%8D%E6%B5%8B%E8%AF%95%E7%8E%AF%E5%A2%83-Mysql-Redis-Elasticsearch-MongoDB/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/docker/" rel="tag">docker</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/05/28/%E4%BA%94%E7%A7%8DSublime-text-3%E5%90%8C%E6%97%B6%E5%BF%AB%E9%80%9F%E7%BC%96%E8%BE%91%E5%A4%9A%E8%A1%8C%E5%86%85%E5%AE%B9/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            五种Sublime text 3同时快速编辑多行内容
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/05/25/Mac-%E5%BF%AB%E9%80%9F%E5%8D%87%E7%BA%A7-Python/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Mac 快速升级 Python</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

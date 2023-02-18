@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Spring Boot应用程序五种部署方式（翻译） |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Spring-Boot应用程序五种部署方式"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Spring Boot应用程序五种部署方式（翻译）
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/03/Spring-Boot%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%BA%94%E7%A7%8D%E9%83%A8%E7%BD%B2%E6%96%B9%E5%BC%8F/" class="article-date">
+  <time datetime="2019-06-03T10:08:19.000Z" itemprop="datePublished">2019-06-03</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">9 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>翻译自 <a target="_blank" rel="noopener" href="https://medium.com/swlh/deploying-spring-boot-applications-15e14db25ff0">Deploying Spring Boot Applications</a></p>
+<p>原作者 <a target="_blank" rel="noopener" href="https://medium.com/@muratartim_5366">Murat Artim</a></p>
+</blockquote>
+<p>可以使用各种方法将Spring Boot应用程序部署到生产系统中。在本文中，我们将通过以下5种方法来部署Spring Boot应用程序：</p>
+<ul>
+<li>使用 Java Archive (JAR) 作为独立应用程序进行部署</li>
+<li>将 Web Application Archive (WAR) 部署到servlet容器中</li>
+<li>在Docker容器中部署</li>
+<li>部署在NGINX Web服务器后面 - 直接设置</li>
+<li>部署在NGINX Web服务器后面 - 容器化设置</li>
+</ul>
+<h2 id="1-使用-Java-Archive-JAR-作为独立应用程序进行部署"><a href="#1-使用-Java-Archive-JAR-作为独立应用程序进行部署" class="headerlink" title="1. 使用 Java Archive (JAR) 作为独立应用程序进行部署"></a>1. 使用 Java Archive (JAR) 作为独立应用程序进行部署</h2><p>Spring Boot 应用程序可以轻松打包到 JAR 文件中，并作为独立应用程序进行部署。这是通过 spring-boot-maven-plugin 这个插件完成的。一旦Spring项目通过 <a target="_blank" rel="noopener" href="https://start.spring.io/">Spring Initializr</a> 创建为Maven项目，插件就会自动添加到pom.xml中。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>要将应用程序打包在单个 jar 文件中，需要在项目目录下运行maven命令 <code>mvn package</code>。这将把应用程序打包到一个可执行的jar文件中，该文件包含所有依赖项（包括嵌入式servlet容器 ，如果它是一个Web应用程序）。要运行 jar 文件，请使用以下标准JVM命令 <code>java -jar &lt;jar-file-name&gt;.jar </code>。</p>
+<h2 id="2-将-Web-Application-Archive-WAR-部署到servlet容器中"><a href="#2-将-Web-Application-Archive-WAR-部署到servlet容器中" class="headerlink" title="2. 将 Web Application Archive (WAR) 部署到servlet容器中"></a>2. 将 Web Application Archive (WAR) 部署到servlet容器中</h2><p>可以将Spring Boot应用程序打包到WAR文件中，以部署到现有的servlet容器（例如Tomcat，Jetty等）中。可以按如下方式完成：</p>
+<p>在pom.xml文件中，通过 <code>&lt;packaging&gt; war &lt;/ packaging&gt;</code> 指定为WAR包。这会将应用程序打包成WAR文件（而不是JAR）。在第二步，将Tomcat（servlet容器）依赖关系的范围设置为provided（以便它不会部署到WAR文件中）：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-tomcat&lt;/artifactId</span><br><span class="line">  <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>通过继承 SpringBootServletInitializer 并重写 configure 方法来初始化 Tomcat 所需的 Servlet 上下文，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DemoApp</span> <span class="keyword">extends</span> <span class="title class_">SpringBootServletInitializer</span> &#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> SpringApplicationBuilder <span class="title function_">configure</span><span class="params">(SpringApplicationBuilder builder)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> builder.sources(DemoApp.class);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    SpringApplication.run(DemoApp.class, args);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>要将应用程序打包到 war 文件中，请在项目目录下运行标准maven命令<code>mvn clean package</code>。这将生成可以部署到 servlet 容器中的 WAR 包。要在现有 Tomcat 容器中运行应用程序，请将生成的 WAR 文件复制到<code> tomcat/webapps/</code>目录。</p>
+<h2 id="3-在Docker容器中部署"><a href="#3-在Docker容器中部署" class="headerlink" title="3. 在Docker容器中部署"></a>3. 在Docker容器中部署</h2><p>在将应用程序部署到Docker容器之前，我们首先要将应用程序打包在 JAR 文件中。之前已经解释了这个过程，因此我假设我们有一个jar文件。</p>
+<p>在第一步，我们需要构建一个容器镜像。为此，我们首先在项目根目录中创建一个Dockerfile文件，如下所示：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># latest oracle openjdk is the basis 将最新的oracle openjdk作为基础</span></span><br><span class="line"><span class="keyword">FROM</span> openjdk:oracle</span><br><span class="line"><span class="comment"># copy jar file into container image under app directory   将jar文件复制到容器镜像的app目录</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> target/demoApp.jar app/demoApp.jar</span></span><br><span class="line"><span class="comment"># expose server port accept connections  暴露服务端口接收连接</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="comment"># start application 运行应用程序</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;java&quot;</span>, <span class="string">&quot;-jar&quot;</span>, <span class="string">&quot;app/demoApp.jar&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p>请注意，在上面的代码片段中，我们假设应用程序 JAR 文件“demoApp.jar”位于项目的 target 目录下。我们还假设嵌入式 servlet 端口是8080（这是 Tomcat 的默认情况）。</p>
+<p>我们现在可以使用以下命令构建Docker镜像（Dockerfile所在的位置）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image build -t demo-app:latest .</span><br></pre></td></tr></table></figure>
+
+<p>其中 -t 是要构建的镜像的名称和标记。构建镜像后，我们可以通过以下方式创建和运行容器：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker container run -p 8080:8080 -d --name app-container demo-app</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>-p</code>将主机端口(映射)到容器端口(在这种情况下，两者都是8080)。选项<code>-d</code>（detach）是指在后台运行容器，<code> - name</code>指定容器的名称。</p>
+<h2 id="4-部署在NGINX-Web服务器后面-直接设置"><a href="#4-部署在NGINX-Web服务器后面-直接设置" class="headerlink" title="4. 部署在NGINX Web服务器后面 - 直接设置"></a>4. 部署在NGINX Web服务器后面 - 直接设置</h2><p>为实际生产配置 servlet 容器（例如 Tomcat 或 Jetty ）（即在端口80上运行，没有root用户和使用SSL）可能不是直接的（但可行）。因此，建议在 Spring Boot 应用程序前使用Web服务器（如Nginx）。这可以通过两种方式完成: 直接设置或容器设置。在本节中，我们将演示直接设置。</p>
+<p>在直接设置中，我们直接在 localhost 上运行 Nginx Web 服务器和 Spring Boot 应用程序（当然在不同的端口上）。我们让 Ngnix 代理 REST 请求到 Spring Boot 应用程序。为了这：</p>
+<p>1.通过 <code>sudo apt-get install nginx</code> 在 Linux 上安装 Nginx Web 服务器</p>
+<p>2.使用文本编辑器打开文件&#x2F;etc&#x2F;ngnix&#x2F;sites-available&#x2F;default</p>
+<p>3.比如说，我们有两个 Spring Boot 应用程序需要代理。可以用以下内容替换文件中的 location 块。请注意，可以在<a target="_blank" rel="noopener" href="https://www.nginx.com/resources/wiki/start/topics/examples/javaservers/">此处</a>找到所有Nginx-Java配置</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">location</span> /app1 &#123;</span><br><span class="line">  <span class="attribute">proxy_pass</span> http://localhost:8080;</span><br><span class="line">&#125;</span><br><span class="line"><span class="section">location</span> /app2 &#123;</span><br><span class="line">  <span class="attribute">proxy_pass</span> http://localhost:9000;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基于此，来自 <code>http://localhost/app1/</code>的请求将被定向到 <code>/http://localhost:8080/</code>，来自 <code>http://localhost/app2/ </code>的请求将被定向到 <code>/http://localhost:9000/</code>。</p>
+<h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><p>如果您正在运行 Spring Boot 应用程序的多个实例，则可以启用 Nginx 以应用负载均衡。例如，如果我们在端口8080,8081和8082上运行3个 app1 实例。我们可以在这些服务器之间进行负载均衡，如下所示：</p>
+<p>打开文件 <code>/etc/ngnix/sites-available/default</code> 并在文件顶部添加以下内容（在服务器内容之前）：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># configure load-balancing 配置负载均衡</span></span><br><span class="line"><span class="section">upstream</span> backend &#123;</span><br><span class="line">  <span class="attribute">server</span> localhost:<span class="number">8080</span>;</span><br><span class="line">  <span class="attribute">server</span> localhost:<span class="number">8081</span>;</span><br><span class="line">  <span class="attribute">server</span> localhost:<span class="number">8082</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改 app1 的 proxy_pass 参数，如下所示：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">location</span> /app1 &#123;</span><br><span class="line">  <span class="attribute">proxy_pass</span> http://backend;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基于此，来自 <code>http://localhost/app1/</code> 的请求将被定向到 <code>/http://localhost:8080/</code>，<code>/http://localhost:8081/</code>或 <code>/http://localhost:8082/</code>的其中之一。</p>
+<h2 id="5-部署在NGINX-Web服务器后面-容器化设置"><a href="#5-部署在NGINX-Web服务器后面-容器化设置" class="headerlink" title="5. 部署在NGINX Web服务器后面 - 容器化设置"></a>5. 部署在NGINX Web服务器后面 - 容器化设置</h2><p>在容器化设置中，我们将 Nginx Web 服务器和所有 Spring Boot 应用程序部署在单独的 Docker 容器上。我们让Nginx（在自己的容器中运行）向Spring Boot应用程序容器代理REST请求。</p>
+<p>我们首先将所有 Spring Boot 应用程序打包在 jar 文件中（之前已经解释过）。此时，请注意通过向application.properties（或application.yml）文件添加以下代码来为每个Spring Boot应用程序设置单个服务器端口和根上下文路径：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server.port</span>=<span class="string">8082</span></span><br><span class="line"><span class="attr">server.servlet.context-path</span>=<span class="string">/search-service</span></span><br></pre></td></tr></table></figure>
+
+<p>然后我们将生成的 jar 包部署在单独的 Docker 容器中（之前也有解释）。</p>
+<p>例如，我们部署了四个 Spring Boot 应用程序; 一个“分析服务”实例和三个“搜索服务”实例。搜索服务的三个实例将由Nginx负载均衡。我们的基本架构如下所示：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190603191203.png"></p>
+<p>我们基于默认配置创建 Nginx 配置文件 nginx.conf 。我们为每个服务添加负载均衡和代理信息，如下所示：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">http</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="section">upstream</span> backend &#123;</span><br><span class="line">    <span class="attribute">server</span> search-service-<span class="number">1</span>:<span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server</span> search-service-<span class="number">2</span>:<span class="number">8081</span>;</span><br><span class="line">    <span class="attribute">server</span> search-service-<span class="number">3</span>:<span class="number">8082</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span> default_server;</span><br><span class="line">    <span class="attribute">listen</span> [::]:<span class="number">80</span> default_server;</span><br><span class="line">    <span class="attribute">root</span> /var/www/html;</span><br><span class="line">    <span class="attribute">server_name</span> _;</span><br><span class="line">    <span class="section">location</span> /search-service &#123;</span><br><span class="line">      <span class="attribute">proxy_pass</span> http://backend/search-service;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="section">location</span> /analysis-service &#123;</span><br><span class="line">      <span class="attribute">proxy_pass</span> http://analysis-service:8083/analysis-service;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="section">events</span> &#123; <span class="attribute">worker_connections</span> <span class="number">1024</span>; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>基于此，来自<code>http://localhost/search-service/</code>的请求将被定向到 <code>/http://search-service-1:8080/search-service/</code>, <code>/http://search-service-2:8081/search-service/ </code>和  <code>/http://search-service-3:8082/search-service/</code>，来自 <code>http://localhost/analysis-service/</code> 的请求将被定向到 <code>/http://analysis-service:8083/analysis-service/</code>。</p>
+<p>创建配置文件（nginx.conf）后，我们将在Docker容器中部署 Nginx Web 服务器。为此，我们创建一个Dockerfile ，如下所示：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># latest nginx 最新的nginx</span></span><br><span class="line"><span class="keyword">FROM</span> nginx</span><br><span class="line"><span class="comment"># copy custom configuration file  复制自定义配置文件</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> nginx.conf /etc/nginx/nginx.conf</span></span><br><span class="line"><span class="comment"># expose server port 暴露服务端口</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"><span class="comment"># start server 开启服务</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;nginx&quot;</span>, <span class="string">&quot;-g&quot;</span>, <span class="string">&quot;daemon off;&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p>我们为 Nginx Web 服务器构建一个Docker镜像，如下所示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker image build -t custom-nginx:latest .</span><br></pre></td></tr></table></figure>
+
+<p>构建所有Docker镜像后，可以通过在以下 docker-compose.yml 文件上运行<code>docker-compose up</code>命令来部署所有系统：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">version: <span class="string">&#x27;3.7&#x27;</span></span><br><span class="line">services:</span><br><span class="line">  nginx_server:</span><br><span class="line">    image: custom-nginx</span><br><span class="line">    ports:</span><br><span class="line">      - <span class="string">&#x27;80:80&#x27;</span></span><br><span class="line">    networks:</span><br><span class="line">      - demo-network</span><br><span class="line">    depends_on:</span><br><span class="line">      - <span class="string">&quot;search-service-1&quot;</span></span><br><span class="line">      - <span class="string">&quot;search-service-2&quot;</span></span><br><span class="line">      - <span class="string">&quot;search-service-3&quot;</span></span><br><span class="line">      - <span class="string">&quot;analysis-service&quot;</span></span><br><span class="line">search-service-<span class="number">1</span>:</span><br><span class="line">  image: search-service-<span class="number">1</span></span><br><span class="line">  ports:</span><br><span class="line">    - <span class="string">&#x27;8080:8080&#x27;</span></span><br><span class="line">  networks:</span><br><span class="line">    - demo-network</span><br><span class="line">search-service-<span class="number">2</span>:</span><br><span class="line">  image: search-service-<span class="number">2</span></span><br><span class="line">  ports:</span><br><span class="line">    - <span class="string">&#x27;8081:8081&#x27;</span></span><br><span class="line">  networks:</span><br><span class="line">    - demo-network</span><br><span class="line">search-service-<span class="number">3</span>:</span><br><span class="line">  image: search-service-<span class="number">3</span></span><br><span class="line">  ports:</span><br><span class="line">    - <span class="string">&#x27;8082:8082&#x27;</span></span><br><span class="line">  networks:</span><br><span class="line">    - demo-network</span><br><span class="line">analysis-service:</span><br><span class="line">  image: analysis-service</span><br><span class="line">  ports:</span><br><span class="line">    - <span class="string">&#x27;8083:8083&#x27;</span></span><br><span class="line">  networks:</span><br><span class="line">    - demo-network</span><br><span class="line">networks:</span><br><span class="line">  demo-network:</span><br><span class="line">    name: demo-network</span><br></pre></td></tr></table></figure>
+
+<p>以上，我们演示了部署 Spring Boot 应用程序的五种方法。选择哪种部署方式要基于整体架构以及目标平台的要求，例如安全性和可用资源。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/06/03/Spring-Boot%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%BA%94%E7%A7%8D%E9%83%A8%E7%BD%B2%E6%96%B9%E5%BC%8F/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/06/03/%E9%9D%A2%E5%90%91%E9%9D%A2%E8%AF%95%E9%A2%98%E5%AD%A6%E4%B9%A0-2-2019-6-3/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            面向面试题学习(2) 2019-6-3
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/06/02/%E9%9D%A2%E5%90%91%E9%9D%A2%E8%AF%95%E9%A2%98%E5%AD%A6%E4%B9%A0-1-2019-6-2/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">面向面试题学习(1) 2019-6-2</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

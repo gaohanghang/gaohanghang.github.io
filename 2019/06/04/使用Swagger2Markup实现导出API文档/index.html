@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>使用Swagger2Markup实现导出API文档 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-使用Swagger2Markup实现导出API文档"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  使用Swagger2Markup实现导出API文档
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/04/%E4%BD%BF%E7%94%A8Swagger2Markup%E5%AE%9E%E7%8E%B0%E5%AF%BC%E5%87%BAAPI%E6%96%87%E6%A1%A3/" class="article-date">
+  <time datetime="2019-06-04T11:31:41.000Z" itemprop="datePublished">2019-06-04</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文链接 <a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1332445">使用Swagger2Markup实现导出API文档</a></p>
+<p>原作者 <a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/user/3024838">飞狗</a></p>
+</blockquote>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在学会了如何使用Swagger之后，我们已经能够轻松地为Spring MVC或SpringBoot的Web项目自动构建出API文档了。但是，构建的文档必须通过在项目中整合<code>swagger-ui</code>、或使用单独部署的<code>swagger-ui</code>和<code>/v2/api-docs</code>返回的配置信息才能展现出您所构建的API文档。本文将在使用Swagger的基础上，再介绍一种生成静态API文档的方法，以便于构建更轻量部署和使用的API文档。  Swagger使用说明：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8a08446d5bf8">REST API文档工具Swagger2，以及与SpringBoot的集成</a></p>
+<h2 id="Swagger2Markup简介"><a href="#Swagger2Markup简介" class="headerlink" title="Swagger2Markup简介"></a>Swagger2Markup简介</h2><p>Swagger2Markup是Github上的一个开源项目。该项目主要用来将Swagger自动生成的文档转换成几种流行的格式以便于静态部署和使用，比如：AsciiDoc、Markdown、Confluence。</p>
+<p>项目主页：<a target="_blank" rel="noopener" href="https://github.com/Swagger2Markup/swagger2markup">https://github.com/Swagger2Markup/swagger2markup</a></p>
+<h2 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h2><p>在使用Swagger2Markup之前，我们先需要准备一个使用了Swagger的Web项目，<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8a08446d5bf8">REST API文档工具Swagger2，以及与SpringBoot的集成</a>。</p>
+<h3 id="生成AsciiDoc"><a href="#生成AsciiDoc" class="headerlink" title="生成AsciiDoc"></a>生成AsciiDoc</h3><p>生成AsciiDoc的方式有两种：</p>
+<ol>
+<li>通过Java代码来生成</li>
+</ol>
+<p>第一步：编辑<code>pom.xml</code>增加需要使用的相关依赖和仓库</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.github.swagger2markup<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span></span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>swagger2markup<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span></span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span></span><br><span class="line">&lt;/dependency&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">repositories</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">repository</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">snapshots</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">enabled</span>&gt;</span>true<span class="tag">&lt;/<span class="name">enabled</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">updatePolicy</span>&gt;</span>always<span class="tag">&lt;/<span class="name">updatePolicy</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">snapshots</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">id</span>&gt;</span>jcenter-releases<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">name</span>&gt;</span>jcenter<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://jcenter.bintray.com<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">repository</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;/<span class="name">repositories</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>第二步：编写一个单元测试用例来生成执行生成文档的代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成AsciiDocs格式文档</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> <span class="variable">Exception</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    @<span class="title class_">Test</span></span><br><span class="line">    public <span class="keyword">void</span> <span class="title function_">generateAsciiDocs</span>() throws <span class="title class_">Exception</span> &#123;</span><br><span class="line">        <span class="comment">//    输出Ascii格式</span></span><br><span class="line">        <span class="title class_">Swagger2MarkupConfig</span> config = <span class="keyword">new</span> <span class="title class_">Swagger2MarkupConfigBuilder</span>()</span><br><span class="line">                .<span class="title function_">withMarkupLanguage</span>(<span class="title class_">MarkupLanguage</span>.<span class="property">ASCIIDOC</span>)</span><br><span class="line">                .<span class="title function_">withOutputLanguage</span>(<span class="title class_">Language</span>.<span class="property">ZH</span>)</span><br><span class="line">                .<span class="title function_">withPathsGroupedBy</span>(<span class="title class_">GroupBy</span>.<span class="property">TAGS</span>)</span><br><span class="line">                .<span class="title function_">withGeneratedExamples</span>()</span><br><span class="line">                .<span class="title function_">withoutInlineSchema</span>()</span><br><span class="line">                .<span class="title function_">build</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Swagger2MarkupConverter</span>.<span class="title function_">from</span>(<span class="keyword">new</span> <span class="title function_">URL</span>(<span class="string">&quot;http://127.0.0.1:8082/v2/api-docs&quot;</span>))</span><br><span class="line">                .<span class="title function_">withConfig</span>(config)</span><br><span class="line">                .<span class="title function_">build</span>()</span><br><span class="line">                .<span class="title function_">toFolder</span>(<span class="title class_">Paths</span>.<span class="title function_">get</span>(<span class="string">&quot;./docs/asciidoc/generated&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成Markdown格式文档</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> <span class="variable">Exception</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    @<span class="title class_">Test</span></span><br><span class="line">    public <span class="keyword">void</span> <span class="title function_">generateMarkdownDocs</span>() throws <span class="title class_">Exception</span> &#123;</span><br><span class="line">        <span class="comment">//    输出Markdown格式</span></span><br><span class="line">        <span class="title class_">Swagger2MarkupConfig</span> config = <span class="keyword">new</span> <span class="title class_">Swagger2MarkupConfigBuilder</span>()</span><br><span class="line">                .<span class="title function_">withMarkupLanguage</span>(<span class="title class_">MarkupLanguage</span>.<span class="property">MARKDOWN</span>)</span><br><span class="line">                .<span class="title function_">withOutputLanguage</span>(<span class="title class_">Language</span>.<span class="property">ZH</span>)</span><br><span class="line">                .<span class="title function_">withPathsGroupedBy</span>(<span class="title class_">GroupBy</span>.<span class="property">TAGS</span>)</span><br><span class="line">                .<span class="title function_">withGeneratedExamples</span>()</span><br><span class="line">                .<span class="title function_">withoutInlineSchema</span>()</span><br><span class="line">                .<span class="title function_">build</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Swagger2MarkupConverter</span>.<span class="title function_">from</span>(<span class="keyword">new</span> <span class="title function_">URL</span>(<span class="string">&quot;http://localhost:8082/v2/api-docs&quot;</span>))</span><br><span class="line">                .<span class="title function_">withConfig</span>(config)</span><br><span class="line">                .<span class="title function_">build</span>()</span><br><span class="line">                .<span class="title function_">toFolder</span>(<span class="title class_">Paths</span>.<span class="title function_">get</span>(<span class="string">&quot;./docs/markdown/generated&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成Confluence格式文档</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> <span class="variable">Exception</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    @<span class="title class_">Test</span></span><br><span class="line">    public <span class="keyword">void</span> <span class="title function_">generateConfluenceDocs</span>() throws <span class="title class_">Exception</span> &#123;</span><br><span class="line">        <span class="comment">//    输出Confluence使用的格式</span></span><br><span class="line">        <span class="title class_">Swagger2MarkupConfig</span> config = <span class="keyword">new</span> <span class="title class_">Swagger2MarkupConfigBuilder</span>()</span><br><span class="line">                .<span class="title function_">withMarkupLanguage</span>(<span class="title class_">MarkupLanguage</span>.<span class="property">CONFLUENCE_MARKUP</span>)</span><br><span class="line">                .<span class="title function_">withOutputLanguage</span>(<span class="title class_">Language</span>.<span class="property">ZH</span>)</span><br><span class="line">                .<span class="title function_">withPathsGroupedBy</span>(<span class="title class_">GroupBy</span>.<span class="property">TAGS</span>)</span><br><span class="line">                .<span class="title function_">withGeneratedExamples</span>()</span><br><span class="line">                .<span class="title function_">withoutInlineSchema</span>()</span><br><span class="line">                .<span class="title function_">build</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Swagger2MarkupConverter</span>.<span class="title function_">from</span>(<span class="keyword">new</span> <span class="title function_">URL</span>(<span class="string">&quot;http://localhost:8082/v2/api-docs&quot;</span>))</span><br><span class="line">                .<span class="title function_">withConfig</span>(config)</span><br><span class="line">                .<span class="title function_">build</span>()</span><br><span class="line">                .<span class="title function_">toFolder</span>(<span class="title class_">Paths</span>.<span class="title function_">get</span>(<span class="string">&quot;./docs/confluence/generated&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成AsciiDocs格式文档,并汇总成一个文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> <span class="variable">Exception</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    @<span class="title class_">Test</span></span><br><span class="line">    public <span class="keyword">void</span> <span class="title function_">generateAsciiDocsToFile</span>() throws <span class="title class_">Exception</span> &#123;</span><br><span class="line">        <span class="comment">//    输出Ascii到单文件</span></span><br><span class="line">        <span class="title class_">Swagger2MarkupConfig</span> config = <span class="keyword">new</span> <span class="title class_">Swagger2MarkupConfigBuilder</span>()</span><br><span class="line">                .<span class="title function_">withMarkupLanguage</span>(<span class="title class_">MarkupLanguage</span>.<span class="property">ASCIIDOC</span>)</span><br><span class="line">                .<span class="title function_">withOutputLanguage</span>(<span class="title class_">Language</span>.<span class="property">ZH</span>)</span><br><span class="line">                .<span class="title function_">withPathsGroupedBy</span>(<span class="title class_">GroupBy</span>.<span class="property">TAGS</span>)</span><br><span class="line">                .<span class="title function_">withGeneratedExamples</span>()</span><br><span class="line">                .<span class="title function_">withoutInlineSchema</span>()</span><br><span class="line">                .<span class="title function_">build</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Swagger2MarkupConverter</span>.<span class="title function_">from</span>(<span class="keyword">new</span> <span class="title function_">URL</span>(<span class="string">&quot;http://localhost:8082/v2/api-docs&quot;</span>))</span><br><span class="line">                .<span class="title function_">withConfig</span>(config)</span><br><span class="line">                .<span class="title function_">build</span>()</span><br><span class="line">                .<span class="title function_">toFile</span>(<span class="title class_">Paths</span>.<span class="title function_">get</span>(<span class="string">&quot;./docs/asciidoc/generated/all&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生成Markdown格式文档,并汇总成一个文件</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> <span class="variable">Exception</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    @<span class="title class_">Test</span></span><br><span class="line">    public <span class="keyword">void</span> <span class="title function_">generateMarkdownDocsToFile</span>() throws <span class="title class_">Exception</span> &#123;</span><br><span class="line">        <span class="comment">//    输出Markdown到单文件</span></span><br><span class="line">        <span class="title class_">Swagger2MarkupConfig</span> config = <span class="keyword">new</span> <span class="title class_">Swagger2MarkupConfigBuilder</span>()</span><br><span class="line">                .<span class="title function_">withMarkupLanguage</span>(<span class="title class_">MarkupLanguage</span>.<span class="property">MARKDOWN</span>)</span><br><span class="line">                .<span class="title function_">withOutputLanguage</span>(<span class="title class_">Language</span>.<span class="property">ZH</span>)</span><br><span class="line">                .<span class="title function_">withPathsGroupedBy</span>(<span class="title class_">GroupBy</span>.<span class="property">TAGS</span>)</span><br><span class="line">                .<span class="title function_">withGeneratedExamples</span>()</span><br><span class="line">                .<span class="title function_">withoutInlineSchema</span>()</span><br><span class="line">                .<span class="title function_">build</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Swagger2MarkupConverter</span>.<span class="title function_">from</span>(<span class="keyword">new</span> <span class="title function_">URL</span>(<span class="string">&quot;http://localhost:8082/v2/api-docs&quot;</span>))</span><br><span class="line">                .<span class="title function_">withConfig</span>(config)</span><br><span class="line">                .<span class="title function_">build</span>()</span><br><span class="line">                .<span class="title function_">toFile</span>(<span class="title class_">Paths</span>.<span class="title function_">get</span>(<span class="string">&quot;./docs/markdown/generated/all&quot;</span>));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上代码内容很简单，大致说明几个关键内容：</p>
+<ul>
+<li><code>MarkupLanguage.ASCIIDOC</code>：指定了要输出的最终格式。除了ASCIIDOC之外，还有MARKDOWN和CONFLUENCE_MARKUP</li>
+<li><code>from(new URL(&quot;http://localhost:8080/v2/api-docs&quot;)</code>：指定了生成静态部署文档的源头配置，可以是这样的URL形式，也可以是符合Swagger规范的String类型或者从文件中读取的流。如果是对当前使用的Swagger项目，我们通过使用访问本地Swagger接口的方式，如果是从外部获取的Swagger文档配置文件，就可以通过字符串或读文件的方式</li>
+<li><code>toFolder(Paths.get(&quot;src/docs/asciidoc/generated&quot;)</code>：指定最终生成文件的具体<em>目录</em>位置  <strong>输出到单个文件</strong></li>
+</ul>
+<span id="more"></span>
+
+<p>如果不想分割结果文件，也可以通过替换<code>toFolder(Paths.get(&quot;src/docs/asciidoc/generated&quot;)</code>为<code>toFile(Paths.get(&quot;src/docs/asciidoc/generated/all&quot;))</code>，将转换结果输出到一个单一的文件中，这样可以最终生成html的也是单一的。  在执行了上面的测试用例之后，我们就能在当前项目的目录下获得如下内容：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190604193408.png"></p>
+<p>可以看到，这种方式在运行之后就生成出了5个不同的静态文件。</p>
+<ol>
+<li>通过Maven插件来生成</li>
+</ol>
+<p>除了通过上面编写Java代码来生成的方式之外，swagger2markup还提供了对应的Maven插件来使用。对于上面的生成方式，完全可以通过在<code>pom.xml</code>中增加如下插件来完成静态内容的生成。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&lt;plugin&gt;</span><br><span class="line">                <span class="language-xml"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.asciidoctor<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span></span><br><span class="line">                <span class="language-xml"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>asciidoctor-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span></span><br><span class="line">                <span class="language-xml"><span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span></span><br><span class="line">                <span class="language-xml"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                    <span class="tag">&lt;<span class="name">sourceDirectory</span>&gt;</span>./docs/asciidoc/generated<span class="tag">&lt;/<span class="name">sourceDirectory</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                    <span class="tag">&lt;<span class="name">outputDirectory</span>&gt;</span>./docs/asciidoc/html<span class="tag">&lt;/<span class="name">outputDirectory</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                    <span class="tag">&lt;<span class="name">headerFooter</span>&gt;</span>true<span class="tag">&lt;/<span class="name">headerFooter</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                    <span class="tag">&lt;<span class="name">doctype</span>&gt;</span>book<span class="tag">&lt;/<span class="name">doctype</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                    <span class="tag">&lt;<span class="name">backend</span>&gt;</span>html<span class="tag">&lt;/<span class="name">backend</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                    <span class="tag">&lt;<span class="name">sourceHighlighter</span>&gt;</span>coderay<span class="tag">&lt;/<span class="name">sourceHighlighter</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                    <span class="tag">&lt;<span class="name">attributes</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                        <span class="comment">&lt;!--菜单栏在左边--&gt;</span></span></span><br><span class="line"><span class="language-xml">                        <span class="tag">&lt;<span class="name">toc</span>&gt;</span>left<span class="tag">&lt;/<span class="name">toc</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                        <span class="comment">&lt;!--多标题排列--&gt;</span></span></span><br><span class="line"><span class="language-xml">                        <span class="tag">&lt;<span class="name">toclevels</span>&gt;</span>3<span class="tag">&lt;/<span class="name">toclevels</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                        <span class="comment">&lt;!--自动打数字序号--&gt;</span></span></span><br><span class="line"><span class="language-xml">                        <span class="tag">&lt;<span class="name">sectnums</span>&gt;</span>true<span class="tag">&lt;/<span class="name">sectnums</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                    <span class="tag">&lt;/<span class="name">attributes</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span></span><br><span class="line">            &lt;/plugin&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190604193505.png"></p>
+<p>配置执行命令</p>
+<p>通过上面的配置，执行该插件的asciidoctor:process-asciidoc命令之后，就能在<code>docs/asciidoc/html</code>目录下生成最终可用的静态部署HTML了。在完成生成之后，可以直接通过浏览器来看查看，你就能看到类似下图的静态部署结果：  </p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190604193522.png"></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/06/04/%E4%BD%BF%E7%94%A8Swagger2Markup%E5%AE%9E%E7%8E%B0%E5%AF%BC%E5%87%BAAPI%E6%96%87%E6%A1%A3/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/api/" rel="tag">api</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/06/05/IM%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            IM表结构设计
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/06/03/%E9%9D%A2%E5%90%91%E9%9D%A2%E8%AF%95%E9%A2%98%E5%AD%A6%E4%B9%A0-2-2019-6-3/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">面向面试题学习(2) 2019-6-3</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>《阿里巴巴 Java 开发手册》第五章MySQL数据库解读 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-《阿里巴巴-Java-开发手册》第五章MySQL数据库解读"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  《阿里巴巴 Java 开发手册》第五章MySQL数据库解读
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/05/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4-Java-%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E7%AC%AC%E4%BA%94%E7%AB%A0MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A7%A3%E8%AF%BB/" class="article-date">
+  <time datetime="2019-11-05T10:42:26.000Z" itemprop="datePublished">2019-11-05</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">12 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>基于手册最新版本《阿里巴巴 Java 开发手册（华山版）》</p>
+<p>《阿里巴巴 Java 开发手册》下载地址: <a target="_blank" rel="noopener" href="https://github.com/alibaba/p3c">https://github.com/alibaba/p3c</a></p>
+<p>参考文章: </p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/dragonsuc/p/6938006.html">点评阿里JAVA手册之MySQL数据库</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5c8bb168f265da2da23d73f0">详细解读阿里手册之MySQL</a></p>
+<p>开发不规范，亲人两行泪 🤣</p>
+</blockquote>
+<h2 id="一-建表规约"><a href="#一-建表规约" class="headerlink" title="(一) 建表规约"></a>(一) 建表规约</h2><p><strong>1.<strong>【</strong>强制</strong>】表达是与否概念的字段，必须使用 is_xxx 的方式命名，数据类型是 unsigned tinyint（ 1 表示是，0 表示否）。 </p>
+<p>​	<strong>说明</strong>：任何字段如果为非负数，必须是 unsigned。</p>
+<p>​	<strong>注意</strong>：POJO 类中的任何布尔类型的变量，都不要加 is 前缀，所以，需要在 <resultMap> 设置从 is_xxx 的映射关系。数据库表示是与否的值，使用 tinyint 类型，坚持 is_xxx 的命名方式是为了明确其取值含义与取值范围。</p>
+<p>​	<strong>正例</strong>：表达逻辑删除的字段名 is_deleted，1 表示删除，0 表示未删除。</p>
+<blockquote>
+<p>unsigned 属性就是将数字类型无符号化</p>
+<p>”POJO 类中的任何布尔类型的变量，都不要加 is 前缀“，这个可以参考 Hollis 大佬的这篇文章 <a target="_blank" rel="noopener" href="https://www.hollischuang.com/archives/3111">为什么阿里巴巴禁止开发人员使用isSuccess作为变量名</a></p>
+</blockquote>
+<p><strong>2.<strong>【</strong>强制</strong>】表名、字段名必须使用小写字母或数字，禁止出现数字开头，禁止两个下划线中间只出现数字。数据库字段名的修改代价很大，因为无法进行预发布，所以字段名称需要慎重考虑。</p>
+<p>​	<strong>说明</strong>：MySQL 在 Windows 下不区分大小写，但在 Linux 下默认是区分大小写。因此，数据库名、表名、字段名，都不允许出现任何大写字母，避免节外生枝。</p>
+<p>​	<strong>正例</strong>：aliyun_admin，rdc_config，level3_name</p>
+<p>​	<strong>反例</strong>：AliyunAdmin，rdcConfig，level_3_name</p>
+<blockquote>
+<p>表名、字段名一定要规范，并且要见名知意。因为一旦使用之后，想要修改的话会比较麻烦。起一个好的名字真的很重要，能够在无形中减少沟通成本。</p>
+</blockquote>
+<p><strong>3.<strong>【</strong>强制</strong>】表名不使用复数名词。</p>
+<p>​	<strong>说明</strong>：表名应该仅仅表示表里面的实体内容，不应该表示实体数量，对应于 DO 类名也是单数形式，符合表达习惯。</p>
+<blockquote>
+<p>有些单词的复数形式可能是非常规的，或者就没有复数形式，因此单数形式更简单</p>
+</blockquote>
+<p><strong>4.<strong>【</strong>强制</strong>】禁用保留字，如 desc、range、match、delayed 等，请参考 MySQL 官方保留字。</p>
+<blockquote>
+<p>文档地址: <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/keywords.html">https://dev.mysql.com/doc/refman/8.0/en/keywords.html</a></p>
+</blockquote>
+<p><strong>5.<strong>【</strong>强制</strong>】主键索引名为 pk_字段名；唯一索引名为 uk_字段名；普通索引名则为 idx_字段名。</p>
+<p>​	<strong>说明</strong>：pk_ 即 primary key；uk_ 即 unique key；idx_ 即 index 的简称。</p>
+<blockquote>
+<p>这样见名知意，通过前缀就可以知道是什么类型的索引</p>
+</blockquote>
+<p><strong>6.<strong>【</strong>强制</strong>】小数类型为 decimal，禁止使用 float 和 double。 </p>
+<p>​	<strong>说明</strong>：float 和 double 在存储的时候，存在精度损失的问题，很可能在值的比较时，得到不正确的结果。如果存储的数据范围超过 decimal 的范围，建议将数据拆成整数和小数分开存储。</p>
+<blockquote>
+<p>对于和钱相关的系统，精度损失是会造成金钱损失的</p>
+</blockquote>
+<p><strong>7.<strong>【</strong>强制</strong>】如果存储的字符串长度几乎相等，使用 char 定长字符串类型。</p>
+<blockquote>
+<p>CHAR(M)定义的列的长度为固定的，M取值可以为0～255之间，当保存CHAR值时，在它们的右边填充空格以达到指定的长度。当检索到CHAR值时，尾部的空格被删除掉。在存储或检索过程中不进行大小写转换。CHAR存储定长数据很方便，CHAR字段上的索引效率极高，比如定义char(10)，那么不论你存储的数据是否达到了10个字节，都要占去10个字节的空间,不足的自动用空格填充。</p>
+<p>VARCHAR(M)定义的列的长度为可变长字符串，M取值可以为0~65535之间，(VARCHAR的最大有效长度由最大行大小和使用的字符集确定。整体最大长度是65,532字节）。VARCHAR值保存时只保存需要的字符数，另加一个字节来记录长度(如果列声明的长度超过255，则使用两个字节)。VARCHAR值保存时不进行填充。当值保存和检索时尾部的空格仍保留，符合标准SQL。varchar存储变长数据，但存储效率没有CHAR高。如果一个字段可能的值是不固定长度的，我们只知道它不可能超过10个字符，把它定义为 VARCHAR(10)是最合算的。VARCHAR类型的实际长度是它的值的实际长度+1。为什么”+1”呢？这一个字节用于保存实际使用了多大的长度。从空间上考虑，用varchar合适；从效率上考虑，用char合适，关键是根据实际情况找到权衡点。</p>
+<p>来自： <a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_24549805/article/details/53426668">https://blog.csdn.net/qq_24549805/article/details/53426668</a></p>
+</blockquote>
+<p><strong>8.<strong>【</strong>强制</strong>】varchar 是可变长字符串，不预先分配存储空间，长度不要超过 5000，如果存储长度大于 5000，定义字段类型为 text，独立出来一张表，用主键来对应，避免影响其它字段索引效率。</p>
+<blockquote>
+<p> <strong>MySQL中char、varchar和text的区别</strong></p>
+<p> 它们的存储方式和数据的检索方式都不一样。<br> 数据的检索效率是：char &gt; varchar &gt; text<br> 空间占用方面，就要具体情况具体分析了。</p>
+<p> <strong>1.char：</strong> 存储定长数据很方便，CHAR字段上的索引效率极高，必须在括号里定义长度，可以有默认值，比如定义char(10)，那么不论你存储的数据是否达到了10个字符，都要占去10个字符的空间（自动用空格填充），且在检索的时候后面的空格会隐藏掉，所以检索出来的数据需要记得用什么trim之类的函数去过滤空格。</p>
+<p> <strong>2.varchar：</strong> 存储变长数据，但存储效率没有CHAR高，必须在括号里定义长度，可以有默认值。保存数据的时候，不进行空格自动填充，而且如果数据存在空格时，当值保存和检索时尾部的空格仍会保留。另外，varchar类型的实际长度是它的值的实际长度+1，这一个字节用于保存实际使用了多大的长度。</p>
+<p> <strong>3.text：</strong> 存储可变长度的非Unicode数据，最大长度为2^31-1个字符。text列不能有默认值，存储或检索过程中，不存在大小写转换，后面如果指定长度，不会报错误，但是这个长度是不起作用的，意思就是你插入数据的时候，超过你指定的长度还是可以正常插入。</p>
+<p> 来自： <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cc2d99559532">https://www.jianshu.com/p/cc2d99559532</a></p>
+</blockquote>
+<p><strong>9.<strong>【</strong>强制</strong>】表必备三字段：id, create_time, update_time。</p>
+<p>​	<strong>说明</strong>：其中 id 必为主键，类型为 bigint unsigned、单表时自增、步长为 1。create_time, update_time 的类型均为 datetime 类型。</p>
+<blockquote>
+<p>create_time 为一行记录的创建时间，update_time 为一行记录的更新时间</p>
+<p>datetime、timestamp精确度都是秒，datetime与时区无关，存储的范围广(1001-9999)，timestamp与时区有关，存储的范围小(1970-2038)。</p>
+</blockquote>
+<p><strong>10.<strong>【</strong>推荐</strong>】表的命名最好是遵循 “业务名称_表的作用”。</p>
+<p>​	<strong>正例</strong>：alipay_task &#x2F; force_project &#x2F; trade_config</p>
+<blockquote>
+<p>方便区分和查找</p>
+</blockquote>
+<p><strong>11.<strong>【</strong>推荐</strong>】库名与应用名称尽量一致。</p>
+<blockquote>
+<p>比如你有个项目名称叫做 alipay-adapter ，那数据库名可以起名为 alipay_adapter</p>
+</blockquote>
+<p><strong>12.<strong>【</strong>推荐</strong>】如果修改字段含义或对字段表示的状态追加时,需要及时更新字段注释。</p>
+<blockquote>
+<p>字段注释要及时更新，降低沟通成本</p>
+</blockquote>
+<p><strong>13.<strong>【</strong>推荐</strong>】字段允许适当冗余，以提高查询性能，但必须考虑数据一致。冗余字段应遵循：</p>
+<p>​	1）不是频繁修改的字段。</p>
+<p>​	2）不是 varchar 超长字段，更不能是 text 字段。</p>
+<p>​	3） 不是唯一索引的字段。</p>
+<p>​	<strong>正例</strong>：商品类目名称使用频率高，字段长度短，名称基本一成不变，可在相关联的表中冗余存储类目名称，避免关联查询。</p>
+<blockquote>
+<p>数据库三范式可以不用严格遵循，有时候适当的冗余能够提高查询效率</p>
+</blockquote>
+<p><strong>14.<strong>【</strong>推荐</strong>】单表行数超过 500 万行或者单表容量超过 2GB，才推荐进行分库分表。</p>
+<p>​	<strong>说明</strong>：如果预计三年后的数据量根本达不到这个级别，请不要在创建表时就分库分表。</p>
+<p><strong>15.<strong>【</strong>参考</strong>】合适的字符存储长度，不但节约数据库表空间、节约索引存储，更重要的是提升检索速度。</p>
+<p>​	<strong>正例</strong>：如下表，其中无符号值可以避免误存负数，且扩大了表示范围。</p>
+<table>
+<thead>
+<tr>
+<th align="center">对象</th>
+<th>年龄区间</th>
+<th>类型</th>
+<th align="center">字节</th>
+<th>表示范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">人</td>
+<td>150 岁之内</td>
+<td>tinyint unsigned</td>
+<td align="center">1</td>
+<td>无符号值：0 到 255</td>
+</tr>
+<tr>
+<td align="center">龟</td>
+<td>数百岁</td>
+<td>smallint unsigned</td>
+<td align="center">2</td>
+<td>无符号值：0 到 65535</td>
+</tr>
+<tr>
+<td align="center">恐龙化石</td>
+<td>数千万年</td>
+<td>int unsigned</td>
+<td align="center">4</td>
+<td>无符号值：0 到约 42.9 亿</td>
+</tr>
+<tr>
+<td align="center">太阳</td>
+<td>约 50 亿年</td>
+<td>bigint unsigned</td>
+<td align="center">8</td>
+<td>无符号值：0 到约 10 的 19 次方</td>
+</tr>
+</tbody></table>
+<h2 id="二-索引规约"><a href="#二-索引规约" class="headerlink" title="(二) 索引规约"></a>(二) 索引规约</h2><ol>
+<li><p>【强制】业务上具有唯一特性的字段，即使是多个字段的组合，也必须建成唯一索引。</p>
+<p>说明：不要以为唯一索引影响了 insert 速度，这个速度损耗可以忽略，但提高查找速度是明显的；另外， 即使在应用层做了非常完善的校验控制，只要没有唯一索引，根据墨菲定律，必然有脏数据产生。</p>
+</li>
+<li><p>【强制】超过三个表禁止 join。需要 join 的字段，数据类型必须绝对一致；多表关联查询时，保证被关联的字段需要有索引。</p>
+</li>
+<li><p>【强制】在 varchar 字段上建立索引时，必须指定索引长度，没必要对全字段建立索引，根据实际文本区分度决定索引长度即可。</p>
+<p>说明：索引的长度与区分度是一对矛盾体，一般对字符串类型数据，长度为 20 的索引，区分度会高达 90%以上，可以使用 count(distinct left(列名, 索引长度))&#x2F;count(*)的区分度来确定。</p>
+</li>
+<li><p>【强制】页面搜索严禁左模糊或者全模糊，如果需要请走搜索引擎来解决。</p>
+<p>说明：索引文件具有 B-Tree 的最左前缀匹配特性，如果左边的值未确定，那么无法使用此索引。</p>
+</li>
+<li><p>【推荐】如果有 order by 的场景，请注意利用索引的有序性。order by 最后的字段是组合索引的一部分，并且放在索引组合顺序的最后，避免出现 file_sort 的情况，影响查询性能。</p>
+<p>正例：where a&#x3D;? and b&#x3D;? order by c; 索引：a_b_c</p>
+<p>反例：索引如果存在范围查询，那么索引有序性无法利用，如：WHERE a&gt;10 ORDER BY b; 索引 a_b 无法排序。</p>
+</li>
+<li><p>【推荐】利用覆盖索引来进行查询操作，避免回表。</p>
+<p>说明：如果一本书需要知道第 11 章是什么标题，会翻开第 11 章对应的那一页吗？目录浏览一下就好，这 个目录就是起到覆盖索引的作用。</p>
+<p>正例：能够建立索引的种类分为主键索引、唯一索引、普通索引三种，而覆盖索引只是一种查询的一种效 果，用 explain 的结果，extra 列会出现：using index。</p>
+</li>
+<li><p>【推荐】利用延迟关联或者子查询优化超多分页场景。</p>
+<p>说明：MySQL 并不是跳过 offset 行，而是取 offset+N 行，然后返回放弃前 offset 行，返回 N 行，那当 offset 特别大的时候，效率就非常的低下，要么控制返回的总页数，要么对超过特定阈值的页数进行 SQL 改写。</p>
+<p>正例：先快速定位需要获取的 id 段，然后再关联：</p>
+<p>SELECT a.* FROM 表 1 a, (select id from 表 1 where 条件 LIMIT 100000,20 ) b where a.id&#x3D;b.id</p>
+</li>
+<li><p>【推荐】SQL 性能优化的目标：至少要达到 range 级别，要求是 ref 级别，如果可以是</p>
+</li>
+</ol>
+<p> consts 最好。</p>
+<p>​	说明：</p>
+<p>   1） consts 单表中最多只有一个匹配行（主键或者唯一索引），在优化阶段即可读取到数据。</p>
+<p>   2） ref 指的是使用普通的索引（normal index）。</p>
+<p>   3） range 对索引进行范围检索。</p>
+<p>​	反例：explain 表的结果，type&#x3D;index，索引物理文件全扫描，速度非常慢，这个 index 级别比较 range 还低，与全表扫描是小巫见大巫。</p>
+<ol start="9">
+<li><p>【推荐】建组合索引的时候，区分度最高的在最左边。</p>
+<p>正例：如果 where a&#x3D;? and b&#x3D;? ，如果 a 列的几乎接近于唯一值，那么只需要单建 idx_a 索引即可。</p>
+<p>说明：存在非等号和等号混合时，在建索引时，请把等号条件的列前置。如：where c&gt;? and d&#x3D;? 那么 即使 c 的区分度更高，也必须把 d 放在索引的最前列，即索引 idx_d_c。</p>
+</li>
+<li><p>【推荐】防止因字段类型不同造成的隐式转换，导致索引失效。</p>
+</li>
+<li><p>【参考】创建索引时避免有如下极端误解：</p>
+<p>1） 宁滥勿缺。认为一个查询就需要建一个索引。</p>
+<p>2） 宁缺勿滥。认为索引会消耗空间、严重拖慢记录的更新以及行的新增速度。</p>
+<p>3） 抵制惟一索引。认为业务的惟一性一律需要在应用层通过“先查后插”方式解决。</p>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/11/05/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4-Java-%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E7%AC%AC%E4%BA%94%E7%AB%A0MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A7%A3%E8%AF%BB/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8E%9F%E5%88%9B/" rel="tag">原创</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/11/06/CentOS-7-%E5%AE%89%E8%A3%85GUI%E7%95%8C%E9%9D%A2%E5%8F%8A%E8%BF%9C%E7%A8%8B%E8%BF%9E%E6%8E%A5/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            CentOS 7 安装GUI界面及远程连接
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/11/04/RESTful-API%E8%A7%84%E8%8C%83%EF%BC%88%E8%AF%A6%E7%BB%86%E7%89%88%EF%BC%89/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">RESTful API规范（详细版）</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>深入解析Java垃圾回收机制 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-深入解析Java垃圾回收机制"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  深入解析Java垃圾回收机制
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/01/10/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/" class="article-date">
+  <time datetime="2018-01-10T09:22:22.000Z" itemprop="datePublished">2018-01-10</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">12 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>转载自 <a target="_blank" rel="noopener" href="https://liuchi.coding.me/2017/08/05/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/">深入解析Java垃圾回收机制</a></p>
+</blockquote>
+<blockquote>
+<ul>
+<li>引入垃圾回收</li>
+<li>哪些内存需要回收？</li>
+<li>引用计数法</li>
+<li>可达性分析</li>
+<li>如何回收</li>
+<li>Marking 标记</li>
+<li>Normal Deletion 清除</li>
+<li>Deletion with Compacting 压缩</li>
+<li>为什么需要分代收集？</li>
+<li>JVM的分代</li>
+<li>新生代</li>
+<li>老年代</li>
+<li>永久代</li>
+<li>分代垃圾收集过程详述</li>
+</ul>
+</blockquote>
+<h1 id="1-引入垃圾回收"><a href="#1-引入垃圾回收" class="headerlink" title="1. 引入垃圾回收"></a>1. 引入垃圾回收</h1><blockquote>
+<p>程序计数器、 虚拟机栈、 本地方法栈3个区域随线程而生，随线程而灭；栈中的栈帧随着方法的进入和退出而有条不紊地执行着出栈和入栈操作。 每一个栈帧中分配多少内存基本上是在类结构确定下来时就已知的（尽管在运行期会由JIT编译器进行一些优化，但在本章基于概念模型的讨论中，大体上可以认为是编译期可知的），因此这几个区域的内存分配和回收都具备确定性，在这几个区域内就不需要过多考虑回收的问题，因为方法结束或者线程结束时，内存自然就跟随着回收了。 而Java堆和方法区则不一样，一个接口中的多个实现类需要的内存可能不一样，一个方法中的多个分支需要的内存也可能不一样，我们只有在程序处于运行期间时才能知道会创建哪些对象，这部分内存的分配和回收都是动态的，垃圾收集器所关注的是这部分内存—–《深入理解Java虚拟机》</p>
+</blockquote>
+<p>自动垃圾回收机制就是寻找Java堆中的对象，并对对象进行分类判别，寻找出正在使用的对象和已经不会使用的对象，然后把那些不会使用的对象从堆上清除。</p>
+<p>自动垃圾回收机制就是要解决三个问题：</p>
+<ul>
+<li>那些内存需要回收？</li>
+<li>什么时候回收？</li>
+<li>如何回收？</li>
+</ul>
+<span id="more"></span>
+
+<h1 id="2-哪些内存需要回收？"><a href="#2-哪些内存需要回收？" class="headerlink" title="2. 哪些内存需要回收？"></a>2. 哪些内存需要回收？</h1><h2 id="2-1-引用计数法"><a href="#2-1-引用计数法" class="headerlink" title="2.1 引用计数法"></a>2.1 引用计数法</h2><p>对于第一个问题，也就是判断是否还需要使用，最简单的方法就是通过目前是否有引用指向这个对象，如果没有就说明这个对象不会再被使用了，如果有就说明这个对象可能还会继续被使用，这种通过引用是否存在的方法就叫做引用计数法，但这个方法存在一个问题就是无法解决对象循环引用的问题，因此又出现了可达性分析的方法来判断对象是否可以被会回收。</p>
+<h2 id="2-2-可达性分析"><a href="#2-2-可达性分析" class="headerlink" title="2.2 可达性分析"></a>2.2 可达性分析</h2><p>这个算法的基本思路就是通过一系列的称为“GC Roots”的对象作为起始点，从这些节点开始向下搜索，搜索所走过的路径称为引用链（Reference Chain），当一个对象到GC Roots没有任何引用链相连（用图论的话来说，就是从GC Roots到这个对象不可达）时，则证明此对象是不可用的。</p>
+<p>在Java语言中，可作为GC Roots的对象包括下面几种：</p>
+<ul>
+<li>虚拟机栈（栈帧中的本地变量表）中引用的对象。</li>
+<li>方法区中类静态属性引用的对象。</li>
+<li>方法区中常量引用的对象。</li>
+<li>本地方法栈中JNI（即一般说的Native方法）引用的对象。</li>
+</ul>
+<h1 id="3-如何回收"><a href="#3-如何回收" class="headerlink" title="3. 如何回收"></a>3. 如何回收</h1><p>垃圾收集器通常会帮我们在后台自动进行垃圾回收。关于具体的回收过程只要有以下这些步骤</p>
+<pre><code>- Step 1: Marking 标记
+</code></pre>
+<p>第一步就是标记，也就是垃圾收集器会找出那些需要回收的对象所在的内存和不需要回收的对象所在的内存，并把它们标记出来，简单的说，也就是先找出垃圾在哪</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-420049faf427a7ae.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>所有堆中的对象都会被扫描一遍，以此来确定回收的对象，所以这通常会是一个相对比较耗时的过程</p>
+<ul>
+<li><p>Step 2: Normal Deletion</p>
+<p>垃圾收集器会清除掉上一步标记出来的那些需要回收的对象区域</p>
+</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-8a00dad3f360aaae.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p>存在的问题就是碎片问题：</p>
+<p>标记清除之后会产生大量不连续的内存碎片，空间碎片太多可能会导致以后在程序运行过程中需要分配较大对象时，无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。</p>
+<ul>
+<li><p>Step 2a: Deletion with Compating 压缩</p>
+<p>由于简单的清除可能会存在碎片的问题，所以又出现了压缩清除的方法，也就是先清除需要回收的对象，然后再对内存进行压缩操作，将内存分成可用和不可用两大部分</p>
+</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-9a5942233a60c0bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h1 id="4-为什么需要分代收集？"><a href="#4-为什么需要分代收集？" class="headerlink" title="4. 为什么需要分代收集？"></a>4. 为什么需要分代收集？</h1><p>就像前文所述，标记对象和压缩内存的过程在JVM中是不高效的，分配的对象越多，垃圾收集的时间就越长。但是，经过一些经验型性的统计分析表明，一个程序中大部分对象都是短命的！</p>
+<p>下图就是一个类似的统计数据，纵坐标表示分配对象所占用的内存大小，横坐标表示自分配对象过去的时间</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-32fa64dd7cfd57a3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p>从图中我们看到，大部分对象没活多久就死了，存活较久的只是少类对象</p>
+<h1 id="5-JVM的分代"><a href="#5-JVM的分代" class="headerlink" title="5. JVM的分代"></a>5. JVM的分代</h1><p>为了增大垃圾收集的效率，所以JVM将堆进行分代，分为不同的部分，一般有三部分，新生代，老年代和永久代</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-80d8ad7f6a126106.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h2 id="5-1-新生代"><a href="#5-1-新生代" class="headerlink" title="5.1 新生代"></a>5.1 新生代</h2><p>所有新new出来的对象都会最先出现在新生代中，当新生代这部分内存满了之后，就会发起一次垃圾收集事件，这种发生在新生代的垃圾收集称为Minor collections。这种收集通常比较快，因为新生代的大部分对象都是需要回收的，那些暂时无法回收的就会被移动到老年代。</p>
+<p><strong>Stop the World</strong>事件-所有minor garbage collections都是<strong>Stop the World</strong>事件，也就是意味着所有的应用线程都需要停止，直到垃圾回收的操作全部完成。类似于</p>
+<p>“你妈妈在给你打扫房间的时候，肯定也会让你老老实实地在椅子上或者房间外待着，如果她一边打扫，你一边乱扔纸屑，这房间还能打扫完？”</p>
+<h2 id="5-2-老年代"><a href="#5-2-老年代" class="headerlink" title="5.2 老年代"></a>5.2 老年代</h2><p>老年代用来存储那些存活时间较长的对象。一般来说，我们会给新生代的对象限定一个存活的时间，当达到这个时间还没有被收集的时候就会被移动到老年代中。老年代区域的垃圾收集叫做major garbage collection</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-b08bf6069ee7366c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p>Major garbage collection也是一个<strong>Stop the World</strong>事件。通常Major garbage collection都相对比较慢，因为老年代的收集包括了对所有对象的收集，也就是同时需要收集新生代和老年代的对象。</p>
+<h2 id="5-3-永久代"><a href="#5-3-永久代" class="headerlink" title="5.3 永久代"></a>5.3 永久代</h2><p>The Permanent generation contains metadata required by the JVM to describe the classes and methods used in the application. The permanent generation is populated by the JVM at runtime based on classes in use by the application. In addition, Java SE library classes and methods may be stored here.</p>
+<p>Classes may get collected (unloaded) if the JVM finds they are no longer needed and space may be needed for other classes. The permanent generation is included in a full garbage collection.</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-f7f32e39af803854.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h1 id="6-分代垃圾收集过程详述"><a href="#6-分代垃圾收集过程详述" class="headerlink" title="6. 分代垃圾收集过程详述"></a>6. 分代垃圾收集过程详述</h1><p>我们已经知道垃圾回收所需要的方法和堆内存的分代，那么接下来我们就来具体看一下垃圾回收的具体过程</p>
+<ul>
+<li>第一步 所有new出来的对象都会最先分配到新生代区域中，两个survivor区域初始化是为空的</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-ed812d174ca6c8c3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<ul>
+<li>第二步，当eden区域满了之后，就引发一次 minor garbagecollection</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-d3746363a41a7c3c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<ul>
+<li>第三步，当在minor garbage collection，存活下来的对象就会被移动到S0survivor区域</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-eb04dc5ddf426ba1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<ul>
+<li>第四步，然后当eden区域又填满的时候，又会发生下一次的垃圾回收，存活的对象会被移动到survivor区域而未存活对象会被直接删除。但是，不同的是，在这次的垃圾回收中，存活对象和之前的survivor中的对象都会被移动到s1中。一旦所有对象都被移动到s1中，那么s2中的对象就会被清除，仔细观察图中的对象，数字表示经历的垃圾收集的次数。目前我们已经有不同的年龄对象了。</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-2ef7443435b7de67.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<ul>
+<li>第五步，下一次垃圾回收的时候，又会重复上次的步骤，清除需要回收的对象，并且又切换一次survivor区域，所有存活的对象都被移动至s0。eden和s1区域被清除。</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-c4ca47aa891ffeb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<ul>
+<li>第六步，重复以上步骤，并记录对象的年龄，当有对象的年龄到达一定的阈值的时候，就将新生代中的对象移动到老年代中。在本例中，这个阈值为8.</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-3a5073d424ad3778.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<ul>
+<li>第七步，接下来垃圾收集器就会重复以上步骤，不断的进行对象的清除和年代的移动</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-038cdad64f06b7a5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<ul>
+<li>最后，我们观察上述过程可以发现，大部分的垃圾收集过程都是在新生代进行的，直到老年代中的内存不够用了才会发起一次 major GC，会进行标记和整理压缩。</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/1234352-a4fee4707be5d7e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h1 id="7-总结"><a href="#7-总结" class="headerlink" title="7. 总结"></a>7. 总结</h1><p>“地球人都知道，Java有个东西叫垃圾收集器，它让创建的对象不需要像c&#x2F;cpp那样delete、free掉，你能不能谈谈，GC是在什么时候，对什么东西，做了什么事情？”</p>
+<h2 id="7-1-“什么时候”"><a href="#7-1-“什么时候”" class="headerlink" title="7.1 “什么时候”"></a>7.1 “什么时候”</h2><p>我自己分析一下这个问题，首先是“什么时候”，不同层次的回答从低到高排列： </p>
+<ol>
+<li><p>系统空闲的时候。</p>
+<p>分析：这种回答大约占30%，遇到的话一般我就会准备转向别的话题，譬如算法、譬如SSH看看能否发掘一些他擅长的其他方面。</p>
+</li>
+<li><p>系统自身决定，不可预测的时间&#x2F;调用System.gc()的时候。</p>
+<p>分析：这种回答大约占55%，大部分应届生都能回答到这个答案，起码不能算错误是吧，后续应当细分一下到底是语言表述导致答案太笼统，还是本身就只有这样一个模糊的认识。 </p>
+</li>
+<li><p>能说出新生代、老年代结构，能提出minor gc&#x2F;full gc</p>
+<p>分析：到了这个层次，基本上能说对GC运作有概念上的了解，譬如看过《深入JVM虚拟机》之类的。这部分不足10%。</p>
+</li>
+<li><p><strong>能说明minor gc&#x2F;full gc的触发条件、OOM的触发条件，降低GC的调优的策略。</strong></p>
+<p><strong>minor gc的触发条件：eden满了；</strong></p>
+<p><strong>full gc的触发条件：升到老年代的对象大于老年代剩余空间时，或者小于被HandlePromotionFaiure参数强制full gc；</strong></p>
+<p><strong>OOM(out of memory)的触发条件：gc与非gc时间耗时超过GCTimeRatio的限制引发OOM；</strong></p>
+<p><strong>降低GC的调优的策略：通过NewRatio控制新生代老年代的比例，通过MaxTenuringThreshold控制进入老年前生存次数等；</strong></p>
+</li>
+</ol>
+<h2 id="7-2-“对什么东西”"><a href="#7-2-“对什么东西”" class="headerlink" title="7.2 “对什么东西”"></a>7.2 “对什么东西”</h2><ol>
+<li><p>不使用的对象</p>
+<p>分析：相当于没有回答，问题就是在问什么对象才是“不使用的对象”。大约占30%。 </p>
+</li>
+<li><p>超出作用域的对象&#x2F;引用计数为空的对象。</p>
+<p>分析：这2个回答站了60%，相当高的比例，估计学校教java的时候老师就是这样教的。第一个回答没有解决我的疑问，gc到底怎么判断哪些对象在不在作用域的？至于引用计数来判断对象是否可收集的，我可以会补充一个下面这个例子让面试者分析一下obj1、obj2是否会被GC掉？ </p>
+<p>​</p>
+<p>​    class C{<br>​         public Object x;<br>​    }<br>​    C obj1、obj2 &#x3D; new C();<br>​    obj1.x &#x3D; obj2;<br>​    obj2.x &#x3D; obj1;<br>​    obj1、obj2 &#x3D; null; </p>
+</li>
+<li><p>从gc root开始搜索，搜索不到的对象。</p>
+<p>分析：根对象查找、标记已经算是不错了，小于5%的人可以回答道这步，估计是引用计数的方式太“深入民心”了。基本可以得到这个问题全部分数。<br>​    PS：有面试者在这个问补充强引用、弱引用、软引用、幻影引用区别等，不是我想问的答案，但可以加分。 </p>
+</li>
+<li><p><strong>从root搜索不到，而且经过第一次标记、清理后，仍然没有复活的对象。</strong></p>
+<p>分析：我期待的答案。但是的确很少面试者会回答到这一点，所以在我心中回答道第3点我就给全部分数。</p>
+</li>
+</ol>
+<h2 id="7-3-“做什么事情”"><a href="#7-3-“做什么事情”" class="headerlink" title="7.3 “做什么事情”"></a>7.3 “做什么事情”</h2><ol>
+<li><p><strong>删除不使用的对象，腾出内存空间。</strong></p>
+<p>分析：同问题2第一点。40%。 </p>
+</li>
+<li><p><strong>补充一些诸如停止其他线程执行、运行finalize等的说明。</strong> </p>
+<p> 分析：起码把问题具体化了一些，如果像答案1那样我很难在回答中找到话题继续展开，大约占40%的人。<br>   ​       补充一点题外话，面试时我最怕遇到的回答就是“这个问题我说不上来，但是遇到的时候我上网搜一下能做出来”。做程序开发确实不是去锻炼茴香豆的“茴”有几种写法，不死记硬背我同意，我不会纠语法、单词，但是多少你说个思路呀，要直接回答一个上网搜，我完全没办法从中获取可以评价应聘者的信息，也很难从回答中继续发掘话题展开讨论。建议大家尽量回答引向自己熟悉的，可讨论的领域，展现给面试官最擅长的一面。 </p>
+</li>
+<li><p><strong>能说出诸如新生代做的是复制清理、from survivor、to survivor是干啥用的、老年代做的是标记清理、标记清理后碎片要不要整理、复制清理和标记清理有有什么优劣势等。</strong> </p>
+<p> 分析：也是看过《深入JVM虚拟机》的基本都能回答道这个程度，其实到这个程度我已经比较期待了。同样小于10%。 </p>
+</li>
+<li><p><strong>除了3外，还能讲清楚串行、并行（整理&#x2F;不整理碎片）、CMS等搜集器可作用的年代、特点、优劣势，并且能说明控制&#x2F;调整收集器选择的方式。</strong></p>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2018/01/10/%E6%B7%B1%E5%85%A5%E8%A7%A3%E6%9E%90Java%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2018/01/16/404/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Hexo自定义404页面
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/01/02/%E4%BB%80%E4%B9%88%E6%98%AFTCPIP%E5%8D%8F%E8%AE%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">什么是TCP/IP协议？</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

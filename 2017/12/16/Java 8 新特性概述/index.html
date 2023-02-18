@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Java 8 新特性概述 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java 8 新特性概述"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Java 8 新特性概述
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/12/16/Java%208%20%E6%96%B0%E7%89%B9%E6%80%A7%E6%A6%82%E8%BF%B0/" class="article-date">
+  <time datetime="2017-12-16T09:22:22.000Z" itemprop="datePublished">2017-12-16</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">5.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">21 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>转载自 唐学波, 林宝川, 和 俞顺杰 <a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/java/j-lo-jdk8newfeature/index.html">Java 8 新特性概述</a></p>
+</blockquote>
+<h1 id="1-函数式接口"><a href="#1-函数式接口" class="headerlink" title="1. 函数式接口"></a>1. 函数式接口</h1><p>Java 8 引入的一个核心概念是函数式接口（Functional Interfaces）。通过在接口里面添加一个抽象方法，这些方法可以直接从接口中运行。如果一个接口定义个唯一一个抽象方法，那么这个接口就成为函数式接口。同时，引入了一个新的注解：@FunctionalInterface。可以把他它放在一个接口前，表示这个接口是一个函数式接口。这个注解是非必须的，只要接口只包含一个方法的接口，虚拟机会自动判断，不过最好在接口上使用注解 @FunctionalInterface 进行声明。在接口中添加了 @FunctionalInterface 的接口，只允许有一个抽象方法，否则编译器也会报错。</p>
+<p>java.lang.Runnable 就是一个函数式接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="2-Lambda-表达式"><a href="#2-Lambda-表达式" class="headerlink" title="2. Lambda 表达式"></a>2. Lambda 表达式</h1><p>函数式接口的重要属性是：我们能够使用 Lambda 实例化它们，Lambda 表达式让你能够将函数作为方法参数，或者将代码作为数据对待。Lambda 表达式的引入给开发者带来了不少优点：在 Java 8 之前，匿名内部类，监听器和事件处理器的使用都显得很冗长，代码可读性很差，Lambda 表达式的应用则使代码变得更加紧凑，可读性增强；Lambda 表达式使并行操作大集合变得很方便，可以充分发挥多核 CPU 的优势，更易于为多核处理器编写代码；</p>
+<span id="more"></span>
+
+<p>Lambda 表达式由三个部分组成：第一部分为一个括号内用逗号分隔的形式参数，参数是函数式接口里面方法的参数；第二部分为一个箭头符号：-&gt;；第三部分为方法体，可以是表达式和代码块。语法如下：</p>
+<ol>
+<li>方法体为表达式，该表达式的值作为返回值返回。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(parameters) -&gt; expression</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p>方法体为代码块，必须用 {} 来包裹起来，且需要一个 return 返回值，但若函数式接口里面方法返回值是 void，则无需返回值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(parameters) -&gt; &#123; statements; &#125;</span><br><span class="line">例如，下面是使用匿名内部类和 Lambda 表达式的代码比较。</span><br></pre></td></tr></table></figure>
+
+<p>下面是用匿名内部类的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">button.addActionListener(<span class="keyword">new</span> <span class="title class_">ActionListener</span>() &#123;</span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">actionPerformed</span><span class="params">(ActionEvent e)</span> &#123;</span><br><span class="line">  System.out.print(<span class="string">&quot;Helllo Lambda in actionPerformed&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line">下面是使用 Lambda 表达式后：</span><br><span class="line">button.addActionListener(</span><br><span class="line">  \\actionPerformed 有一个参数 e 传入，所以用 (ActionEvent e)</span><br><span class="line">  (ActionEvent e)-&gt; </span><br><span class="line">  System.out.print(<span class="string">&quot;Helllo Lambda in actionPerformed&quot;</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ol>
+<p>上面是方法体包含了参数传入 (ActionEvent e)，如果没有参数则只需 ( )，例如 Thread 中的 run 方法就没有参数传入，当它使用 Lambda 表达式后：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Thread</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(</span><br><span class="line">  \\run 没有参数传入，所以用 (), 后面用 &#123;&#125; 包起方法体</span><br><span class="line">  () -&gt; &#123;</span><br><span class="line">   System.out.println(<span class="string">&quot;Hello from a thread in run&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">);</span><br><span class="line">通过上面两个代码的比较可以发现使用 Lambda 表达式可以简化代码，并提高代码的可读性。</span><br><span class="line">为了进一步简化 Lambda 表达式，可以使用方法引用。例如，下面三种分别是使用内部类，使用 Lambda 表示式和使用方法引用方式的比较：</span><br><span class="line"><span class="comment">//1. 使用内部类</span></span><br><span class="line">Function&lt;Integer, String&gt; f = <span class="keyword">new</span> <span class="title class_">Function</span>&lt;Integer,String&gt;()&#123;</span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> String <span class="title function_">apply</span><span class="params">(Integer t)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//2. 使用 Lembda 表达式</span></span><br><span class="line">Function&lt;Integer, String&gt; f2 = (t)-&gt;String.valueOf(t); </span><br><span class="line"><span class="comment">//3. 使用方法引用的方式</span></span><br><span class="line">Function&lt;Integer, String&gt; f1 = String::valueOf;</span><br></pre></td></tr></table></figure>
+
+<p>要使用 Lambda 表达式，需要定义一个函数式接口，这样往往会让程序充斥着过量的仅为 Lambda 表达式服务的函数式接口。为了减少这样过量的函数式接口，Java 8 在 java.util.function 中增加了不少新的函数式通用接口。例如：</p>
+<p>Function&lt;T, R&gt;：将 T 作为输入，返回 R 作为输出，他还包含了和其他函数组合的默认方法。</p>
+<p>Predicate<T> ：将 T 作为输入，返回一个布尔值作为输出，该接口包含多种默认方法来将 Predicate 组合成其他复杂的逻辑（与、或、非）。</p>
+<p>Consumer<T> ：将 T 作为输入，不返回任何内容，表示在单个参数上的操作。</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">例如，People 类中有一个方法 getMaleList 需要获取男性的列表，这里需要定义一个函数式接口 PersonInterface：</span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">PersonInterface</span> &#123;</span><br><span class="line"> <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">test</span><span class="params">(Person person)</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">People</span> &#123;</span><br><span class="line"> <span class="keyword">private</span> List&lt;Person&gt; persons= <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;Person&gt;();</span><br><span class="line"> <span class="keyword">public</span> List&lt;Person&gt; <span class="title function_">getMaleList</span><span class="params">(PersonInterface filter)</span> &#123;</span><br><span class="line"> List&lt;Person&gt; res = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;Person&gt;();</span><br><span class="line"> persons.forEach(</span><br><span class="line"> (Person person) -&gt; </span><br><span class="line"> &#123;</span><br><span class="line"> <span class="keyword">if</span> (filter.test(person)) &#123;<span class="comment">//调用 PersonInterface 的方法</span></span><br><span class="line"> res.add(person);</span><br><span class="line"> &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> );</span><br><span class="line"> <span class="keyword">return</span> res;</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br><span class="line">为了去除 PersonInterface 这个函数式接口，可以用通用函数式接口 Predicate 替代如下：</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">People</span>&#123;</span><br><span class="line"> <span class="keyword">private</span> List&lt;Person&gt; persons= <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;Person&gt;();</span><br><span class="line"> <span class="keyword">public</span> List&lt;Person&gt; <span class="title function_">getMaleList</span><span class="params">(Predicate&lt;Person&gt; predicate)</span> &#123;</span><br><span class="line"> List&lt;Person&gt; res = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;Person&gt;();</span><br><span class="line"> persons.forEach(</span><br><span class="line"> person -&gt; &#123;</span><br><span class="line"> <span class="keyword">if</span> (predicate.test(person)) &#123;<span class="comment">//调用 Predicate 的抽象方法 test</span></span><br><span class="line"> res.add(person);</span><br><span class="line"> &#125;</span><br><span class="line"> &#125;);</span><br><span class="line"> <span class="keyword">return</span> res;</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="3-接口的增强"><a href="#3-接口的增强" class="headerlink" title="3. 接口的增强"></a>3. 接口的增强</h1><p>Java 8 对接口做了进一步的增强。在接口中可以添加使用 default 关键字修饰的非抽象方法。还可以在接口中定义静态方法。如今，接口看上去与抽象类的功能越来越类似了。</p>
+<h2 id="3-1-默认方法"><a href="#3-1-默认方法" class="headerlink" title="3.1 默认方法"></a>3.1 默认方法</h2><p>Java 8 还允许我们给接口添加一个非抽象的方法实现，只需要使用 default 关键字即可，这个特征又叫做扩展方法。在实现该接口时，该默认扩展方法在子类上可以直接使用，它的使用方式类似于抽象类中非抽象成员方法。但扩展方法不能够重载 Object 中的方法。例如：toString、equals、 hashCode 不能在接口中被重载。</p>
+<p>如，下面接口中定义了一个默认方法 count()，该方法可以在子类中直接使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">DefaultFunInterface</span> &#123;</span><br><span class="line">  <span class="comment">//定义默认方法 count</span></span><br><span class="line">  <span class="keyword">default</span> <span class="type">int</span> <span class="title function_">count</span><span class="params">()</span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SubDefaultFunClass</span> <span class="keyword">implements</span> <span class="title class_">DefaultFunInterface</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span>&#123;</span><br><span class="line">  <span class="comment">//实例化一个子类对象，改子类对象可以直接调用父接口中的默认方法 count</span></span><br><span class="line">   <span class="type">SubDefaultFunClass</span> <span class="variable">sub</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SubDefaultFunClass</span>();</span><br><span class="line">  sub.count();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-静态方法"><a href="#3-2-静态方法" class="headerlink" title="3.2 静态方法"></a>3.2 静态方法</h2><p>在接口中，还允许定义静态的方法。接口中的静态方法可以直接用接口来调用。</p>
+<p>例如，下面接口中定义了一个静态方法 find，该方法可以直接用 StaticFunInterface .find() 来调用。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">StaticFunInterface</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">find</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestStaticFun</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span>&#123;</span><br><span class="line">    <span class="comment">//接口中定义了静态方法 find 直接被调用</span></span><br><span class="line">    StaticFunInterface.fine();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-集合之流式操作"><a href="#4-集合之流式操作" class="headerlink" title="4. 集合之流式操作"></a>4. 集合之流式操作</h1><p>Java 8 引入了流式操作（Stream），通过该操作可以实现对集合（Collection）的并行处理和函数式操作。根据操作返回的结果不同，流式操作分为中间操作和最终操作两种。最终操作返回一特定类型的结果，而中间操作返回流本身，这样就可以将多个操作依次串联起来。根据流的并发性，流又可以分为串行和并行两种。流式操作实现了集合的过滤、排序、映射等功能。</p>
+<p>Stream 和 Collection 集合的区别：Collection 是一种静态的内存数据结构，而 Stream 是有关计算的。前者是主要面向内存，存储在内存中，后者主要是面向 CPU，通过 CPU 实现计算。</p>
+<h2 id="4-1-串行和并行的流"><a href="#4-1-串行和并行的流" class="headerlink" title="4.1 串行和并行的流"></a>4.1 串行和并行的流</h2><p>流有串行和并行两种，串行流上的操作是在一个线程中依次完成，而并行流则是在多个线程上同时执行。并行与串行的流可以相互切换：通过 stream.sequential() 返回串行的流，通过 stream.parallel() 返回并行的流。相比较串行的流，并行的流可以很大程度上提高程序的执行效率。</p>
+<p>下面是分别用串行和并行的方式对集合进行排序。</p>
+<p>串行排序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">  List&lt;String&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;String&gt;();</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++) &#123;</span><br><span class="line">    <span class="type">double</span> <span class="variable">d</span> <span class="operator">=</span> Math.random()*<span class="number">1000</span>;</span><br><span class="line">    list.add(d+<span class="string">&quot;&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.nanoTime();<span class="comment">//获取系统开始排序的时间点</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> (<span class="type">int</span>)((Stream) list.stream().sequential().sorted()).count();</span><br><span class="line">  <span class="type">long</span> <span class="variable">end</span> <span class="operator">=</span> System.nanoTime();<span class="comment">//获取系统结束排序的时间点</span></span><br><span class="line">  <span class="type">long</span> <span class="variable">ms</span> <span class="operator">=</span> TimeUnit.NANOSECONDS.toMillis(end-start);<span class="comment">///得到串行排序所用的时间</span></span><br><span class="line">  System.out.println(ms+<span class="string">&quot;ms&quot;</span>);</span><br><span class="line">  System.out.println(list);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>并行排序：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">  List&lt;String&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;String&gt;();</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++) &#123;</span><br><span class="line">    <span class="type">double</span> <span class="variable">d</span> <span class="operator">=</span> Math.random()*<span class="number">1000</span>;</span><br><span class="line">    list.add(d+<span class="string">&quot;&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.nanoTime();<span class="comment">//获取系统开始排序的时间点</span></span><br><span class="line">  <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> (<span class="type">int</span>)((Stream)list.stream().parallel()).sorted().count();</span><br><span class="line">  <span class="type">long</span> <span class="variable">end</span> <span class="operator">=</span> System.nanoTime();<span class="comment">//获取系统结束排序的时间点</span></span><br><span class="line">  <span class="type">long</span> <span class="variable">ms</span> <span class="operator">=</span> TimeUnit.NANOSECONDS.toMillis(end-start);<span class="comment">//得到并行排序所用的时间</span></span><br><span class="line">  System.out.println(ms+<span class="string">&quot;ms&quot;</span>);</span><br><span class="line">  <span class="comment">//串行输出为 1200ms，并行输出为 800ms。可见，并行排序的时间相比较串行排序时间要少不少。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-中间操作"><a href="#4-2-中间操作" class="headerlink" title="4.2 中间操作"></a>4.2 中间操作</h2><p>该操作会保持 stream 处于中间状态，允许做进一步的操作。它返回的还是的 Stream，允许更多的链式操作。常见的中间操作有：</p>
+<p>filter()：对元素进行过滤；</p>
+<p>sorted()：对元素排序；</p>
+<p>map()：元素的映射；</p>
+<p>distinct()：去除重复元素；</p>
+<p>subStream()：获取子 Stream 等。</p>
+<p>例如，下面是对一个字符串集合进行过滤，返回以“s”开头的字符串集合，并将该集合依次打印出来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">list.stream()</span><br><span class="line">.filter((s) -&gt; s.startsWith(<span class="string">&quot;s&quot;</span>))</span><br><span class="line">.forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<p>这里的 filter(…) 就是一个中间操作，该中间操作可以链式地应用其他 Stream 操作。</p>
+<h2 id="4-3-终止操作"><a href="#4-3-终止操作" class="headerlink" title="4.3 终止操作"></a>4.3 终止操作</h2><p>该操作必须是流的最后一个操作，一旦被调用，Stream 就到了一个终止状态，而且不能再使用了。常见的终止操作有：</p>
+<p>forEach()：对每个元素做处理；</p>
+<p>toArray()：把元素导出到数组；</p>
+<p>findFirst()：返回第一个匹配的元素；</p>
+<p>anyMatch()：是否有匹配的元素等。</p>
+<p>例如，下面是对一个字符串集合进行过滤，返回以“s”开头的字符串集合，并将该集合依次打印出来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">list.stream() <span class="comment">//获取列表的 stream 操作对象</span></span><br><span class="line">.filter((s) -&gt; s.startsWith(<span class="string">&quot;s&quot;</span>))<span class="comment">//对这个流做过滤操作</span></span><br><span class="line">.forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<p>这里的 forEach(…) 就是一个终止操作，该操作之后不能再链式的添加其他操作了。</p>
+<h1 id="5-注解的更新"><a href="#5-注解的更新" class="headerlink" title="5. 注解的更新"></a>5. 注解的更新</h1><p>对于注解，Java 8 主要有两点改进：类型注解和重复注解。</p>
+<p>Java 8 的类型注解扩展了注解使用的范围。在该版本之前，注解只能是在声明的地方使用。现在几乎可以为任何东西添加注解：局部变量、类与接口，就连方法的异常也能添加注解。新增的两个注释的程序元素类型 ElementType.TYPE_USE 和 ElementType.TYPE_PARAMETER 用来描述注解的新场合。ElementType.TYPE_PARAMETER 表示该注解能写在类型变量的声明语句中。而 ElementType.TYPE_USE 表示该注解能写在使用类型的任何语句中（例如声明语句、泛型和强制转换语句中的类型）。</p>
+<p>对类型注解的支持，增强了通过静态分析工具发现错误的能力。原先只能在运行时发现的问题可以提前在编译的时候被排查出来。Java 8 本身虽然没有自带类型检测的框架，但可以通过使用 Checker Framework 这样的第三方工具，自动检查和确认软件的缺陷，提高生产效率。</p>
+<p>例如，下面的代码可以通过编译，但是运行时会报 NullPointerException 的异常。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.checkerframework.checker.nullness.qual.NonNull;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestAnno</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">  <span class="meta">@NonNull</span> <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">  obj.toString();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译时自动检测结果如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">C:\workspace\TestJava8\src\TestAnno.java:<span class="number">4</span>: Warning:</span><br><span class="line">  (assignment.type.incompatible) $$ <span class="number">2</span> $$ <span class="literal">null</span> $$ <span class="meta">@UnknownInitialization</span> <span class="meta">@NonNull</span> Object $$ ( <span class="number">152</span>, <span class="number">156</span> )</span><br><span class="line">  $$ incompatible types in assignment.</span><br><span class="line"><span class="meta">@NonNull</span> <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"> ^</span><br><span class="line"> found : <span class="literal">null</span></span><br><span class="line"> required: <span class="meta">@UnknownInitialization</span> <span class="meta">@NonNull</span> Object</span><br></pre></td></tr></table></figure>
+
+<p>另外，在该版本之前使用注解的一个限制是相同的注解在同一位置只能声明一次，不能声明多次。Java 8 引入了重复注解机制，这样相同的注解可以在同一地方声明多次。重复注解机制本身必须用 @Repeatable 注解。</p>
+<p>例如，下面就是用 @Repeatable 重复注解的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span> \\该注解存在于类文件中并在运行时可以通过反射获取</span><br><span class="line">        <span class="meta">@interface</span> Annots &#123;</span><br><span class="line">            Annot[] value();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="meta">@Retention(RetentionPolicy.RUNTIME)</span> \\该注解存在于类文件中并在运行时可以通过反射获取</span><br><span class="line">        <span class="meta">@Repeatable(Annots.class)</span></span><br><span class="line">          <span class="meta">@interface</span> Annot &#123;</span><br><span class="line">          String <span class="title function_">value</span><span class="params">()</span>;</span><br><span class="line">        &#125;</span><br><span class="line"><span class="meta">@Annot(&quot;a1&quot;)</span><span class="meta">@Annot(&quot;a2&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="type">Annots</span> <span class="variable">annots1</span> <span class="operator">=</span> Test.class.getAnnotation(Annots.class);</span><br><span class="line">    System.out.println(annots1.value()[<span class="number">0</span>]+<span class="string">&quot;,&quot;</span>+annots1.value()[<span class="number">1</span>]);</span><br><span class="line">    <span class="comment">// 输出: @Annot(value=a1),@Annot(value=a2)</span></span><br><span class="line">    Annot[] annots2 = Test.class.getAnnotationsByType(Annot.class);</span><br><span class="line">    System.out.println(annots2[<span class="number">0</span>]+<span class="string">&quot;,&quot;</span>+annots2[<span class="number">1</span>]);</span><br><span class="line">    <span class="comment">// 输出: @Annot(value=a1),@Annot(value=a2)</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注释 Annot 被 @Repeatable( Annots.class ) 注解。Annots 只是一个容器，它包含 Annot 数组, 编译器尽力向程序员隐藏它的存在。通过这样的方式，Test 类可以被 Annot 注解两次。重复注释的类型可以通过 getAnnotationsByType() 方法来返回。</p>
+<h1 id="6-安全性"><a href="#6-安全性" class="headerlink" title="6. 安全性"></a>6. 安全性</h1><p>现今，互联网环境中存在各种各种潜在的威胁，对于 Java 平台来说，安全显得特别重要。为了保证新版本具有更高的安全性，Java 8 在安全性上对许多方面进行了增强，也为此推迟了它的发布日期。下面例举其中几个关于安全性的更新：</p>
+<p>支持更强的基于密码的加密算法。基于 AES 的加密算法，例如 PBEWithSHA256AndAES_128 和 PBEWithSHA512AndAES_256，已经被加入进来。</p>
+<p>在客户端，TLS1.1 和 TLS1.2 被设为默认启动。并且可以通过新的系统属性包 jdk.tls.client.protocols 来对它进行配置。</p>
+<p>Keystore 的增强，包含新的 Keystore 类型 java.security.DomainLoadStoreParameter 和为 Keytool 这个安全钥匙和证书的管理工具添加新的命令行选项-importpassword。同时，添加和更新了一些关于安全性的 API 来支持 KeyStore 的更新。</p>
+<p>支持安全的随机数发生器。如果随机数来源于随机性不高的种子，那么那些用随机数来产生密钥或者散列敏感信息的系统就更易受攻击。SecureRandom 这个类的 getInstanceStrong 方法如今可以获取各个平台最强的随机数对象实例，通过这个实例生成像 RSA 私钥和公钥这样具有较高熵的随机数。</p>
+<p>JSSE（Java(TM) Secure Socket Extension）服务器端开始支持 SSL&#x2F;TLS 服务器名字识别 SNI（Server Name Indication）扩展。SNI 扩展目的是 SSL&#x2F;TLS 协议可以通过 SNI 扩展来识别客户端试图通过握手协议连接的服务器名字。在 Java 7 中只在客户端默认启动 SNI 扩展。如今，在 JSSE 服务器端也开始支持 SNI 扩展了</p>
+<p>安全性比较差的加密方法被默认禁用。默认不支持 DES 相关的 Kerberos 5 加密方法。如果一定要使用这类弱加密方法需要在 krb5.conf 文件中添加 allow_weak_crypto&#x3D;true。考虑到这类加密方法安全性极差，开发者应该尽量避免使用它。</p>
+<h1 id="7-IO-x2F-NIO-的改进"><a href="#7-IO-x2F-NIO-的改进" class="headerlink" title="7. IO&#x2F;NIO 的改进"></a>7. IO&#x2F;NIO 的改进</h1><p>Java 8 对 IO&#x2F;NIO 也做了一些改进。主要包括：改进了 java.nio.charset.Charset 的实现，使编码和解码的效率得以提升，也精简了 jre&#x2F;lib&#x2F;charsets.jar 包；优化了 String(byte[],*) 构造方法和 String.getBytes() 方法的性能；还增加了一些新的 IO&#x2F;NIO 方法，使用这些方法可以从文件或者输入流中获取流（java.util.stream.Stream），通过对流的操作，可以简化文本行处理、目录遍历和文件查找。</p>
+<p>新增的 API 如下：</p>
+<p>BufferedReader.line(): 返回文本行的流 Stream<String></p>
+<p>File.lines(Path, Charset):返回文本行的流 Stream<String></p>
+<p>File.list(Path): 遍历当前目录下的文件和目录</p>
+<p>File.walk(Path, int, FileVisitOption): 遍历某一个目录下的所有文件和指定深度的子目录</p>
+<p>File.find(Path, int, BiPredicate, FileVisitOption… ): 查找相应的文件</p>
+<p>下面就是用流式操作列出当前目录下的所有文件和目录：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Files.list(<span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;.&quot;</span>).toPath())</span><br><span class="line"> .forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="8-全球化功能"><a href="#8-全球化功能" class="headerlink" title="8. 全球化功能"></a>8. 全球化功能</h1><p>Java 8 版本还完善了全球化功能：支持新的 Unicode 6.2.0 标准，新增了日历和本地化的 API，改进了日期时间的管理等。</p>
+<p>Java 的日期与时间 API 问题由来已久，Java 8 之前的版本中关于时间、日期及其他时间日期格式化类由于线程安全、重量级、序列化成本高等问题而饱受批评。Java 8 吸收了 Joda-Time 的精华，以一个新的开始为 Java 创建优秀的 API。新的 java.time 中包含了所有关于时钟（Clock），本地日期（LocalDate）、本地时间（LocalTime）、本地日期时间（LocalDateTime）、时区（ZonedDateTime）和持续时间（Duration）的类。历史悠久的 Date 类新增了 toInstant() 方法，用于把 Date 转换成新的表示形式。这些新增的本地化时间日期 API 大大简化了了日期时间和本地化的管理。</p>
+<p>例如，下面是对 LocalDate，LocalTime 的简单应用：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">  <span class="comment">//LocalDate</span></span><br><span class="line">  <span class="type">LocalDate</span> <span class="variable">localDate</span> <span class="operator">=</span> LocalDate.now(); <span class="comment">//获取本地日期</span></span><br><span class="line">  localDate = LocalDate.ofYearDay(<span class="number">2014</span>,<span class="number">200</span>); <span class="comment">// 获取 2014 年的第 200 天</span></span><br><span class="line">  System.out.println(localDate.toString());<span class="comment">//输出：2014-07-19</span></span><br><span class="line">  localDate = LocalDate.of(<span class="number">2014</span>, Month.SEPTEMBER,<span class="number">10</span>); <span class="comment">//2014 年 9 月 10 日</span></span><br><span class="line">  System.out.println(localDate.toString());<span class="comment">//输出: 2014-09-10</span></span><br><span class="line">  <span class="comment">//LocalTime</span></span><br><span class="line">  <span class="type">LocalTime</span> <span class="variable">localTime</span> <span class="operator">=</span> LocalTime.now(); <span class="comment">//获取当前时间</span></span><br><span class="line">  System.out.println(localTime.toString());<span class="comment">//输出当前时间</span></span><br><span class="line">  localTime = LocalTime.of(<span class="number">10</span>,<span class="number">20</span>,<span class="number">50</span>);<span class="comment">//获得 10:20:50 的时间点</span></span><br><span class="line">  System.out.println(localTime.toString());<span class="comment">//输出： 10:20:50</span></span><br><span class="line">  <span class="comment">//Clock 时钟</span></span><br><span class="line">  <span class="type">Clock</span> <span class="variable">clock</span> <span class="operator">=</span> Clock.systemDefaultZone();<span class="comment">//获取系统默认时区(当前瞬时时间 )</span></span><br><span class="line">  System.out.println(clock);<span class="comment">//输出： SystemClock[Asia/Shanghai]</span></span><br><span class="line">  <span class="type">long</span> <span class="variable">millis</span> <span class="operator">=</span> clock.millis();<span class="comment">//</span></span><br><span class="line">  System.out.println(millis);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="9-Java-8-开发环境"><a href="#9-Java-8-开发环境" class="headerlink" title="9. Java 8 开发环境"></a>9. Java 8 开发环境</h1><p>随着 Java 8 正式发布，许多 IDE 也开始提供对 Java 8 的支持。Eclipse 是 Java 开发人员最为常用集成开发环境，在最新的 Eclipse Kepler 4.3.2 版本中已经默认增加了对 Java 8 的支持。要想在 Eclipse Kepler 的前期版本中添加对 Java 8 的支持，可以通过下面步骤来完成：</p>
+<ol>
+<li><p>选择 “Help &gt; Eclipse Marketplace…”。</p>
+</li>
+<li><p>在搜索框中输入 “Java 8 Kepler”。</p>
+</li>
+<li><p>点击安装 Java 8 support for Eclipse Kepler SR2。</p>
+</li>
+</ol>
+<p>图 1. 安装 Java 8 support for Eclipse Kepler SR2</p>
+<p><img src="https://www.ibm.com/developerworks/cn/java/j-lo-jdk8newfeature/img001.png"></p>
+<p>接下来，就可以开启 Java 8 编程之旅。</p>
+<p>图 2. Eclipse 编写的 Java 8 程序和运行结果：</p>
+<p><img src="https://www.ibm.com/developerworks/cn/java/j-lo-jdk8newfeature/img002.png"></p>
+<h1 id="10-结束语"><a href="#10-结束语" class="headerlink" title="10. 结束语"></a>10. 结束语</h1><p>Java 8 正式版是一个有重大改变的版本，该版本对 Java 做了重大改进。本文通过文字描述及代码实例对新版本中主要新特性做了介绍：函数式接口、Lambda 表达式、集合的流式操作、注解、安全性、IO&#x2F;NIO、全球化功能。除了文中介绍的这些重要的新功能之外，Java 8 还对 java 工具包 JDBC、Java DB、JavaFX 等方面都有许多改进和增强。这些新增功能简化了开发，提升了代码可读性，增强了代码的安全性，提高了代码的执行效率，为开发者带来了全新的 Java 开发体验，从而推动了 Java 这个平台的前进。</p>
+<h1 id="11-个人总结"><a href="#11-个人总结" class="headerlink" title="11. 个人总结"></a>11. 个人总结</h1><ol>
+<li><p>函数式接口：通过在接口里面添加一个抽象方法，这些方法可以直接从接口中运行。如果一个接口定义个唯一一个抽象方法，那么这个接口就称为函数式接口</p>
+</li>
+<li><p>Lambda 表达式</p>
+</li>
+<li><p>接口的增强：在接口中可以添加使用 default 关键字修饰的非抽象方法。还可以在接口中定义静态方法。</p>
+</li>
+<li><p>集合之流式操作：Java 8 引入了流式操作（Stream），通过该操作可以实现对集合（Collection）的并行处理和函数式操作。根据操作返回的结果不同，流式操作分为中间操作和最终操作两种。最终操作返回一特定类型的结果，而中间操作返回流本身，这样就可以将多个操作依次串联起来。根据流的并发性，流又可以分为串行和并行两种。流式操作实现了集合的过滤、排序、映射等功能。</p>
+</li>
+<li><p>注解的更新：Java 8 主要有两点改进：类型注解和重复注解。</p>
+</li>
+<li><p>安全性</p>
+<ul>
+<li>支持更强的基于密码的加密算法。基于 AES 的加密算法，例如 PBEWithSHA256AndAES_128 和 PBEWithSHA512AndAES_256，已经被加入进来。</li>
+<li>在客户端，TLS1.1 和 TLS1.2 被设为默认启动。</li>
+<li>Keystore 的增强</li>
+<li>支持安全的随机数发生器。</li>
+<li>JSSE（Java(TM) Secure Socket Extension）服务器端开始支持 SSL&#x2F;TLS 服务器名字识别 SNI（Server Name Indication）扩展。</li>
+<li>安全性比较差的加密方法被默认禁用。</li>
+</ul>
+</li>
+<li><p>IO&#x2F;NIO 的改进</p>
+<ul>
+<li><p>改进了 java.nio.charset.Charset 的实现，使编码和解码的效率得以提升，也精简了 jre&#x2F;lib&#x2F;charsets.jar 包</p>
+</li>
+<li><p>优化了 String(byte[],*) 构造方法和 String.getBytes() 方法的性能</p>
+</li>
+<li><p>还增加了一些新的 IO&#x2F;NIO 方法，使用这些方法可以从文件或者输入流中获取流（java.util.stream.Stream），通过对流的操作，可以简化文本行处理、目录遍历和文件查找。</p>
+<p>新增的 API 如下：</p>
+<ul>
+<li>BufferedReader.line(): 返回文本行的流 Stream<String></li>
+<li>File.lines(Path, Charset):返回文本行的流 Stream<String></li>
+<li>File.list(Path): 遍历当前目录下的文件和目录</li>
+<li>File.walk(Path, int, FileVisitOption): 遍历某一个目录下的所有文件和指定深度的子目录</li>
+<li>File.find(Path, int, BiPredicate, FileVisitOption… ): 查找相应的文件</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>全球化功能：完善了全球化功能：支持新的 Unicode 6.2.0 标准，新增了日历和本地化的 API，改进了日期时间的管理等。</p>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2017/12/16/Java%208%20%E6%96%B0%E7%89%B9%E6%80%A7%E6%A6%82%E8%BF%B0/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2017/12/20/JSON%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8(Java%E7%89%88%E6%9C%AC)/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JSON快速入门(Java版本)
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2017/12/06/Redis/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Redis</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

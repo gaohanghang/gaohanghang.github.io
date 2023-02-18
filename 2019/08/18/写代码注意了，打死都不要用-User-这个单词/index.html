@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>写代码注意了，打死都不要用 User 这个单词 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-写代码注意了，打死都不要用-User-这个单词"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  写代码注意了，打死都不要用 User 这个单词
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/18/%E5%86%99%E4%BB%A3%E7%A0%81%E6%B3%A8%E6%84%8F%E4%BA%86%EF%BC%8C%E6%89%93%E6%AD%BB%E9%83%BD%E4%B8%8D%E8%A6%81%E7%94%A8-User-%E8%BF%99%E4%B8%AA%E5%8D%95%E8%AF%8D/" class="article-date">
+  <time datetime="2019-08-18T04:55:55.000Z" itemprop="datePublished">2019-08-18</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">5 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190818125724.png"></p>
+<blockquote>
+<p>原文：<a target="_blank" rel="noopener" href="http://t.cn/Eau2d0h">http://t.cn/Eau2d0h</a></p>
+<p>译文：<a target="_blank" rel="noopener" href="http://21cto.com/article/2093">http://21cto.com/article/2093</a></p>
+</blockquote>
+<p>当你意识到你在项目开始时做的轻量、简单的设想竟然完全错了时，你已经用了六个月的时间投入到这个项目上。</p>
+<p>现在你需要解决这些问题，才能让这个系统继续运行下去，你发现你用在这个项目上的精力远远超出了你的预期，如果一开始就用正确的方式来做，就不会发生这样的事。</p>
+<p><strong>今天，我要告诉你的是一个经常犯的错误，一个会给你带来无穷无尽的问题的单词，那就是“<strong><strong>users</strong></strong>”。</strong></p>
+<p>这个单词有两个最基本的错误：</p>
+<p><strong>1、对你的需求来说 “User” 几乎从来都不是一个好的描述。</strong></p>
+<p><strong>2、“User” 会导致一个基本的设计安全缺陷。</strong></p>
+<p>“user” 的概念是模糊不清的，使用更精准的术语几乎总是能起到更好的效果。</p>
+<h2 id="你没有使用者"><a href="#你没有使用者" class="headerlink" title="你没有使用者"></a>你没有使用者</h2><p>最开始，没有任何一个软件系统真的有使用者存在。乍一看“user”是一个好的描述，但是你稍微一想就会意识到你的业务逻辑实际上比这要复杂的多。</p>
+<p>我会使用三个例子，从一个极端的情况出发。</p>
+<h3 id="机票预订系统没有“users”"><a href="#机票预订系统没有“users”" class="headerlink" title="机票预订系统没有“users”"></a>机票预订系统没有“users”</h3><p>我曾经给机票预订系统写过访问控制逻辑，下面只是一小部分需求：</p>
+<ul>
+<li>旅客可以使用预定记录码通过网站查看预定信息。</li>
+<li>购买者可以通过信用卡号后四位数在网站上修改预订信息。</li>
+<li>旅行社可以查看和修改他们的预订。</li>
+<li>航空公司的值机人员可以根据角色和航空公司来查看和修改预订信息，这需要旅客提供身份信息。</li>
+</ul>
+<p>不再一一列举。一些与人类相关的基本概念是“旅客”，“代理”（网站也可是看作代理）和“购买者”。</p>
+<p>“user”这个概念根本没用，并且在许多请求中我根本不会使用这个单词，举个例子，我们的请求必须包括旅客和代理人的证件，而不是使用者的证件。</p>
+<h3 id="Unix-没有-“users”"><a href="#Unix-没有-“users”" class="headerlink" title="Unix 没有 “users”"></a>Unix 没有 “users”</h3><p>我们看一个不太一样的例子。Unix （这些天被称为POSIX）有用户，他们可以登录并执行代码。这样看起来很不错吧？我们深入看一下。</p>
+<p>如果我们把所有都当作“users”的话，我们将会有：使用终端或者图形界面登录的人</p>
+<ul>
+<li>像邮件或者web服务器这种系统服务也会以“users”的身份运行，例如nginx可以以httpd用户运行。</li>
+<li>在服务器上经常会有多人共享一个管理员账号用来SSH登录（例如，亚马逊的Ubuntu虚拟机默认SSH账号就是‘ubuntu’)</li>
+<li>root 身份，和上面其他身份都不同。</li>
+</ul>
+<p><strong>上面四个是几乎不同的概念，但是在POSIX上他们都是 “users”.</strong> 一会儿我们就会看到，把这些概念都称为‘user’会导致很多安全问题。</p>
+<p>在操作上，因为POSIX的用户模型边界存在，我们甚至不能找到一种方式说“只能让 Alice 和 Bob 通过这个账号登录”。</p>
+<span id="more"></span>
+
+<h3 id="SaaS-服务提供商没有-“users”"><a href="#SaaS-服务提供商没有-“users”" class="headerlink" title="SaaS 服务提供商没有 “users”"></a>SaaS 服务提供商没有 “users”</h3><p>Jeremy Green 最近就用户模型在SaaS中的应用在推特上发文，它第一次提醒了我写下这篇文章，他的基本观点是SaaS 服务几乎总是：</p>
+<p>1、某个组织中的一个人支付服务费用。</p>
+<p>2、一个或多个人共同使用这个服务。</p>
+<p>如果你一开始就把这些人作为一个用户，你将会陷入一个痛苦的世界。你无法建立团队模型，你无法组建同时为多人支付的模型，然后你就会开始改造你的系统。现在你在SaaS案例中学到了一课，我们来看一看你的生活。</p>
+<p>但是这只是众多例子中的一个：“users”的概念太模糊了。如果你开始怀疑“user”这个词，最终你可能发现最终你其实只需要两个概念：团队（用来组织关系和支付）和成员（实际使用服务的人）。</p>
+<h2 id="“Users”-是一个安全问题"><a href="#“Users”-是一个安全问题" class="headerlink" title="“Users” 是一个安全问题"></a><strong>“Users” 是一个安全问题</strong></h2><p>“user” 这个单词不仅是业务逻辑的问题，它也导致了一系列安全问题。“user” 这个单词如此的模糊以至于从根本上将两个概念合并了：</p>
+<ul>
+<li>一个人。</li>
+<li>他们在软件中的代表性。</li>
+</ul>
+<p>为了说明这个问题，假设你正在访问一个居心不良的网站，在它服务器上的图片导致了你的浏览器内存溢出。远程网站控制着你的浏览器，并且开始将你的文件上传到他的服务上。为什么它能这样做？</p>
+<p><strong>因为浏览器是以系统用户的身份运行的，它被认为与人类身份的你相同，实际上你们是不同的。</strong> </p>
+<p>你作为’user’，不想上传文件。但是系统的账号也是‘user’，能够上传文件，如果浏览器运行在你的账号之下，他所有的行为会被当作是你的意图，也就是说是你让它这么做的，实际上不是。</p>
+<p>这就是被称为Confused Deputy的问题。如果你使用“用户”这个词来描述两个根本不同的东西，那么这个问题就更有可能成为你设计的一部分。</p>
+<h2 id="前期设计的价值"><a href="#前期设计的价值" class="headerlink" title="前期设计的价值"></a><strong>前期设计的价值</strong></h2><p>花更少的功夫处理相同的问题是成为高产程序员的关键。使用模糊不清的概念比如“用户”来组织你的软件，将会话费大量时间和精力来解决未来发生的问题。一上来就开始编码看起来是高产的，事实恰好相反。</p>
+<p>下次你开始一个新的软件项目时，花几个小时预先确定你的术语和概念：你仍然不会完全正确，但你会做得更好。未来的你将感谢你所做的所有预防浪费的工作。</p>
+<p>-END-</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/08/18/%E5%86%99%E4%BB%A3%E7%A0%81%E6%B3%A8%E6%84%8F%E4%BA%86%EF%BC%8C%E6%89%93%E6%AD%BB%E9%83%BD%E4%B8%8D%E8%A6%81%E7%94%A8-User-%E8%BF%99%E4%B8%AA%E5%8D%95%E8%AF%8D/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/08/18/%E7%86%B5%EF%BC%9A%E5%AE%87%E5%AE%99%E7%9A%84%E7%BB%88%E6%9E%81%E8%A7%84%E5%88%99/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            熵：宇宙的终极规则
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/08/17/%E5%9C%A8%E9%98%BF%E9%87%8C%E5%81%9A%E4%BA%86%E4%BA%94%E5%B9%B4%E6%8A%80%E6%9C%AF%E4%B8%BB%E7%AE%A1%EF%BC%8C%E6%88%91%E6%9C%89%E8%AF%9D%E6%83%B3%E8%AF%B4/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">在阿里做了五年技术主管，我有话想说</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>JSON快速入门(Java版本) |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-JSON快速入门(Java版本)"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  JSON快速入门(Java版本)
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/12/20/JSON%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8(Java%E7%89%88%E6%9C%AC)/" class="article-date">
+  <time datetime="2017-12-20T09:22:22.000Z" itemprop="datePublished">2017-12-20</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">13 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>内容from</p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av14529781/?from=search&seid=534989056866267539">B站 JSON快速入门(Java版本)</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.itmayiedu.com/front/couinfo/49/206">蚂蚁课堂-JSON快速入门(Java版本)</a></p>
+</blockquote>
+<p>1、	什么是JSON<br>2、	介绍JSON应用场景<br>3、	如何封装JSON及常用框架介绍<br>4、	通过Map转JSON<br>5、	通过JavaBean转JSON<br>6、	Java如何解析JSON<br>7、	GSON框架使用<br>8、	经典面试题JSON与XML区别？</p>
+<h1 id="1-什么是-JSON？"><a href="#1-什么是-JSON？" class="headerlink" title="1. 什么是 JSON？"></a>1. 什么是 JSON？</h1><blockquote>
+<p>JSON(JavaScript Object Notation) 是一种轻量级的数据交换格式。它基于ECMAScript的一个子集。 JSON采用完全独立于语言的文本格式，但是也使用了类似于C语言家族的习惯（包括C、C++、C#、Java、JavaScript、Perl、Python等）。这些特性使JSON成为理想的数据交换语言。 易于人阅读和编写，同时也易于机器解析和生成(一般用于提升网络传输速率)。</p>
+</blockquote>
+<h2 id="1-1-JSON-语法"><a href="#1-1-JSON-语法" class="headerlink" title="1.1 JSON 语法"></a>1.1 JSON 语法</h2><h3 id="1-1-1-JSON-语法规则"><a href="#1-1-1-JSON-语法规则" class="headerlink" title="1.1.1 JSON 语法规则"></a>1.1.1 JSON 语法规则</h3><p>JSON 语法是 JavaScript 对象表示语法的子集。</p>
+<ul>
+<li>数据在键值对中</li>
+<li>数据由逗号分隔</li>
+<li>花括号保存对象</li>
+<li>方括号保存数组</li>
+</ul>
+<span id="more"></span>
+
+<h3 id="1-1-2-JSON-名称-x2F-值对"><a href="#1-1-2-JSON-名称-x2F-值对" class="headerlink" title="1.1.2 JSON 名称&#x2F;值对"></a>1.1.2 JSON 名称&#x2F;值对</h3><p>JSON 数据的书写格式是：名称&#x2F;值对。</p>
+<p>名称&#x2F;值对组合中的名称写在前面（在双引号中），值对写在后面(同样在双引号中)，中间用冒号隔开：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot; userName &quot;</span><span class="punctuation">:</span><span class="string">&quot;余胜军&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这很容易理解，等价于这条Java语句：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">userName =<span class="string">&quot;余胜军&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-1-3-JSON-值"><a href="#1-1-3-JSON-值" class="headerlink" title="1.1.3 JSON 值"></a>1.1.3 JSON 值</h3><p>JSON 值可以是：</p>
+<ul>
+<li>数字 （整数或浮点数）</li>
+<li>字符串（在双引号中）</li>
+<li>逻辑值（true 或 false）</li>
+<li>数组（在方括号中）</li>
+<li>对象（在花括号中）</li>
+<li>null</li>
+</ul>
+<blockquote>
+<p><strong>JSON 例子</strong></p>
+</blockquote>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span> <span class="attr">&quot;errorCode&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0&quot;</span><span class="punctuation">,</span><span class="attr">&quot;errorMsg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;调用接口成功&quot;</span><span class="punctuation">,</span><span class="attr">&quot;data&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;userName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;余胜军&quot;</span><span class="punctuation">,</span><span class="attr">&quot;position&quot;</span><span class="punctuation">:</span> <span class="string">&quot;蚂蚁课堂创始人&quot;</span><span class="punctuation">,</span><span class="attr">&quot;webAddres&quot;</span><span class="punctuation">:</span> <span class="string">&quot;www.itmayiedu.com&quot;</span>   <span class="punctuation">&#125;</span><span class="punctuation">,</span>  <span class="punctuation">&#123;</span>  <span class="attr">&quot;userName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;周安旭&quot;</span><span class="punctuation">,</span>  <span class="attr">&quot;position&quot;</span><span class="punctuation">:</span> <span class="string">&quot;蚂蚁课堂合伙人&quot;</span><span class="punctuation">,</span>   <span class="attr">&quot;webAddres&quot;</span><span class="punctuation">:</span> <span class="string">&quot;www.itmayiedu.com&quot;</span>  <span class="punctuation">&#125;</span>    <span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>在线JSON格式化工具</strong></p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.sojson.com/">http://www.sojson.com/</a></p>
+<h1 id="2-JSON-应用场景"><a href="#2-JSON-应用场景" class="headerlink" title="2. JSON 应用场景"></a>2. JSON 应用场景</h1><p>在远程过程调用（Remote Procedure Call，缩写为<strong>RPC</strong>）时,或者提供给外部访问接口，一般数据交互格式通常为JSON </p>
+<p>例如提供移动APP接口、前端ajax异步访问数据、项目合作时提供外部访问接口等。</p>
+<p>演示一些网站采用 JSON 传输</p>
+<p>某网站注册用户是否存在</p>
+<p><a target="_blank" rel="noopener" href="https://www.chexiangfu.com.cn/pay/recover/account.htm">https://www.chexiangfu.com.cn/pay/recover/account.htm</a></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180203/gDm6ABeJia.png"></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180203/jh1id83l6J.png"></p>
+<h1 id="3-如何封装和解析-json"><a href="#3-如何封装和解析-json" class="headerlink" title="3. 如何封装和解析 json"></a>3. 如何封装和解析 json</h1><p>封装json、比较流行的框架fastjson、gson、Jackson</p>
+<p>使用框架 fastjson 的步骤</p>
+<ul>
+<li>新建一个 mavenJava 工程</li>
+<li>添加依赖</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--添加阿里巴巴解析json工具类--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.26<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!--添加谷歌公司解析json工具类--&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- https://mvnrepository.com/artifact/com.google.code.gson/gson --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.code.gson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>gson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.8.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>RootEntity.java	实体类根对象</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RootEntity</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String errorCode;</span><br><span class="line">    <span class="keyword">private</span> String errorMsg;</span><br><span class="line">    <span class="keyword">private</span> List&lt;UserEntity&gt; data;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getErrorCode</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> errorCode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setErrorCode</span><span class="params">(String errorCode)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.errorCode = errorCode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getErrorMsg</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> errorMsg;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setErrorMsg</span><span class="params">(String errorMsg)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.errorMsg = errorMsg;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> List&lt;UserEntity&gt; <span class="title function_">getData</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> data;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setData</span><span class="params">(List&lt;UserEntity&gt; data)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.data = data;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;RootEntity&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;errorCode=&#x27;&quot;</span> + errorCode + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, errorMsg=&#x27;&quot;</span> + errorMsg + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, data=&quot;</span> + data +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>UserEntity.java	实体类用户对象</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserEntity</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String position;</span><br><span class="line">    <span class="keyword">private</span> String userName;</span><br><span class="line">    <span class="keyword">private</span> String webAddres;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getPosition</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> position;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setPosition</span><span class="params">(String position)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.position = position;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getUserName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> userName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setUserName</span><span class="params">(String userName)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.userName = userName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getWebAddres</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> webAddres;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setWebAddres</span><span class="params">(String webAddres)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.webAddres = webAddres;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;UserEntity&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;position=&#x27;&quot;</span> + position + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, userName=&#x27;&quot;</span> + userName + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, webAddres=&#x27;&quot;</span> + webAddres + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>JSONTest.java   json封装与解析的测试类</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONArray;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.google.gson.Gson;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JSONTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"><span class="comment">//        setJSON();		通过传统方式自己拼接字符串JSON	</span></span><br><span class="line"><span class="comment">//        setFastJSON();	通过fastJSON封装JSON</span></span><br><span class="line"><span class="comment">//        setMapToJSON();	通过map转换成json</span></span><br><span class="line"><span class="comment">//        setBeanToJSON();	通过实体类转换JSON</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//        analysisJson();	解析JSON</span></span><br><span class="line"><span class="comment">//        jsonToBean();		通过JSON转实体类解析JSON</span></span><br><span class="line"></span><br><span class="line">        gsonTest();			<span class="comment">//gson五分钟快速入门</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通过传统方式自己拼接字符串JSON</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setJSON</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> <span class="string">&quot;&#123; \&quot;errorCode\&quot;: \&quot;0\&quot;,\&quot;errorMsg\&quot;: \&quot;调用接口成功\&quot;,\&quot;data\&quot;: [&#123;\&quot;userName\&quot;: \&quot;余胜军\&quot;,\&quot;position\&quot;: \&quot;蚂蚁课堂创始人\&quot;,\&quot;webAddres\&quot;: \&quot;www.itmayiedu.com\&quot;   &#125;,  &#123;  \&quot;userName\&quot;: \&quot;周安旭\&quot;,  \&quot;position\&quot;: \&quot;蚂蚁课堂合伙人\&quot;,   \&quot;webAddres\&quot;: \&quot;www.itmayiedu.com\&quot;  &#125;    ]&#125;&quot;</span>;</span><br><span class="line">        System.out.println(str);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通过fastJSON封装JSON</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFastJSON</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">root</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">        root.put(<span class="string">&quot;errorCode&quot;</span>,<span class="number">0</span>);</span><br><span class="line">        root.put(<span class="string">&quot;errorMsg&quot;</span>,<span class="string">&quot;调用接口成功&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">JSONArray</span> <span class="variable">datArr</span> <span class="operator">=</span> <span class="keyword">new</span>  <span class="title class_">JSONArray</span>();</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">userYushengjun</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">        userYushengjun.put(<span class="string">&quot;userName&quot;</span>, <span class="string">&quot;余胜军&quot;</span>);</span><br><span class="line">        userYushengjun.put(<span class="string">&quot;position&quot;</span>, <span class="string">&quot;蚂蚁课堂创始人&quot;</span>);</span><br><span class="line">        userYushengjun.put(<span class="string">&quot;webAddres&quot;</span>, <span class="string">&quot;www.itmayiedu.com&quot;</span>);</span><br><span class="line">        datArr.add(userYushengjun);</span><br><span class="line">        root.put(<span class="string">&quot;data&quot;</span>,datArr);</span><br><span class="line">        System.out.println(root.toJSONString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通过map转换json</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setMapToJSON</span><span class="params">()</span>&#123;</span><br><span class="line">        HashMap&lt;String,Object&gt; root = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, Object&gt;();</span><br><span class="line">        root.put(<span class="string">&quot;errorCode&quot;</span>,<span class="number">0</span>);</span><br><span class="line">        root.put(<span class="string">&quot;errorMsg&quot;</span>,<span class="string">&quot;调用接口成功&quot;</span>);</span><br><span class="line"></span><br><span class="line">        List&lt;Map&lt;String, String&gt;&gt; dataArr = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;Map&lt;String, String&gt;&gt;();</span><br><span class="line"></span><br><span class="line">        Map&lt;String,String&gt; userYushengjun = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, String&gt;();</span><br><span class="line">        userYushengjun.put(<span class="string">&quot;userName&quot;</span>, <span class="string">&quot;余胜军&quot;</span>);</span><br><span class="line">        userYushengjun.put(<span class="string">&quot;position&quot;</span>, <span class="string">&quot;蚂蚁课堂创始人&quot;</span>);</span><br><span class="line">        userYushengjun.put(<span class="string">&quot;webAddres&quot;</span>, <span class="string">&quot;www.itmayiedu.com&quot;</span>);</span><br><span class="line">        Map&lt;String,String&gt; itmayiedu = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, String&gt;();</span><br><span class="line">        itmayiedu.put(<span class="string">&quot;userName&quot;</span>, <span class="string">&quot;余胜军1&quot;</span>);</span><br><span class="line">        itmayiedu.put(<span class="string">&quot;position&quot;</span>, <span class="string">&quot;蚂蚁课堂创始人1&quot;</span>);</span><br><span class="line">        itmayiedu.put(<span class="string">&quot;webAddres&quot;</span>, <span class="string">&quot;www.itmayiedu.com&quot;</span>);</span><br><span class="line"></span><br><span class="line">        dataArr.add(itmayiedu);</span><br><span class="line">        dataArr.add(userYushengjun);</span><br><span class="line"></span><br><span class="line">        root.put(<span class="string">&quot;data&quot;</span>,dataArr);</span><br><span class="line">        System.out.println(<span class="keyword">new</span> <span class="title class_">JSONObject</span>().toJSONString(root));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通过实体类转换JSON</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setBeanToJSON</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">RootEntity</span> <span class="variable">rootEntity</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RootEntity</span>();</span><br><span class="line">        rootEntity.setErrorCode(<span class="string">&quot;0&quot;</span>);</span><br><span class="line">        rootEntity.setErrorMsg(<span class="string">&quot;调用接口成功&quot;</span>);</span><br><span class="line"></span><br><span class="line">        List&lt;UserEntity&gt; data = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;UserEntity&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="type">UserEntity</span> <span class="variable">userEntity</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserEntity</span>();</span><br><span class="line">        userEntity.setPosition(<span class="string">&quot;蚂蚁课堂创始人&quot;</span>);</span><br><span class="line">        userEntity.setUserName(<span class="string">&quot;余胜军&quot;</span>);</span><br><span class="line">        userEntity.setWebAddres(<span class="string">&quot;www.itmayiedu.com&quot;</span>);</span><br><span class="line">        data.add(userEntity);</span><br><span class="line"></span><br><span class="line">        rootEntity.setData(data);</span><br><span class="line">        System.out.println(<span class="keyword">new</span> <span class="title class_">JSONObject</span>().toJSONString(rootEntity));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 解析JSON</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">analysisJson</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123; \&quot;errorCode\&quot;: \&quot;0\&quot;,\&quot;errorMsg\&quot;: \&quot;调用接口成功\&quot;,\&quot;data\&quot;: [&#123;\&quot;userName\&quot;: \&quot;余胜军\&quot;,\&quot;position\&quot;: \&quot;蚂蚁课堂创始人\&quot;,\&quot;webAddres\&quot;: \&quot;www.itmayiedu.com\&quot;   &#125;,  &#123;  \&quot;userName\&quot;: \&quot;周安旭\&quot;,  \&quot;position\&quot;: \&quot;蚂蚁课堂合伙人\&quot;,   \&quot;webAddres\&quot;: \&quot;www.itmayiedu.com\&quot;  &#125;    ]&#125;&quot;</span>;</span><br><span class="line">        <span class="comment">//将json字符串转换成json</span></span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">root</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>().parseObject(jsonStr);</span><br><span class="line">        <span class="type">String</span> <span class="variable">errorCode</span> <span class="operator">=</span> root.getString(<span class="string">&quot;errorCode&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">errorMsg</span> <span class="operator">=</span> root.getString(<span class="string">&quot;errorMsg&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;errorCode:&quot;</span>+errorCode+<span class="string">&quot;,errorMsg:&quot;</span>+errorMsg);</span><br><span class="line">        <span class="type">JSONArray</span> <span class="variable">dataArr</span> <span class="operator">=</span> root.getJSONArray(<span class="string">&quot;data&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; dataArr.size(); i++) &#123;</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">dataBean</span> <span class="operator">=</span> (JSONObject) dataArr.get(i);</span><br><span class="line">            <span class="type">String</span> <span class="variable">position</span> <span class="operator">=</span> dataBean.getString(<span class="string">&quot;position&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">userName</span> <span class="operator">=</span> dataBean.getString(<span class="string">&quot;userName&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">webAddres</span> <span class="operator">=</span> dataBean.getString(<span class="string">&quot;webAddres&quot;</span>);</span><br><span class="line">            System.out.println(<span class="string">&quot;position:&quot;</span>+position+<span class="string">&quot;,userName:&quot;</span>+userName+<span class="string">&quot;,webAddres:&quot;</span>+webAddres);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 通过JSON转实体类</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">jsonToBean</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonStr</span> <span class="operator">=</span> <span class="string">&quot;&#123; \&quot;errorCode\&quot;: \&quot;0\&quot;,\&quot;errorMsg\&quot;: \&quot;调用接口成功\&quot;,\&quot;data\&quot;: [&#123;\&quot;userName\&quot;: \&quot;余胜军\&quot;,\&quot;position\&quot;: \&quot;蚂蚁课堂创始人\&quot;,\&quot;webAddres\&quot;: \&quot;www.itmayiedu.com\&quot;   &#125;,  &#123;  \&quot;userName\&quot;: \&quot;周安旭\&quot;,  \&quot;position\&quot;: \&quot;蚂蚁课堂合伙人\&quot;,   \&quot;webAddres\&quot;: \&quot;www.itmayiedu.com\&quot;  &#125;    ]&#125;&quot;</span>;</span><br><span class="line">        <span class="comment">//将json字符串转换成实体类</span></span><br><span class="line">        <span class="type">RootEntity</span> <span class="variable">RootEntity</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>().parseObject(jsonStr,RootEntity.class);</span><br><span class="line">        System.out.println(RootEntity.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * gson五分钟快速入门</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">gsonTest</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">Gson</span> <span class="variable">gson</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">RootEntity</span> <span class="variable">rootEntity</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RootEntity</span>();</span><br><span class="line">        rootEntity.setErrorCode(<span class="string">&quot;0&quot;</span>);</span><br><span class="line">        rootEntity.setErrorMsg(<span class="string">&quot;调用接口成功&quot;</span>);</span><br><span class="line"></span><br><span class="line">        List&lt;UserEntity&gt; data = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;UserEntity&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="type">UserEntity</span> <span class="variable">userEntity</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserEntity</span>();</span><br><span class="line">        userEntity.setPosition(<span class="string">&quot;蚂蚁课堂创始人&quot;</span>);</span><br><span class="line">        userEntity.setUserName(<span class="string">&quot;余胜军&quot;</span>);</span><br><span class="line">        userEntity.setWebAddres(<span class="string">&quot;www.itmayiedu.com&quot;</span>);</span><br><span class="line">        data.add(userEntity);</span><br><span class="line"></span><br><span class="line">        rootEntity.setData(data);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//实体类转换成json</span></span><br><span class="line">        System.out.println(gson.toJson(rootEntity));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//json转换成实体类</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> gson.toJson(rootEntity);</span><br><span class="line">        <span class="type">RootEntity</span> <span class="variable">rty</span> <span class="operator">=</span> gson.fromJson(json,RootEntity.class);</span><br><span class="line">        System.out.println(rty.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-JSON与-XML-面试题解析"><a href="#4-JSON与-XML-面试题解析" class="headerlink" title="4. JSON与 XML 面试题解析"></a>4. JSON与 XML 面试题解析</h1><h2 id="4-1-什么是JSON、XML"><a href="#4-1-什么是JSON、XML" class="headerlink" title="4.1 什么是JSON、XML?"></a>4.1 什么是JSON、XML?</h2><p>XML:记语言 (Extensible Markup Language, XML) ，用于标记电子文件使其具有结构性的标记语言，可以用来标记数据、定义数据类型，是一种允许用户对自己的标记语言进行定义的源语言。 XML使用DTD(document type definition)文档类型定义来组织数据;格式统一，跨平台和语言，早已成为业界公认的标准。</p>
+<p>XML是标准通用标记语言 (SGML) 的子集，非常适合 Web 传输。XML 提供统一的方法来描述和交换独立于应用程序或供应商的结构化数据。</p>
+<p>JSON(JavaScript Object Notation)一种轻量级的数据交换格式，具有良好的可读和便于快速编写的特性。可在不同平台之间进行数据交换。JSON采用兼容性很高的、完全独立于语言文本格式，同时也具备类似于C语言的习惯(包括C, C++, C#, Java, JavaScript, Perl, Python等)体系的行为。这些特性使JSON成为理想的数据交换语言。</p>
+<p>JSON基于JavaScript Programming Language , Standard ECMA-262 3rd Edition - December 1999 的一个子集。</p>
+<p><strong>一句话总结:JSON和XML都是数据交换格式，JSON轻量级的数据交换格式、XML标记电子文件使其具有结构性的标记语言。</strong></p>
+<h2 id="4-2-JSON与XML区别是什么？-有什么共同点？"><a href="#4-2-JSON与XML区别是什么？-有什么共同点？" class="headerlink" title="4.2 JSON与XML区别是什么？ 有什么共同点？"></a>4.2 JSON与XML区别是什么？ 有什么共同点？</h2><blockquote>
+<p>详细参考地址: <a target="_blank" rel="noopener" href="http://www.cnblogs.com/SanMaoSpace/p/3139186.html">http://www.cnblogs.com/SanMaoSpace/p/3139186.html</a></p>
+</blockquote>
+<ol>
+<li><strong>XML的优缺点</strong><ul>
+<li><strong>XML的优点</strong><ul>
+<li>格式统一，符合标准；</li>
+<li>容易与其他系统进行远程交互，数据共享比较方便。</li>
+</ul>
+</li>
+<li><strong>XML的缺点</strong><ul>
+<li>XML文件庞大，文件格式复杂，传输占带宽；</li>
+<li>服务器端和客户端都需要花费大量代码来解析XML，导致服务器端和客户端代码变得异常复杂且不易维护；</li>
+<li>客户端不同浏览器之间解析XML的方式不一致，需要重复编写很多代码；</li>
+<li>服务器端和客户端解析XML花费较多的资源和时间。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>JSON的优缺点</strong><ul>
+<li><strong>JSON的优点：</strong><ul>
+<li>数据格式比较简单，易于读写，格式都是压缩的，占用带宽小；</li>
+<li>易于解析，客户端JavaScript可以简单的通过eval()进行JSON数据的读取；</li>
+<li>支持多种语言，包括ActionScript, C, C#, ColdFusion, Java, JavaScript, Perl, PHP, Python, Ruby等服务器端语言，便于服务器端的解析；</li>
+<li>在PHP世界，已经有PHP-JSON和JSON-PHP出现了，偏于PHP序列化后的程序直接调用，PHP服务器端的对象、数组等能直接生成JSON格式，便于客户端的访问提取；</li>
+<li>因为JSON格式能直接为服务器端代码使用，大大简化了服务器端和客户端的代码开发量，且完成任务不变，并且易于维护。</li>
+</ul>
+</li>
+<li><strong>JSON的缺点</strong><ul>
+<li>没有XML格式这么推广的深入人心和喜用广泛，没有XML那么通用性；</li>
+<li>JSON格式目前在Web Service中推广还属于初级阶段。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>一句话总结：XML 它是用于 RPC 远程调用数据交换格式，因为 XML 文件格式复杂，比较占宽带，不易于维护，服务端与客户端解析 xml 花费较多的资源和时间。</p>
+</blockquote>
+<h2 id="4-3-为什么用JSON不用XML？"><a href="#4-3-为什么用JSON不用XML？" class="headerlink" title="4.3 为什么用JSON不用XML？"></a>4.3 为什么用JSON不用XML？</h2><blockquote>
+<p>json 是轻量级，xml 是重量级。</p>
+<p>xml 是重量级的，文件格式复杂，所以在远程调用时，比较占宽带，不易于维护，服务器与客户端解析xml会花费较多的资源和时间。</p>
+<p>json 是轻量级的，文件格式都是压缩的，占用带宽小，易于维护，解析也比较快。</p>
+</blockquote>
+<h2 id="4-4-JSON、XML解析有那些方式？"><a href="#4-4-JSON、XML解析有那些方式？" class="headerlink" title="4.4 JSON、XML解析有那些方式？"></a>4.4 JSON、XML解析有那些方式？</h2><p>JSON 解析方式(阿里巴巴 fastjson、谷歌 gson、jackJson)</p>
+<p>XML 解析方式(dom、sax、pul)</p>
+<h2 id="4-5-说一下JSON、XML你是在哪里用的？"><a href="#4-5-说一下JSON、XML你是在哪里用的？" class="headerlink" title="4.5 说一下JSON、XML你是在哪里用的？"></a>4.5 说一下JSON、XML你是在哪里用的？</h2><p>这个就更具大家实际开发经验来说。</p>
+<p>例如:一般现在移动APP接口都采用JSON，因为json占宽带小。</p>
+<p>例如：我们公司微信开发,微信接口都是JSON格式的， 微信事件推送是XML。</p>
+<p>JSON和XML都是在远程调用或者是和某公司合作定义数据交换格式。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2017/12/20/JSON%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8(Java%E7%89%88%E6%9C%AC)/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Mybatis动态SQL
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2017/12/16/Java%208%20%E6%96%B0%E7%89%B9%E6%80%A7%E6%A6%82%E8%BF%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Java 8 新特性概述</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

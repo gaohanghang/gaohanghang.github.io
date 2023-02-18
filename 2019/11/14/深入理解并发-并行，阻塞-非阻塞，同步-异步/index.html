@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>深入理解并发 / 并行，阻塞 / 非阻塞，同步 / 异步 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-深入理解并发-并行，阻塞-非阻塞，同步-异步"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  深入理解并发 / 并行，阻塞 / 非阻塞，同步 / 异步
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/14/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%B9%B6%E5%8F%91-%E5%B9%B6%E8%A1%8C%EF%BC%8C%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E%EF%BC%8C%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5/" class="article-date">
+  <time datetime="2019-11-13T18:41:34.000Z" itemprop="datePublished">2019-11-14</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：HuangQinJian</p>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://juejin.im/entry/58ae4636b123db0052b1caf8">https://juejin.im/entry/58ae4636b123db0052b1caf8</a></p>
+<p>总结：</p>
+<p>阻塞调用是指调用结果返回之前，调用者会进入阻塞状态等待。只有在得到结果之后才会返回。</p>
+<p>非阻塞调用是指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。</p>
+<p>同步：在发出一个同步调用时，在没有得到结果之前，该调用就不返回。</p>
+<p>异步：在发出一个异步调用后，调用者不会立刻得到结果，该调用就返回了。</p>
+<p>CPU调度策略：</p>
+<ul>
+<li>先来先服务 - 时间片轮转调度</li>
+<li>优先级调度</li>
+<li>最短作业优先</li>
+<li>最高响应比优先</li>
+<li>多级反馈队列调度</li>
+</ul>
+</blockquote>
+<h2 id="1-阻塞，非阻塞"><a href="#1-阻塞，非阻塞" class="headerlink" title="1. 阻塞，非阻塞"></a>1. 阻塞，非阻塞</h2><p><strong>首先，阻塞这个词来自<a target="_blank" rel="noopener" href="http://lib.csdn.net/base/operatingsystem" title="操作系统">操作系统</a>的线程&#x2F;进程的状态模型中，如下图：</strong></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191114124427.png"></p>
+<p>一个线程&#x2F;进程经历的 5 个状态， 创建，就绪，运行，阻塞，终止。各个状态的转换条件如上图，其中有个阻塞状态，就是说当线程中调用某个函数，需要 IO 请求，或者暂时得不到竞争资源的，操作系统会把该线程阻塞起来，避免浪费 CPU 资源，等到得到了资源，再变成就绪状态，等待 CPU 调度运行。</p>
+<blockquote>
+<p>阻塞调用是指调用结果返回之前，调用者会进入阻塞状态等待。只有在得到结果之后才会返回。</p>
+<p>非阻塞调用是指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。</p>
+</blockquote>
+<p>阻塞调用：比如 socket 的 recv()，调用这个函数的线程如果没有数据返回，它会一直阻塞着，也就是 recv() 后面的代码都不会执行了，程序就停在 recv() 这里等待，所以一般把 recv() 放在单独的线程里调用。</p>
+<p>非阻塞调用：比如非阻塞 socket 的 send()，调用这个函数，它只是把待发送的数据复制到 TCP 输出缓冲区中，就立刻返回了，线程并不会阻塞，数据有没有发出去 send() 是不知道的，不会等待它发出去才返回的。</p>
+<p><strong>拓展</strong></p>
+<p>如果线程始终阻塞着，永远得不到资源，于是就发生了死锁。</p>
+<p>比如 A 线程要 X，Y 资源才能继续运行，B 线程也要 X，Y 资源才能运行，但 X，Y 同时只能给一个线程用（即互斥条件）用的时候其他线程又不能抢夺。</p>
+<p>A 有 X，等待 Y。<br>B 有 Y，等待 X。</p>
+<p>于是 A，B 发生了循环等待，造成死锁。给用户的感觉就是程序卡着不动了。</p>
+<p>在写代码的时候要特别注意共享资源的使用，用信号量控制好，避免造成死锁。死锁的解除有个著名的银行家<a target="_blank" rel="noopener" href="http://lib.csdn.net/base/datastructure" title="算法">算法</a></p>
+<p>阻塞和挂起：阻塞是被动的，比如抢不到资源。挂起是主动的，线程自己调用 suspend() 把自己退出运行态了，某些时候调用 resume() 又恢复运行。</p>
+<p>线程执行完就会被销毁，如果不想线程被频繁的创建，销毁，怎么办？可以给线程里面写个死循环，或者让线程有任务的时候执行，没任务的时候挂起，就像<a target="_blank" rel="noopener" href="http://lib.csdn.net/base/ios" title="iOS">iOS</a>中的 runloop 机制一样。线程就不会随便的终止了。</p>
+<h2 id="2-同步，异步"><a href="#2-同步，异步" class="headerlink" title="2. 同步，异步"></a>2. 同步，异步</h2><blockquote>
+<p>同步：在发出一个同步调用时，在没有得到结果之前，该调用就不返回。</p>
+<p>异步：在发出一个异步调用后，调用者不会立刻得到结果，该调用就返回了。</p>
+</blockquote>
+<p><strong>同步例子</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> func();</span><br><span class="line">next();</span><br><span class="line"><span class="comment">// func() 的结果没有返回，next() 就不会执行，直到 func() 运行完。</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>异步例子</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">func(callback);</span><br><span class="line">next();</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">callback</span><span class="params">(<span class="type">int</span> n)</span>     <span class="comment">// func 结果回调</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> n;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// func() 执行后，还没得出结果就立即返回，然后执行 next() 了</span></span><br><span class="line"><span class="comment">// 等到结果出来，func() 回调 callback() 通知调用者结果。</span></span><br></pre></td></tr></table></figure>
+
+<p>同步的定义看起来跟阻塞很像，但是同步跟阻塞是两个概念， 同步调用的时候，线程不一定阻塞，调用虽然没返回，但它还是在运行状态中的，CPU 很可能还在执行这段代码，而阻塞的话，它就肯定不在 CPU 中跑这个代码了。这就是同步和阻塞的区别。同步是肯定可以在，阻塞是肯定不在。</p>
+<p>异步和非阻塞的定义比较像，两者的区别是异步是说调用的时候结果不会马上返回，线程可能被阻塞起来，也可能不阻塞，两者没关系。非阻塞是说调用的时候，线程肯定不会进入阻塞状态。</p>
+<p>上面两组概念，就有 4 种组合。</p>
+<blockquote>
+<p>同步阻塞调用：得不到结果不返回，线程进入阻塞态等待。</p>
+<p>同步非阻塞调用：得不到结果不返回，线程不阻塞一直在 CPU 运行。</p>
+<p>异步阻塞调用：去到别的线程，让别的线程阻塞起来等待结果，自己不阻塞。</p>
+<p>异步非阻塞调用：去到别的线程，别的线程一直在运行，直到得出结果。</p>
+</blockquote>
+<h2 id="3-并发，并行"><a href="#3-并发，并行" class="headerlink" title="3. 并发，并行"></a>3. 并发，并行</h2><p>先从定义说起，定义经过我通俗化了，原定义有点难理解。</p>
+<blockquote>
+<p>并发是指一个时间段内，有几个程序都在同一个 CPU 上运行，但任意一个时刻点上只有一个程序在处理机上运行。</p>
+<p>并行是指一个时间段内，有几个程序都在几个 CPU 上运行，任意一个时刻点上，有多个程序在同时运行，并且多道程序之间互不干扰。 两者区别如下图</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191114125539.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191114125607.png"></p>
+<p>并行是多个程序在多个 CPU 上同时运行，任意一个时刻可以有很多个程序同时运行，互不干扰。</p>
+<p>并发是多个程序在一个 CPU 上运行，CPU 在多个程序之间快速切换，微观上不是同时运行，任意一个时刻只有一个程序在运行，但宏观上看起来就像多个程序同时运行一样，因为 CPU 切换速度非常快，时间片是 64ms（每 64ms 切换一次，不同的操作系统有不同的时间），人类的反应速度是 100ms，你还没反应过来，CPU 已经切换了好几个程序了。</p>
+<p>举个例子吧，并行就是，多个人，有人在扫地，有人在做饭，有人在洗衣服，扫地，做饭，洗衣服都是同时进行的。<br>并发就是，有一个人，这个人一会儿扫地，一会儿做饭，一会儿洗衣服，他在这 3 件事中来回做，同一时刻只做一件事，不是同时做的，但最后 3 件事都可以做完。</p>
+<p>时间片大小的选取<br>时间片取的小，假设是 20ms，切换耗时假设是 10ms。<br>那么用户感觉不到多个程序之间会卡，响应很快，因为切换太快了，但是 CPU 的利用率就低了，20 &#x2F; (20 + 10) &#x3D; 66% 只有这么多，33%都浪费了。</p>
+<p>时间片取的大，假设是 200ms，切换耗时是 10ms<br>那么用户会觉得程序卡，响应慢，因为要 200ms 后才轮到我的程序运行，但是 CPU 利用率就高了，200 &#x2F; (200 + 10) &#x3D; 95% 有这么多被利用的。</p>
+<p>所以时间片取太大或者太小都不好，一般在 10 - 100 ms 之间。</p>
+<h3 id="3-1-CPU-调度策略"><a href="#3-1-CPU-调度策略" class="headerlink" title="3.1 CPU 调度策略"></a><strong>3.1 CPU 调度策略</strong></h3><p>在并发运行中，CPU 需要在多个程序之间来回切换，那么如何切换就有一些策略</p>
+<h4 id="3-1-1-先来先服务-时间片轮转调度"><a href="#3-1-1-先来先服务-时间片轮转调度" class="headerlink" title="3.1.1 先来先服务 - 时间片轮转调度"></a><strong>3.1.1 先来先服务 - 时间片轮转调度</strong></h4><p>这个很简单，就是谁先来，就给谁分配时间片运行，缺点是有些紧急的任务要很久才能得到运行。</p>
+<h4 id="3-1-2-优先级调度"><a href="#3-1-2-优先级调度" class="headerlink" title="3.1.2 优先级调度"></a><strong>3.1.2 优先级调度</strong></h4><p>每个线程有一个优先级，CPU 每次去拿优先级高的运行，优先级低的等等，为了避免等太久，每等一定时间，就给线程提高一个优先级</p>
+<h4 id="3-1-3-最短作业优先"><a href="#3-1-3-最短作业优先" class="headerlink" title="3.1.3 最短作业优先"></a><strong>3.1.3 最短作业优先</strong></h4><p>把线程任务量排序，每次拿处理时间短的线程运行，就像我去银行办业务一样，我的事情很快就处理完了，所以让我插队先办完，后面时间长的人先等等，时间长的人就很难得到响应了。</p>
+<h4 id="3-1-4-最高响应比优先"><a href="#3-1-4-最高响应比优先" class="headerlink" title="3.1.4 最高响应比优先"></a><strong>3.1.4 最高响应比优先</strong></h4><p>用线程的等待时间除以服务时间，得到响应比，响应比小的优先运行。这样不会造成某些任务一直得不到响应。</p>
+<h4 id="3-1-5-多级反馈队列调度"><a href="#3-1-5-多级反馈队列调度" class="headerlink" title="3.1.5 多级反馈队列调度"></a><strong>3.1.5 多级反馈队列调度</strong></h4><p>有多个优先级不同的队列，每个队列里面有多个等待线程。<br>CPU 每次从优先级高的遍历到低的，取队首的线程运行，运行完了放回队尾，优先级越高，时间片越短，即响应越快，时间片就不是固定的了。<br>队列内部还是用先来先服务的策略。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/11/14/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%B9%B6%E5%8F%91-%E5%B9%B6%E8%A1%8C%EF%BC%8C%E9%98%BB%E5%A1%9E-%E9%9D%9E%E9%98%BB%E5%A1%9E%EF%BC%8C%E5%90%8C%E6%AD%A5-%E5%BC%82%E6%AD%A5/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/11/16/%E6%80%9D%E8%80%83-10-%E7%8A%B9%E8%B1%AB%E5%B0%B1%E4%BC%9A%E8%B4%A5%E5%8C%97/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            思考 10 犹豫就会败北 🤔
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/11/14/%E5%90%8C%E6%AD%A5%E5%92%8C%E5%BC%82%E6%AD%A5%E7%9A%84%E5%8C%BA%E5%88%AB/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">同步和异步的区别</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

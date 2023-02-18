@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>HTTP API的6种设计原则 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-HTTP-API的6种设计原则"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  HTTP API的6种设计原则
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/29/HTTP-API%E7%9A%846%E7%A7%8D%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/" class="article-date">
+  <time datetime="2019-12-29T13:32:40.000Z" itemprop="datePublished">2019-12-29</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://medium.com/@aldesantis/6-design-principles-for-your-http-apis-560434f9744e">https://medium.com/@aldesantis/6-design-principles-for-your-http-apis-560434f9744e</a></p>
+<p>作者：<a target="_blank" rel="noopener" href="https://medium.com/@aldesantis?source=post_page-----560434f9744e----------------------">Alessandro Desantis</a></p>
+<p>翻译：高行行</p>
+</blockquote>
+<p>良好的API设计是一门艺术，这一点没有争议。当我们遇到一个经过适当设计的API时，我们会感觉到。就像良好的视觉UI一样，良好的API不仅美观，而且功能强大并且可以节省每个人的时间。基于这种想法，可以说API实际上就是UI。它们也不仅仅适用于机器：由于有人在编程和使用这些机器，因此创建一个用户感到高兴与之交互的API是其开发团队的明智选择，我们应该做出选择。</p>
+<p>关于视觉UI的设计原理，有很多资源，也有很多可以从中得到启发的好例子。另一方面，涉及API时，有很多文档说明了用于实现这些协议的不同协议，语言和框架，但是几乎没有足够的材料来说明使某些API易于使用和使用的基本原理和选择。别人的噩梦。</p>
+<p>尽管没有什么能比以往更胜一筹，并且每个团队都针对API的出色之处制定了自己的规则，但我们可以通过在API设计中应用一些基本原则来从中受益。这些非常抽象，可以用许多不同的方式实现，但它们应始终指导我们的技术决策。</p>
+<h1 id="1-一致性"><a href="#1-一致性" class="headerlink" title="1. 一致性"></a>1. 一致性</h1><p>一致性意味着相似的端点应该以相似的方式运行，包括在边缘场景中。您应该始终努力在整个API中保持词汇表，URL结构，请求&#x2F;响应格式和错误处理的一致性。</p>
+<p>这提供了几个好处：</p>
+<ul>
+<li>它使与您的API的交互变得更加简单，因为用户始终知道期望什么，而不必阅读每个端点的文档，而可以随心所欲。</li>
+<li>它允许编写客户端库，这些客户端库不知道API的确切架构，仅知道您遵守的规则。Stripe API客户端就是一个很好的例子：由于请求和响应的结构始终相同，因此它可以动态构建对象，并且仅在其中一个API规则更改时才需要更新。</li>
+<li>它创建了一组经过实践检验的准则，在API中实现新功能时可以遵循这些准则。不再讨论使用数字ID还是UUID，因为您将继续使用已有的东西。</li>
+</ul>
+<p>一致性可能是您可以在API设计中实现的最有影响力的特征，并且您的用户会因此而爱您。</p>
+<h1 id="2-性能"><a href="#2-性能" class="headerlink" title="2. 性能"></a>2. 性能</h1><p>HTTP API的性能非常棘手。由于最终用户不会直接使用API，因此很容易很长时间就不会注意到性能问题，尤其是在服务器到服务器交互的情况下。不幸的是，由于软件是为人开发的，因此所有类型的性能问题最终都会影响最终用户。</p>
+<p>出于通常的原因，我强烈建议您不要进行早期优化：这会减慢MVP的开发速度，并且如果不首先制定正确的指标，就无法知道需要优化产品的哪些部分。您应该基于数据而非本能进行优化。</p>
+<p>如此说来，从第一天开始收集数据就非常重要。如今，设置APM工具只需几秒钟，它将为您提供大量有关在现实世界中如何使用API的有用信息。</p>
+<h1 id="3-文献资料"><a href="#3-文献资料" class="headerlink" title="3. 文献资料"></a>3. 文献资料</h1><p>不管您的API多么一致，用户仍然需要他们可以去的地方才能开始使用或获得有关API某些方面或功能的其他详细信息。</p>
+<p>此外，API文档不应该只是呈现请求和响应模板。建议添加可能对用户有用的任何信息，例如有关在进行某个API调用时在后台发生的情况或用户可能需要完成其他交易的其他终结点的解释，这是有用的。</p>
+<p>API文档的准确性和最新性非常重要。实现此目的的唯一方法是创建工作流，以将文档集成到开发过程中。一个好的方法是将文档检入VCS，并要求开发人员在更改API时对其进行更新。</p>
+<p>让开发人员编写文档似乎是浪费时间，但是花在文档上的时间越多，花在回答问题和调查虚假错误报告上的时间就越少。</p>
+<p>最后，确保不仅提供文档，而且请查阅。由于它是供人类食用的，因此在阅读文档时要特别注意UI和UX。无需您自己执行此操作，您只需采用<a target="_blank" rel="noopener" href="https://stoplight.io/">Stoplight之类</a>的服务即可为您存储和呈现标准格式的内容。</p>
+<h1 id="4-易用性"><a href="#4-易用性" class="headerlink" title="4. 易用性"></a>4. 易用性</h1><p>虽然在数据库表和API资源之间建立1：1映射并不是天生的错误，但是您应该知道，这不是构建API的唯一方法。实际上，对于复杂的API而言，这通常不是最佳方法，因为这使按正确顺序将正确的一组操作组合在一起的所有负担都落在了用户的肩膀上。</p>
+<p>如果您可以简化业务交易以仅需要一个API调用而不是两个API调用，为什么不这样做呢？视觉UI要求在后台发生的每个操作都需要用户输入是不可想象的-但是，当我们要求用户出于懒惰而做时，这正是我们在许多API中所做的。</p>
+<p>API的一个示例就是该API，它允许用户添加新的付款方式并将一种付款方式标记为默认付款方式。如果我们希望用户希望添加新方法并立即将其标记<em>为</em>默认属性，则可以向支付方法创建端点添加标记<em>为</em>默认属性，并在一次交易中完成所有操作，而无需两次API调用。这样既节省了开发时间，又节省了带宽。</p>
+<p>这种简化并非总是可能的：当您无法预先确定API的确切用例时（例如，在使用公共API的情况下），则应该尽可能地灵活（在上面的示例中，这意味着要添加该字段，还要维护一个单独的端点来设置默认付款方式）。</p>
+<p>经验法则是将API的各个方面视为达到目的的手段，即完成业务流程。您如何最好地帮助用户实现该目标？一旦考虑到这一点，设计选择就会变得更加容易。</p>
+<h1 id="5-简单"><a href="#5-简单" class="headerlink" title="5. 简单"></a>5. 简单</h1><p>在简单的，通用的标准和工具之上构建您的API。除非您有充分的理由使用信封，否则不需要信封，架构，API网关或任何其他深奥的解决方案。</p>
+<p>HTTP RFC已经为您提供了构建可靠且可互操作的Web服务所需的大多数工具，因此<a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-10.1.1">请继续阅读它</a>（是的，虽然很长，但是我可以保证值得）。</p>
+<p>坚持基础并做好。简单意味着对人和机器的开销更少，并且出错的空间也更少。例如，以下是使用Stripe API向信用卡收费的方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">curl https://api.stripe.com/v1/charges \ </span><br><span class="line">  -u your_api_key: \ </span><br><span class="line">  -d amount=999 \ </span><br><span class="line">  -d currency=usd \ </span><br><span class="line">  -d description=&quot;Example charge&quot; \ </span><br><span class="line">  -d source=tok_visa</span><br></pre></td></tr></table></figure>
+
+<p>它是如此简单，您无需查找文档即可进行操作，并且几乎不可能将其弄乱。这是您要争取的简单性。</p>
+<p>（顺便说一下，Stripe API是周到的API设计的绝佳示例，因此，如果有空的话，请看一下<a target="_blank" rel="noopener" href="https://stripe.com/docs/api">API参考</a>。）</p>
+<h1 id="6-演化"><a href="#6-演化" class="headerlink" title="6. 演化"></a>6. 演化</h1><p>传统的Web应用程序一直在更新：设计和添加新功能，改进和简化流行功能，弃用和删除不使用的功能。用户习惯于在不断变化的环境中生活和操作，有时环境会发生巨大变化。</p>
+<p>大多数时候，产品在吸引用户采用新功能方面做得非常好：新闻通讯，应用内参观和良好的设计习惯可确保UX不会因最新的全面更新而中断。</p>
+<p>另一方面，对于API来说，似乎只有两个可能的选择：要么从不更改接口以免破坏实现，要么不经通知就更改它，从而破坏了大多数客户的工作。发生这种情况是因为API团队通常不会与用户群断开连接，因为它们不会直接与用户互动。</p>
+<p>但是，第三个选择是完全可能的：有了正确的基础架构和工具，您就可以拥有以对其用户可管理的方式进行更改的API。您可以使用度量标准来做出有关您公开的界面的明智决定：端点使用频率是多少？最近6个月内，有哪些用户称其为特定的API端点？确保您始终可以回答此类问题，因为它们将使您无需担心用户一天的噩梦就能开发自己的API。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/12/29/HTTP-API%E7%9A%846%E7%A7%8D%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/12/29/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8Spring-IOC/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            为什么要使用Spring IOC?
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/12/26/%E5%A6%82%E6%9E%9C%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E4%B8%AA%E6%96%B9%E6%B3%95%E5%8A%A0%E4%BA%86-synchronized%EF%BC%8C%E9%82%A3%E4%B9%88%E8%AF%A5%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%87%A0%E6%8A%8A%E9%94%81%EF%BC%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title"> 如果一个对象有多个方法加了 synchronized，那么该对象有几把锁？</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

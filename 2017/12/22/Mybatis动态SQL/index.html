@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Mybatis动态SQL |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Mybatis动态SQL"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Mybatis动态SQL
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/" class="article-date">
+  <time datetime="2017-12-22T09:22:22.000Z" itemprop="datePublished">2017-12-22</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">16 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>转载自 <a target="_blank" rel="noopener" href="http://how2j.cn/k/mybatis/mybatis-if/1112.html">Mybatis动态SQL</a></p>
+</blockquote>
+<h1 id="1-Mybatisif"><a href="#1-Mybatisif" class="headerlink" title="1. Mybatis	if"></a>1. Mybatis	if</h1><p>如果Product的字段比较多的话，为了应付各个字段的查询，那么就需要写多条sql语句，这样就变得难以维护。</p>
+<p>这个时候，就可以使用Mybatis 动态SQL里的if标签</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;select id=<span class="string">&quot;listProduct&quot;</span> resultType=<span class="string">&quot;Product&quot;</span>&gt;</span><br><span class="line">	select * from product_</span><br><span class="line">	&lt;<span class="keyword">if</span> test=<span class="string">&quot;name!=null&quot;</span>&gt;</span><br><span class="line">		where name like <span class="title function_">concat</span><span class="params">(<span class="string">&#x27;%&#x27;</span>,#&#123;name&#125;,<span class="string">&#x27;%&#x27;</span>)</span></span><br><span class="line">	&lt;/<span class="keyword">if</span>&gt;                         </span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果没有传参数name,那么就查询所有，如果有name参数，那么就进行模糊查询。</p>
+<span id="more"></span>
+
+<p>这样只需要定义一条sql语句即可应付多种情况了，在测试的时候，也只需要调用这么一条sql语句listProduct 即可。</p>
+<p><img src="http://stepimagewm.how2j.cn/4267.png"></p>
+<blockquote>
+<p>Product.xml</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">mapper</span></span></span><br><span class="line"><span class="meta">    <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.how2java.pojo&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;listProduct&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;Product&quot;</span>&gt;</span></span><br><span class="line">            select * from product_</span><br><span class="line">            <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name!=null&quot;</span>&gt;</span></span><br><span class="line">                where name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">            <span class="tag">&lt;/<span class="name">if</span>&gt;</span>        </span><br><span class="line">        <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">         </span><br><span class="line">    <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>TestMybatis.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestMybatis</span> &#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">resource</span> <span class="operator">=</span> <span class="string">&quot;mybatis-config.xml&quot;</span>;</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Resources.getResourceAsStream(resource);</span><br><span class="line">        <span class="type">SqlSessionFactory</span> <span class="variable">sqlSessionFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBuilder</span>().build(inputStream);</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">session</span> <span class="operator">=</span> sqlSessionFactory.openSession();</span><br><span class="line">  </span><br><span class="line">        System.out.println(<span class="string">&quot;查询所有的&quot;</span>);</span><br><span class="line">        List&lt;Product&gt; ps = session.selectList(<span class="string">&quot;listProduct&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (Product p : ps) &#123;</span><br><span class="line">            System.out.println(p);</span><br><span class="line">        &#125;</span><br><span class="line">         </span><br><span class="line">        System.out.println(<span class="string">&quot;模糊查询&quot;</span>);</span><br><span class="line">        Map&lt;String,Object&gt; params = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        params.put(<span class="string">&quot;name&quot;</span>,<span class="string">&quot;a&quot;</span>);</span><br><span class="line">        List&lt;Product&gt; ps2 = session.selectList(<span class="string">&quot;listProduct&quot;</span>,params);</span><br><span class="line">        <span class="keyword">for</span> (Product p : ps2) &#123;</span><br><span class="line">            System.out.println(p);</span><br><span class="line">        &#125;      </span><br><span class="line">         </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h1 id="2-Mybatis-where"><a href="#2-Mybatis-where" class="headerlink" title="2. Mybatis where"></a>2. Mybatis where</h1><h2 id="1-1-多条件的矛盾"><a href="#1-1-多条件的矛盾" class="headerlink" title="1.1 多条件的矛盾"></a>1.1 多条件的矛盾</h2><p>如果要进行多条件判断，就会写成这样：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;listProduct&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;Product&quot;</span>&gt;</span></span><br><span class="line">	select * from product_</span><br><span class="line">	<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name!=null&quot;</span>&gt;</span></span><br><span class="line">		where name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">	<span class="tag">&lt;/<span class="name">if</span>&gt;</span>		 	</span><br><span class="line">	<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;price!=0&quot;</span>&gt;</span></span><br><span class="line">		and price &gt; #&#123;price&#125;</span><br><span class="line">	<span class="tag">&lt;/<span class="name">if</span>&gt;</span>		 	</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这么写的问题是：当没有name参数，却有price参数的时候，执行的sql语句就会是：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> product_ <span class="keyword">and</span> price <span class="operator">&gt;</span> <span class="number">10.</span></span><br></pre></td></tr></table></figure>
+
+<p>这样执行就会报错</p>
+<p><img src="http://stepimagewm.how2j.cn/4270.png" alt="多条件的矛盾"></p>
+<blockquote>
+<p>Product.xml</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">mapper</span></span></span><br><span class="line"><span class="meta">    <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.how2java.pojo&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;listProduct&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;Product&quot;</span>&gt;</span></span><br><span class="line">        select * from product_</span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name!=null&quot;</span>&gt;</span></span><br><span class="line">            where name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span>        </span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;price!=0&quot;</span>&gt;</span></span><br><span class="line">            and price &gt; #&#123;price&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span>        </span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">         </span><br><span class="line">    <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>TestMybatis.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">    PUBLIC <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span><br><span class="line">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span><br><span class="line">    &lt;mapper namespace=<span class="string">&quot;com.how2java.pojo&quot;</span>&gt;</span><br><span class="line">    &lt;select id=<span class="string">&quot;listProduct&quot;</span> resultType=<span class="string">&quot;Product&quot;</span>&gt;</span><br><span class="line">        select * from product_</span><br><span class="line">        &lt;<span class="keyword">if</span> test=<span class="string">&quot;name!=null&quot;</span>&gt;</span><br><span class="line">            where name like <span class="title function_">concat</span><span class="params">(<span class="string">&#x27;%&#x27;</span>,#&#123;name&#125;,<span class="string">&#x27;%&#x27;</span>)</span></span><br><span class="line">        &lt;/<span class="keyword">if</span>&gt;        </span><br><span class="line">        &lt;<span class="keyword">if</span> test=<span class="string">&quot;price!=0&quot;</span>&gt;</span><br><span class="line">            and price &gt; #&#123;price&#125;</span><br><span class="line">        &lt;/<span class="keyword">if</span>&gt;        </span><br><span class="line">    &lt;/select&gt;</span><br><span class="line">         </span><br><span class="line">    &lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-2-where标签"><a href="#1-2-where标签" class="headerlink" title="1.2 where标签"></a>1.2 where标签</h2><p>这个问题可以通过<where>标签来解决，如代码所示</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;listProduct&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;Product&quot;</span>&gt;</span></span><br><span class="line">	select * from product_</span><br><span class="line">	<span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name!=null&quot;</span>&gt;</span></span><br><span class="line">			and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span>		 	</span><br><span class="line">		<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;price!=null and price!=0&quot;</span>&gt;</span></span><br><span class="line">			and price &gt; #&#123;price&#125;</span><br><span class="line">		<span class="tag">&lt;/<span class="name">if</span>&gt;</span>	</span><br><span class="line">	<span class="tag">&lt;/<span class="name">where</span>&gt;</span>	 	</span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><where>标签会进行自动判断</p>
+<p>如果任何条件都不成立，那么就在sql语句里就不会出现where关键字</p>
+<p>如果有任何条件成立，会自动去掉多出来的 and 或者 or。</p>
+<p>所以在测试代码里</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Map&lt;String,Object&gt; params = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;(); </span><br><span class="line"><span class="comment">//params.put(&quot;name&quot;,&quot;a&quot;);</span></span><br><span class="line">params.put(<span class="string">&quot;price&quot;</span>,<span class="string">&quot;10&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这个参数map，无论是否提供值否都可以正常执行</p>
+<blockquote>
+<p>Product.xml</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">    PUBLIC <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span><br><span class="line">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span><br><span class="line">    &lt;mapper namespace=<span class="string">&quot;com.how2java.pojo&quot;</span>&gt;</span><br><span class="line">    &lt;select id=<span class="string">&quot;listProduct&quot;</span> resultType=<span class="string">&quot;Product&quot;</span>&gt;</span><br><span class="line">        select * from product_</span><br><span class="line">        &lt;where&gt;</span><br><span class="line">            &lt;<span class="keyword">if</span> test=<span class="string">&quot;name!=null&quot;</span>&gt;</span><br><span class="line">                and name like <span class="title function_">concat</span><span class="params">(<span class="string">&#x27;%&#x27;</span>,#&#123;name&#125;,<span class="string">&#x27;%&#x27;</span>)</span></span><br><span class="line">            &lt;/<span class="keyword">if</span>&gt;        </span><br><span class="line">            &lt;<span class="keyword">if</span> test=<span class="string">&quot;price!=null and price!=0&quot;</span>&gt;</span><br><span class="line">                and price &gt; #&#123;price&#125;</span><br><span class="line">            &lt;/<span class="keyword">if</span>&gt;</span><br><span class="line">        &lt;/where&gt;     </span><br><span class="line">    &lt;/select&gt;</span><br><span class="line">         </span><br><span class="line">    &lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>TestMybatis.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestMybatis</span> &#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">resource</span> <span class="operator">=</span> <span class="string">&quot;mybatis-config.xml&quot;</span>;</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Resources.getResourceAsStream(resource);</span><br><span class="line">        <span class="type">SqlSessionFactory</span> <span class="variable">sqlSessionFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBuilder</span>().build(inputStream);</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">session</span> <span class="operator">=</span> sqlSessionFactory.openSession();</span><br><span class="line">  </span><br><span class="line">        System.out.println(<span class="string">&quot;多条件查询&quot;</span>);</span><br><span class="line">        Map&lt;String,Object&gt; params = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"><span class="comment">//        params.put(&quot;name&quot;,&quot;a&quot;);</span></span><br><span class="line">        params.put(<span class="string">&quot;price&quot;</span>,<span class="string">&quot;10&quot;</span>);</span><br><span class="line">        List&lt;Product&gt; ps2 = session.selectList(<span class="string">&quot;listProduct&quot;</span>,params);</span><br><span class="line">        <span class="keyword">for</span> (Product p : ps2) &#123;</span><br><span class="line">            System.out.println(p);</span><br><span class="line">        &#125;      </span><br><span class="line">         </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="1-3-set标签"><a href="#1-3-set标签" class="headerlink" title="1.3 set标签"></a>1.3 set标签</h2><p>与where标签类似的，在update语句里也会碰到多个字段相关的问题。 在这种情况下，就可以使用set标签：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">与where标签类似的，在update语句里也会碰到多个字段相关的问题。 在这种情况下，就可以使用set标签：</span><br></pre></td></tr></table></figure>
+
+<p>其效果与where标签类似，有数据的时候才进行设置。</p>
+<p><img src="http://stepimagewm.how2j.cn/4274.png" alt="set标签"></p>
+<blockquote>
+<p>Product.xml</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">    PUBLIC <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span><br><span class="line">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span><br><span class="line">    &lt;mapper namespace=<span class="string">&quot;com.how2java.pojo&quot;</span>&gt;</span><br><span class="line">    &lt;select id=<span class="string">&quot;listProduct&quot;</span> resultType=<span class="string">&quot;Product&quot;</span>&gt;</span><br><span class="line">        select * from product_</span><br><span class="line">        &lt;where&gt;</span><br><span class="line">            &lt;<span class="keyword">if</span> test=<span class="string">&quot;name!=null&quot;</span>&gt;</span><br><span class="line">                and name like <span class="title function_">concat</span><span class="params">(<span class="string">&#x27;%&#x27;</span>,#&#123;name&#125;,<span class="string">&#x27;%&#x27;</span>)</span></span><br><span class="line">            &lt;/<span class="keyword">if</span>&gt;        </span><br><span class="line">            &lt;<span class="keyword">if</span> test=<span class="string">&quot;price!=null and price!=0&quot;</span>&gt;</span><br><span class="line">                and price &gt; #&#123;price&#125;</span><br><span class="line">            &lt;/<span class="keyword">if</span>&gt;</span><br><span class="line">        &lt;/where&gt;     </span><br><span class="line">    &lt;/select&gt;</span><br><span class="line">     </span><br><span class="line">    &lt;update id=<span class="string">&quot;updateProduct&quot;</span> parameterType=<span class="string">&quot;Product&quot;</span> &gt;</span><br><span class="line">        update product_</span><br><span class="line">        &lt;set&gt;</span><br><span class="line">            &lt;<span class="keyword">if</span> test=<span class="string">&quot;name != null&quot;</span>&gt;name=#&#123;name&#125;,&lt;/<span class="keyword">if</span>&gt;</span><br><span class="line">            &lt;<span class="keyword">if</span> test=<span class="string">&quot;price != null&quot;</span>&gt;price=#&#123;price&#125;&lt;/<span class="keyword">if</span>&gt;</span><br><span class="line">              </span><br><span class="line">        &lt;/set&gt;</span><br><span class="line">         </span><br><span class="line">         where id=#&#123;id&#125;   </span><br><span class="line">    &lt;/update&gt;</span><br><span class="line">         </span><br><span class="line">    &lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>TestMybatis.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestMybatis</span> &#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">resource</span> <span class="operator">=</span> <span class="string">&quot;mybatis-config.xml&quot;</span>;</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Resources.getResourceAsStream(resource);</span><br><span class="line">        <span class="type">SqlSessionFactory</span> <span class="variable">sqlSessionFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBuilder</span>().build(inputStream);</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">session</span> <span class="operator">=</span> sqlSessionFactory.openSession();</span><br><span class="line"> </span><br><span class="line">        <span class="type">Product</span> <span class="variable">p</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Product</span>();</span><br><span class="line">        p.setId(<span class="number">6</span>);</span><br><span class="line">        p.setName(<span class="string">&quot;product zz&quot;</span>);</span><br><span class="line">        p.setPrice(<span class="number">99.99f</span>);</span><br><span class="line">        session.update(<span class="string">&quot;updateProduct&quot;</span>,p);</span><br><span class="line">         </span><br><span class="line">        listAll(session);</span><br><span class="line"> </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">listAll</span><span class="params">(SqlSession session)</span> &#123;</span><br><span class="line">        Map&lt;String,Object&gt; params = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"><span class="comment">//        params.put(&quot;name&quot;,&quot;a&quot;);</span></span><br><span class="line"><span class="comment">//        params.put(&quot;price&quot;,&quot;10&quot;);</span></span><br><span class="line">        List&lt;Product&gt; ps2 = session.selectList(<span class="string">&quot;listProduct&quot;</span>,params);</span><br><span class="line">        <span class="keyword">for</span> (Product p : ps2) &#123;</span><br><span class="line">            System.out.println(p);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-4-trim标签"><a href="#1-4-trim标签" class="headerlink" title="1.4 trim标签"></a>1.4 trim标签</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">trim</span> <span class="attr">prefix</span>=<span class="string">&quot;WHERE&quot;</span> <span class="attr">prefixOverrides</span>=<span class="string">&quot;AND |OR &quot;</span>&gt;</span></span><br><span class="line">  ... </span><br><span class="line"><span class="tag">&lt;/<span class="name">trim</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>来替换</p>
+<p>set标签就可以用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;trim prefix=<span class="string">&quot;SET&quot;</span> suffixOverrides=<span class="string">&quot;,&quot;</span>&gt;</span><br><span class="line">  ...</span><br><span class="line">&lt;/trim&gt;</span><br></pre></td></tr></table></figure>
+
+<p>来替换<br>运行<a target="_blank" rel="noopener" href="http://how2j.cn/k/mybatis/mybatis-where/1114.html#step4274">set标签</a>中的代码，其效果是一样的。</p>
+<h1 id="3-choose"><a href="#3-choose" class="headerlink" title="3. choose"></a>3. choose</h1><h2 id="3-1-if-else"><a href="#3-1-if-else" class="headerlink" title="3.1 if else"></a>3.1 if else</h2><p>Mybatis里面没有else标签，但是可以使用when otherwise标签来达到这样的效果。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;listProduct&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;Product&quot;</span>&gt;</span></span><br><span class="line">	  SELECT * FROM product_ </span><br><span class="line">	  <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">	  	<span class="tag">&lt;<span class="name">choose</span>&gt;</span></span><br><span class="line">		  <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">&quot;name != null&quot;</span>&gt;</span></span><br><span class="line">		    and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">		  <span class="tag">&lt;/<span class="name">when</span>&gt;</span>			  </span><br><span class="line">		  <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">&quot;price !=null and price != 0&quot;</span>&gt;</span></span><br><span class="line">		    and price &gt; #&#123;price&#125;</span><br><span class="line">		  <span class="tag">&lt;/<span class="name">when</span>&gt;</span>			  		</span><br><span class="line">	  	  <span class="tag">&lt;<span class="name">otherwise</span>&gt;</span></span><br><span class="line">	  	  	and id &gt;1</span><br><span class="line">	  	  <span class="tag">&lt;/<span class="name">otherwise</span>&gt;</span></span><br><span class="line">	  	<span class="tag">&lt;/<span class="name">choose</span>&gt;</span></span><br><span class="line">	  <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>起作用是： 提供了任何条件，就进行条件查询，否则就使用id&gt;1这个条件。</p>
+<blockquote>
+<p>Product.xml</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">mapper</span></span></span><br><span class="line"><span class="meta">    <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.how2java.pojo&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;listProduct&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;Product&quot;</span>&gt;</span></span><br><span class="line">              SELECT * FROM product_</span><br><span class="line">              <span class="tag">&lt;<span class="name">where</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">choose</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">&quot;name != null&quot;</span>&gt;</span></span><br><span class="line">                    and name like concat(&#x27;%&#x27;,#&#123;name&#125;,&#x27;%&#x27;)</span><br><span class="line">                  <span class="tag">&lt;/<span class="name">when</span>&gt;</span>          </span><br><span class="line">                  <span class="tag">&lt;<span class="name">when</span> <span class="attr">test</span>=<span class="string">&quot;price !=null and price != 0&quot;</span>&gt;</span></span><br><span class="line">                    and price &gt; #&#123;price&#125;</span><br><span class="line">                  <span class="tag">&lt;/<span class="name">when</span>&gt;</span>                </span><br><span class="line">                  <span class="tag">&lt;<span class="name">otherwise</span>&gt;</span></span><br><span class="line">                    and id &gt;1</span><br><span class="line">                  <span class="tag">&lt;/<span class="name">otherwise</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">choose</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">where</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>ThesMybatis.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestMybatis</span> &#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">resource</span> <span class="operator">=</span> <span class="string">&quot;mybatis-config.xml&quot;</span>;</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Resources.getResourceAsStream(resource);</span><br><span class="line">        <span class="type">SqlSessionFactory</span> <span class="variable">sqlSessionFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBuilder</span>().build(inputStream);</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">session</span> <span class="operator">=</span> sqlSessionFactory.openSession();</span><br><span class="line"> </span><br><span class="line">        Map&lt;String,Object&gt; params = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"><span class="comment">//      params.put(&quot;name&quot;,&quot;a&quot;);</span></span><br><span class="line"><span class="comment">//      params.put(&quot;price&quot;,&quot;10&quot;);</span></span><br><span class="line">      List&lt;Product&gt; ps = session.selectList(<span class="string">&quot;listProduct&quot;</span>,params);</span><br><span class="line">      <span class="keyword">for</span> (Product p : ps) &#123;</span><br><span class="line">          System.out.println(p);</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">listAll</span><span class="params">(SqlSession session)</span> &#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-foreach标签"><a href="#4-foreach标签" class="headerlink" title="4. foreach标签"></a>4. foreach标签</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM product_ </span><br><span class="line">	WHERE ID in</span><br><span class="line">		&lt;foreach item=<span class="string">&quot;item&quot;</span> index=<span class="string">&quot;index&quot;</span> collection=<span class="string">&quot;list&quot;</span></span><br><span class="line">   			open=<span class="string">&quot;(&quot;</span> separator=<span class="string">&quot;,&quot;</span> close=<span class="string">&quot;)&quot;</span>&gt;</span><br><span class="line">     		             #&#123;item&#125;</span><br><span class="line">		&lt;/foreach&gt;</span><br></pre></td></tr></table></figure>
+
+<p>foreach标签通常用于in 这样的语法里，参考 Oracle的in语法 。<br>如例，如图查询出id等于1,3,5的数据出来。</p>
+<p><img src="http://stepimagewm.how2j.cn/4279.png" alt="foreach标签"></p>
+<blockquote>
+<p>Product.xml</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">mapper</span></span></span><br><span class="line"><span class="meta">    <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.how2java.pojo&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;listProduct&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;Product&quot;</span>&gt;</span></span><br><span class="line">          SELECT * FROM product_</span><br><span class="line">            WHERE ID in</span><br><span class="line">                <span class="tag">&lt;<span class="name">foreach</span> <span class="attr">item</span>=<span class="string">&quot;item&quot;</span> <span class="attr">index</span>=<span class="string">&quot;index&quot;</span> <span class="attr">collection</span>=<span class="string">&quot;list&quot;</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">open</span>=<span class="string">&quot;(&quot;</span> <span class="attr">separator</span>=<span class="string">&quot;,&quot;</span> <span class="attr">close</span>=<span class="string">&quot;)&quot;</span>&gt;</span></span><br><span class="line">                    #&#123;item&#125;</span><br><span class="line">                <span class="tag">&lt;/<span class="name">foreach</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>TestMybatis.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestMybatis</span> &#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">resource</span> <span class="operator">=</span> <span class="string">&quot;mybatis-config.xml&quot;</span>;</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Resources.getResourceAsStream(resource);</span><br><span class="line">        <span class="type">SqlSessionFactory</span> <span class="variable">sqlSessionFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBuilder</span>().build(inputStream);</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">session</span> <span class="operator">=</span> sqlSessionFactory.openSession();</span><br><span class="line"> </span><br><span class="line">        List&lt;Integer&gt; ids = <span class="keyword">new</span> <span class="title class_">ArrayList</span>();</span><br><span class="line">        ids.add(<span class="number">1</span>);</span><br><span class="line">        ids.add(<span class="number">3</span>);</span><br><span class="line">        ids.add(<span class="number">5</span>);</span><br><span class="line">         </span><br><span class="line">      List&lt;Product&gt; ps = session.selectList(<span class="string">&quot;listProduct&quot;</span>,ids);</span><br><span class="line">      <span class="keyword">for</span> (Product p : ps) &#123;</span><br><span class="line">          System.out.println(p);</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="5-bind标签"><a href="#5-bind标签" class="headerlink" title="5. bind标签"></a>5. bind标签</h1><p>bind标签就像是再做一次字符串拼接，方便后续使用<br>如本例，在<a target="_blank" rel="noopener" href="http://how2j.cn/k/mybatis/mybatis-query/1107.html#step4221">模糊查询</a>的基础上，把模糊查询改为bind标签。</p>
+<blockquote>
+<p>Product.xml</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="line">&lt;!DOCTYPE mapper</span><br><span class="line">    PUBLIC <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span><br><span class="line">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span><br><span class="line">    &lt;mapper namespace=<span class="string">&quot;com.how2java.pojo&quot;</span>&gt;</span><br><span class="line">        &lt;!-- 本来的模糊查询方式 --&gt;</span><br><span class="line">&lt;!--         &lt;select id=<span class="string">&quot;listProduct&quot;</span> resultType=<span class="string">&quot;Product&quot;</span>&gt; --&gt;</span><br><span class="line">&lt;!--             select * from   product_  where name like <span class="title function_">concat</span><span class="params">(<span class="string">&#x27;%&#x27;</span>,#&#123;<span class="number">0</span>&#125;,<span class="string">&#x27;%&#x27;</span>)</span> --&gt;</span><br><span class="line">&lt;!--         &lt;/select&gt; --&gt;</span><br><span class="line">             </span><br><span class="line">        &lt;select id=<span class="string">&quot;listProduct&quot;</span> resultType=<span class="string">&quot;Product&quot;</span>&gt;</span><br><span class="line">        	&lt;!-- bind标签作用是 ,创建一个变量并将其绑定到上下文.--&gt;</span><br><span class="line">            &lt;bind name=<span class="string">&quot;likename&quot;</span> value=<span class="string">&quot;&#x27;%&#x27; + name + &#x27;%&#x27;&quot;</span> /&gt;</span><br><span class="line">            select * from   product_  where name like #&#123;likename&#125;</span><br><span class="line">        &lt;/select&gt;</span><br><span class="line">         </span><br><span class="line">    &lt;/mapper&gt;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>TestMybatis.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.how2java;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.io.Resources;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSession;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactory;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.session.SqlSessionFactoryBuilder;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.how2java.pojo.Product;</span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestMybatis</span> &#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">resource</span> <span class="operator">=</span> <span class="string">&quot;mybatis-config.xml&quot;</span>;</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Resources.getResourceAsStream(resource);</span><br><span class="line">        <span class="type">SqlSessionFactory</span> <span class="variable">sqlSessionFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SqlSessionFactoryBuilder</span>().build(inputStream);</span><br><span class="line">        <span class="type">SqlSession</span> <span class="variable">session</span> <span class="operator">=</span> sqlSessionFactory.openSession();</span><br><span class="line"> </span><br><span class="line">        Map&lt;String, String&gt; params =<span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        params.put(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;product&quot;</span>);</span><br><span class="line">         </span><br><span class="line">          List&lt;Product&gt; ps = session.selectList(<span class="string">&quot;listProduct&quot;</span>,params);</span><br><span class="line">          <span class="keyword">for</span> (Product p : ps) &#123;</span><br><span class="line">              System.out.println(p);</span><br><span class="line">          &#125;</span><br><span class="line"> </span><br><span class="line">        session.commit();</span><br><span class="line">        session.close();</span><br><span class="line">  </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2017/12/22/Mybatis%E5%8A%A8%E6%80%81SQL/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mybatis/" rel="tag">Mybatis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2017/12/26/MyBatis%E6%89%B9%E9%87%8F%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5%E6%93%8D%E4%BD%9C/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            MyBatis批量增删改查操作
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2017/12/20/JSON%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8(Java%E7%89%88%E6%9C%AC)/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">JSON快速入门(Java版本)</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

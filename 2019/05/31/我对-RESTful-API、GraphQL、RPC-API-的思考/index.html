@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>我对 RESTful API、GraphQL、RPC API 的思考 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-我对-RESTful-API、GraphQL、RPC-API-的思考"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  我对 RESTful API、GraphQL、RPC API 的思考
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/05/31/%E6%88%91%E5%AF%B9-RESTful-API%E3%80%81GraphQL%E3%80%81RPC-API-%E7%9A%84%E6%80%9D%E8%80%83/" class="article-date">
+  <time datetime="2019-05-31T12:40:05.000Z" itemprop="datePublished">2019-05-31</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">16 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文作者：梁桂钊</p>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://www.infoq.cn/article/ZgAAVBZZaoo4I0-pkgV8">人人都是 API 设计师：我对 RESTful API、GraphQL、RPC API 的思考</a></p>
+</blockquote>
+<h2 id="一、定义好的规范，已经成功了一大半"><a href="#一、定义好的规范，已经成功了一大半" class="headerlink" title="一、定义好的规范，已经成功了一大半"></a>一、定义好的规范，已经成功了一大半</h2><p>通常情况下，规范就是大家约定俗成的标准，如果大家都遵守这套标准，那么自然沟通成本大大降低。例如，大家都希望从阿里的规范上面学习，在自己的业务中也定义几个领域模型：VO、BO、DO、DTO。其中，DO（Data Object）与数据库表结构一一对应，通过 DAO 层向上传输数据源对象。 而 DTO（Data Transfer Object）是远程调用对象，它是 RPC 服务提供的领域模型。对于 BO（Business Object），它是业务逻辑层封装业务逻辑的对象，一般情况下，它是聚合了多个数据源的复合对象。那么，VO（View Object） 通常是请求处理层传输的对象，它通过 Spring 框架的转换后，往往是一个 JSON 对象。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190531211947.png"></p>
+<p>事实上，阿里这种复杂的业务中如果不划分清楚 DO、BO、DTO、VO 的领域模型，其内部代码很容易就混乱了，内部的 RPC 在 service 层的基础上又增加了 manager 层，从而实现内部的规范统一化。但是，如果只是单独的域又没有太多外部依赖，那么，完全不要设计这么复杂，除非预期到可能会变得庞大和复杂化。对此，设计过程中因地制宜就显得特别重要了。</p>
+<p>另外一个规范的例子是 RESTful API。在 REST 架构风格中，每一个 URI 代表一种资源。因此，URI 是每一个资源的地址的唯一资源定位符。所谓资源，实际上就是一个信息实体，它可以是服务器上的一段文本、一个文件、一张图片、一首歌曲，或者是一种服务。RESTful API 规定了通过 GET、 POST、 PUT、 PATCH、 DELETE 等方式对服务端的资源进行操作。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">【GET】          /users                 # 查询用户信息列表</span><br><span class="line">【GET】          /users/1001            # 查看某个用户信息</span><br><span class="line">【POST】         /users                 # 新建用户信息</span><br><span class="line">【PUT】          /users/1001            # 更新用户信息 (全部字段)</span><br><span class="line">【PATCH】        /users/1001            # 更新用户信息 (部分字段)</span><br><span class="line">【DELETE】       /users/1001            # 删除用户信息</span><br></pre></td></tr></table></figure>
+
+<p>事实上，RESTful API 的实现分了四个层级。第一层次（Level 0）的 Web API 服务只是使用 HTTP 作为传输方式。第二层次（Level 1）的 Web API 服务引入了资源的概念。每个资源有对应的标识符和表达。第三层次（Level 2）的 Web API 服务使用不同的 HTTP 方法来进行不同的操作，并且使用 HTTP 状态码来表示不同的结果。第四层次（Level 3）的 Web API 服务使用 HATEOAS。在资源的表达中包含了链接信息。客户端可以根据链接来发现可以执行的动作。通常情况下，伪 RESTful API 都是基于第一层次与第二层次设计的。例如，我们的 Web API 中使用各种动词，例如 get_menu 和 save_menu ，而真正意义上的 RESTful API 需要满足第三层级以上。如果我们遵守了这套规范，我们就很可能就设计出通俗易懂的 API。</p>
+<p>注意的是，定义好的规范，我们已经成功了一大半。如果这套规范是业内标准，那么我们可以大胆实践，不要担心别人不会用，只要把业界标准丢给他好好学习一下就可以啦。例如，Spring 已经在 Java 的生态中举足轻重，如果一个新人不懂 Spring 就有点说不过去了。但是，很多时候因为业务的限制和公司的技术，我们可能使用基于第一层次与第二层次设计的伪 RESTful API，但是它不一定就是落后的，不好的，只要团队内部形成规范，降低大家的学习成本即可。很多时候，我们试图改变团队的习惯去学习一个新的规范，所带来的收益（投入产出比）甚微，那就得不偿失了。</p>
+<p>总结一下，定义好的规范的目的在于，降低学习成本，使得 API 尽可能通俗易懂。当然，设计的 API 通俗易懂还有其他方式，例如我们定义的 API 的名字易于理解，API 的实现尽可能通用等。</p>
+<h2 id="二、探讨-API-接口的兼容性"><a href="#二、探讨-API-接口的兼容性" class="headerlink" title="二、探讨 API 接口的兼容性"></a>二、探讨 API 接口的兼容性</h2><p>API 接口都是不断演进的。因此，我们需要在一定程度上适应变化。在 RESTful API 中，API 接口应该尽量兼容之前的版本。但是，在实际业务开发场景中，可能随着业务需求的不断迭代，现有的 API 接口无法支持旧版本的适配，此时如果强制升级服务端的 API 接口将导致客户端旧有功能出现故障。实际上，Web 端是部署在服务器，因此它可以很容易为了适配服务端的新的 API 接口进行版本升级，然而像 Android 端、IOS 端、PC 端等其他客户端是运行在用户的机器上，因此当前产品很难做到适配新的服务端的 API 接口，从而出现功能故障，这种情况下，用户必须升级产品到最新的版本才能正常使用。为了解决这个版本不兼容问题，在设计 RESTful API 的一种实用的做法是使用版本号。一般情况下，我们会在 url 中保留版本号，并同时兼容多个版本。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">【GET】  /v1/users/&#123;user_id&#125;  // 版本 v1 的查询用户列表的 API 接口</span><br><span class="line">【GET】  /v2/users/&#123;user_id&#125;  // 版本 v2 的查询用户列表的 API 接口</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<p>有趣的是，GraphQL 提供不同的思路。GraphQL 为了解决服务 API 接口爆炸的问题，以及将多个 HTTP 请求聚合成了一个请求，提出只暴露单个服务 API 接口，并且在单个请求中可以进行多个查询。GraphQL 定义了 API 接口，我们可以在前端更加灵活调用，例如，我们可以根据不同的业务选择并加载需要渲染的字段。因此，服务端提供的全量字段，前端可以按需获取。GraphQL 可以通过增加新类型和基于这些类型的新字段添加新功能，而不会造成兼容性问题。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190531214221.png"></p>
+<p>此外，在使用 RPC API 过程中，我们特别需要注意兼容性问题，二方库不能依赖 parent，此外，本地开发可以使用 SNAPSHOT，而线上环境禁止使用，避免发生变更，导致版本不兼容问题。我们需要为每个接口都应定义版本号，保证后续不兼容的情况下可以升级版本。例如，Dubbo 建议第三位版本号通常表示兼容升级，只有不兼容时才需要变更服务版本。</p>
+<p>关于规范的案例，我们可以看看 k8s 和 github，其中 k8s 采用了 RESTful API，而 github 部分采用了 GraphQL。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.10/">https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.10/</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.github.com/v4/">https://developer.github.com/v4/</a></li>
+</ul>
+<h2 id="三、提供清晰的思维模型"><a href="#三、提供清晰的思维模型" class="headerlink" title="三、提供清晰的思维模型"></a>三、提供清晰的思维模型</h2><p>所谓思维模型，我的理解是针对问题域抽象模型，对域模型的功能有统一认知，构建某个问题的现实映射，并划分好模型的边界，而域模型的价值之一就是统一思想，明确边界。假设，大家没有清晰的思维模型，那么也不存在对 API 的统一认知，那么就很可能出现下面图片中的现实问题。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190531214440.png"></p>
+<h2 id="四、以抽象的方式屏蔽业务实现"><a href="#四、以抽象的方式屏蔽业务实现" class="headerlink" title="四、以抽象的方式屏蔽业务实现"></a>四、以抽象的方式屏蔽业务实现</h2><p>我认为好的 API 接口具有抽象性，因此需要尽可能的屏蔽业务实现。那么，问题来了，我们怎么理解抽象性？对此，我们可以思考 java.sql.Driver 的设计。这里，java.sql.Driver 是一个规范接口，而 com.mysql.jdbc.Driver</p>
+<p>则是 mysql-connector-java-xxx.jar 对这个规范的实现接口。那么，切换成 Oracle 的成本就非常低了。</p>
+<p>一般情况下，我们会通过 API 对外提供服务。这里，API 提供服务的接口的逻辑是固定的，换句话说，它具有通用性。但是，但我们遇到具有类似的业务逻辑的场景时，即核心的主干逻辑相同，而细节的实现略有不同，那我们该何去何从？很多时候，我们会选择提供多个 API 接口给不同的业务方使用。事实上，我们可以通过 SPI 扩展点来实现的更加优雅。什么是 SPI？SPI 的英文全称是 Serivce Provider Interface，即服务提供者接口，它是一种动态发现机制，可以在程序执行的过程中去动态的发现某个扩展点的实现类。因此，当 API 被调用时会动态加载并调用 SPI 的特定实现方法。</p>
+<p>此时，你是不是联想到了模版方法模式。模板方法模式的核心思想是定义骨架，转移实现，换句话说，它通过定义一个流程的框架，而将一些步骤的具体实现延迟到子类中。事实上，在微服务的落地过程中，这种思想也给我们提供了非常好的理论基础。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190531214718.png"></p>
+<p>现在，我们来看一个案例：电商业务场景中的未发货仅退款。这种情况在电商业务中非常场景，用户下单付款后由于各种原因可能就申请退款了。此时，因为不涉及退货，所以只需要用户申请退款并填写退款原因，然后让卖家审核退款。那么，由于不同平台的退款原因可能不同，我们可以考虑通过 SPI 扩展点来实现。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190531214820.png"></p>
+<p>此外，我们还经常使用工厂方法 + 策略模式来屏蔽外部的复杂性。例如，我们对外暴露一个 API 接口 getTask(int operation)，那么我们就可以通过工厂方法来创建实例，通过策略方法来定义不同的实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TaskManager</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> LoggerFactory.getLogger(TaskManager.class);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> TaskManager instance;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> MapInteger, ITask&gt; taskMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;Integer, ITask&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> TaskManager <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> ITask <span class="title function_">getTask</span><span class="params">(<span class="type">int</span> operation)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> taskMap.get(operation);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 初始化处理过程</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        logger.info(<span class="string">&quot;init task manager&quot;</span>);</span><br><span class="line">        instance = <span class="keyword">new</span> <span class="title class_">TaskManager</span>();</span><br><span class="line">        <span class="comment">// 单聊消息任务</span></span><br><span class="line">        instance.taskMap.put(EventEnum.CHAT_REQ.getValue(), <span class="keyword">new</span> <span class="title class_">ChatTask</span>());</span><br><span class="line">        <span class="comment">// 群聊消息任务</span></span><br><span class="line">        instance.taskMap.put(EventEnum.GROUP_CHAT_REQ.getValue(), <span class="keyword">new</span> <span class="title class_">GroupChatTask</span>());</span><br><span class="line">        <span class="comment">// 心跳任务</span></span><br><span class="line">        instance.taskMap.put(EventEnum.HEART_BEAT_REQ.getValue(), <span class="keyword">new</span> <span class="title class_">HeatBeatTask</span>());</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还有一种屏蔽内部复杂性设计就是外观接口，它是将多个服务的接口进行业务封装与整合并提供一个简单的调用接口给客户端使用。这种设计的好处在于，客户端不再需要知道那么多服务的接口，只需要调用这个外观接口即可。但是，坏处也是显而易见的，即增加了服务端的业务复杂度，接口性能不高，并且复用性不高。因此，因地制宜，尽可能保证职责单一，而在客户端进行“乐高式”组装。如果存在 SEO 优化的产品，需要被类似于百度这样的搜索引擎收录，可以当首屏的时候，通过服务端渲染生成 HTML，使之让搜索引擎收录，若不是首屏的时候，可以通过客户端调用服务端 RESTful API 接口进行页面渲染。</p>
+<p>此外，随着微服务的普及，我们的服务越来越多，许多较小的服务有更多的跨服务调用。因此，微服务体系结构使得这个问题更加普遍。为了解决这个问题，我们可以考虑引入一个“聚合服务”，它是一个组合服务，可以将多个微服务的数据进行组合。这样设计的好处在于，通过一个“聚合服务”将一些信息整合完后再返回给调用方。注意的是，“聚合服务”也可以有自己的缓存和数据库。 事实上，聚合服务的思想无处不在，例如 Serverless 架构。我们可以在实践的过程中采用 AWS Lambda 作为 Serverless 服务背后的计算引擎，而 AWS Lambda 是一种函数即服务（Function-as-a-Servcie，FaaS）的计算服务，我们直接编写运行在云上的函数。那么，这个函数可以组装现有能力做服务聚合。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190531223344.png"></p>
+<h2 id="五、考虑背后的性能"><a href="#五、考虑背后的性能" class="headerlink" title="五、考虑背后的性能"></a>五、考虑背后的性能</h2><p>我们需要考虑入参字段的各种组合导致数据库的性能问题。有的时候，我们可能暴露太多字段给外部组合使用，导致数据库没有相应的索引而发生全表扫描。事实上，这种情况在查询的场景特别常见。因此，我们可以只提供存在索引的字段组合给外部调用，或者在下面的案例中，要求调用方必填 taskId 和 caseId 来保证我们数据库合理使用索引，进一步保证服务提供方的服务性能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Result <span class="title function_">agree</span><span class="params">(Long taskId, Long caseId, Configger configger)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>同时，对于报表操作、批量操作、冷数据查询等 API 应该可以考虑异步能力。</p>
+<p>此外，GraphQL 虽然解决将多个 HTTP 请求聚合成了一个请求，但是 schema 会逐层解析方式递归获取全部数据。例如分页查询的统计总条数，原本 1 次可以搞定的查询，演变成了 N + 1 次对数据库查询。此外，如果写得不合理还会导致恶劣的性能问题，因此，我们在设计的过程中特别需要注意。</p>
+<h2 id="六、异常响应与错误机制"><a href="#六、异常响应与错误机制" class="headerlink" title="六、异常响应与错误机制"></a>六、异常响应与错误机制</h2><p>业内对 RPC API 抛出异常，还是抛出错误码已经有太多的争论。《阿里巴巴 Java 开发手册》建议：跨应用 RPC 调用优先考虑使用 isSuccess() 方法、“错误码”、“错误简短信息”。关于 RPC 方法返回方式使用 Result 方式的理由 : 1）使用抛异常返回方式，调用方如果没有捕获到，就会产生运行时错误。2）如果不加栈信息，只是 new 自定义异常，加入自己的理解的 error message，对于调用端解决问题的帮助不会太多。如果加了栈信息，在频繁调用出错的情况下，数据序列化和传输的性能损耗也是问题。当然，我也支持这个论点的实践拥护者。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ResultXxxDTO&gt; getXxx(String param) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="keyword">return</span> Result.create(xxxDTO);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (BizException e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;...&quot;</span>, e);</span><br><span class="line">        <span class="keyword">return</span> Result.createErrorResult(e.getErrorCode(), e.getErrorInfo(), <span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 Web API 设计过程中，我们会使用 ControllerAdvice 统一包装错误信息。而在微服务复杂的链式调用中，我们会比单体架构更难以追踪与定位问题。因此，在设计的时候，需要特别注意。一种比较好的方案是，当 RESTful API 接口出现非 2xx 的 HTTP 错误码响应时，采用全局的异常结构响应信息。其中，code 字段用来表示某类错误的错误码，在微服务中应该加上“{biz_name}&#x2F;”前缀以便于定位错误发生在哪个业务系统上。我们来看一个案例，假设“用户中心”某个接口没有权限获取资源而出现错误，我们的业务系统可以响应“UC&#x2F;AUTH_DENIED”，并且通过自动生成的 UUID 值的 request_id 字段，在日志系统中获得错误的详细信息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">HTTP/<span class="number">1.1</span> <span class="number">400</span> Bad Request</span><br><span class="line">Content-Type: application/json</span><br><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;code&quot;</span>: <span class="string">&quot;INVALID_ARGUMENT&quot;</span>,</span><br><span class="line">   <span class="string">&quot;message&quot;</span>: <span class="string">&quot;&#123;error message&#125;&quot;</span>,</span><br><span class="line">   <span class="string">&quot;cause&quot;</span>: <span class="string">&quot;&#123;cause message&#125;&quot;</span>,</span><br><span class="line">   <span class="string">&quot;request_id&quot;</span>: <span class="string">&quot;01234567-89ab-cdef-0123-456789abcdef&quot;</span>,</span><br><span class="line">   <span class="string">&quot;host_id&quot;</span>: <span class="string">&quot;&#123;server identity&#125;&quot;</span>,</span><br><span class="line">   <span class="string">&quot;server_time&quot;</span>: <span class="string">&quot;2014-01-01T12:00:00Z&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="七、思考-API-的幂等性"><a href="#七、思考-API-的幂等性" class="headerlink" title="七、思考 API 的幂等性"></a>七、思考 API 的幂等性</h2><p>幂等机制的核心是保证资源唯一性，例如客户端重复提交或服务端的多次重试只会产生一份结果。支付场景、退款场景，涉及金钱的交易不能出现多次扣款等问题。事实上，查询接口用于获取资源，因为它只是查询数据而不会影响到资源的变化，因此不管调用多少次接口，资源都不会改变，所以是它是幂等的。而新增接口是非幂等的，因为调用接口多次，它都将会产生资源的变化。因此，我们需要在出现重复提交时进行幂等处理。那么，如何保证幂等机制呢？事实上，我们有很多实现方案。其中，一种方案就是常见的创建唯一索引。在数据库中针对我们需要约束的资源字段创建唯一索引，可以防止插入重复的数据。但是，遇到分库分表的情况是，唯一索引也就不那么好使了，此时，我们可以先查询一次数据库，然后判断是否约束的资源字段存在重复，没有的重复时再进行插入操作。注意的是，为了避免并发场景，我们可以通过锁机制，例如悲观锁与乐观锁保证数据的唯一性。这里，分布式锁是一种经常使用的方案，它通常情况下是一种悲观锁的实现。但是，很多人经常把悲观锁、乐观锁、分布式锁当作幂等机制的解决方案，这个是不正确的。除此之外，我们还可以引入状态机，通过状态机进行状态的约束以及状态跳转，确保同一个业务的流程化执行，从而实现数据幂等。事实上，并不是所有的接口都要保证幂等，换句话说，是否需要幂等机制可以通过考量需不需要确保资源唯一性，例如行为日志可以不考虑幂等性。当然，还有一种设计方案是接口不考虑幂等机制，而是在业务实现的时候通过业务层面来保证，例如允许存在多份数据，但是在业务处理的时候获取最新的版本进行处理。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/05/31/%E6%88%91%E5%AF%B9-RESTful-API%E3%80%81GraphQL%E3%80%81RPC-API-%E7%9A%84%E6%80%9D%E8%80%83/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/06/01/vultr%E5%AE%89%E8%A3%85ssr/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            vultr安装ssr
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/05/30/%E7%BA%AF%E5%B9%B2%E8%B4%A7%EF%BC%8CSpring-data-jpa%E8%AF%A6%E8%A7%A3%EF%BC%8C%E5%85%A8%E6%96%B9%E4%BD%8D%E4%BB%8B%E7%BB%8D%E3%80%82/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">纯干货，Spring data jpa详解，全方位介绍。</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

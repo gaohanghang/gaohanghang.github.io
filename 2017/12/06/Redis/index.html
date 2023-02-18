@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Redis |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Redis"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Redis
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/12/06/Redis/" class="article-date">
+  <time datetime="2017-12-06T09:22:22.000Z" itemprop="datePublished">2017-12-06</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h1><h2 id="1-什么是Redis"><a href="#1-什么是Redis" class="headerlink" title="1. 什么是Redis"></a>1. 什么是Redis</h2><ol>
+<li>Redis是一种key-value内存数据库<ul>
+<li>底层算法就是散列表</li>
+</ul>
+</li>
+<li>性能极佳，查询110000次&#x2F;秒，写80000次&#x2F;秒</li>
+<li>提供了持久化支持。</li>
+<li>Redis的Value支持5种数据类型，使用方便。</li>
+</ol>
+<blockquote>
+<p>Redis查询性能非常优秀：在软件中经常做为数据库的缓存，提供软件的性能，也就是用于解决“高性能”问题。</p>
+</blockquote>
+<h2 id="2-Redis的用途"><a href="#2-Redis的用途" class="headerlink" title="2. Redis的用途"></a>2. Redis的用途</h2><p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/Fe8j8iH1iB.png" alt="redis"></p>
+<ol>
+<li>数据库缓存</li>
+<li>Redis共享Session</li>
+</ol>
+<span id="more"></span>
+
+<h2 id="3-安装Redis"><a href="#3-安装Redis" class="headerlink" title="3. 安装Redis"></a>3. 安装Redis</h2><h3 id="1-yum-安装"><a href="#1-yum-安装" class="headerlink" title="1. yum 安装"></a>1. yum 安装</h3><p>命令：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">yum</span> <span class="selector-tag">install</span> <span class="selector-tag">redis</span></span><br></pre></td></tr></table></figure>
+
+<p>启动</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">x</span> <span class="selector-tag">systyemctl</span> <span class="selector-tag">start</span> <span class="selector-tag">redis</span><span class="selector-class">.service</span></span><br></pre></td></tr></table></figure>
+
+<p>检查</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -A|grep redis</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-编译安装"><a href="#2-编译安装" class="headerlink" title="2. 编译安装"></a>2. 编译安装</h3><ol>
+<li><p>下载redis</p>
+<p>wget …</p>
+</li>
+<li><p>编译安装</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">cd</span> <span class="selector-tag">redis-3</span><span class="selector-class">.0</span><span class="selector-class">.0</span></span><br><span class="line"><span class="selector-tag">make</span></span><br><span class="line"><span class="selector-tag">make</span> <span class="selector-tag">install</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>位置：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/<span class="selector-tag">usr</span>/<span class="selector-tag">local</span>/<span class="selector-tag">redis</span>/<span class="selector-tag">redis-3</span><span class="selector-class">.0</span><span class="selector-class">.0</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动redis </p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">cd</span> /<span class="selector-tag">usr</span>/<span class="selector-tag">local</span>/<span class="selector-tag">redis</span>/<span class="selector-tag">redis-3</span><span class="selector-class">.0</span><span class="selector-class">.0</span>/<span class="selector-tag">src</span></span><br><span class="line">./<span class="selector-tag">redis-server</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>redis-server命令启动Redis服务器以后，当前窗口就被占用了，不能关闭! 关闭窗口或者 Ctrl+c 就是关闭Redis数据库。</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="4-Redis-命令"><a href="#4-Redis-命令" class="headerlink" title="4. Redis 命令"></a>4. Redis 命令</h2><p>利用Redis客户端访问Redis数据库</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/DdiBeeh9jI.png" alt="redis2"></p>
+<h2 id="5-String类型"><a href="#5-String类型" class="headerlink" title="5 String类型"></a>5 String类型</h2><p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/d15cDmmL7i.png" alt="string"></p>
+<ol>
+<li><p>帮助手册</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">help</span> @<span class="selector-tag">string</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>set 命令</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">set</span> <span class="selector-tag">KEY</span> <span class="selector-tag">VALUE</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>get 命令</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">get</span> <span class="selector-tag">KEY</span></span><br><span class="line"><span class="comment">//返回Value</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>setrange</p>
+<ul>
+<li><p>修改字符串的内容</p>
+<p>setrange KEY 起始位置 替换值</p>
+<p>SET message “Hello World”<br>SETRANGE message 6 “Redis”<br>GET message<br>“Hello Redis”</p>
+</li>
+</ul>
+</li>
+<li><p>strlen 检查字符串Value的长度</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">SET</span> <span class="selector-tag">message</span> &quot;<span class="selector-tag">Hello</span> <span class="selector-tag">World</span>&quot;</span><br><span class="line"><span class="selector-tag">STRLEN</span> <span class="selector-tag">message</span></span><br><span class="line"><span class="number">11</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>操作字符中的位</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//设置位</span></span><br><span class="line"><span class="selector-tag">SETBIT</span> <span class="selector-tag">times</span> <span class="number">0</span> <span class="number">1</span>	<span class="comment">//将第0位设为1</span></span><br><span class="line"><span class="selector-tag">SETBIT</span> <span class="selector-tag">times</span> <span class="number">1</span> <span class="number">1</span>	<span class="comment">//将第1位设为1</span></span><br><span class="line"><span class="selector-tag">SETBIT</span> <span class="selector-tag">times</span> <span class="number">4</span> <span class="number">1</span>	<span class="comment">//将第4位设为1</span></span><br><span class="line"><span class="selector-tag">get</span> <span class="selector-tag">times</span></span><br><span class="line">&quot;<span class="number">0</span><span class="selector-tag">xc8</span>&quot;  <span class="comment">// 2进制： 1100 1000 </span></span><br><span class="line"><span class="comment">//统计1的个数</span></span><br><span class="line"><span class="selector-tag">BITCOUNT</span> <span class="selector-tag">times</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/b8J71JjhKc.png" alt="bit"></p>
+</li>
+<li><p>增加与减少</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">set</span> <span class="selector-tag">score</span> <span class="number">100</span> </span><br><span class="line"><span class="selector-tag">incr</span> <span class="selector-tag">score</span>  <span class="comment">//增加1</span></span><br><span class="line"><span class="selector-tag">get</span> <span class="selector-tag">score</span></span><br><span class="line"><span class="number">101</span> </span><br><span class="line"><span class="selector-tag">decr</span> <span class="selector-tag">score</span>  <span class="comment">//减少1</span></span><br><span class="line"><span class="selector-tag">get</span> <span class="selector-tag">score</span></span><br><span class="line"><span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="selector-tag">incrby</span> <span class="selector-tag">score</span> <span class="number">50</span> <span class="comment">//将score增加50</span></span><br><span class="line"><span class="selector-tag">decrby</span> <span class="selector-tag">score</span> <span class="number">50</span> <span class="comment">//将score减少50</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>浮点数增加与减少</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. <span class="selector-tag">INCRBYFLOAT</span> <span class="selector-tag">price</span> <span class="number">0.2</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>批量添加数据 批量查询数据</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">mset</span> <span class="selector-tag">key1</span> <span class="selector-tag">value1</span> <span class="selector-tag">key2</span> <span class="selector-tag">value2</span> <span class="selector-tag">key3</span> <span class="selector-tag">value3</span></span><br><span class="line"><span class="selector-tag">mget</span> <span class="selector-tag">key1</span> <span class="selector-tag">key2</span> <span class="selector-tag">key3</span></span><br></pre></td></tr></table></figure>
+
+<p>​</p>
+</li>
+</ol>
+<h2 id="6-Hash类型"><a href="#6-Hash类型" class="headerlink" title="6. Hash类型"></a>6. Hash类型</h2><p>value是一个Hash表，用于存储对象数据：</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/cIj5405K7e.png" alt="hash"></p>
+<p>操作指令</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//添加属性</span></span><br><span class="line"><span class="selector-tag">hset</span> <span class="selector-tag">key</span> 属性名 属性值</span><br><span class="line"><span class="comment">//批量添加属性</span></span><br><span class="line"><span class="selector-tag">hmset</span> <span class="selector-tag">key</span> 属性名<span class="number">1</span> 属性值<span class="number">1</span> 属性名<span class="number">2</span> 属性值<span class="number">2</span>  属性名<span class="number">3</span> 属性值<span class="number">4</span> </span><br><span class="line"><span class="comment">//获取一个属性</span></span><br><span class="line"><span class="selector-tag">hget</span> <span class="selector-tag">key</span> 属性名<span class="number">1</span></span><br><span class="line"><span class="comment">//获取一组属性</span></span><br><span class="line"><span class="selector-tag">hmget</span> <span class="selector-tag">key</span> 属性名<span class="number">1</span> 属性名<span class="number">2</span> 属性名<span class="number">3</span></span><br><span class="line"><span class="comment">//获取全部key</span></span><br><span class="line"><span class="selector-tag">hkeys</span> <span class="selector-tag">key</span></span><br><span class="line"><span class="comment">//获取全部的值</span></span><br><span class="line"><span class="selector-tag">hvals</span> <span class="selector-tag">key</span></span><br><span class="line"><span class="comment">//获取全部Hash对象信息</span></span><br><span class="line"><span class="selector-tag">hgetall</span> <span class="selector-tag">key</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="7-List类型"><a href="#7-List类型" class="headerlink" title="7. List类型"></a>7. List类型</h2><p>存储到Redis中的value是一个List，其用途是充当缓冲队列</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/k503g16he9.png" alt="List"></p>
+<p>操作命令：</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">lpush</span>	<span class="comment">//左侧放入</span></span><br><span class="line"><span class="selector-tag">lpop</span>	<span class="comment">//左侧取出</span></span><br><span class="line"><span class="selector-tag">rpush</span>	<span class="comment">//右侧放入</span></span><br><span class="line"><span class="selector-tag">rpop</span>	<span class="comment">//右侧取出</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="8-Redis-在程序如何使用它？"><a href="#8-Redis-在程序如何使用它？" class="headerlink" title="8. Redis 在程序如何使用它？"></a>8. Redis 在程序如何使用它？</h2><p>Jedis 访问redis java api</p>
+<p>Redis-server &amp; &#x2F;&#x2F;后台运行<br>防火墙要关闭</p>
+<p>pom.xml加上jedis依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>redis.clients<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jedis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.6.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>编写测试类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> jedis;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.Jedis;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestJedis</span> &#123;</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">jedis</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="comment">//连接redis服务器，ip+port</span></span><br><span class="line">		<span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1&quot;</span>;</span><br><span class="line">		<span class="comment">//获取到jedis对象</span></span><br><span class="line">		<span class="type">Jedis</span> <span class="variable">jedis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Jedis</span>(ip, <span class="number">6379</span>);</span><br><span class="line">		<span class="comment">//调用redis set，key=name，value=tony</span></span><br><span class="line">		<span class="comment">//jedis.set(&quot;name&quot;, &quot;tony&quot;);</span></span><br><span class="line">		System.out.println(jedis.get(<span class="string">&quot;name&quot;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180202/3454igFd6c.png"></p>
+<blockquote>
+<p>TestJedis.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> jedis;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.Jedis;</span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.JedisPoolConfig;</span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.JedisShardInfo;</span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.ShardedJedis;</span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.ShardedJedisPool;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestJedis</span> &#123;</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">jedis</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="comment">//连接redis服务器，ip+port</span></span><br><span class="line">		<span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> <span class="string">&quot;192.168.27.113&quot;</span>;</span><br><span class="line">		<span class="comment">//获取到jedis对象</span></span><br><span class="line">		<span class="type">Jedis</span> <span class="variable">jedis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Jedis</span>(ip, <span class="number">6379</span>);</span><br><span class="line">		<span class="comment">//调用redis set，key=name，value=tony</span></span><br><span class="line">		<span class="comment">//jedis.set(&quot;name&quot;, &quot;tony&quot;);</span></span><br><span class="line">		System.out.println(jedis.get(<span class="string">&quot;name&quot;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Test</span>	<span class="comment">//分片Shard池化</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sharded</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="comment">//创建一个Sharded池配置对象</span></span><br><span class="line">		<span class="type">JedisPoolConfig</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JedisPoolConfig</span>();</span><br><span class="line">		<span class="comment">//最大的连接数</span></span><br><span class="line">		config.setMaxTotal(<span class="number">50</span>);</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//连接多个redis节点，ip和port的信息</span></span><br><span class="line">		List&lt;JedisShardInfo&gt; shards = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;JedisShardInfo&gt;();</span><br><span class="line">		<span class="comment">//一个的节点信息就ok</span></span><br><span class="line">		<span class="type">JedisShardInfo</span> <span class="variable">info1</span> <span class="operator">=</span> </span><br><span class="line">			<span class="keyword">new</span> <span class="title class_">JedisShardInfo</span>(<span class="string">&quot;192.168.27.113&quot;</span>,<span class="number">6379</span>);</span><br><span class="line">		shards.add(info1);</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//创建分片池</span></span><br><span class="line">		<span class="type">ShardedJedisPool</span> <span class="variable">pool</span> <span class="operator">=</span> </span><br><span class="line">				<span class="keyword">new</span> <span class="title class_">ShardedJedisPool</span>(config, shards);</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//从池中获取一个jedis链接</span></span><br><span class="line">		<span class="type">ShardedJedis</span> <span class="variable">jedis</span> <span class="operator">=</span> pool.getResource();</span><br><span class="line">		System.out.println(jedis.get(<span class="string">&quot;name&quot;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>把jedis和spring框架整合<br>通过xml配置把jedis的对象创建交给spring框架。</p>
+<h3 id="8-1-在哪里使用缓存？"><a href="#8-1-在哪里使用缓存？" class="headerlink" title="8.1 在哪里使用缓存？"></a>8.1 在哪里使用缓存？</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cn.tedu.store.service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.annotation.Resource;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.core.JsonProcessingException;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.JsonNode;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.ObjectMapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.tedu.store.bean.dict.Area;</span><br><span class="line"><span class="keyword">import</span> cn.tedu.store.bean.dict.City;</span><br><span class="line"><span class="keyword">import</span> cn.tedu.store.bean.dict.Province;</span><br><span class="line"><span class="keyword">import</span> cn.tedu.store.mapper.DictMapper;</span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.ShardedJedis;</span><br><span class="line"><span class="keyword">import</span> redis.clients.jedis.ShardedJedisPool;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Service(&quot;dictService&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DictServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">DictService</span> &#123;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Resource</span></span><br><span class="line">	<span class="keyword">private</span> DictMapper dictMapper;</span><br><span class="line">	<span class="comment">//获取spring框架创建的jedis对象</span></span><br><span class="line">	<span class="meta">@Resource</span></span><br><span class="line">	<span class="keyword">private</span> ShardedJedisPool shardedJedisPool;</span><br><span class="line">	<span class="comment">//转换对象到json或者json到java对象工具类</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">ObjectMapper</span> <span class="variable">MAPPER</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectMapper</span>();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> List&lt;Province&gt; <span class="title function_">getProvinceList</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> dictMapper.getProvinceList();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> List&lt;City&gt; <span class="title function_">getCityList</span><span class="params">(String provinceCode)</span>&#123;</span><br><span class="line">		List&lt;City&gt; cityList = <span class="literal">null</span>;</span><br><span class="line">		<span class="comment">//设置redis key的规则</span></span><br><span class="line">		<span class="type">String</span> <span class="variable">KEY</span> <span class="operator">=</span> <span class="string">&quot;TS_CITY_&quot;</span>+provinceCode;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//由池中获取jedis对象</span></span><br><span class="line">		<span class="type">ShardedJedis</span> <span class="variable">jedis</span> <span class="operator">=</span> shardedJedisPool.getResource();</span><br><span class="line">		</span><br><span class="line">		<span class="comment">//1.从redis中获取数据，如果有数据直接返回</span></span><br><span class="line">		<span class="comment">//注意set设置2次就会被覆盖</span></span><br><span class="line">		<span class="keyword">if</span>(jedis.exists(KEY))&#123;	<span class="comment">//判断key是否存在</span></span><br><span class="line">			<span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> jedis.get(KEY);</span><br><span class="line">			JsonNode jsonNode;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">//从缓存中获取数据，然后把json转成java对象，然后直接返回，无需访问数据库</span></span><br><span class="line">				jsonNode = MAPPER.readTree(json);</span><br><span class="line">				<span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> MAPPER.readValue(jsonNode.traverse(),</span><br><span class="line">						MAPPER.getTypeFactory().constructCollectionType(List.class, City.class));</span><br><span class="line">				<span class="keyword">return</span> (List&lt;City&gt;) obj;  	<span class="comment">//减轻数据库访问压力</span></span><br><span class="line">			&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			<span class="comment">//传统方式直接从数据库读取数据</span></span><br><span class="line">			cityList = dictMapper.getCityList(provinceCode);</span><br><span class="line">			</span><br><span class="line">			<span class="comment">//2.第一访问时redis没有值，必须从数据库中获取值后，把值放入redis</span></span><br><span class="line">			<span class="comment">//把java list集合转成字符串json</span></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> MAPPER.writeValueAsString(cityList);</span><br><span class="line">				jedis.set(KEY, json);</span><br><span class="line">				<span class="keyword">return</span> cityList;</span><br><span class="line">			&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> List&lt;Area&gt; <span class="title function_">getAreaList</span><span class="params">(String cityCode)</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> dictMapper.getAreaList(cityCode);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> String <span class="title function_">getProvinceNameByCode</span><span class="params">(String provinceCode)</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> dictMapper.getProvinceNameByCode(provinceCode);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> String <span class="title function_">getCityNameByCode</span><span class="params">(String cityCode)</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> dictMapper.getCityNameByCode(cityCode);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> String <span class="title function_">getAreaNameByCode</span><span class="params">(String areaCode)</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> dictMapper.getAreaNameByCode(areaCode);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-Redis缓存应用注意点："><a href="#8-2-Redis缓存应用注意点：" class="headerlink" title="8.2 Redis缓存应用注意点："></a>8.2 Redis缓存应用注意点：</h3><p><strong>1、  是不是所有的数据都能放在缓存中？</strong></p>
+<p><strong>Reids能否替代mysql?</strong></p>
+<p>当然不是，</p>
+<p>缓存是存放热点数据，不会频繁修改的数据！！</p>
+<p>内存掉电会有什么问题？</p>
+<p>数据丢失。Redis每秒钟会自动存盘c++。MemCache</p>
+<p> <img src="http://omi0o6pp2.bkt.clouddn.com/blog/180202/gcelmda7mH.png"></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2017/12/06/Redis/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2017/12/16/Java%208%20%E6%96%B0%E7%89%B9%E6%80%A7%E6%A6%82%E8%BF%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Java 8 新特性概述
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2017/12/06/Nginx/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Nginx</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

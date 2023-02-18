@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Mysql增强 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Mysql增强"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Mysql增强
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/11/01/Mysql%E5%A2%9E%E5%BC%BA/" class="article-date">
+  <time datetime="2017-11-01T09:22:22.000Z" itemprop="datePublished">2017-11-01</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">20 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>在传统企业中由DBA数据库管理员，写SQL，查询性能调优。</p>
+<p>但是让大家只是了解？随着硬件和互联网，大数据的发展。例如：nosql 不仅仅是sql</p>
+<p><strong>关系型数据库</strong>：<strong>Oracle</strong>，<strong>SqlServer</strong>，<strong>MySQL</strong></p>
+<p>软肋，表的数据的关联关系非常的密切，多表联查，随着数据的增长，查询越来越慢。</p>
+<p>数据量有一定限制！</p>
+<ul>
+<li><p>Oracle单表可以支持到多少条数据？<strong>上亿</strong></p>
+</li>
+<li><p>MySQL <strong>1000万</strong></p>
+</li>
+<li><p>nosql，<strong>最低亿级数据以上</strong>，<strong>mongodb</strong>,<strong>hbase</strong></p>
+</li>
+</ul>
+<p>MySQL旧的方式在新的形势下被淘汰：<br>1）<strong>视图</strong><br>2）<strong>存储过程，函数</strong><br>3）<strong>触发器</strong></p>
+<span id="more"></span>
+
+<p>旧的传统的企业，旧的系统还在使用这些旧的技术<br>我们面试时，会被问。</p>
+<p>练习下面两个视图：&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">VIEW</span> v_goods238 <span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> t_goods <span class="keyword">WHERE</span> category_id<span class="operator">=</span><span class="number">238</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">VIEW</span> v_cat_goods <span class="keyword">AS</span> </span><br><span class="line"><span class="keyword">SELECT</span> c.name,g.item_type,g.title <span class="keyword">FROM</span> t_goods_category c</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> t_goods g</span><br><span class="line"><span class="keyword">ON</span> c.id<span class="operator">=</span>g.category_id</span><br></pre></td></tr></table></figure>
+
+
+
+<p>mysql增强，大型系统</p>
+<p>1、【废除】视图，本质就是一个查询语句，作用把复杂SQL封装起来，调用中直接访问视图名称即可。这样调用者就非常方便。很难SQL就是DBA，系统分析师。</p>
+<p>2、【废除】存储过程，本质脚本语言（弱）。性能高（在数据库上直接执行，它的服务器性能是所有服务器中最强）数据库迁移oracle,mysql</p>
+<p>3、【废除】函数，本质自定义函数，丰富业务算法（个性）。</p>
+<p>数据库迁移oracle,mysql</p>
+<p>4、【废除】触发器，本质类似拦截器。也很死板。<br>数据库迁移oracle,mysql</p>
+<p>5、索引，复合索引，最左前缀特性本质，就是提高查询效率</p>
+<p>什么时候创建索引？用户抱怨时。<br>什么字段上创建索引？where,order<br>主键有索引吗？主键天生就有索引！！！！</p>
+<h1 id="1-数据库编程-了解"><a href="#1-数据库编程-了解" class="headerlink" title="1. 数据库编程(了解)"></a>1. 数据库编程(了解)</h1><p>数据库中可以编写并保存一段程序，做数据运算</p>
+<ul>
+<li>视图 View</li>
+<li>存储过程 Procudure</li>
+<li>函数 Function</li>
+<li>触发器 Trigger</li>
+</ul>
+<p>mysql 数据库编程能力较弱，很多功能无法实现</p>
+<h1 id="2-变量"><a href="#2-变量" class="headerlink" title="2. 变量"></a>2. 变量</h1><h2 id="2-1-用户会话变量"><a href="#2-1-用户会话变量" class="headerlink" title="2.1 用户会话变量"></a>2.1 用户会话变量</h2><p>一个客户端与服务器连接期间的变量</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="variable">@v1</span> <span class="operator">=</span> <span class="number">123</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="variable">@v1</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2-局部变量"><a href="#2-2-局部变量" class="headerlink" title="2.2 局部变量"></a>2.2 局部变量</h2><p>​	begin … end; 是一对大括号，局部变量只能在 begin 到 end 之间使用，end结束后，变量消失</p>
+<p>​	使用 declare 关键字来定义局部变量</p>
+<p>​	delimiter ;	结束符改成;</p>
+<p>​	delimiter &#x2F;&#x2F;	结束符改成&#x2F;&#x2F;</p>
+<p>​	创建复杂的存储过程中间会用到;结束符，如果几个;放在一起，MySQL只会识别第一个，以后的不会识别，这样会及其不完整</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">begin</span></span><br><span class="line">   <span class="keyword">declare</span> v2 <span class="type">int</span> <span class="keyword">default</span> <span class="number">123</span>;</span><br><span class="line">   <span class="keyword">select</span> v2;</span><br><span class="line">   <span class="keyword">select</span> <span class="variable">@v1</span>;</span><br><span class="line"><span class="keyword">end</span><span class="operator">/</span><span class="operator">/</span></span><br><span class="line"> （上面无法执行，只是参考）</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-视图"><a href="#3-视图" class="headerlink" title="3. 视图"></a>3. 视图</h1><h2 id="3-1-简单视图"><a href="#3-1-简单视图" class="headerlink" title="3.1 简单视图"></a>3.1 简单视图</h2><p>​	视图的本质就是一个查询语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_goods <span class="keyword">where</span> category_id<span class="operator">=</span><span class="number">238</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">view</span> v_goods238 <span class="keyword">as</span> </span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_goods </span><br><span class="line"><span class="keyword">where</span> category_id<span class="operator">=</span><span class="number">238</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> v_goods238;</span><br><span class="line"></span><br><span class="line">DELIMITER $$  <span class="comment">/*设定一个标识符，标识结束$$*/</span></span><br><span class="line"></span><br><span class="line">USE `tedu_store`$$	<span class="comment">/*打开指定数据库tedu_store*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">DROP</span> <span class="keyword">VIEW</span> IF <span class="keyword">EXISTS</span> `v_goods238`$$	<span class="comment">/*如果此视图已经存在，就删除*/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> algorithm <span class="operator">=</span> undefined definer <span class="operator">=</span> `root`@`localhost` <span class="keyword">sql</span> security</span><br><span class="line">definer <span class="keyword">VIEW</span> `v_goods238` <span class="keyword">as</span></span><br><span class="line"><span class="keyword">select</span></span><br><span class="line">  `t_goods`.`id`            <span class="keyword">AS</span> `id`,</span><br><span class="line">  `t_goods`.`category_id`   <span class="keyword">AS</span> `category_id`,</span><br><span class="line">  `t_goods`.`item_type`     <span class="keyword">AS</span> `item_type`,</span><br><span class="line">  `t_goods`.`title`         <span class="keyword">AS</span> `title`,</span><br><span class="line">  `t_goods`.`sell_point`    <span class="keyword">AS</span> `sell_point`,</span><br><span class="line">  `t_goods`.`price`         <span class="keyword">AS</span> `price`,</span><br><span class="line">  `t_goods`.`num`           <span class="keyword">AS</span> `num`,</span><br><span class="line">  `t_goods`.`barcode`       <span class="keyword">AS</span> `barcode`,</span><br><span class="line">  `t_goods`.`image`         <span class="keyword">AS</span> `image`,</span><br><span class="line">  `t_goods`.`status`        <span class="keyword">AS</span> `status`,</span><br><span class="line">  `t_goods`.`priority`      <span class="keyword">AS</span> `priority`,</span><br><span class="line">  `t_goods`.`created_time`  <span class="keyword">AS</span> `created_time`,</span><br><span class="line">  `t_goods`.`modified_time` <span class="keyword">AS</span> `modified_time`,</span><br><span class="line">  `t_goods`.`created_user`  <span class="keyword">AS</span> `created_user`,</span><br><span class="line">  `t_goods`.`modified_user` <span class="keyword">AS</span> `modified_user`</span><br><span class="line"><span class="keyword">FROM</span> `t_goods`</span><br><span class="line"><span class="keyword">WHERE</span> (`t_goods`.`category_id` <span class="operator">=</span> <span class="number">238</span>)$$</span><br><span class="line"></span><br><span class="line">DELIMITER ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> v_goods238;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-多级关联视图"><a href="#3-2-多级关联视图" class="headerlink" title="3.2 多级关联视图"></a>3.2 多级关联视图</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">view</span> v_cat_goods <span class="keyword">as</span> </span><br><span class="line"><span class="keyword">select</span> </span><br><span class="line">	c.name,</span><br><span class="line">    g.item_type,</span><br><span class="line">    g.title</span><br><span class="line"><span class="keyword">from</span> </span><br><span class="line">	t_goods_category c</span><br><span class="line"><span class="keyword">left</span> <span class="keyword">join</span> </span><br><span class="line">	t_goods g</span><br><span class="line"><span class="keyword">on</span> </span><br><span class="line">	c.id <span class="operator">=</span> g.category_id;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> v_cat_goods;</span><br><span class="line"></span><br><span class="line">视图在大型项目中被废除！！！！</span><br><span class="line">视图过程是把查询所有的记录都查询回来，然后再过滤数据，过滤掉非<span class="number">238.</span></span><br><span class="line">如果这张表中有一千万数据。数据量大时无法优化。</span><br><span class="line">Java程序可以吗？mybatis它直接处理，返回结果数据。结果就比视图快。</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-存储过程"><a href="#4-存储过程" class="headerlink" title="4. 存储过程"></a>4. 存储过程</h1><p>存储过程是存储在数据库服务器中的一段过程代码</p>
+<p>优点：</p>
+<p>Jsp-java-database(proc)</p>
+<p>存储过程离数据库最近，所以它执行代码是效率最高的。</p>
+<p>Client(brower)-WebServer（tomcat）-DatabaseServer（mysql）</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180126/ICf4mihlkA.png?imageslim"></p>
+<p>WebServer和DatabaseServer，在企业中，WebServer一般服务器即可，但是DatabaseServer是所有服务器中最好的。甚至大型项目，小型机。Unix+Oracle。</p>
+<p>​	废除：</p>
+<p>​	1）	写数据库代码（存储过程-单独学习语法，无法断点，system.out没有输出，几乎无法调试。DBA），写java代码（人员众多，好调试）。后期维护。不好维护。Java好维护。</p>
+<p>​	2）	存储过程不好写，质量不好控制。</p>
+<h2 id="4-1-定义存储过程"><a href="#4-1-定义存储过程" class="headerlink" title="4.1 定义存储过程"></a>4.1 定义存储过程</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--  修改结束符</span></span><br><span class="line">delimiter <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--  创建存储过程p1</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">procedure</span> p1()</span><br><span class="line"><span class="keyword">begin</span>  <span class="comment">--  大括号开始</span></span><br><span class="line">   <span class="comment">-- 定义局部变量v2</span></span><br><span class="line">   <span class="keyword">declare</span> v2 <span class="type">int</span> <span class="keyword">default</span> <span class="number">123</span>;</span><br><span class="line">   <span class="keyword">select</span> v2; <span class="comment">--  显示v2变量的值</span></span><br><span class="line"><span class="keyword">end</span><span class="operator">/</span><span class="operator">/</span>  <span class="comment">--  大括号结束</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-调用存储过程"><a href="#4-2-调用存储过程" class="headerlink" title="4.2 调用存储过程"></a>4.2 调用存储过程</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">call</span> p1()<span class="operator">/</span><span class="operator">/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-3-查看存储过程"><a href="#4-3-查看存储过程" class="headerlink" title="4.3 查看存储过程"></a>4.3 查看存储过程</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">procedure</span> status <span class="keyword">where</span> db<span class="operator">=</span><span class="string">&#x27;db1&#x27;</span></span><br><span class="line">	查看指定库中的存过程</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">create</span> <span class="keyword">procedure</span> p1</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-4-删除存储过程"><a href="#4-4-删除存储过程" class="headerlink" title="4.4 删除存储过程"></a>4.4 删除存储过程</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">drop</span> <span class="keyword">procedure</span> if <span class="keyword">exists</span> p1<span class="operator">/</span><span class="operator">/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-5-存储过程的参数"><a href="#4-5-存储过程的参数" class="headerlink" title="4.5 存储过程的参数"></a>4.5 存储过程的参数</h2><p>三种参数：</p>
+<ul>
+<li>in       输入参数</li>
+<li>out      输出参数</li>
+<li>inout    既能输入又能输出</li>
+</ul>
+<p>存储过程参数测试</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--  向学生表和联系方式表同时插入数据</span></span><br><span class="line"><span class="comment">--  1) 插入学生数据</span></span><br><span class="line"><span class="comment">--  2) 得到新插入的自增主键值</span></span><br><span class="line"><span class="comment">--  3) 插入联系方式表</span></span><br><span class="line">传统方式：</span><br><span class="line"><span class="number">1</span>．	页面填写两张表的数据，学生名称，学生的电话，存在两个表中</span><br><span class="line"><span class="number">2</span>．	学生表自增主键</span><br><span class="line"><span class="number">3</span>．	联系表中和学生表的关联（一对一）</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `t_student` (</span><br><span class="line">  `stu_id` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `name` <span class="type">varchar</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`stu_id`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `t_tel` (</span><br><span class="line">  `stu_id` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `tel` <span class="type">varchar</span>(<span class="number">30</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`stu_id`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8</span><br><span class="line"></span><br><span class="line">DELIMITER <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">procedure</span> p_student_tel</span><br><span class="line">(<span class="keyword">in</span> name <span class="type">varchar</span>(<span class="number">20</span>),</span><br><span class="line"><span class="keyword">in</span> tel <span class="type">varchar</span>(<span class="number">20</span>), <span class="keyword">out</span> id <span class="type">int</span>)</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">   <span class="keyword">declare</span> v <span class="type">int</span>;<span class="comment">-- 定义临时变量用来存自增主键值</span></span><br><span class="line">   <span class="comment">--  插入学生数据</span></span><br><span class="line">   <span class="keyword">insert</span> <span class="keyword">into</span> t_student(name) <span class="keyword">values</span>(name);</span><br><span class="line">   <span class="comment">--  获得新生成的自增主键值存到v</span></span><br><span class="line">   <span class="keyword">set</span> v <span class="operator">=</span> last_insert_id();</span><br><span class="line">   <span class="comment">--  插入联系方式数据</span></span><br><span class="line">   <span class="keyword">insert</span> <span class="keyword">into</span> t_tel(stu_id,tel) <span class="keyword">values</span>(v, tel);</span><br><span class="line">   <span class="comment">--  自增主键值存到输出参数id</span></span><br><span class="line">   <span class="keyword">set</span> id<span class="operator">=</span>v;</span><br><span class="line"><span class="keyword">end</span><span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 调用</span></span><br><span class="line"><span class="keyword">CALL</span> p_student_tel(<span class="string">&#x27;刘强东&#x27;</span>,<span class="number">13010100808</span>,<span class="variable">@id</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">--  调用</span></span><br><span class="line"><span class="keyword">CALL</span> p_student_tel(<span class="string">&#x27;刘强东&#x27;</span>,<span class="number">13010100808</span>,<span class="variable">@id</span>);</span><br><span class="line"> </span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_student;</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_tel;</span><br><span class="line"><span class="keyword">select</span> <span class="variable">@stu</span>_id;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="5-流程控制"><a href="#5-流程控制" class="headerlink" title="5. 流程控制"></a>5. 流程控制</h1><h2 id="5-1-if"><a href="#5-1-if" class="headerlink" title="5.1  if"></a>5.1  if</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">if 条件 then</span><br><span class="line"></span><br><span class="line">   代码</span><br><span class="line"></span><br><span class="line">end if</span><br><span class="line"></span><br><span class="line">if 条件 then</span><br><span class="line">   代码1</span><br><span class="line">else</span><br><span class="line">   代码2</span><br><span class="line">end if</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-2-case"><a href="#5-2-case" class="headerlink" title="5.2 case"></a>5.2 case</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span></span><br><span class="line">   <span class="keyword">when</span> 条件<span class="number">1</span> <span class="keyword">then</span> ...</span><br><span class="line">   <span class="keyword">when</span> 条件<span class="number">2</span> <span class="keyword">then</span> ...</span><br><span class="line">   <span class="keyword">else</span> ...</span><br><span class="line"><span class="keyword">end</span> <span class="keyword">case</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> 变量或表达式</span><br><span class="line">   <span class="keyword">when</span> 值<span class="number">1</span> <span class="keyword">then</span> ...</span><br><span class="line">   <span class="keyword">when</span> 值<span class="number">2</span> <span class="keyword">then</span> ...</span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line"><span class="keyword">end</span> <span class="keyword">case</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>分支判断测试</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">delimiter <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">procedure</span> if <span class="keyword">exists</span> p1<span class="operator">/</span><span class="operator">/</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">create</span> <span class="keyword">procedure</span> p1(<span class="keyword">in</span> v <span class="type">int</span>)</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">   if v<span class="operator">=</span><span class="number">1</span> <span class="keyword">then</span></span><br><span class="line">      <span class="keyword">select</span> <span class="string">&#x27;v的值是1&#x27;</span>;</span><br><span class="line">   <span class="keyword">end</span> if;</span><br><span class="line">   <span class="keyword">case</span> v</span><br><span class="line">      <span class="keyword">when</span> <span class="number">2</span> <span class="keyword">then</span> <span class="keyword">select</span> <span class="string">&#x27;v的值是2&#x27;</span>;</span><br><span class="line">      <span class="keyword">when</span> <span class="number">3</span> <span class="keyword">then</span> <span class="keyword">select</span> <span class="string">&#x27;v的值是3&#x27;</span>;</span><br><span class="line">      <span class="keyword">else</span> <span class="keyword">select</span> <span class="string">&#x27;v的值不是2,3&#x27;</span>;</span><br><span class="line">   <span class="keyword">end</span> <span class="keyword">case</span>;</span><br><span class="line"><span class="keyword">end</span><span class="operator">/</span><span class="operator">/</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">call</span> p1(<span class="number">1</span>) <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">call</span> p1(<span class="number">2</span>) <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">call</span> p1(<span class="number">3</span>) <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">call</span> p1(<span class="number">4</span>) <span class="operator">/</span><span class="operator">/</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-3-while"><a href="#5-3-while" class="headerlink" title="5.3 while"></a>5.3 while</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">while 条件 do</span><br><span class="line">   代码</span><br><span class="line"><span class="keyword">end</span> while</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-4-loop"><a href="#5-4-loop" class="headerlink" title="5.4 loop"></a>5.4 loop</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--  lp: 循环命名，可以起任意的名字</span></span><br><span class="line"></span><br><span class="line">lp: loop</span><br><span class="line">   ...</span><br><span class="line">   if 条件 <span class="keyword">then</span></span><br><span class="line">      leave lp; <span class="comment">--  指定离开哪个循环</span></span><br><span class="line">   <span class="keyword">end</span> if;</span><br><span class="line">   ...</span><br><span class="line"><span class="keyword">end</span> loop;</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-5-repeat"><a href="#5-5-repeat" class="headerlink" title="5.5 repeat"></a>5.5 repeat</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">repeat</span><br><span class="line">   代码</span><br><span class="line">until 条件 <span class="keyword">end</span> repeat;</span><br></pre></td></tr></table></figure>
+
+<p><strong>循环测试</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--  新建 tb1 表</span></span><br><span class="line">use db1 <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> if <span class="keyword">exists</span> tb1 <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tb1(</span><br><span class="line">   id <span class="type">int</span> <span class="keyword">primary</span> key auto_increment,</span><br><span class="line">   num <span class="type">int</span></span><br><span class="line">)engine<span class="operator">=</span>innodb charset<span class="operator">=</span>utf8 <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line">delimiter <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">procedure</span> if <span class="keyword">exists</span> p2<span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">procedure</span> p2(<span class="keyword">in</span> n <span class="type">int</span>)</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">   <span class="keyword">declare</span> i <span class="type">int</span> <span class="keyword">default</span> <span class="number">0</span>;</span><br><span class="line">   <span class="comment">--  while</span></span><br><span class="line">   while i<span class="operator">&lt;</span>n do <span class="comment">-- i的值从0递增到n-1</span></span><br><span class="line">      <span class="keyword">insert</span> <span class="keyword">into</span> tb1(num) <span class="keyword">values</span>(i<span class="operator">+</span><span class="number">1</span>);</span><br><span class="line">      <span class="keyword">set</span> i<span class="operator">=</span>i<span class="operator">+</span><span class="number">1</span>;</span><br><span class="line">   <span class="keyword">end</span> while; </span><br><span class="line">   <span class="comment">--  loop</span></span><br><span class="line">   <span class="keyword">set</span> i<span class="operator">=</span><span class="number">0</span>;</span><br><span class="line">   lp: loop</span><br><span class="line">		<span class="keyword">insert</span> <span class="keyword">into</span> tb1(num) <span class="keyword">values</span>(i<span class="operator">+</span><span class="number">1</span>);</span><br><span class="line">		<span class="keyword">set</span> i<span class="operator">=</span>i<span class="operator">+</span><span class="number">1</span>;</span><br><span class="line">		</span><br><span class="line">		if i<span class="operator">=</span>n <span class="keyword">then</span> <span class="comment">-- i等于n时退出loop循环</span></span><br><span class="line">			leave lp;</span><br><span class="line">		<span class="keyword">end</span> if;</span><br><span class="line">	<span class="keyword">end</span> loop;</span><br><span class="line">	<span class="comment">-- repeat</span></span><br><span class="line">	<span class="keyword">set</span> i<span class="operator">=</span><span class="number">0</span>;</span><br><span class="line">	repeat</span><br><span class="line">      <span class="keyword">insert</span> <span class="keyword">into</span> tb1(num) <span class="keyword">values</span>(i<span class="operator">+</span><span class="number">1</span>);</span><br><span class="line">      <span class="keyword">set</span> i<span class="operator">=</span>i<span class="operator">+</span><span class="number">1</span>;</span><br><span class="line">   until i<span class="operator">=</span>n <span class="keyword">end</span> repeat; <span class="comment">-- i等于n时退出repeat循环</span></span><br><span class="line"><span class="keyword">end</span><span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">call</span> p2(<span class="number">10</span>) <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb1 <span class="operator">/</span><span class="operator">/</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="6-函数"><a href="#6-函数" class="headerlink" title="6. 函数"></a>6. 函数</h1><ul>
+<li>函数有返回值</li>
+<li>调用存储过程用call，调用函数直接调</li>
+</ul>
+<p>函数为什么不让用？</p>
+<p>分布式？又放在Java端</p>
+<p>Zookeeper集群管理者，当一台服务的配置更新，zk会自动把配置改变信息更新到其它所有的机器上。</p>
+<h2 id="6-1-创建函数"><a href="#6-1-创建函数" class="headerlink" title="6.1  创建函数"></a>6.1  创建函数</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">function</span> fn()</span><br><span class="line"><span class="keyword">returns</span> <span class="type">varchar</span>(<span class="number">100</span>)</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">   执行代码运算产生计算结果</span><br><span class="line">   <span class="keyword">return</span> 计算结果;</span><br><span class="line"><span class="keyword">end</span><span class="operator">/</span><span class="operator">/</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-1-1-求平方的函数-fn-pow"><a href="#6-1-1-求平方的函数-fn-pow" class="headerlink" title="6.1.1 求平方的函数 fn_pow"></a>6.1.1 求平方的函数 fn_pow</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">DELIMITER //</span><br><span class="line">drop function if exists fn_pow //</span><br><span class="line"></span><br><span class="line">create function fn_pow(n int)</span><br><span class="line">returns int -- 函数返回什么类型的数据</span><br><span class="line">begin</span><br><span class="line">   </span><br><span class="line">   set r = n*n;</span><br><span class="line">   return r; -- 向调用位置返回计算结果</span><br><span class="line">end //</span><br><span class="line"></span><br><span class="line">select fn_pow(5) //</span><br><span class="line">select *, fn_pow(num) from tb1 //</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-2-查看函数"><a href="#6-2-查看函数" class="headerlink" title="6.2  查看函数"></a>6.2  查看函数</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">function</span> status;</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">function</span> status <span class="keyword">where</span> db<span class="operator">=</span><span class="string">&#x27;tedu_store&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">create</span> <span class="keyword">function</span> fn_pow;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-3-删除函数"><a href="#6-3-删除函数" class="headerlink" title="6.3 删除函数"></a>6.3 删除函数</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">drop function if exists fn_pow //</span><br></pre></td></tr></table></figure>
+
+<h1 id="7-触发器"><a href="#7-触发器" class="headerlink" title="7. 触发器"></a>7. 触发器</h1><p>对表中的数据操作时，可以触发一段代码执行</p>
+<p>三个数据操作：</p>
+<ul>
+<li>insert</li>
+<li>update</li>
+<li>delete</li>
+</ul>
+<p>两个触发时间：</p>
+<ul>
+<li>before</li>
+<li>after</li>
+</ul>
+<p>一张表中最多可以有6个触发器</p>
+<ul>
+<li>before insert</li>
+<li>after insert</li>
+<li>before update</li>
+<li>after update</li>
+<li>before delete</li>
+<li>after delete</li>
+</ul>
+<p>两个隐含对象</p>
+<ul>
+<li><p>new </p>
+<p>​	新的数据行<br>​	insert的new：要插入的新行<br>​	update的new：修改后的新行<br>​	delete的new：没有</p>
+</li>
+<li><p>old</p>
+<p>​	旧的数据行</p>
+<p>​	insert的old：没有</p>
+<p>​	update的old：修改前的旧数据</p>
+<p>​	delete的old：被删除的旧数据</p>
+</li>
+<li><p>访问新行或旧行数据：</p>
+</li>
+</ul>
+<p>  ​	new.id<br>  ​	new.name<br>  ​	old.age<br>  ​	old.tel</p>
+<h2 id="7-1-创建触发器"><a href="#7-1-创建触发器" class="headerlink" title="7.1 创建触发器"></a>7.1 创建触发器</h2><p><strong>操作商品表insert,before,new</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">trigger</span> 名 触发时间 <span class="keyword">on</span> 表</span><br><span class="line"><span class="keyword">for</span> <span class="keyword">each</span> <span class="type">row</span></span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">   代码</span><br><span class="line"><span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>用触发器自动更新updated字段</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--  学生表添加 updated字段</span></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> t_student</span><br><span class="line"><span class="keyword">add</span> created datetime <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="comment">--  添加触发器，插入数据时自动填入时间</span></span><br><span class="line"><span class="comment">--  before insert</span></span><br><span class="line">DELIMITER <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TRIGGER</span> tr_b_i</span><br><span class="line">BEFORE <span class="keyword">INSERT</span> <span class="keyword">ON</span> t_student <span class="keyword">FOR</span> <span class="keyword">EACH</span> <span class="type">ROW</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line"> <span class="keyword">SET</span> new.created<span class="operator">=</span>NOW();</span><br><span class="line"><span class="keyword">END</span> <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t_student(name) <span class="keyword">values</span>(<span class="string">&#x27;tony&#x27;</span>) <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_student <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--  添加触发器，修改数据时自动修改时间</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> t_student</span><br><span class="line"><span class="keyword">add</span> updated datetime <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line">DELIMITER <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TRIGGER</span> tr_b_u</span><br><span class="line">BEFORE <span class="keyword">UPDATE</span> <span class="keyword">ON</span> t_student <span class="keyword">FOR</span> <span class="keyword">EACH</span> <span class="type">ROW</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  <span class="keyword">SET</span> new.updated <span class="operator">=</span> NOW();</span><br><span class="line"><span class="keyword">END</span> <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">UPDATE</span> t_student <span class="keyword">SET</span> NAME<span class="operator">=</span><span class="string">&#x27;tina&#x27;</span> <span class="keyword">WHERE</span> stu_id<span class="operator">=</span><span class="number">2</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_student <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 级联删除。删除主表信息时利用触发器删除子表信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- before delete</span></span><br><span class="line"></span><br><span class="line">delimiter <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">trigger</span> tr_b_d</span><br><span class="line">before <span class="keyword">delete</span> <span class="keyword">on</span> t_student <span class="keyword">for</span> <span class="keyword">each</span> <span class="type">row</span></span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">	<span class="keyword">delete</span> <span class="keyword">from</span> t_tel <span class="keyword">where</span> stu_id<span class="operator">=</span>old.stu_id;</span><br><span class="line"><span class="keyword">END</span> <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_student;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> t_tel;</span><br><span class="line"></span><br><span class="line"><span class="keyword">delete</span> <span class="keyword">from</span> t_student <span class="keyword">where</span> name<span class="operator">=</span><span class="string">&#x27;a&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-2-查看触发器"><a href="#7-2-查看触发器" class="headerlink" title="7.2 查看触发器"></a>7.2 查看触发器</h2><p>进入系统库 information_schema</p>
+<p>use information_schema &#x2F;&#x2F;</p>
+<p>查询 triggers 表中触发器信息</p>
+<p>select * from triggers</p>
+<h2 id="7-3-删除触发器"><a href="#7-3-删除触发器" class="headerlink" title="7.3 删除触发器"></a>7.3 删除触发器</h2><p>drop trigger 触发器名</p>
+<p>级联删除</p>
+<p>删除主表的数据时。要把子表的数据删除。</p>
+<h1 id="8-数据库的备份、恢复"><a href="#8-数据库的备份、恢复" class="headerlink" title="8. 数据库的备份、恢复"></a>8. 数据库的备份、恢复</h1><h2 id="8-1-备份方式："><a href="#8-1-备份方式：" class="headerlink" title="8.1 备份方式："></a>8.1 备份方式：</h2><p>1）冷备份（按月）</p>
+<p>2）热备份</p>
+<p>​	a. 定时任务 Job （按周，日（凌晨2点），小时）、</p>
+<p>​	b. 实时备份（主从复制，实时同步）</p>
+<p>查看数据安装路径</p>
+<p>select @@basedir AS basePath FROM DUAL;</p>
+<p>C:\Program Files\MySQL Server 5.5\bin&gt;</p>
+<p>使用 mysqldump 命令备份数据库</p>
+<p>使用 mysql 命令恢复数据库</p>
+<h2 id="8-2-备份"><a href="#8-2-备份" class="headerlink" title="8.2 备份"></a>8.2 备份</h2><p>退出 mysql，在系统命令行执行：</p>
+<p>下面命令是一行代码，<strong>不能折行</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysqldump <span class="operator">-</span>uroot <span class="operator">-</span>p</span><br><span class="line"><span class="comment">--default-character-set=utf8	//表中存的是什么编码</span></span><br><span class="line">hr<span class="operator">&gt;</span>d:\hr.sql	<span class="operator">/</span><span class="operator">/</span>库<span class="operator">&gt;</span>文件</span><br></pre></td></tr></table></figure>
+
+<p>数据库名</p>
+<h2 id="8-3-恢复"><a href="#8-3-恢复" class="headerlink" title="8.3 恢复"></a>8.3 恢复</h2><p>再次恢复：</p>
+<p>1）在<strong>数据库中</strong>新建一个库</p>
+<p>​	create database jtdb2 charset utf8;</p>
+<ol start="2">
+<li>在<strong>系统命令行</strong>执行恢复命令</li>
+</ol>
+<p>​	下面命令是一行代码，不能折行</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql <span class="operator">-</span>uroot <span class="operator">-</span>p</span><br><span class="line"><span class="comment">--default-character-set=utf8</span></span><br><span class="line">jtdb2:\jtds.sql</span><br></pre></td></tr></table></figure>
+
+<h1 id="9-索引"><a href="#9-索引" class="headerlink" title="9. 索引"></a>9. 索引</h1><h2 id="9-1-存储过程产生大量数据"><a href="#9-1-存储过程产生大量数据" class="headerlink" title="9.1 存储过程产生大量数据"></a>9.1 存储过程产生大量数据</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>) 创建一个内存表 tm, engine<span class="operator">=</span>memory</span><br><span class="line"><span class="number">2</span>) 创建一个磁盘表 td</span><br><span class="line"><span class="number">3</span>) 在存储过程中，循环 <span class="number">20000</span> 次向内存表插入随机字符串</span><br><span class="line"><span class="number">4</span>) 把 <span class="number">20000</span> 条数据，一批存磁盘表</span><br><span class="line"><span class="number">5</span>）清空内存表</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 内存表</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> if <span class="keyword">exists</span> tm;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> tm(</span><br><span class="line">	c <span class="type">varchar</span>(<span class="number">20</span>)</span><br><span class="line">) engine<span class="operator">=</span>memory chaset<span class="operator">=</span>utf8;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 磁盘表</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">table</span> if <span class="keyword">exists</span> td;</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> td(</span><br><span class="line">    id <span class="type">int</span> <span class="keyword">primary</span> key auto_increment,</span><br><span class="line">    c <span class="type">varchar</span>(<span class="number">20</span>)</span><br><span class="line">) engine<span class="operator">=</span>innodb charset<span class="operator">=</span>utf8;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 存储过程</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">drop</span> <span class="keyword">procedure</span> if <span class="keyword">exists</span> gen_data;</span><br><span class="line">delimiter <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">procedure</span> gen_data(<span class="keyword">in</span> n <span class="type">int</span>)</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">	<span class="keyword">declare</span> i <span class="type">int</span> <span class="keyword">default</span> <span class="number">0</span>;</span><br><span class="line">    while i<span class="operator">&lt;</span>n do</span><br><span class="line">		<span class="keyword">insert</span> <span class="keyword">into</span> tm <span class="keyword">values</span> (uuid());</span><br><span class="line">        <span class="keyword">set</span> i<span class="operator">=</span>i<span class="operator">+</span><span class="number">1</span>;</span><br><span class="line">	<span class="keyword">end</span> while;</span><br><span class="line">    <span class="keyword">insert</span> <span class="keyword">into</span> td(c) <span class="keyword">select</span> c <span class="keyword">from</span> tm;</span><br><span class="line">    <span class="keyword">delete</span> <span class="keyword">from</span> tm;</span><br><span class="line"><span class="keyword">end</span> <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">call</span> gen_data(<span class="number">1000</span>)</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180128/b73EeeeGk9.png"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">PROCEDURE</span> IF <span class="keyword">EXISTS</span> test_insert;</span><br><span class="line">DELIMITER <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> test_insert(cnt <span class="type">INT</span>)</span><br><span class="line">  <span class="keyword">BEGIN</span> </span><br><span class="line">    <span class="keyword">DECLARE</span> i <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">START</span> TRANSACTION;</span><br><span class="line">    WHILE i<span class="operator">&lt;</span>cnt</span><br><span class="line">      DO </span><br><span class="line">          <span class="keyword">INSERT</span> <span class="keyword">INTO</span> td(c) <span class="keyword">VALUES</span>(UUID());</span><br><span class="line">      <span class="keyword">SET</span> i<span class="operator">=</span>i<span class="operator">+</span><span class="number">1</span>;</span><br><span class="line">      <span class="keyword">END</span> WHILE;</span><br><span class="line">    <span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="keyword">END</span> <span class="operator">/</span><span class="operator">/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">call</span> test_insert(<span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="9-2-索引优化"><a href="#9-2-索引优化" class="headerlink" title="9.2 索引优化"></a>9.2 索引优化</h2><p><strong>索引其本质是创建了一张索引表，现有表的拷贝</strong></p>
+<p>（索引需要代价，插入数据要重新排序）</p>
+<p><strong>只拷贝现有表的指定索引字段。重要是做了一件事情：</strong></p>
+<p><strong>排序</strong></p>
+<p><strong>为什么它要排序呢？ 为什么排序后就快了呢？</strong></p>
+<p><strong>不创建索引，查询时，全表遍历。</strong></p>
+<p><strong>折半算法</strong></p>
+<p>用索引提高数据查找效率</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-- 没有索引，花3.5秒查询</span><br><span class="line">select * from td where c=&#x27;ab&#x27; //</span><br><span class="line"></span><br><span class="line">-- 对c字段创建索引，花1分40秒左右</span><br><span class="line">create index td_c_index on td(c) //</span><br><span class="line"></span><br><span class="line">-- 有索引查询花费  0.00 秒</span><br><span class="line">select * from td where c=&#x27;ab&#x27; //</span><br></pre></td></tr></table></figure>
+
+<h2 id="9-3-MySQL-验证索引的使用-最左前缀特性"><a href="#9-3-MySQL-验证索引的使用-最左前缀特性" class="headerlink" title="9.3 MySQL 验证索引的使用-最左前缀特性"></a>9.3 MySQL 验证索引的使用-最左前缀特性</h2><p>复合索引</p>
+<p>通过 EXPLAIN 关键字可以判断查询 SQL 语句是否使用索引</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN select * from td where c=&#x27;ab&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180128/Il1F2B0Jm8.png"></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180128/G6c4h5GK6c.png"></p>
+<p>Possible_keys如果有值就代表使用了哪个索引，如果null就代表查询没有使用索引，全表遍历。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tb1 </span><br><span class="line"><span class="keyword">WHERE</span> user_id<span class="operator">=</span><span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tb1 </span><br><span class="line"><span class="keyword">WHERE</span> order_id<span class="operator">=</span><span class="number">300</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tb1 </span><br><span class="line"><span class="keyword">WHERE</span> user_id<span class="operator">=</span><span class="number">100</span> <span class="keyword">AND</span> order_id<span class="operator">=</span><span class="number">300</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tb1 </span><br><span class="line"><span class="keyword">WHERE</span> order_id<span class="operator">=</span><span class="number">300</span> <span class="keyword">AND</span> user_id<span class="operator">=</span><span class="number">100</span> ;</span><br><span class="line"></span><br><span class="line">没使用索引</span><br><span class="line">EXPLAIN </span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> t_goods </span><br><span class="line"><span class="keyword">WHERE</span> title <span class="keyword">LIKE</span> <span class="string">&#x27;%皮面%&#x27;</span></span><br><span class="line"></span><br><span class="line">使用索引</span><br><span class="line">EXPLAIN</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> t_goods</span><br><span class="line"><span class="keyword">WHERE</span> title <span class="keyword">LIKE</span> <span class="string">&#x27;皮面%&#x27;</span></span><br><span class="line"></span><br><span class="line">没有使用索引</span><br><span class="line">EXPLAIN</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> t_goods</span><br><span class="line"><span class="keyword">WHERE</span> title <span class="keyword">LIKE</span> <span class="string">&#x27;%皮面&#x27;</span></span><br><span class="line"></span><br><span class="line">EXPLAIN <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_cart <span class="keyword">where</span> user_id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> item_id<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180128/BbJ3hI6iiG.png"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_cart <span class="keyword">where</span> user_id<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180128/hE8GD0AACI.png"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tb_cart <span class="keyword">WHERE</span> item_id<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180128/6Lj0e7chgI.png"></p>
+<p>查看SQL的执行计划，可以看出第一句、第二句SQL使用了索引，第三句 SQL未使用索引。很好的证明了<strong>索引左侧前缀特性</strong>。</p>
+<p>注意：</p>
+<p>1）下面的语句违反了左侧前缀的特性，为何仍然可以使用索引呢？因为MYSQL对SQL语句有优化，它会重新组合where条件。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> tb_cart <span class="keyword">WHERE</span> item_id<span class="operator">=</span><span class="number">1</span> <span class="keyword">AND</span> user_id<span class="operator">=</span><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>2）没有where条件的查询是不会使用索引的。</p>
+<h1 id="10-作业"><a href="#10-作业" class="headerlink" title="10. 作业"></a>10. 作业</h1><p>商品表 tb_item</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_item;</span><br></pre></td></tr></table></figure>
+
+<p>有什么品牌</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="keyword">distinct</span> brand <span class="keyword">from</span> tb_item;</span><br></pre></td></tr></table></figure>
+
+<p>最贵商品的品牌、名称、价格</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> brand,title,price</span><br><span class="line"><span class="keyword">from</span> tb_item</span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> price <span class="keyword">desc</span></span><br><span class="line">limit <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>分页查看商品</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price</span><br><span class="line"><span class="keyword">from</span> tb_item</span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> price <span class="keyword">desc</span></span><br><span class="line"><span class="comment">-- limit 0,10;</span></span><br><span class="line"><span class="comment">-- limit 10,10;</span></span><br><span class="line"><span class="comment">-- limit 20,10;</span></span><br><span class="line">limit <span class="number">30</span>,<span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+
+<p>商品名和商品描述</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span></span><br><span class="line">	title,item_desc</span><br><span class="line"><span class="keyword">from</span> </span><br><span class="line">	tb_item i</span><br><span class="line"><span class="keyword">join</span></span><br><span class="line">	tb_item_desc </span><br><span class="line"><span class="keyword">on</span> </span><br><span class="line">	i.id <span class="operator">=</span> d.item_id</span><br><span class="line">limit <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>商品分类表 tb_item_cat</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_item_cat;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> </span><br><span class="line"><span class="keyword">from</span> </span><br><span class="line">	tb_item_cat</span><br><span class="line"><span class="keyword">where</span> </span><br><span class="line">	name <span class="keyword">like</span> <span class="string">&#x27;%电脑%&#x27;</span> </span><br><span class="line"><span class="keyword">or</span></span><br><span class="line">	name <span class="keyword">like</span> <span class="string">&#x27;%笔记本%&#x27;</span></span><br><span class="line"><span class="keyword">or</span> </span><br><span class="line">	name <span class="keyword">like</span> <span class="string">&#x27;%手机%&#x27;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查询所有的顶层分类</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_item_cat</span><br><span class="line"><span class="keyword">where</span> </span><br><span class="line">	is_parent<span class="operator">=</span><span class="number">1</span> </span><br><span class="line"><span class="keyword">and</span> </span><br><span class="line">	parent_id <span class="keyword">is</span> <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
+
+<p>查询 161 下的二层分类</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> </span><br><span class="line">	tb_item_cat</span><br><span class="line"><span class="keyword">where</span> </span><br><span class="line">	parent_id<span class="operator">=</span><span class="number">161</span></span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> sort_order;</span><br></pre></td></tr></table></figure>
+
+<p>查询 162 下的三层分类</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_item_cat</span><br><span class="line"><span class="keyword">where</span> </span><br><span class="line">	parent_id<span class="operator">=</span><span class="number">162</span></span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> </span><br><span class="line">	sort_order;</span><br></pre></td></tr></table></figure>
+
+<p>用户表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_user;</span><br></pre></td></tr></table></figure>
+
+<p>订单表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_order;</span><br></pre></td></tr></table></figure>
+
+<p>用户 id 是14的订单</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_order <span class="keyword">where</span> user_id<span class="operator">=</span><span class="number">14</span>;</span><br></pre></td></tr></table></figure>
+
+<p>订单编号是 20161001490698615071</p>
+<p>查询这个订单的所有商品</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> tb_order_item</span><br><span class="line"><span class="keyword">where</span> order_id<span class="operator">=</span><span class="number">20161001490698615071</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<p>订单编号是 20161001490698615071</p>
+<p>​    查询每种类别的商品数量</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> cid,<span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">from</span> tb_item <span class="keyword">group</span> <span class="keyword">by</span> cid </span><br></pre></td></tr></table></figure>
+
+<p> 查询 类别 163 的商品</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> cid<span class="operator">=</span><span class="number">163</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询商品价格不大于100的商品名称列表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> price<span class="operator">&lt;</span><span class="number">100</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询品牌是联想,且价格在40000以上的商品名称和价格</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand<span class="operator">=</span><span class="string">&#x27;联想&#x27;</span> <span class="keyword">and</span> price<span class="operator">&gt;</span><span class="number">40000</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询品牌是三木,或价格在10以上的商品名称和价格</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand<span class="operator">=</span><span class="string">&#x27;三木&#x27;</span> <span class="keyword">or</span> price<span class="operator">&lt;</span><span class="number">50</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询品牌是三木、广博、齐心的商品名称和价格</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">in</span>(<span class="string">&#x27;三木&#x27;</span>,<span class="string">&#x27;广博&#x27;</span>,<span class="string">&#x27;齐心&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>​    查询品牌不是联想、戴尔的商品名称和价格</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">not</span> <span class="keyword">in</span>(<span class="string">&#x27;联想&#x27;</span>,<span class="string">&#x27;戴尔&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>​    查找品牌是联想且价格大于10000的电脑名称</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand<span class="operator">=</span><span class="string">&#x27;联想&#x27;</span> <span class="keyword">and</span> price<span class="operator">&gt;</span><span class="number">10000</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询联想或戴尔的电脑名称列表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand<span class="operator">=</span><span class="string">&#x27;联想&#x27;</span> <span class="keyword">or</span> brand<span class="operator">=</span><span class="string">&#x27;戴尔&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询联想、戴尔、三木的商品名称列表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id.brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">in</span>(<span class="string">&#x27;联想&#x27;</span>,<span class="string">&#x27;戴尔&#x27;</span>,<span class="string">&#x27;三木&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>​    查询不是戴尔的电脑名称列表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">not</span> <span class="keyword">in</span>(<span class="string">&#x27;戴尔&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>​    查询所有是记事本的商品品牌、名称和价格</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> title <span class="keyword">like</span> <span class="string">&#x27;%记事本%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询品牌是末尾字符是’力’的商品的品牌、名称和价格</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">like</span> <span class="string">&#x27;%力&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    名称中有联想字样的商品名称</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> title <span class="keyword">like</span> <span class="string">&#x27;%联想%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询卖点含有’爆款’电脑名称</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,title,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> cell_point <span class="keyword">like</span> <span class="string">&#x27;%爆款%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询开头字母是A的电脑名称</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,brand,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> title <span class="keyword">like</span> <span class="string">&#x27;A%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    将地址表中的城市、地区、详细地址组合到一起,</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> concat(receiver_city, receiver_district,receiver_address) addr <span class="keyword">from</span> tb_address;</span><br></pre></td></tr></table></figure>
+
+<p>​    获取订单编号为 20161001490698615071 中的每种商品的标题、单价、数量、总价</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> title,price,num,total_fee <span class="keyword">from</span> tb_order_item <span class="keyword">where</span> order_id<span class="operator">=</span><span class="string">&#x27;20161001490698615071&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    统计商品表中各个品牌的商品数量</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> brand,<span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">from</span> tb_item <span class="keyword">group</span> <span class="keyword">by</span> brand</span><br></pre></td></tr></table></figure>
+
+<p>​    统计商品表中各个品牌的商品数量,并且按照数量从少到多排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> brand,<span class="built_in">count</span>(<span class="operator">*</span>) c <span class="keyword">from</span> tb_item <span class="keyword">group</span> <span class="keyword">by</span> brand <span class="keyword">order</span> <span class="keyword">by</span> c;</span><br></pre></td></tr></table></figure>
+
+<p>​    统计商品表中各个品牌的商品数量,去除品牌为NULL的行,并且按照数量从少到多排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> brand,<span class="built_in">count</span>(<span class="operator">*</span>) c <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">null</span> <span class="keyword">group</span> <span class="keyword">by</span> brand <span class="keyword">order</span> <span class="keyword">by</span> c;</span><br></pre></td></tr></table></figure>
+
+<p>​    查询不同品牌中最贵的商品价格</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,title,brand,price <span class="keyword">from</span> tb_item <span class="keyword">where</span>(brand,price) <span class="keyword">in</span>(<span class="keyword">select</span> brand,<span class="built_in">max</span>(price) m <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">null</span> <span class="keyword">group</span> <span class="keyword">by</span> brand);</span><br></pre></td></tr></table></figure>
+
+<p>​    将不同品牌中最贵的商品按照价格降序排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,title,brand,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> (brand,price)<span class="keyword">in</span>(<span class="keyword">select</span> brand,<span class="built_in">max</span>(price) m <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">null</span> <span class="keyword">group</span> <span class="keyword">by</span> brand) <span class="keyword">order</span> <span class="keyword">by</span> price <span class="keyword">desc</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    找出不同品牌中最贵的商品的前三名</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,title,brand,price <span class="keyword">from</span> tb_item <span class="keyword">where</span> (brand,price)<span class="keyword">in</span>(<span class="keyword">select</span> brand,<span class="built_in">max</span>(price) m <span class="keyword">from</span> tb_item <span class="keyword">where</span> brand <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">null</span> <span class="keyword">group</span> <span class="keyword">by</span> brand) <span class="keyword">order</span> <span class="keyword">by</span> price <span class="keyword">desc</span> </span><br><span class="line">limit <span class="number">3</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>​    查询订购了10000028商品的客户姓名和联系方式(三层子查询)</p>
+<p>​         首先查询订单表,根据10000028这个商品编号找到有该商品的订单编号</p>
+<p>​         然后查询订单表,根据上面得到的订单编号找到订购此订单的用户编号</p>
+<p>​         最后查询用户表,根据第二部中查到的用户编号,找到对应的用户名和联系方式</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id,username,phone,email <span class="keyword">from</span> tb_user <span class="keyword">where</span> id <span class="keyword">in</span> (<span class="keyword">select</span> user_id <span class="keyword">from</span> tb_order <span class="keyword">where</span> (<span class="keyword">select</span> order_id <span class="keyword">from</span> td_order_item <span class="keyword">where</span> item_id<span class="operator">=</span><span class="number">10000028</span>))</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">	<span class="keyword">distinct</span> </span><br><span class="line"><span class="keyword">from</span></span><br><span class="line">	td_user u </span><br><span class="line"><span class="keyword">join</span> </span><br><span class="line">	tb_order o </span><br><span class="line"><span class="keyword">on</span> </span><br><span class="line">	u.id<span class="operator">=</span>o.user_id</span><br><span class="line"><span class="keyword">join</span> </span><br><span class="line">	tb_order_item i</span><br><span class="line"><span class="keyword">on</span></span><br><span class="line">	o.order_id<span class="operator">=</span>i.order_id</span><br><span class="line"><span class="keyword">where</span> </span><br><span class="line">	item_id<span class="operator">=</span><span class="number">10000028</span></span><br></pre></td></tr></table></figure>
+
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2017/11/01/Mysql%E5%A2%9E%E5%BC%BA/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/" rel="tag">mysql</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2017/11/12/%E5%8D%81%E4%B8%80%E6%9C%88/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            十一月
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2017/10/30/%E9%9D%99%E6%80%81%E5%8F%98%E9%87%8F%E4%B8%8E%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">静态变量与静态方法</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

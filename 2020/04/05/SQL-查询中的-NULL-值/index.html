@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>SQL 查询中的 NULL 值 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-SQL-查询中的-NULL-值"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  SQL 查询中的 NULL 值
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/04/05/SQL-%E6%9F%A5%E8%AF%A2%E4%B8%AD%E7%9A%84-NULL-%E5%80%BC/" class="article-date">
+  <time datetime="2020-04-05T06:28:30.000Z" itemprop="datePublished">2020-04-05</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>本文通过各种 SQL 小例子，解释 NULL 值的用途和带来的问题。</p>
+</blockquote>
+<blockquote>
+<p>英语原文地址：<a target="_blank" rel="noopener" href="https://mitchum.blog/null-values-in-sql-queries/">https://mitchum.blog/null-values-in-sql-queries/</a></p>
+<p>作者：<a target="_blank" rel="noopener" href="https://mitchum.blog/author/mitchm/">MITCHUM</a></p>
+<p>翻译：高行行</p>
+<p>参考翻译文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/lnotime/article/details/104847946">https://blog.csdn.net/lnotime/article/details/104847946</a></p>
+<p>小结：</p>
+<ul>
+<li>SQL 里的 NULL 和其他编程语言里的 NULL 是完全不同的东西</li>
+<li>在 SQL 中 NULL 为未知</li>
+</ul>
+<p>翻译水平有限，可能存在翻译不准确的地方，尽情谅解。</p>
+</blockquote>
+<p>今天的帖子是关于 SQL 中的 NULL 值的，由我的朋友兼数据库向导 Kaley 提供。如果你想了解有关 SQL，Oracle 数据库以及使查询运行更快的更多信息，请访问他的<a target="_blank" rel="noopener" href="https://blog.tuningsql.com/">网站</a>。</p>
+<hr>
+<p>这是一个使很多<a target="_blank" rel="noopener" href="https://mitchum.blog/landing-and-excelling-at-your-first-web-development-job/">萌新开发人员</a>陷入困境的话题-SQL 查询中 NULL 值的概念。</p>
+<p>每当你向数据库发出<a target="_blank" rel="noopener" href="https://mitchum.blog/programming-languages-for-beginners/">SQL</a>查询时……你想知道一列中是否包含 NULL 值……编写查询以查到结果的正确方式是什么？</p>
+<p>你应该使用这样的查询吗？</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> SOME_COLUMN <span class="operator">=</span> <span class="keyword">NULL</span></span><br></pre></td></tr></table></figure>
+
+
+<p>要么！你应该使用这样的查询吗？</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> SOME_COLUMN <span class="keyword">IS</span> <span class="keyword">NULL</span></span><br></pre></td></tr></table></figure>
+
+
+<p>…答案是，你应该使用第二个查询（SOME_COLUMN IS NULL）。</p>
+<p><strong>下图为实际的查询例子 🌰</strong></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1584237476835-93441b33-8216-47a1-8233-53d638221c05.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1584237500339-97ab9993-34e1-433a-aeb3-d07a1338eda9.png"></p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1584237534387-12f349c7-332f-44e8-b88d-487a6a9be715.png"></p>
+<p><strong>为什么呢？</strong></p>
+<p>为什么其他的比较都不用 <strong>IS</strong> 关键字呢？</p>
+<p>如果我们想知道一个字段是否等于 1，我们可以使用如下的 WHERE 子句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WHERE</span> SOME_COLUMN <span class="operator">=</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+<p>那么为什么我们在<strong>IS</strong>关键字上使用 NULL 值呢？为什么我们需要区别对待 NULL ？</p>
+<p>答案是这样的：**在 SQL 中，NULL 表示“未知”的概念 _ _**（因此 NULL 值表示“未知”值）。</p>
+<h2 id="1-Null-为未知"><a href="#1-Null-为未知" class="headerlink" title="1. Null 为未知"></a>1. Null 为未知</h2><p>在大多数数据库中，NULL 和空字符串（由双撇号 “” 或 ‘’ 表示）之间存在差异。</p>
+<p>但是，并非所有数据库都这样：例如，Oracle 数据库不允许你使用空字符串。任何时候 Oracle 数据库看到一个空字符串，它都会自动将空字符串转换为 NULL 值。</p>
+<p>但是，对于大多数其他数据库，NULL 值与空字符串的处理方式不同：</p>
+<ul>
+<li>空字符串被视为<strong>没有值</strong>的已知值<strong>。</strong></li>
+<li>将 NULL 值视为<strong>未知值</strong>。</li>
+</ul>
+<p>举个例子，就好像问：美国总统西奥多·罗斯福的中间名是什么？</p>
+<ul>
+<li>一种答案可能是：<strong>“嗯，我不知道西奥多·罗斯福的中间名是什么。”</strong>（此想法可以由 Theodore Roosevelt 的记录的 MIDDLE_NAME 列中的 NULL 值表示，即中间名字段为 NULL）</li>
+<li>另一种答案可能是**“西奥多·罗斯福总统实际上没有中间名。他的父母从未给他起过中间名，我知道的事实就是西奥多·罗斯福（Theodore Roosevelt）没有中间名。 **（你可以通过在 MIDDLE_NAME 列中输入一个空字符串或 ‘’ 来表示，即中间名字段为空字符串）</li>
+</ul>
+<p>Oracle 数据库是最显著的例外，其中这两个值实际上都将由 NULL 表示-除 Oracle 以外的大多数数据库对 NULL 和空字符串的处理方式都非常不同。</p>
+<p>只要你记得 NULL 值代表一个<strong>未知</strong>值，那么这将有助于你编写 SQL 查询，并帮助你解决使用 NULL 值可能遇到的一些棘手情况。</p>
+<p>例如，如果你要使用这样的 WHERE 子句查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="number">1</span> <span class="operator">=</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+<p>该查询将返回行（假设 SOME_TABLE 不是空表！），因为表达式“ 1 &#x3D; 1” <strong>可证明</strong>是 true 的……它可以被证明是正确的。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1586057023734-29d85673-c93c-4dca-b85b-739980342f77.png"></p>
+<p>如果我要说：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="number">1</span> <span class="operator">=</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+
+<p>然后数据库将看到此情况，并将“ 1 &#x3D; 0”评估为 false（这意味着该查询将_永远不会_返回任何行）。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1586057066022-a6a75699-11ab-4f75-863c-7d89d89f5a6f.png"></p>
+<p>但是如果我要说：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="number">1</span> <span class="operator">=</span> <span class="keyword">NULL</span></span><br></pre></td></tr></table></figure>
+
+
+<p>数据库基本上是这样的：“我不知道这两个值（1 和我们的黑盒 NULL 值）是否相等”……因此它不返回任何记录。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1586057106253-16009c1e-a687-4576-8861-0ac17388ff65.png"></p>
+<h2 id="2-三值逻辑"><a href="#2-三值逻辑" class="headerlink" title="2. 三值逻辑"></a>2. 三值逻辑</h2><p>当 SQL 查询中有 WHERE 子句时，它可以具有三种不同结果之一：</p>
+<ul>
+<li><strong>true</strong>（它将返回行）</li>
+<li><strong>false</strong>（不会返回行）</li>
+<li><strong>NULL</strong>（未知也不会返回行）</li>
+</ul>
+<p>你可能会想，“好吧，既然数据库对这两个值的处理完全相同，我为什么要关心 false 和 null 之间的区别？”</p>
+<p>好吧，让我告诉你哪里可能遇到麻烦：让我们介绍一下 NOT() 条件。</p>
+<p>如果你要说：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">NOT</span>(<span class="number">1</span> <span class="operator">=</span> <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>然后，数据库首先要求值 1 &#x3D; 1，然后说：“好吧，那显然是对的。”</p>
+<p>但是随后它将对其应用 NOT() 条件。“当 true 被 NOT() 修饰时，它变成了 false……所以 NOT() 条件导致我们的 WHERE 子句在这里是 false 的。”</p>
+<p>因此，上面的查询不会返回任何记录。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1584202167940-f298a7cc-c5f2-47ec-8156-2f22fb0996a5.png"></p>
+<p>但是，如果你要说：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">NOT</span>(<span class="number">1</span> <span class="operator">=</span> <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>然后，数据库首先计算表达式 1 &#x3D; 0，并说：“那显然是 false 的。”</p>
+<p>但是然后它将应用 NOT() 条件，这将给我们相反的结果，<strong>因此它变为 true</strong>。</p>
+<p>因此此查询将返回记录！</p>
+<p><img src="https://imgkr.cn-bj.ufileos.com/7cac6b8e-4647-4672-9465-342d4da9aaed.png"></p>
+<p>如果我发出以下查询怎么办？</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">NOT</span>(<span class="number">1</span> <span class="operator">=</span> <span class="keyword">NULL</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>数据库首先要评估 1 &#x3D; NULL。（请记住，它将把 NULL 当作一个未知值！）</p>
+<p>它会说：“我不能说 1 是否等于 NULL，因为我不知道 NULL（未知）值是什么。”</p>
+<p>因此，它<strong>不会产生 true 的结果</strong>，<strong>也不会产生 false 的结果</strong> – 而是会产生 NULL（未知）结果。</p>
+<p>NULL 结果将由 NOT() 运算符修饰。</p>
+<p>每当你使用 NULL 并将其置于 NOT() 条件时……结果就是另一个 NULL！（未知的反面是……嗯……另一个未知）。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1586051469949-01efe689-5611-431b-916b-5b5c128cd5c6.png"></p>
+<p>因此，NOT() 运算符对 null 条件不做任何事情。</p>
+<p>所以这些查询中的……</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">NOT</span>(<span class="number">1</span> <span class="operator">=</span> <span class="keyword">NULL</span>)</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="number">1</span> <span class="operator">=</span> <span class="keyword">NULL</span></span><br></pre></td></tr></table></figure>
+
+
+<p>…将不返回任何记录…即使它们是相反的！</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1586051525259-4a94e63e-44c9-431e-9a22-739937da8459.png"></p>
+<h2 id="3-NULL-和-NOT-IN"><a href="#3-NULL-和-NOT-IN" class="headerlink" title="3. NULL 和 NOT IN"></a>3. NULL 和 NOT IN</h2><p>如果我使用 WHERE 子句发出这样的查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="number">1</span> <span class="keyword">IN</span> (<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="keyword">NULL</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>…那么显然 WHERE 子句将是 true 的，由于 1 在我们的 IN 列表中，所以该查询将返回记录…</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1584237639218-e622006f-492a-4418-8bec-e3dfd3f1b8af.png"></p>
+<p>但是如果我要说：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="number">1</span> <span class="keyword">NOT</span> <span class="keyword">IN</span> (<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="keyword">NULL</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>那么显然这将是 false 的，该查询将永远不会返回记录，因为数字 1 出现在我们的 IN 列表中，并且我们说“ NOT IN”…</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1584201687849-84f213e3-934b-4f2a-9b14-222b9ae9fb38.png"></p>
+<p>现在，如果我要说这样的话怎么办？</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> SOME_TABLE</span><br><span class="line"><span class="keyword">WHERE</span> <span class="number">5</span> <span class="keyword">NOT</span> <span class="keyword">IN</span> (<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="keyword">NULL</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>此 WHERE 子句将<strong>永远不会</strong>返回任何记录，因为它不是真正的可证明（它不能被证明是 true 的）。数字 5 没有明确出现在“ IN”列表中 - 但是 5 <strong>可能</strong>在我们的“黑盒” NULL 值内（数据库不一定知道 NULL 的值是什么）。</p>
+<p>这将产生 NULL 结果（表示未知结果），因此 WHERE 子句永远不会返回任何记录。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2020/png/576791/1584201717444-1221451e-3c19-4517-894d-915bd62b2696.png"></p>
+<p>这就是将 NULL 值等效为未知值为什么很重要的原因 - 每当你编写复杂的<a target="_blank" rel="noopener" href="https://mitchum.blog/programming-languages-for-beginners/">SQL</a>查询时，它都会为你提供帮助。</p>
+<p>希望你现在已经准备好处理 SQL 查询中的 NULL 值！有关 SQL，Oracle 数据库以及使查询运行更快的更多信息，请访问  <a target="_blank" rel="noopener" href="https://blog.tuningsql.com/">blog.tuningsql.com</a>。</p>
+<h2 id="资料"><a href="#资料" class="headerlink" title="资料"></a>资料</h2><p>实际例子 🌰的 SQL 文件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `<span class="keyword">user</span>` (</span><br><span class="line">  `id` <span class="type">int</span>(<span class="number">25</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `name` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `age` <span class="type">int</span>(<span class="number">32</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `sex` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  `password` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB AUTO_INCREMENT<span class="operator">=</span><span class="number">5</span> <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8mb4;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test`.`<span class="keyword">user</span>`(`id`, `name`, `age`, `sex`, `password`) <span class="keyword">VALUES</span> (<span class="number">2</span>, <span class="string">&#x27;小白&#x27;</span>, <span class="number">1</span>, <span class="string">&#x27;0&#x27;</span>, <span class="string">&#x27;333&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test`.`<span class="keyword">user</span>`(`id`, `name`, `age`, `sex`, `password`) <span class="keyword">VALUES</span> (<span class="number">3</span>, <span class="string">&#x27;white&#x27;</span>, <span class="number">12</span>, <span class="string">&#x27;0&#x27;</span>, <span class="string">&#x27;111&#x27;</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> `test`.`<span class="keyword">user</span>`(`id`, `name`, `age`, `sex`, `password`) <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="string">&#x27;white&#x27;</span>, <span class="keyword">NULL</span>, <span class="string">&#x27;0&#x27;</span>, <span class="string">&#x27;222&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/youzhibing/p/11337745.html">神奇的 SQL 之温柔的陷阱 → 三值逻辑 与 NULL ！</a></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2020/04/05/SQL-%E6%9F%A5%E8%AF%A2%E4%B8%AD%E7%9A%84-NULL-%E5%80%BC/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/05/14/Java-%E2%80%93-%E5%A6%82%E4%BD%95%E5%9C%A8-String-Format-%E4%B8%AD%E6%98%BE%E7%A4%BA-%EF%BC%85-%EF%BC%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Java – 如何在 String.Format 中显示 ％ ？
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/03/22/%E5%91%A8%E6%9C%AB%E6%8E%A8%E8%8D%90-Vol-1/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">周末推荐 Vol. 1</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

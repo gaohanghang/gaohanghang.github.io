@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>微软 REST API 准则 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-微软-REST-API-准则"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  微软 REST API 准则
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/15/%E5%BE%AE%E8%BD%AF-REST-API-%E5%87%86%E5%88%99/" class="article-date">
+  <time datetime="2019-12-15T07:01:27.000Z" itemprop="datePublished">2019-12-15</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">26.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">101 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>参考文章：<a target="_blank" rel="noopener" href="https://www.yanxishe.com/blogDetail/14233">https://www.yanxishe.com/blogDetail/14233</a></p>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md">https://github.com/microsoft/api-guidelines/blob/vNext/Guidelines.md</a></p>
+</blockquote>
+<h1 id="Microsoft-REST-API-准则"><a href="#Microsoft-REST-API-准则" class="headerlink" title="Microsoft REST API 准则"></a>Microsoft REST API 准则</h1><h2 id="Microsoft-REST-API-准则工作组"><a href="#Microsoft-REST-API-准则工作组" class="headerlink" title="Microsoft REST API 准则工作组"></a>Microsoft REST API 准则工作组</h2><table>
+<thead>
+<tr>
+<th>姓名</th>
+<th>姓名</th>
+<th>姓名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dave Campbell (CTO C+E)</td>
+<td>Rick Rashid (CTO ASG)</td>
+<td>John Shewchuk (Technical Fellow, TED HQ)</td>
+</tr>
+<tr>
+<td>Mark Russinovich (CTO Azure)</td>
+<td>Steve Lucco (Technical Fellow, DevDiv)</td>
+<td>Murali Krishnaprasad (Azure App Plat)</td>
+</tr>
+<tr>
+<td>Rob Howard (ASG)</td>
+<td>Peter Torr (OSG)</td>
+<td>Chris Mullins (ASG)</td>
+</tr>
+</tbody></table>
+<p>文件编辑：John Gossman（C + E），Chris Mullins（ASG），Gareth Jones（ASG），Rob Dolin（C + E），Mark Stafford（C + E）</p>
+<h1 id="Microsoft-REST-API准则"><a href="#Microsoft-REST-API准则" class="headerlink" title="Microsoft REST API准则"></a>Microsoft REST API准则</h1><h2 id="1-摘要"><a href="#1-摘要" class="headerlink" title="1. 摘要"></a>1. 摘要</h2><p>作为设计原则，微软 REST API 指南鼓励应用程序开发人员通过RESTful HTTP接口访问资源。为了在遵循Microsoft REST API准则的平台上为开发人员提供尽可能流畅的体验，REST API应当遵循一致的设计准则，以使其使用起来简单直观。</p>
+<p>本文档建立了微软 REST API应该遵循的准则，以便一致地开发RESTful接口。</p>
+<h2 id="2-目录"><a href="#2-目录" class="headerlink" title="2.目录"></a>2.目录</h2><p>[TOC]</p>
+<h2 id="3-简介"><a href="#3-简介" class="headerlink" title="3.简介"></a>3.简介</h2><p>开发人员通过HTTP接口访问大多数Microsoft Cloud Platform资源。尽管每种服务通常都提供特定于语言的框架来包装其API，但其所有操作最终都归结为HTTP请求。Microsoft必须支持广泛的客户端和服务，并且不能依赖可用于每个开发环境的丰富框架。因此，这些准则的目标是确保任何具有基本HTTP支持的客户端都可以轻松，一致地使用Microsoft REST API。</p>
+<p>为了为开发人员提供尽可能流畅的体验，使这些API遵循一致的设计准则非常重要，因此使它们使用起来既简单又直观。本文档建立了Microsoft REST API开发人员遵循的准则，以一致地开发此类API。</p>
+<p>一致性的好处也从总体上产生；一致性使团队可以利用通用代码，模式，文档和设计决策。</p>
+<p>这些准则旨在实现以下目标：</p>
+<ul>
+<li>为Microsoft的所有API端点定义一致的做法和模式。</li>
+<li>尽可能遵守整个行业中公认的REST &#x2F; HTTP最佳实践。[*]</li>
+<li>所有应用程序开发人员都可以轻松通过REST接口访问Microsoft服务。</li>
+<li>允许服务开发人员利用其他服务的先前工作来实施，测试和记录一致定义的REST端点。</li>
+<li>允许合作伙伴（例如，非Microsoft实体）将这些准则用于他们自己的REST端点设计。</li>
+</ul>
+<p>[<em>]注意：准则旨在与符合REST体系结构样式的建筑服务保持一致，尽管它们并未解决或要求遵循REST约束的建筑服务。在整个文档中，术语“ REST”用于表示符合REST精神的服务，而不是本书所遵循的REST。</em></p>
+<h3 id="3-1-推荐读物"><a href="#3-1-推荐读物" class="headerlink" title="3.1. 推荐读物"></a>3.1. 推荐读物</h3><p>为了开发良好的基于HTTP的服务，建议理解REST体系结构风格的原理。如果你不熟悉RESTful设计，这里有一些不错的资源：</p>
+<p><a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Representational_state_transfer">Wikipedia上的REST</a> -REST背后的常见定义和核心思想概述。</p>
+<p><a target="_blank" rel="noopener" href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm">REST论文</a> -Roy Fielding论文中有关REST的一章，“网络架构的体系结构样式和设计”</p>
+<p><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc7231">RFC 7231-</a>定义HTTP &#x2F; 1.1语义的规范，并被视为权威资源。</p>
+<p><a target="_blank" rel="noopener" href="http://www.amazon.com/REST-Practice-Hypermedia-Systems-Architecture/dp/0596805829/">REST实践</a> -关于REST基础的书籍。</p>
+<h2 id="4-解释准则"><a href="#4-解释准则" class="headerlink" title="4.解释准则"></a>4.解释准则</h2><h3 id="4-1。准则的适用"><a href="#4-1。准则的适用" class="headerlink" title="4.1。准则的适用"></a>4.1。准则的适用</h3><p>这些准则适用于Microsoft或任何合作伙伴服务公开公开的任何REST API。私有或内部API也应尝试遵循这些准则，因为内部服务往往最终会公开地公开。一致性不仅对外部客户而且对内部服务消费者都很有价值，并且这些准则提供了对任何服务都有用的最佳实践。</p>
+<p>有正当理由可以免除这些准则。显然，实现或必须与某些外部定义的REST API互操作的REST服务必须与该API兼容，而不一定与这些准则兼容。一些服务可能还具有特殊的性能需求，这些需求需要不同的格式，例如二进制协议。</p>
+<h3 id="4-2-现有服务和服务版本指导"><a href="#4-2-现有服务和服务版本指导" class="headerlink" title="4.2. 现有服务和服务版本指导"></a>4.2. 现有服务和服务版本指导</h3><p>我们不建议仅仅为了合规而对在这些准则之前的服务进行重大更改。当兼容性遭到破坏时，该服务应尝试在下一版本中变得兼容。当服务添加新的API时，该API应该与相同版本的其他API一致。因此，如果服务是针对准则的1.0版编写的，则向该服务增量添加的新API也应遵循1.0版。然后，可以在该服务的下一个主要版本中升级该服务以使其与准则的最新版本保持一致。</p>
+<h3 id="4-3-需求语言"><a href="#4-3-需求语言" class="headerlink" title="4.3. 需求语言"></a>4.3. 需求语言</h3><p>本文档中的关键字“必须”，“不得”，“必须”，“应”，“应禁止”，“应”，“不应”，“建议”，“可以”和“可选”按照<a target="_blank" rel="noopener" href="https://www.ietf.org/rfc/rfc2119.txt">RFC 2119中的</a>描述进行解释。</p>
+<h3 id="4-4-执照"><a href="#4-4-执照" class="headerlink" title="4.4. 执照"></a>4.4. 执照</h3><p>该作品已根据知识共享署名4.0国际许可协议获得许可。要查看此许可证的副本，请访问<a target="_blank" rel="noopener" href="http://creativecommons.org/licenses/by/4.0/%E6%88%96%E5%90%91%E7%BE%8E%E5%9B%BD%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86%E7%BD%B2%EF%BC%88Creative">http://creativecommons.org/licenses/by/4.0/或向美国知识管理署（Creative</a> Commons）发信，邮政信箱1866，山景城，加利福尼亚州94042，美国。</p>
+<h2 id="5-分类学"><a href="#5-分类学" class="headerlink" title="5. 分类学"></a>5. 分类学</h2><p>作为加入Microsoft REST API准则的一部分，服务必须符合以下定义的分类法。</p>
+<h3 id="5-1-失误"><a href="#5-1-失误" class="headerlink" title="5.1. 失误"></a>5.1. 失误</h3><p>错误，或更具体地说是服务错误，定义为客户端将无效数据传递给服务，并且服务<em>正确</em> 拒绝该数据。示例包括无效的凭据，不正确的参数，未知的版本ID或类似内容。这些通常是“ 4xx” HTTP错误代码，是客户端传递不正确或无效数据的结果。</p>
+<p>错误<em>不会</em>影响总体API可用性。</p>
+<h3 id="5-2-缺点"><a href="#5-2-缺点" class="headerlink" title="5.2. 缺点"></a>5.2. 缺点</h3><p>错误，或更具体地说是服务错误，定义为服务未能正确响应有效的客户端请求而返回。这些通常是“ 5xx” HTTP错误代码。</p>
+<p>故障<em>确实</em>有助于总体API可用性。</p>
+<p>由于速率限制或配额失败而失败的呼叫不得视为错误。由于服务快速失败请求而导致失败的调用（通常是出于自身保护的考虑）确实被视为错误。</p>
+<h3 id="5-3-潜伏"><a href="#5-3-潜伏" class="headerlink" title="5.3. 潜伏"></a>5.3. 潜伏</h3><p>延迟定义为特定API调用完成所需的时间，并尽可能接近客户端。此指标以相同的方式适用于同步和异步API。对于长时间运行的呼叫，延迟是根据初始请求进行衡量的，并衡量该呼叫（而不是整个操作）需要花费多长时间。</p>
+<h3 id="5-4-完成时间"><a href="#5-4-完成时间" class="headerlink" title="5.4. 完成时间"></a>5.4. 完成时间</h3><p>公开长时间操作的服务必须跟踪这些操作的“完成时间”指标。</p>
+<h3 id="5-5-长时间运行的API错误"><a href="#5-5-长时间运行的API错误" class="headerlink" title="5.5. 长时间运行的API错误"></a>5.5. 长时间运行的API错误</h3><p>对于长时间运行的API，开始操作的初始请求和检索结果的请求都可以在技术上正常工作（每个都返回200），但基础操作可能失败。长期运行的故障必须作为故障汇总到总体可用性指标中。</p>
+<h2 id="6-客户指导"><a href="#6-客户指导" class="headerlink" title="6. 客户指导"></a>6. 客户指导</h2><p>为了确保与REST服务对话的客户获得最佳体验，客户应遵循以下最佳实践：</p>
+<h3 id="6-1-忽略规则"><a href="#6-1-忽略规则" class="headerlink" title="6.1. 忽略规则"></a>6.1. 忽略规则</h3><p>对于松散耦合的客户端，在调用之前尚不清楚数据的确切形状，如果服务器返回了客户端未期望的内容，则客户端必须安全地忽略它。</p>
+<p>一些服务可以在不改变版本号的情况下在响应中添加字段。这样做的服务必须在其文档中明确指出，并且客户端必须忽略未知字段。</p>
+<h3 id="6-2-可变顺序规则"><a href="#6-2-可变顺序规则" class="headerlink" title="6.2. 可变顺序规则"></a>6.2. 可变顺序规则</h3><p>客户端不得依赖于数据在JSON服务响应中出现的顺序。例如，客户端应该对JSON对象中字段的重新排序具有弹性。当服务支持时，客户端可以请求以特定顺序返回数据。例如，服务可以支持使用*$ orderBy* querystring参数来指定JSON数组中元素的顺序。服务还可以明确规定某些元素的顺序，作为服务合同的一部分。例如，服务可以始终返回JSON对象的“类型”信息作为对象中的第一个字段，以简化客户端上的响应解析。客户可以依靠服务明确标识的订购行为。</p>
+<h3 id="6-3-静默失败规则"><a href="#6-3-静默失败规则" class="headerlink" title="6.3. 静默失败规则"></a>6.3. 静默失败规则</h3><p>请求可选服务器功能（例如可选标头）的客户端必须对服务器具有弹性，而忽略该特定功能。</p>
+<h2 id="7-一致性基础"><a href="#7-一致性基础" class="headerlink" title="7 .一致性基础"></a>7 .一致性基础</h2><h3 id="7-1-网址结构"><a href="#7-1-网址结构" class="headerlink" title="7.1. 网址结构"></a>7.1. 网址结构</h3><p>人类应该能够轻松阅读和构建网址。</p>
+<p>在没有良好支持的客户端库的情况下，这有助于发现并简化平台上的采用。</p>
+<p>结构良好的URL的示例是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://api.contoso.com/v1.0/people/jdoe@contoso.com/inbox</span><br></pre></td></tr></table></figure>
+
+<p>不友好的示例URL是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://api.contoso.com/EWS/OData/Users(&#x27;jdoe@microsoft.com&#x27;)/Folders(&#x27;AAMkADdiYzI1MjUzLTk4MjQtNDQ1Yy05YjJkLWNlMzMzYmIzNTY0MwAuAAAAAACzMsPHYH6HQoSwfdpDx-2bAQCXhUk6PC1dS7AERFluCgBfAAABo58UAAA=&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>出现的一种常见模式是使用URL作为值。服务可以使用URL作为值。例如，可以接受以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://api.contoso.com/v1.0/items?url=https://resources.contoso.com/shoes/fancy</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-2-网址长度"><a href="#7-2-网址长度" class="headerlink" title="7.2. 网址长度"></a>7.2. 网址长度</h3><p>在RFC 7230的<a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc7230#section-3.1.1">3.1.1</a>节中定义的HTTP 1.1消息格式在请求行（包括目标URL）上没有长度限制。从RFC：</p>
+<blockquote>
+<p>HTTP并未对请求行的长度设置预定义的限制。[…]接收到比任何希望解析的URI更长的请求目标的服务器，必须以414（URI太长）状态码响应。</p>
+</blockquote>
+<p>可以生成超过2083个字符的URL的服务必须为他们希望支持的客户提供便利。以下是一些确定目标客户支持的来源：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://stackoverflow.com/a/417184">http://stackoverflow.com/a/417184</a></li>
+<li><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/ieinternals/2014/08/13/url-length-limits/">https://blogs.msdn.microsoft.com/ieinternals/2014/08/13/url-length-limits/</a></li>
+</ul>
+<p>另请注意，某些技术堆栈具有严格且可调整的URL限制，因此在设计服务时请记住这一点。</p>
+<h3 id="7-3-规范标识符"><a href="#7-3-规范标识符" class="headerlink" title="7.3. 规范标识符"></a>7.3. 规范标识符</h3><p>除了友好的URL，可以移动或重命名的资源也应该公开包含唯一稳定标识符的URL。可能有必要与服务进行交互，以从资源的友好名称中获得稳定的URL，例如某些服务使用的“ &#x2F; my”快捷方式。</p>
+<p>稳定标识符不需要是GUID。</p>
+<p>包含规范标识符的URL的示例是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://api.contoso.com/v1.0/people/7011042402/inbox</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-4-支持的方法"><a href="#7-4-支持的方法" class="headerlink" title="7.4. 支持的方法"></a>7.4. 支持的方法</h3><p>操作必须尽可能使用正确的HTTP方法，并且必须尊重操作幂等性。HTTP方法通常称为HTTP动词。这些术语在此上下文中是同义词，但是HTTP规范使用术语“方法”。</p>
+<p>以下是Microsoft REST服务应支持的方法的列表。并非所有资源都支持所有方法，但是使用以下方法的所有资源必须符合其用法。</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>描述</th>
+<th>是幂等的</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>得到</td>
+<td>返回对象的当前值</td>
+<td>真正</td>
+</tr>
+<tr>
+<td>放</td>
+<td>替换对象或创建命名对象（如果适用）</td>
+<td>真正</td>
+</tr>
+<tr>
+<td>删除</td>
+<td>删除物件</td>
+<td>真正</td>
+</tr>
+<tr>
+<td>开机自检</td>
+<td>根据提供的数据创建新对象，或提交命令</td>
+<td>假</td>
+</tr>
+<tr>
+<td>头</td>
+<td>返回对象的元数据以获取GET响应。支持GET方法的资源也可以支持HEAD方法</td>
+<td>真正</td>
+</tr>
+<tr>
+<td>补丁</td>
+<td>对对象应用部分更新</td>
+<td>假</td>
+</tr>
+<tr>
+<td>选项</td>
+<td>获取有关请求的信息；有关详情，请参见下文。</td>
+<td>真正</td>
+</tr>
+</tbody></table>
+<p>表格1</p>
+<h4 id="7-4-1-开机自检"><a href="#7-4-1-开机自检" class="headerlink" title="7.4.1. 开机自检"></a>7.4.1. 开机自检</h4><p>POST操作应支持Location响应标头，以通过Location标头指定未显式命名的任何已创建资源的位置。</p>
+<p>例如，设想一个允许创建托管服务器的服务，该服务将由该服务命名：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST http://api.contoso.com/account 1 / servers</span><br></pre></td></tr></table></figure>
+
+<p>响应将类似于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">201创建</span><br><span class="line">位置： http : //api.contoso.com/account1/servers/server321</span><br></pre></td></tr></table></figure>
+
+<p>其中“ server321”是服务分配的服务器名称。</p>
+<p>服务还可以在响应中返回所创建项目的完整元数据。</p>
+<h4 id="7-4-2-补丁"><a href="#7-4-2-补丁" class="headerlink" title="7.4.2. 补丁"></a>7.4.2. 补丁</h4><p>IETF已将PATCH标准化为用于增量更新现有对象的方法（请参阅<a target="_blank" rel="noopener" href="http://tools.ietf.org/html/rfc5789">RFC 5789</a>）。符合Microsoft REST API准则的API应该支持PATCH。</p>
+<h4 id="7-4-3-通过PATCH创建资源（UPSERT语义）"><a href="#7-4-3-通过PATCH创建资源（UPSERT语义）" class="headerlink" title="7.4.3. 通过PATCH创建资源（UPSERT语义）"></a>7.4.3. 通过PATCH创建资源（UPSERT语义）</h4><p>允许调用者在创建时指定键值的服务应支持UPSERT语义，而那些必须支持使用PATCH创建资源的服务。由于PUT被定义为内容的完全替代，因此使用PUT修改数据对于客户端来说是危险的。不了解（并因此忽略）资源属性的客户端在尝试更新资源时不太可能在PUT上提供它们，因此此类属性可能会被无意中删除。服务可以选择支持PUT更新现有资源，但是如果这样做，它们必须使用替换语义（也就是说，在PUT之后，资源的属性必须与请求中提供的属性匹配，包括删除未提供的服务器属性）。</p>
+<p>在UPSERT语义下，服务器将对不存在资源的PATCH调用作为“创建”处理，而对现有资源的PATCH调用则作为“更新”处理。为了确保更新请求不被视为创建请求，反之亦然，客户端可以在请求中指定前置HTTP头。如果服务包含If-Match标头，则服务不得将PATCH请求视为插入；如果服务包含包含值为“ *”的If-None-Match标头，则服务不得将PATCH请求视为更新。</p>
+<p>如果服务不支持UPSERT，则对不存在的资源的PATCH调用必须导致HTTP“ 409冲突”错误。</p>
+<h4 id="7-4-4-选项和链接标题"><a href="#7-4-4-选项和链接标题" class="headerlink" title="7.4.4. 选项和链接标题"></a>7.4.4. 选项和链接标题</h4><p>OPTIONS允许客户端至少通过返回表示该资源有效方法的Allow标头来检索有关资源的信息。</p>
+<p>另外，服务应该包括一个Link头（参见<a target="_blank" rel="noopener" href="http://tools.ietf.org/html/rfc5988">RFC 5988</a>），以指向相关资源的文档：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">链接： &lt;&#123;help&#125;&gt;；rel =“ help”</span><br></pre></td></tr></table></figure>
+
+<p>其中{help}是文档资源的URL。</p>
+<p>有关使用OPTIONS的示例，请参阅<a target="_blank" rel="noopener" href="http://www.w3.org/TR/cors/#resource-preflight-requests">预检CORS跨域调用</a>。</p>
+<h3 id="7-5-标准请求标头"><a href="#7-5-标准请求标头" class="headerlink" title="7.5. 标准请求标头"></a>7.5. 标准请求标头</h3><p>Microsoft REST API指南服务应使用下面的请求标头表。没有强制使用这些头，但是如果使用，则必须始终使用它们。</p>
+<p>所有报头值必须遵循规范中规定的语法规则，其中定义了报头字段。<a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc7231">RFC7231</a>中定义了许多HTTP标头，但是可以在<a target="_blank" rel="noopener" href="http://www.iana.org/assignments/message-headers/message-headers.xhtml">IANA标头注册表中</a>找到批准标头的完整列表。”</p>
+<table>
+<thead>
+<tr>
+<th>标头</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>授权书</td>
+<td>串</td>
+<td>请求的授权标头</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>日期</td>
+<td>基于客户端时钟的请求时间戳，采用<a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC 5322</a>日期和时间格式。服务器不应该对客户端时钟的准确性做任何假设。该报头可以包含在请求中，但提供时必须采用这种格式。提供此标头时，格林威治标准时间（GMT）必须用作该标头的时区参考。例如：<code>Wed, 24 Aug 2016 18:41:30 GMT</code>。请注意，为此目的，GMT完全等于UTC（世界标准时间）。</td>
+</tr>
+<tr>
+<td>接受</td>
+<td>内容类型</td>
+<td>请求的响应内容类型，例如：应用程序&#x2F; xml文字&#x2F; xml应用程序&#x2F; json文字&#x2F; JavaScript（对于JSONP）根据HTTP准则，这只是一个提示，响应可能具有不同的内容类型，例如blob提取，其中成功的响应将只是blob流作为有效负载。对于遵循OData的服务，应遵循OData中指定的优先顺序。</td>
+</tr>
+<tr>
+<td>接受编码</td>
+<td>Gzip，放气</td>
+<td>如果适用，REST端点应该支持GZIP和DEFLATE编码。对于非常大的资源，服务可以忽略并返回未压缩的数据。</td>
+</tr>
+<tr>
+<td>接受语言</td>
+<td>“ en”，“ es”等</td>
+<td>指定响应的首选语言。不需要服务来支持此功能，但是如果服务支持本地化，则必须通过Accept-Language标头来实现。</td>
+</tr>
+<tr>
+<td>接受字符集</td>
+<td>字符集类型，例如“ UTF-8”</td>
+<td>默认值为UTF-8，但是服务应该能够处理ISO-8859-1。</td>
+</tr>
+<tr>
+<td>内容类型</td>
+<td>内容类型</td>
+<td>请求主体的MIME类型（PUT &#x2F; POST &#x2F; PATCH）</td>
+</tr>
+<tr>
+<td>更喜欢</td>
+<td>return &#x3D; minimal，return &#x3D; representation</td>
+<td>如果指定了return &#x3D; minimal首选项，则服务应响应成功的插入或更新而返回空主体。如果指定了return &#x3D; representation，则服务应在响应中返回创建或更新的资源。如果服务具有客户端有时会从响应中受益的场景，但有时响应会对带宽造成太大的影响，则服务应支持此标头。</td>
+</tr>
+<tr>
+<td>如果匹配，如果没有匹配，如果范围</td>
+<td>串</td>
+<td>支持使用乐观并发控制更新资源的服务必须支持If-Match标头。服务也可以使用其他与ETag相关的标头，只要它们遵循HTTP规范即可。</td>
+</tr>
+</tbody></table>
+<h3 id="7-6-标准响应头"><a href="#7-6-标准响应头" class="headerlink" title="7.6. 标准响应头"></a>7.6. 标准响应头</h3><p>服务应返回以下响应头，除非在“必需”列中注明。</p>
+<table>
+<thead>
+<tr>
+<th>响应头</th>
+<th>需要</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>日期</td>
+<td>所有回应</td>
+<td>根据服务器的时钟，以<a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc5322#section-3.3">RFC 5322</a>日期和时间格式处理响应的时间戳。该头必须包含在响应中。格林威治标准时间（GMT）必须用作此标头的时区参考。例如：<code>Wed, 24 Aug 2016 18:41:30 GMT</code>。请注意，为此目的，GMT完全等于UTC（世界标准时间）。</td>
+</tr>
+<tr>
+<td>内容类型</td>
+<td>所有回应</td>
+<td>内容类型</td>
+</tr>
+<tr>
+<td>内容编码</td>
+<td>所有回应</td>
+<td>GZIP或DEFLATE（视情况而定）</td>
+</tr>
+<tr>
+<td>优先选择</td>
+<td>在请求中指定时</td>
+<td>是否应用了“首选”请求标头中指示的首选项</td>
+</tr>
+<tr>
+<td>标签</td>
+<td>当请求的资源具有实体标签时</td>
+<td>ETag响应标头字段提供所请求变体的实体标签的当前值。与If-Match，If-None-Match和If-Range一起使用以实现乐观并发控制。</td>
+</tr>
+</tbody></table>
+<h3 id="7-7-自定义标题"><a href="#7-7-自定义标题" class="headerlink" title="7.7. 自定义标题"></a>7.7. 自定义标题</h3><p>给定API的基本操作必须不需要自定义标头。</p>
+<p>本文档中的一些准则规定了非标准HTTP标头的使用。另外，某些服务可能需要添加额外的功能，这些功能通过HTTP标头公开。以下准则有助于在使用自定义标头时保持一致性。</p>
+<p>不是标准HTTP标头的标头必须具有以下两种格式之一：</p>
+<ol>
+<li>在IANA（<a target="_blank" rel="noopener" href="http://www.ietf.org/rfc/rfc3864.txt">RFC 3864</a>）中注册为“临时”的标头的通用格式</li>
+<li>标头的范围格式过于针对使用情况而无法注册</li>
+</ol>
+<p>下面介绍这两种格式。</p>
+<h3 id="7-8-将标头指定为查询参数"><a href="#7-8-将标头指定为查询参数" class="headerlink" title="7.8. 将标头指定为查询参数"></a>7.8. 将标头指定为查询参数</h3><p>对于某些情况（例如AJAX客户端），某些标头构成了挑战，尤其是在进行跨域调用时，可能不支持添加标头。这样，除了标头之外，还可以将某些标头作为查询参数接受，其命名与标头相同：</p>
+<p>并非所有标头都适合作为查询参数，包括大多数标准HTTP标头。</p>
+<p>考虑何时接受标头作为参数的标准是：</p>
+<ol>
+<li>任何自定义标头也必须被接受为参数。</li>
+<li>可以将必需的标准头作为参数接受。</li>
+<li>具有安全敏感性的必需标头（例如，授权标头）可能不适合作为参数；服务所有者应根据具体情况进行评估。</li>
+</ol>
+<p>此规则的一个例外是Accept标头。通常的做法是使用具有简单名称的方案，而不是HTTP规范中针对Accept所描述的全部功能。</p>
+<h3 id="7-9-PII参数"><a href="#7-9-PII参数" class="headerlink" title="7.9. PII参数"></a>7.9. PII参数</h3><p>与其组织的隐私权政策一致，客户端不应在URL中（路径或查询字符串的一部分）传输URL中的个人身份信息（PII）参数，因为该信息可能会通过客户端，网络和服务器日志以及其他机制被无意中公开。</p>
+<p>因此，服务应该接受作为报头发送的PII参数。</p>
+<p>但是，由于客户端或软件的限制，在许多情况下无法遵循上述建议。为了解决这些限制，服务还应该接受这些PII参数作为URL的一部分，并与本指南的其余部分保持一致。</p>
+<p>接受PII参数的服务（无论是在URL中还是在标头中）都应符合其组织的工程领导者指定的隐私权政策。通常，这将包括建议客户端选择标头进行传输，并且实现应遵循特殊的预防措施，以确保正确处理日志和其他服务数据收集。</p>
+<h3 id="7-10-回应格式"><a href="#7-10-回应格式" class="headerlink" title="7.10. 回应格式"></a>7.10. 回应格式</h3><p>为了使组织拥有成功的平台，它们必须以开发人员习惯使用的格式提供数据，并以一致的方式允许开发人员使用通用代码处理响应。</p>
+<p>基于Web的通信，尤其是在涉及移动或其他低带宽客户端时，由于多种原因，已朝JSON方向快速发展，包括其重量更轻的趋势以及其与基于JavaScript的客户端的易用性。</p>
+<p>JSON属性名称应为驼峰式。</p>
+<p>服务应提供JSON作为默认编码。</p>
+<h4 id="7-10-1-客户指定的回应格式"><a href="#7-10-1-客户指定的回应格式" class="headerlink" title="7.10.1. 客户指定的回应格式"></a>7.10.1. 客户指定的回应格式</h4><p>在HTTP中，客户端应使用Accept标头请求响应格式。这只是一个提示，服务器可以选择忽略它，即使这不是行为良好的服务器所特有的。客户端可以发送多个Accept标头，服务可以选择其中之一。</p>
+<p>默认的响应格式（不提供Accept标头）应该是application &#x2F; json，并且所有服务都必须支持application &#x2F; json。</p>
+<table>
+<thead>
+<tr>
+<th>接受标题</th>
+<th>回应类型</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用程序&#x2F; json</td>
+<td>有效载荷应作为JSON返回</td>
+<td>还接受JSONP情况下的文本&#x2F; JavaScript</td>
+</tr>
+</tbody></table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET https://api.contoso.com/v 1.0 / products / user</span><br><span class="line"> 接受： application / json</span><br></pre></td></tr></table></figure>
+
+<h4 id="7-10-2-错误条件响应"><a href="#7-10-2-错误条件响应" class="headerlink" title="7.10.2. 错误条件响应"></a>7.10.2. 错误条件响应</h4><p>对于非成功情况，开发人员应该能够编写一段代码，以在不同的Microsoft REST API准则服务之间一致地处理错误。这允许构建简单可靠的基础结构来将异常作为成功响应的独立流程来处理。以下内容基于OData v4 JSON规范。但是，它非常通用，不需要特定的OData构造。即使没有使用其他OData构造，API也应该使用这种格式。</p>
+<p>错误响应必须是单个JSON对象。这个对象必须有一个名为“错误”的名称&#x2F;值对。该值必须是JSON对象。</p>
+<p>该对象必须包含名称&#x2F;值对，名称为“ code”和“ message”，并且可以包含名称&#x2F;值对，名称为“ target”，“ details”和“ innererror”。</p>
+<p>“代码”名称&#x2F;值对的值是与语言无关的字符串。它的值是服务定义的错误代码，应易于阅读。与响应中指定的HTTP错误代码相比，此代码可作为错误的更具体指示。服务应该具有相对少量（约20个）的“代码”可能值，并且所有客户端都必须能够处理所有这些值。大多数服务将需要大量更具体的错误代码，这对所有客户而言都不是一件有趣的事情。如下所述，这些错误代码应在“内部错误”名称&#x2F;值对中公开。为现有客户可见的“代码”引入新值是一项重大更改，需要增加版本。服务可以通过将新的错误代码添加到“</p>
+<p>“消息”名称&#x2F;值对的值必须是人类可读的错误表示。它旨在帮助开发人员，不适合最终用户使用。希望向最终用户公开合适消息的服务必须通过<a target="_blank" rel="noopener" href="http://docs.oasis-open.org/odata/odata-json-format/v4.0/os/odata-json-format-v4.0-os.html#_Instance_Annotations">注释</a>或自定义属性来实现。服务不应为最终用户本地化“消息”，因为这样做可能会使该值对于可能正在记录该值的应用程序开发人员不可读，并且会使该值在Internet上的可搜索性降低。</p>
+<p>“目标”名称&#x2F;值对的值是特定错误的目标（例如，错误属性的名称）。</p>
+<p>如上所述，“详细信息”名称&#x2F;值对的值必须是JSON对象数组，该对象必须包含“代码”和“消息”的名称&#x2F;值对，并且可以包含“目标”的名称&#x2F;值对，如上所述。“详细信息”数组中的对象通常表示在请求期间发生的不同的，相关的错误。请参见下面的示例。</p>
+<p>“内部错误”名称&#x2F;值对的值必须是一个对象。该对象的内容是服务定义的。希望返回比根级代码更具体的错误的服务必须通过包括“代码”的名称&#x2F;值对和嵌套的“ innererror”来这样做。每个嵌套的“ innererror”对象都比其父对象表示更高级别的详细信息。在评估错误时，客户必须遍历所有嵌套的“内部错误”，并选择他们了解的最深层的错误。这种方案允许服务在层次结构中的任何位置引入新的错误代码，而不会破坏向后兼容性，只要仍然出现旧的错误代码即可。服务可以向不同的调用者返回不同级别的深度和细节。例如，在开发环境中，最深的“ 具有自定义服务器定义属性的错误类型应在服务的元数据文档中声明。请参见下面的示例。具有自定义服务器定义属性的错误类型应在服务的元数据文档中声明。请参见下面的示例。</p>
+<p>错误响应可能在其任何JSON对象中包含<a target="_blank" rel="noopener" href="http://docs.oasis-open.org/odata/odata-json-format/v4.0/os/odata-json-format-v4.0-os.html#_Instance_Annotations">注释</a>。</p>
+<p>我们建议，对于可能重发的任何暂时性错误，服务应包括一个Retry-After HTTP标头，该标头指示客户端在再次尝试操作之前应等待的最小秒数。</p>
+<h5 id="ErrorResponse：对象"><a href="#ErrorResponse：对象" class="headerlink" title="ErrorResponse：对象"></a>ErrorResponse：对象</h5><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>需要</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>error</code></td>
+<td>错误</td>
+<td>✔</td>
+<td>错误对象。</td>
+</tr>
+</tbody></table>
+<h5 id="错误：对象"><a href="#错误：对象" class="headerlink" title="错误：对象"></a>错误：对象</h5><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>需要</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>code</code></td>
+<td>串</td>
+<td>✔</td>
+<td>服务器定义的一组错误代码之一。</td>
+</tr>
+<tr>
+<td><code>message</code></td>
+<td>串</td>
+<td>✔</td>
+<td>错误的人类可读表示。</td>
+</tr>
+<tr>
+<td><code>target</code></td>
+<td>串</td>
+<td></td>
+<td>错误的目标。</td>
+</tr>
+<tr>
+<td><code>details</code></td>
+<td>错误[]</td>
+<td></td>
+<td>有关导致此报告错误的特定错误的详细信息数组。</td>
+</tr>
+<tr>
+<td><code>innererror</code></td>
+<td>内部错误</td>
+<td></td>
+<td>一个对象，该对象包含比当前对象更多有关该错误的特定信息。</td>
+</tr>
+</tbody></table>
+<h5 id="InnerError：对象"><a href="#InnerError：对象" class="headerlink" title="InnerError：对象"></a>InnerError：对象</h5><table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>需要</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>code</code></td>
+<td>串</td>
+<td></td>
+<td>比包含错误提供的错误代码更具体的错误代码。</td>
+</tr>
+<tr>
+<td><code>innererror</code></td>
+<td>内部错误</td>
+<td></td>
+<td>一个对象，该对象包含比当前对象更多有关该错误的特定信息。</td>
+</tr>
+</tbody></table>
+<h5 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h5><p>“内部错误”的示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “错误”：&#123;</span><br><span class="line">     “代码”：“ BadArgument ”，</span><br><span class="line">     “消息”：“先前的密码可能无法重用”，</span><br><span class="line">     “目标”：“密码”，</span><br><span class="line">     “内部错误”：&#123;</span><br><span class="line">       “代码”：“ PasswordError ”，</span><br><span class="line">       “内部错误“：&#123;</span><br><span class="line">         ”代码“：“ PasswordDoesNotMeetPolicy ”，</span><br><span class="line">         “ minLength ”： “ 6 ”，</span><br><span class="line">         “ maxLength ”： “ 64 ”，</span><br><span class="line">         “ characterTypes ”：[ “ lowerCase ”， “ upperCase ”， “ number ”， “ symbol ” ]，</span><br><span class="line">         “ minDistinctCharacterTypes ”： “2 “，</span><br><span class="line">         ”innererror “：&#123;</span><br><span class="line">           ”代码“：” PasswordReuseNotAllowed “</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在此示例中，最基本的错误代码是“ BadArgument”，但是对于感兴趣的客户端，“ innererror”中有更具体的错误代码。该服务可能在以后的日期中添加了“ PasswordReuseNotAllowed”代码，以前只返回了“ PasswordDoesNotMeetPolicy”。添加新的错误代码后，现有客户端不会中断，但是新客户端可以利用它。“ PasswordDoesNotMeetPolicy”错误还包括其他名称&#x2F;值对，允许客户端确定服务器的配置，以编程方式验证用户的输入或在客户端自己的本地化消息传递中向用户显示服务器的约束。</p>
+<p>“详细信息”示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “错误”：&#123;</span><br><span class="line">     “代码”：“ BadArgument ”，</span><br><span class="line">     “消息”：“ ContactInfo数据中的多个错误”，</span><br><span class="line">     “目标”：“ ContactInfo ”，</span><br><span class="line">     “详细信息”：[</span><br><span class="line">      &#123;</span><br><span class="line">        “代码”： “ NullValue ”，</span><br><span class="line">         “目标”： “ PhoneNumber ”，</span><br><span class="line">         “消息”： “电话号码不能为空”</span><br><span class="line">      &#125;，</span><br><span class="line">      &#123;</span><br><span class="line">        “代码”： “ NullValue ”，</span><br><span class="line">         “目标”： “姓氏”，</span><br><span class="line">         “消息”： “姓氏不能为空”</span><br><span class="line">      &#125;，</span><br><span class="line">      &#123;</span><br><span class="line">        “代码”： “ MalformedValue ”，</span><br><span class="line">         “目标”： “地址”，</span><br><span class="line">         “消息”： “地址无效”</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在此示例中，请求存在多个问题，每个错误均在“详细信息”中列出。</p>
+<h3 id="7-11-HTTP状态码"><a href="#7-11-HTTP状态码" class="headerlink" title="7.11. HTTP状态码"></a>7.11. HTTP状态码</h3><p>应该使用标准的HTTP状态代码；有关更多信息，请参见HTTP状态代码定义。</p>
+<h3 id="7-12-客户端库可选"><a href="#7-12-客户端库可选" class="headerlink" title="7.12. 客户端库可选"></a>7.12. 客户端库可选</h3><p>开发人员必须能够在多种平台和语言上进行开发，例如Windows，macOS，Linux，C＃，Python，Node.js和Ruby。</p>
+<p>应该可以从简单的HTTP工具（例如curl）访问服务，而无需花费很多精力。</p>
+<p>服务开发人员门户应该提供“获取开发人员令牌”的等效功能，以促进实验和curl支持。</p>
+<h2 id="8-CORS"><a href="#8-CORS" class="headerlink" title="8. CORS"></a>8. CORS</h2><p>符合Microsoft REST API准则的服务必须支持<a target="_blank" rel="noopener" href="http://www.w3.org/TR/access-control/">CORS（跨源资源共享）</a>。服务应支持允许的CORS *来源，并通过有效的OAuth令牌强制执行授权。服务不应通过来源验证支持用户凭据。特殊情况可能会有例外。</p>
+<h3 id="8-1-客户指导"><a href="#8-1-客户指导" class="headerlink" title="8.1. 客户指导"></a>8.1. 客户指导</h3><p>Web开发人员通常不需要采取任何特殊措施即可利用CORS。所有握手步骤在它们进行的标准XMLHttpRequest调用中都是不可见的。</p>
+<p>.NET等许多其他平台都集成了对CORS的支持。</p>
+<h4 id="8-1-1-避免飞行前"><a href="#8-1-1-避免飞行前" class="headerlink" title="8.1.1. 避免飞行前"></a>8.1.1. 避免飞行前</h4><p>由于CORS协议可以触发预检请求，这些预检请求会向服务器添加其他往返行程，因此，性能关键型应用可能会希望避免这种情况。CORS的精神是避免对旧的，不具备CORS功能的浏览器能够进行的任何简单的跨域请求进行预检。所有其他请求都需要进行飞行前检查。</p>
+<p>请求是“简单的”，如果其方法是GET，HEAD或POST，并且除了Accept，Accept-Language和Content-Language之外不包含任何请求标头，则避免预检。对于POST请求，也允许Content-Type标头，但前提是其值是“ application &#x2F; x-www-form-urlencoded”，“ multipart &#x2F; form-data”或“ text &#x2F; plain”。对于任何其他标题或值，将发生预检请求。</p>
+<h3 id="8-2-服务指导"><a href="#8-2-服务指导" class="headerlink" title="8.2. 服务指导"></a>8.2. 服务指导</h3><p>至少，服务必须：</p>
+<ul>
+<li>了解浏览器在跨域请求上发送的Origin请求标头，以及在检查访问的预检OPTIONS请求上发送的Access-Control-Request-Method请求标头。</li>
+<li>如果请求中存在Origin头：<ul>
+<li>如果请求使用OPTIONS方法并包含Access-Control-Request-Method标头，则它是预检请求，旨在在实际请求之前探测访问。否则，这是一个实际的请求。对于预检请求，除了执行以下添加标头的步骤之外，服务务必不要执行任何其他处理，并且必须返回200 OK。对于非预检请求，除了请求的常规处理之外，还会添加以下标头。</li>
+<li>将Access-Control-Allow-Origin标头添加到响应中，该标头包含与Origin请求标头相同的值。请注意，这要求服务动态生成标头值。不需要cookie或任何其他形式的<a target="_blank" rel="noopener" href="http://www.w3.org/TR/access-control/#user-credentials">用户凭证的资源</a>可以用通配符星号（*）代替。请注意，通配符仅在此处可接受，不适用于以下所述的任何其他标头。</li>
+<li>如果调用方要求访问不在<a target="_blank" rel="noopener" href="http://www.w3.org/TR/access-control/#simple-header">简单响应头</a>集中的<a target="_blank" rel="noopener" href="http://www.w3.org/TR/access-control/#simple-header">响应头</a>（高速缓存控件，内容语言，内容类型，过期时间，最后修改日期，语法），则添加访问控制暴露-标头标头包含客户端应有权访问的其他响应标头名称的列表。</li>
+<li>如果请求需要cookie，则添加一个Access-Control-Allow-Credentials标头设置为“ true”。</li>
+<li>如果该请求是预检请求（请参阅第一个项目符号），则该服务必须：<ul>
+<li>添加一个Access-Control-Allow-Headers响应标头，其中包含允许客户端使用的请求标头名称的列表。该列表仅需要包含不在<a target="_blank" rel="noopener" href="http://www.w3.org/TR/access-control/#simple-header">简单请求标头</a>集中的<a target="_blank" rel="noopener" href="http://www.w3.org/TR/access-control/#simple-header">标头</a>（Accept，Accept-Language，Content-Language）。如果服务接受的头没有任何限制，则服务可以简单地返回与客户端发送的Access-Control-Request-Headers头相同的值。</li>
+<li>添加一个Access-Control-Allow-Methods响应标头，其中包含允许调用方使用的HTTP方法的列表。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>添加一个Access-Control-Max-Age首选项响应标头，其中包含此首选项响应有效的秒数（因此可以在随后的实际请求之前避免使用）。请注意，虽然习惯使用较大的值，例如2592000（30天），但许多浏览器会自行施加一个较低的限制（例如5分钟）。</p>
+<p>因为众所周知，浏览器的飞行前响应缓存很弱，所以飞行前响应带来的额外往返行程会影响性能。性能至关重要的交互式Web客户端使用的服务应避免导致预检请求的模式</p>
+<ul>
+<li>对于GET和HEAD调用，请避免要求不属于上述简单设置的请求标头。允许将它们作为查询参数提供。<ul>
+<li>Authorization标头不是简单集的一部分，因此对于需要身份验证的资源，必须通过“ access_token”查询参数发送身份验证令牌。请注意，不建议在URL中传递身份验证令牌，因为它可能导致令牌记录在服务器日志中并暴露给有权访问这些日志的任何人。通过URL接受身份验证令牌的服务必须采取措施来减轻安全风险，例如使用短暂的身份验证令牌，禁止身份验证令牌被记录以及控制对服务器日志的访问。</li>
+</ul>
+</li>
+<li>避免要求Cookie。如果设置了“ withCredentials”属性，则XmlHttpRequest仅在跨域请求上发送cookie。这也会引起预检请求。<ul>
+<li>需要基于Cookie的身份验证的服务务必使用“动态Canary”来保护所有接受Cookie的API。</li>
+</ul>
+</li>
+<li>对于POST调用，请在适用的情况下（“应用程序&#x2F; x-www-form-urlencoded”，“ multipart &#x2F; form-data”，“ text &#x2F; plain”）集中使用简单的Content-Type。任何其他Content-Type都会引发预检请求。<ul>
+<li>服务不得以避免CORS飞行前请求的名义违反其他API建议。特别是，根据建议，由于内容类型，大多数POST请求实际上将需要进行预检请求。</li>
+<li>如果消除预检是至关重要的，则服务可以支持替代的数据传输机制，但是还必须支持推荐的方法。</li>
+</ul>
+</li>
+</ul>
+<p>另外，在适当的服务时，可以支持JSONP模式，以进行简单的仅GET跨域访问。在JSONP中，服务采用指示格式（*$ format &#x3D; json<em>）的参数和指示回调（</em>$ callback &#x3D; someFunc*）的参数，并返回文本&#x2F; javascript文档，该文档包含包装在具有指定名称的函数调用中的JSON响应。Wikipedia上有关JSONP的更多信息：<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/JSONP">JSONP</a>。</p>
+<h2 id="9-馆藏"><a href="#9-馆藏" class="headerlink" title="9. 馆藏"></a>9. 馆藏</h2><h3 id="9-1-项目键"><a href="#9-1-项目键" class="headerlink" title="9.1. 项目键"></a>9.1. 项目键</h3><p>服务可以支持集合中每个项目的持久标识符，并且该标识符应该在JSON中表示为“ id”。这些持久标识符通常用作项目密钥。</p>
+<p>支持持久标识符的集合可以支持增量查询。</p>
+<h3 id="9-2-序列化"><a href="#9-2-序列化" class="headerlink" title="9.2. 序列化"></a>9.2. 序列化</h3><p>集合使用标准数组表示法以JSON表示。</p>
+<h3 id="9-3-集合网址格式"><a href="#9-3-集合网址格式" class="headerlink" title="9.3. 集合网址格式"></a>9.3. 集合网址格式</h3><p>集合位于顶层时，它们直接位于服务根目录下；如果作用域位于该资源下，则位于另一个资源下。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / people</span><br></pre></td></tr></table></figure>
+
+<p>只要有可能，服务都必须支持“ &#x2F;”模式。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET https：// &#123; serviceRoot &#125; / &#123; collection &#125; / &#123; id &#125;</span><br></pre></td></tr></table></figure>
+
+<p>哪里：</p>
+<ul>
+<li>{serviceRoot} –主机（站点URL）和服务的根路径的组合</li>
+<li>{collection} –集合的名称，未缩写，复数</li>
+<li>{id} –唯一id属性的值。使用“ &#x2F;”模式时，该值必须为原始字符串&#x2F;数字&#x2F;引导值，且不带引号，但应进行适当的转义以适合URL段。</li>
+</ul>
+<h4 id="9-3-1-嵌套的集合和属性"><a href="#9-3-1-嵌套的集合和属性" class="headerlink" title="9.3.1. 嵌套的集合和属性"></a>9.3.1. 嵌套的集合和属性</h4><p>收集项目可能包含其他收集。例如，一个用户集合可以包含具有多个地址的用户资源：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GET https://api.contoso.com/v 1.0 / people / 123 / addresses</span><br><span class="line">&#123;</span><br><span class="line">   “值”：[</span><br><span class="line">    &#123; “ street ”：“ 1st Avenue ”，“ city ”：“ Seattle ” &#125;，</span><br><span class="line">    &#123; “街道”：“ NE第124大街”，“城市”：“雷德蒙德” &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-4-大收藏"><a href="#9-4-大收藏" class="headerlink" title="9.4. 大收藏"></a>9.4. 大收藏</h3><p>随着数据的增长，集合也随之增长。分页计划对于所有服务都很重要。因此，当有多个页面可用时，序列化有效负载必须适当地包含下一页的不透明URL。有关更多详细信息，请参阅分页指南。</p>
+<p>对于任何给定的请求，客户必须能够适应分页或非分页的收集数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “值”：[</span><br><span class="line">    &#123; “ id ”：“商品1 ”，“价格”：99.95，“尺寸”：null &#125;，</span><br><span class="line">    &#123; … &#125;，</span><br><span class="line">    &#123; … &#125;，</span><br><span class="line">    &#123; “ id ”：“商品99 ”，“价格”：59.99，“尺寸”：空 &#125;</span><br><span class="line">  ]，</span><br><span class="line">  “ @nextLink ”： “ &#123;opaqueUrl&#125; ” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-5-更改收藏"><a href="#9-5-更改收藏" class="headerlink" title="9.5. 更改收藏"></a>9.5. 更改收藏</h3><p>POST请求不是幂等的。这意味着发送到具有完全相同有效负载的集合资源的两个POST请求可能会导致在该集合中创建多个项目。对具有服务器端生成的ID的项目执行插入操作通常是这种情况。</p>
+<p>例如，以下请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST https://api.contoso.com/v 1.0 / people</span><br></pre></td></tr></table></figure>
+
+<p>将导致响应，指示新收集项目的位置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">201创建</span><br><span class="line">位置： https : //api.contoso.com/v1.0/people/123</span><br></pre></td></tr></table></figure>
+
+<p>并再次执行，可能会导致其他资源：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">201创建</span><br><span class="line">位置： https : //api.contoso.com/v1.0/people/124</span><br></pre></td></tr></table></figure>
+
+<p>虽然PUT请求需要使用相应的密钥来指示收集项：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">放置 https://api.contoso.com/v 1.0 / people / 123</span><br></pre></td></tr></table></figure>
+
+<h3 id="9-6-排序集合"><a href="#9-6-排序集合" class="headerlink" title="9.6. 排序集合"></a>9.6. 排序集合</h3><p>收集查询的结果可以根据属性值排序。该属性由*$ orderBy*查询参数的值确定。</p>
+<p><em>$ orderBy</em>参数的值包含用于对项目进行排序的表达式的逗号分隔列表。这种表达式的一个特例是终止于原始属性的属性路径。</p>
+<p>表达式可以包含后缀“ asc”（用于升序）或“ desc”（用于降序），并与属性名称相隔一个或多个空格。如果未指定“ asc”或“ desc”，则该服务务必由指定的属性按升序排序。</p>
+<p>NULL值必须排序为“小于”非NULL值。</p>
+<p>项必须按第一个表达式的结果值排序，然后对第一个表达式具有相同值的项按第二个表达式的结果值排序，依此类推。排序顺序是属性类型的固有顺序。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / people ？$ orderBy = 名称</span><br></pre></td></tr></table></figure>
+
+<p>将返回按名称升序排列的所有人员。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / people ？$ orderBy = 名称描述</span><br></pre></td></tr></table></figure>
+
+<p>将返回所有按名称降序排列的人。</p>
+<p>子类别可以使用逗号分隔的属性名称列表（带有可选方向限定符）来指定。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / people ？$ orderBy = 名称desc，hireDate</span><br></pre></td></tr></table></figure>
+
+<p>将按名称降序返回所有按名称排序的人，再按hireDate返回hiredDate的次级排序顺序。</p>
+<p>排序必须与过滤结合在一起，以便：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / people ？$过滤器= 名称eq&#x27;大卫&#x27; ＆$ orderBy = hirerDate</span><br></pre></td></tr></table></figure>
+
+<p>将返回所有名称为David的人（按hiredDate升序排列）。</p>
+<h4 id="9-6-1-解释排序表达式"><a href="#9-6-1-解释排序表达式" class="headerlink" title="9.6.1. 解释排序表达式"></a>9.6.1. 解释排序表达式</h4><p>排序参数必须在页面之间保持一致，因为客户端和服务器端页面调度都与排序完全兼容。</p>
+<p>如果服务不支持按*$ orderBy*表达式中命名的属性进行排序，则该服务务必响应一条错误消息，如响应不受支持的请求部分中所定义。</p>
+<h3 id="9-7-筛选"><a href="#9-7-筛选" class="headerlink" title="9.7. 筛选"></a>9.7. 筛选</h3><p>在*$过滤器<em>的查询字符串参数允许客户端，以过滤由请求URL地址资源的集合。将为集合中的每个资源评估用</em>$ filter*指定的表达式，并且响应中仅包括该表达式的评估结果为true的项目。响应中将忽略表达式为其评估为false或null的资源，或由于权限而导致引用属性不可用的资源。</p>
+<p>示例：返回价格低于$ 10.00的所有产品</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / products ？$ filter = 价格lt 10.00</span><br></pre></td></tr></table></figure>
+
+<p>该值*$过滤器*选项是一个布尔表达式。</p>
+<h4 id="9-7-1-过滤操作"><a href="#9-7-1-过滤操作" class="headerlink" title="9.7.1. 过滤操作"></a>9.7.1. 过滤操作</h4><p>支持*$ filter的*服务应支持以下最少的操作集。</p>
+<table>
+<thead>
+<tr>
+<th>操作员</th>
+<th>描述</th>
+<th>例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>比较运算符</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>当量</td>
+<td>等于</td>
+<td>雷德蒙德市</td>
+</tr>
+<tr>
+<td>NE</td>
+<td>不相等</td>
+<td>城市“伦敦”</td>
+</tr>
+<tr>
+<td>gt</td>
+<td>比…更棒</td>
+<td>价格gt 20</td>
+</tr>
+<tr>
+<td>ge</td>
+<td>大于或等于</td>
+<td>价格GE 10</td>
+</tr>
+<tr>
+<td>lt</td>
+<td>少于</td>
+<td>价格lt 20</td>
+</tr>
+<tr>
+<td>乐</td>
+<td>小于或等于</td>
+<td>价格100</td>
+</tr>
+<tr>
+<td>逻辑运算符</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>和</td>
+<td>逻辑与</td>
+<td>价格le 200和价格gt 3.5</td>
+</tr>
+<tr>
+<td>要么</td>
+<td>逻辑或</td>
+<td>价格le 3.5或价格gt 200</td>
+</tr>
+<tr>
+<td>不</td>
+<td>逻辑否定</td>
+<td>没有价格le 3.5</td>
+</tr>
+<tr>
+<td>分组运算符</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>（）</td>
+<td>优先分组</td>
+<td>（优先级eq 1或城市eq“雷蒙德”）和价格gt 100</td>
+</tr>
+</tbody></table>
+<h4 id="9-7-2-运算符示例"><a href="#9-7-2-运算符示例" class="headerlink" title="9.7.2. 运算符示例"></a>9.7.2. 运算符示例</h4><p>以下示例说明了每个逻辑运算符的用法和语义。</p>
+<p>示例：名称等于“牛奶”的所有产品</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / products ？$ filter = 名称eq&#x27;牛奶&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>示例：名称不等于“牛奶”的所有产品</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / products ？$ filter = 名称“牛奶”</span><br></pre></td></tr></table></figure>
+
+<p>示例：所有名称也为“牛奶”且价格也低于2.55的产品：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / products ？$ filter = 名称eq&#x27;牛奶&#x27;且价格≤2.55</span><br></pre></td></tr></table></figure>
+
+<p>示例：所有名称为“牛奶”或价格低于2.55的产品：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / products ？$ filter = 名称eq&#x27;牛奶&#x27;或价格≤2.55</span><br></pre></td></tr></table></figure>
+
+<p>示例：所有名称为“牛奶”或“鸡蛋”且价格低于2.55的产品：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / products ？$ filter = （名称eq&#x27;牛奶&#x27;或名称eq&#x27;鸡蛋&#x27;）并且价格lt 2.55</span><br></pre></td></tr></table></figure>
+
+<h4 id="9-7-3-运算符优先级"><a href="#9-7-3-运算符优先级" class="headerlink" title="9.7.3. 运算符优先级"></a>9.7.3. 运算符优先级</h4><p>在评估*$ filter*表达式时，服务必须为支持的运算符使用以下运算符优先级。运算符按类别从高到低的优先顺序列出。相同类别的运算符具有相同的优先级：</p>
+<table>
+<thead>
+<tr>
+<th>组</th>
+<th>操作员</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>分组</td>
+<td>（）</td>
+<td>优先分组</td>
+</tr>
+<tr>
+<td>一元</td>
+<td>不</td>
+<td>逻辑否定</td>
+</tr>
+<tr>
+<td>关系型</td>
+<td>gt</td>
+<td>比…更棒</td>
+</tr>
+<tr>
+<td></td>
+<td>ge</td>
+<td>大于或等于</td>
+</tr>
+<tr>
+<td></td>
+<td>lt</td>
+<td>少于</td>
+</tr>
+<tr>
+<td></td>
+<td>乐</td>
+<td>小于或等于</td>
+</tr>
+<tr>
+<td>平等</td>
+<td>当量</td>
+<td>等于</td>
+</tr>
+<tr>
+<td></td>
+<td>NE</td>
+<td>不平等</td>
+</tr>
+<tr>
+<td>条件与</td>
+<td>和</td>
+<td>逻辑与</td>
+</tr>
+<tr>
+<td>有条件或</td>
+<td>要么</td>
+<td>逻辑或</td>
+</tr>
+</tbody></table>
+<h3 id="9-8-分页"><a href="#9-8-分页" class="headerlink" title="9.8. 分页"></a>9.8. 分页</h3><p>返回集合的RESTful API可以返回部分集。这些服务的使用者必须期望部分结果集并正确翻页以检索整个结果集。</p>
+<p>RESTful API可以支持两种形式的分页。服务器驱动的分页通过在多个响应有效负载上强制分页请求来缓解拒绝服务攻击。客户端驱动的页面调度使客户端可以仅请求在给定时间可以使用的资源数量。</p>
+<p>排序和过滤参数必须在页面之间保持一致，因为客户端和服务器端分页都与过滤和排序完全兼容。</p>
+<h4 id="9-8-1-服务器驱动的分页"><a href="#9-8-1-服务器驱动的分页" class="headerlink" title="9.8.1. 服务器驱动的分页"></a>9.8.1. 服务器驱动的分页</h4><p>分页响应必须通过在响应中包含延续标记来指示部分结果。没有延续令牌意味着没有其他页面可用。</p>
+<p>客户端必须将连续URL视为不透明，这意味着在遍历一组部分结果时，不得更改查询选项。</p>
+<p>例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET http://api.contoso.com/v 1.0 / people HTTP / 1.1 </span><br><span class="line">接受： application / json</span><br><span class="line"></span><br><span class="line">HTTP / 1.1  200 OK</span><br><span class="line"> 内容类型： application / json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  ...，</span><br><span class="line">  “ value ”：[ ... ]，</span><br><span class="line">   “ @nextLink ”：“ &#123;opaqueUrl&#125; ” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="9-8-2-客户端驱动的分页"><a href="#9-8-2-客户端驱动的分页" class="headerlink" title="9.8.2. 客户端驱动的分页"></a>9.8.2. 客户端驱动的分页</h4><p>客户端可以使用*$ top<em>和</em>$ skip*查询参数来指定要返回的结果数和集合的偏移量。</p>
+<p>服务器应遵循客户端指定的值；但是，客户端必须准备好处理包含不同页面大小或包含连续令牌的响应。</p>
+<p>当客户端同时给出了*$ top<em>和</em>$ skip时<em>，服务器应该首先应用</em>$ skip<em>，然后在集合上应用</em>$ top*。</p>
+<p>注意：如果服务器不能接受*$ top<em>和&#x2F;或</em>$ skip*，则服务器必须向客户端返回错误以通知它，而不仅仅是忽略查询选项。这样可以避免客户对返回的数据进行假设的风险。</p>
+<p>例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">GET http://api.contoso.com/v 1.0 / people ？$ top = 5 ＆$ skip = 2 HTTP / 1.1 </span><br><span class="line">接受： application / json</span><br><span class="line"></span><br><span class="line">HTTP / 1.1  200 OK</span><br><span class="line"> 内容类型： application / json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  ...，</span><br><span class="line">  “值”：[ ... ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="9-8-3-其他注意事项"><a href="#9-8-3-其他注意事项" class="headerlink" title="9.8.3. 其他注意事项"></a>9.8.3. 其他注意事项</h4><p><strong>稳定顺序的先决条件：</strong>两种分页形式都取决于具有稳定顺序的项目的集合。服务器必须以其他排序方式（通常按关键字）补充任何指定的订单条件，以确保始终按一致的顺序订购商品。</p>
+<p><strong>丢失&#x2F;重复的结果：</strong>即使服务器强制执行一致的排序顺序，基于创建或删除其他资源，结果也可能丢失或重复。客户必须准备好应对这些差异。服务器应始终对最后读取记录的记录ID进行编码，以帮助客户端管理重复&#x2F;丢失的结果。</p>
+<p><strong>组合客户端和服务器驱动的页面调度：</strong>请注意，客户端驱动的页面调度并不排除服务器驱动的页面调度。如果客户端请求的页面大小大于服务器支持的默认页面大小，则预期响应将是客户端指定的结果数，并按照服务器页面调度设置进行分页。</p>
+<p><strong>页面大小：</strong>客户端可以通过指定*$ maxpagesize*首选项来请求服务器驱动的具有特定页面大小的页面。如果指定的页面大小小于服务器的默认页面大小，则服务器应遵循此首选项。</p>
+<p><strong>对嵌入式集合进行分页：</strong>可以将客户端驱动的页面调度和服务器驱动的页面调度都应用于嵌入式集合。如果服务器对嵌入式集合进行分页，则必须酌情包括其他延续令牌。</p>
+<p><strong>记录集计数：</strong>想要知道所有页面上<strong>记录总数的</strong>开发人员，可以包含查询参数*$ count &#x3D; true*来告诉服务器在响应中包括项目计数。</p>
+<h3 id="9-9-复合物收集操作"><a href="#9-9-复合物收集操作" class="headerlink" title="9.9. 复合物收集操作"></a>9.9. 复合物收集操作</h3><p>过滤，排序和分页操作都可以针对给定的集合执行。当这些操作一起执行时，评估顺序必须为：</p>
+<ol>
+<li><strong>过滤</strong>。这包括作为AND运算执行的所有范围表达式。</li>
+<li><strong>排序</strong>。根据排序标准对可能过滤的列表进行排序。</li>
+<li><strong>分页</strong>。物化的分页视图显示在已过滤的排序列表上。这适用于服务器驱动的分页和客户端驱动的分页。</li>
+</ol>
+<h2 id="10-增量查询"><a href="#10-增量查询" class="headerlink" title="10. 增量查询"></a>10. 增量查询</h2><p>服务可以选择支持增量查询。</p>
+<h3 id="10-1-三角洲链接"><a href="#10-1-三角洲链接" class="headerlink" title="10.1. 三角洲链接"></a>10.1. 三角洲链接</h3><p>增量链接是客户端用来检索结果的后续更改的不透明的，由服务生成的链接。</p>
+<p>从概念上讲，增量链接基于定义查询，该查询描述了要跟踪其更改的结果集。增量链接对要跟踪其更改的实体的集合以及跟踪更改的起点进行编码。</p>
+<p>如果查询包含过滤器，则响应必须仅包含对符合指定条件的实体的更改。增量查询的关键原则是：</p>
+<ul>
+<li>集合中的每个项目都必须有一个永久标识符。该标识符应表示为“ id”。该标识符是服务定义的不透明字符串，客户端可以使用它来跟踪调用之间的对象。</li>
+<li>对于每个与指定条件新匹配的实体，增量必须包含一个条目，对于与该条件不再匹配的每个实体，必须包含“ @removed”条目。</li>
+<li>重新评估查询并将其与原始结果集进行比较；当前集合中唯一的每个条目都必须作为添加操作返回，原始集合中唯一的每个条目都必须作为“删除”操作返回。</li>
+<li>以前不符合条件但现在符合条件的每个实体必须作为“添加”返回；相反，先前与查询匹配但不再必须作为“ @removed”条目返回的每个实体。</li>
+<li>已更改的实体必须使用其标准表示形式包括在集合中。</li>
+<li>服务可以向“ @removed”节点添加其他元数据，例如删除原因或“在……处删除”时间戳。我们建议团队与Microsoft REST API准则有关扩展的工作组进行协调，以帮助保持一致性。</li>
+</ul>
+<p>增量链接不得编码任何客户端的top或skip值。</p>
+<h3 id="10-2-实体表示"><a href="#10-2-实体表示" class="headerlink" title="10.2. 实体表示"></a>10.2. 实体表示</h3><p>添加和更新的实体使用其标准表示形式在实体集中表示。从集合的角度来看，添加或更新的实体之间没有区别。</p>
+<p>删除的实体仅使用其“ id”和“ @removed”节点表示。“ @removed”节点的存在必须表示该条目从集合中的删除。</p>
+<h3 id="10-3-获取增量链接"><a href="#10-3-获取增量链接" class="headerlink" title="10.3. 获取增量链接"></a>10.3. 获取增量链接</h3><p>通过查询集合或实体并附加$ delta查询字符串参数来获得增量链接。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">获取 https://api.contoso.com/v 1.0 / people ？$ delta </span><br><span class="line">HTTP / 1.1 </span><br><span class="line">接受： application / json</span><br><span class="line"></span><br><span class="line">HTTP / 1.1  200 OK</span><br><span class="line"> 内容类型： application / json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “值”：[</span><br><span class="line">    &#123; “ id ”：“ 1 ”，“ name ”：“ Matt ” &#125;，</span><br><span class="line">    &#123; “ id ”：“ 2 ”，“ name ”：“ Mark ” &#125;，</span><br><span class="line">    &#123; “ id ”：“ 3 ”，“ name ”：“ John ” &#125;</span><br><span class="line">  ]，</span><br><span class="line">  “ @deltaLink ”： “ &#123;opaqueUrl&#125; ” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：如果对集合进行了分页，则deltaLink将仅出现在最后一页上，但必须反映所有页面上返回的数据的任何更改。</p>
+<h3 id="10-4-增量链接响应的内容"><a href="#10-4-增量链接响应的内容" class="headerlink" title="10.4. 增量链接响应的内容"></a>10.4. 增量链接响应的内容</h3><p>添加&#x2F;更新的条目必须显示为具有常规项目属性的常规JSON对象。以常规表示形式返回添加&#x2F;修改的项目，客户端可以使用基于“ id”字段的标准合并概念将其合并到现有的“缓存”中。</p>
+<p>从定义的集合中删除的条目必须包含在响应中。从集合中删除的项目必须仅使用其“ id”和“ @removed”节点表示。</p>
+<h3 id="10-5-使用增量链接"><a href="#10-5-使用增量链接" class="headerlink" title="10.5. 使用增量链接"></a>10.5. 使用增量链接</h3><p>客户端通过在增量链接上调用GET方法来请求更改。客户必须按原样使用增量URL，换句话说，客户不得以任何方式修改URL（例如，解析URL并添加其他查询字符串参数）。在此示例中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET https：// &#123; opaqueUrl &#125; HTTP / 1.1 </span><br><span class="line">接受： application / json</span><br><span class="line"></span><br><span class="line">HTTP / 1.1  200 OK</span><br><span class="line"> 内容类型： application / json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “值”：[</span><br><span class="line">    &#123; “ id ”：“ 1 ”，“ name ”：“ Mat ” &#125;，</span><br><span class="line">    &#123; “ id ”：“ 2 ”，“ name ”：“ Marc ” &#125;，</span><br><span class="line">    &#123; “ id ”：“ 3 ”，“ @removed ”：&#123;&#125;&#125;，</span><br><span class="line">    &#123; “ id ”：“ 4 ”，“ name ”：“ Luc ” &#125;</span><br><span class="line">  ]，</span><br><span class="line">  “ @deltaLink ”： “ &#123;opaqueUrl&#125; ” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>针对增量链接的请求结果可能会跨越多个页面，但是服务必须在所有页面上对服务进行排序，以确保在应用于包含增量链接的响应时确保确定性的结果。</p>
+<p>如果未发生任何更改，则响应为空集合，其中包含请求的后续更改的增量链接。该增量链接可能与增量链接相同，从而导致空集合的更改。</p>
+<p>如果增量链接不再有效，则服务必须以<em>410 Gone</em>响应。响应应包含一个Location标头，客户端可以使用该标头检索新的基线结果集。</p>
+<h2 id="11-JSON标准化"><a href="#11-JSON标准化" class="headerlink" title="11. JSON标准化"></a>11. JSON标准化</h2><h3 id="11-1-原始类型的JSON格式标准化"><a href="#11-1-原始类型的JSON格式标准化" class="headerlink" title="11.1. 原始类型的JSON格式标准化"></a>11.1. 原始类型的JSON格式标准化</h3><p>原始值必须遵循[RFC8259] [rfc-8259]的规则序列化为JSON。</p>
+<p><strong>对于64位整数的重要说明：</strong> JavaScript会自动截断大于<code>Number.MAX_SAFE_INTEGER</code>（2 ^ 53-1）的整数或小于<code>Number.MIN_SAFE_INTEGER</code>（-2 ^ 53 + 1）的整数。如果期望服务返回安全值范围之外的整数值，则强烈考虑将值作为字符串返回，以最大程度地提高互操作性并避免数据丢失。</p>
+<h3 id="11-2-日期和时间指南"><a href="#11-2-日期和时间指南" class="headerlink" title="11.2. 日期和时间指南"></a>11.2. 日期和时间指南</h3><h4 id="11-2-1-生产日期"><a href="#11-2-1-生产日期" class="headerlink" title="11.2.1. 生产日期"></a>11.2.1. 生产日期</h4><p>服务必须使用<code>DateLiteral</code>格式产生日期，<code>Iso8601Literal</code>除非有充分的理由否则服务应使用格式。确实使用该<code>StructuredDateLiteral</code>格式的服务<code>T</code>不得使用该类型产生日期，除非同时要求额外的精度并且明确不支持ECMAScript客户端。（非规范性声明：在确定<code>DateKind</code>要标准化的特定标准时，优先级的近似顺序为<code>E, C, U, W, O, X, I, T</code>。这将按该顺序针对ECMAScript，.NET和C ++程序员进行优化。）</p>
+<h4 id="11-2-2-消费日期"><a href="#11-2-2-消费日期" class="headerlink" title="11.2.2. 消费日期"></a>11.2.2. 消费日期</h4><p>服务必须接受使用与其产生的<code>DateLiteral</code>格式相同（包括<code>DateKind</code>，如果适用）的客户端的日期，并且应该使用任何<code>DateLiteral</code>格式的日期。</p>
+<h4 id="11-2-3-兼容性"><a href="#11-2-3-兼容性" class="headerlink" title="11.2.3. 兼容性"></a>11.2.3. 兼容性</h4><p>服务必须对相同类型的所有资源使用相同的<code>DateLiteral</code>格式（<code>DateKind</code>如果适用，包括相同的格式），并且对于整个服务中的所有资源，应该使用相同的<code>DateLiteral</code>格式（以及<code>DateKind</code>（如果适用的话））。</p>
+<p><code>DateLiteral</code>服务产生的格式的任何更改（包括<code>DateKind</code>，如果适用）和服务接受的<code>DateLiteral</code>格式的任何减少（以及<code>DateKind</code>，如果适用），都必须视为重大更改。<code>DateLiteral</code>服务接受的格式的任何扩展都不视为重大更改。</p>
+<h3 id="11-3-日期和时间的JSON序列化"><a href="#11-3-日期和时间的JSON序列化" class="headerlink" title="11.3. 日期和时间的JSON序列化"></a>11.3. 日期和时间的JSON序列化</h3><p>与JSON来回序列化日期是一个难题。尽管ECMAScript支持大多数内置类型的文字，但它并未定义日期的文字格式。Web已经围绕<a target="_blank" rel="noopener" href="http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.15">ISO 8601日期格式（ISO 8601）</a>的<a target="_blank" rel="noopener" href="http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.15">ECMAScript子集进行了</a>合并，但是在某些情况下，此格式是不可取的。对于这些情况，本文档定义了JSON序列化格式，可用于明确表示不同格式的日期。其他序列化格式（例如XML）也可以从该格式派生。</p>
+<h4 id="11-3-1-该DateLiteral格式"><a href="#11-3-1-该DateLiteral格式" class="headerlink" title="11.3.1. 该DateLiteral格式"></a>11.3.1. 该<code>DateLiteral</code>格式</h4><p>JSON中表示的日期使用以下语法进行序列化。非正式地，a <code>DateValue</code>是ISO 8601格式的字符串或JSON对象，其中包含两个名为的属性<code>kind</code>，<code>value</code>它们共同定义了一个时间点。以下不是上下文无关的语法；特别是，的解释<code>DateValue</code>取决于的值<code>DateKind</code>，但这可以最大程度地减少描述格式所需的产生次数。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">DateLiteral:</span><br><span class="line">  Iso8601Literal</span><br><span class="line">  StructuredDateLiteral</span><br><span class="line"></span><br><span class="line">Iso8601Literal:</span><br><span class="line">  A string literal as defined in http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.15. Note that the full grammar for ISO 8601 (such as &quot;basic format&quot; without separators) is not supported.</span><br><span class="line">  All dates default to UTC unless specified otherwise.</span><br><span class="line"></span><br><span class="line">StructuredDateLiteral:</span><br><span class="line">  &#123; DateKindProperty , DateValueProperty &#125;</span><br><span class="line">  &#123; DateValueProperty , DateKindProperty &#125;</span><br><span class="line"></span><br><span class="line">DateKindProperty</span><br><span class="line">  &quot;kind&quot; : DateKind</span><br><span class="line"></span><br><span class="line">DateKind:</span><br><span class="line">  &quot;C&quot;            ; see below</span><br><span class="line">  &quot;E&quot;            ; see below</span><br><span class="line">  &quot;I&quot;            ; see below</span><br><span class="line">  &quot;O&quot;            ; see below</span><br><span class="line">  &quot;T&quot;            ; see below</span><br><span class="line">  &quot;U&quot;            ; see below</span><br><span class="line">  &quot;W&quot;            ; see below</span><br><span class="line">  &quot;X&quot;            ; see below</span><br><span class="line"></span><br><span class="line">DateValueProperty:</span><br><span class="line">  &quot;value&quot; : DateValue</span><br><span class="line"></span><br><span class="line">DateValue:</span><br><span class="line">  UnsignedInteger        ; not defined here</span><br><span class="line">  SignedInteger        ; not defined here</span><br><span class="line">  RealNumber        ; not defined here</span><br><span class="line">  Iso8601Literal        ; as above</span><br></pre></td></tr></table></figure>
+
+<h4 id="11-3-2-日期格式注释"><a href="#11-3-2-日期格式注释" class="headerlink" title="11.3.2. 日期格式注释"></a>11.3.2. 日期格式注释</h4><p>甲<code>DateLiteral</code>使用<code>Iso8601Literal</code>生产相对简单。这是一个对象的示例，该对象的属性名为<code>creationDate</code>UTC，设置为2015年2月13日下午1：15：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; “ creationDate ”：“ 2015-02-13T13：15Z ” &#125;</span><br></pre></td></tr></table></figure>
+
+<p>该<code>StructuredDateLiteral</code>由一个<code>DateKind</code>和伴随<code>DateValue</code>其有效值（和他们的解释）依赖于<code>DateKind</code>。下表描述了有效的组合及其含义：</p>
+<table>
+<thead>
+<tr>
+<th>日期种类</th>
+<th>日期值</th>
+<th>口语名称和解释</th>
+<th>更多信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C</td>
+<td>UnsignedInteger</td>
+<td>“ CLR”；自0001年1月1日午夜以来的毫秒数；不允许为负值。<em>请参阅下面的注释。</em></td>
+<td><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/en-us/library/System.DateTime(v=vs.110).aspx">MSDN</a></td>
+</tr>
+<tr>
+<td>Ë</td>
+<td>有符号整数</td>
+<td>“ ECMAScript”；自1970年1月1日午夜以来的毫秒数。</td>
+<td><a target="_blank" rel="noopener" href="http://www.ecma-international.org/ecma-262/5.1/#sec-15.9.1.1">ECMA国际</a></td>
+</tr>
+<tr>
+<td>一世</td>
+<td>ISO8601文学</td>
+<td>“ ISO 8601”；仅限ECMAScript子集的字符串。</td>
+<td></td>
+</tr>
+<tr>
+<td>Ø</td>
+<td>实数</td>
+<td>“ OLE日期”；整数部分是自1899年12月31日午夜以来的天数，小数部分是一天中的时间（0.5 &#x3D;午间）。</td>
+<td><a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/windows/desktop/api/oleauto/nf-oleauto-varianttimetosystemtime">MSDN</a></td>
+</tr>
+<tr>
+<td>Ť</td>
+<td>有符号整数</td>
+<td>“壁虱”；自1601年1月1日午夜以来的滴答声数量（每100纳秒间隔）。<em>请参阅以下注释。</em></td>
+<td><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms724290(v=vs.85).aspx">MSDN</a></td>
+</tr>
+<tr>
+<td>ü</td>
+<td>有符号整数</td>
+<td>“ UNIX”；自1970年1月1日午夜以来的秒数。</td>
+<td><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/en-us/library/1f4c8f33.aspx">MSDN</a></td>
+</tr>
+<tr>
+<td>w ^</td>
+<td>有符号整数</td>
+<td>“视窗”; 自1601年1月1日午夜以来的毫秒数。<em>请参见下面的注释。</em></td>
+<td><a target="_blank" rel="noopener" href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms724290(v=vs.85).aspx">MSDN</a></td>
+</tr>
+<tr>
+<td>X</td>
+<td>实数</td>
+<td>“ Excel”；例如，<code>O</code>但是1900年被错误地视为a年，并且第0天是“ 1月0（零）”。</td>
+<td><a target="_blank" rel="noopener" href="http://support.microsoft.com/kb/214326?wa=wsignin1.0">微软支持</a></td>
+</tr>
+</tbody></table>
+<p><strong>重要提示<code>C</code>和<code>W</code>种类：</strong>本地CLR和Windows时间用100纳秒的“刻度”值表示。为了与精度有限的ECMAScript客户端进行互操作，（反序列化为）时，<em>这些值必须在毫秒之间转换</em><code>DateLiteral</code>。一毫秒等于10,000滴答声。</p>
+<p><strong><code>T</code>种类的重要说明：</strong>这种种类保留了Windows本机时间格式的全部保真度（并且可以与本机CLR格式轻松地转换），但与ECMAScript客户端不兼容。因此，它的使用应仅限于既需要更高的精度又不需要与ECMAScript客户端进行互操作的场景。</p>
+<p>这是一个具有名为creationDate的属性的对象的相同示例，该属性设置为UTC的2015年2月13日下午1点15分，使用多种格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123; “ creationDate ”：&#123; “ kind ”：“ O ”，“ value ”：42048.55 &#125;&#125;，</span><br><span class="line">  &#123; “ creationDate ”：&#123; “ kind ”：“ E ”，“ value ”：1423862100000 &#125;&#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>将种类与值分开的好处之一是，一旦客户知道特定服务使用的种类，便可以解释该值而无需任何其他解析。在值通常为数字的情况下，这使开发人员更容易编写代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//我们知道这种服务总是给出了ECMAScript的格式的日期</span><br><span class="line">VAR  日期 =  新的 日期（ serverResponse。 someObject。 creationDate。值）;</span><br></pre></td></tr></table></figure>
+
+<h3 id="11-4-持续时间"><a href="#11-4-持续时间" class="headerlink" title="11.4. 持续时间"></a>11.4. 持续时间</h3><p><a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/ISO_8601#Durations">持续时间</a>需要按照<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/ISO_8601#Durations">ISO 8601</a>进行序列化。持续时间“由格式表示<code>P[n]Y[n]M[n]DT[n]H[n]M[n]S</code>”。从标准：</p>
+<ul>
+<li>P是放置在持续时间表示开始处的持续时间指示符（历史上称为“周期”）。</li>
+<li>Y是跟随年份值的年份指示符。</li>
+<li>M是跟随月份数的月份指示符。</li>
+<li>W是跟随星期数的值的星期指示符。</li>
+<li>D是跟随天数值的天数指示符。</li>
+<li>T是在表示的时间成分之前的时间指示符。</li>
+<li>H是跟随小时数的值的小时指示符。</li>
+<li>M是分钟数值后面的分钟指示符。</li>
+<li>S是第二个指示符，它跟在秒数之后。</li>
+</ul>
+<p>例如，“ P3Y6M4DT12H30M5S”表示持续时间为“三年，六个月，四天，十二小时，三十分钟和五秒”。</p>
+<h3 id="11-5-间隔"><a href="#11-5-间隔" class="headerlink" title="11.5. 间隔"></a>11.5. 间隔</h3><p><a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/ISO_8601#Time_intervals">间隔</a>定义为<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/ISO_8601#Time_intervals">ISO 8601的</a>一部分。</p>
+<ul>
+<li>开始和结束，例如“ 2007-03-01T13：00：00Z &#x2F; 2008-05-11T15：30：00Z”</li>
+<li>开始时间和持续时间，例如“ 2007-03-01T13：00：00Z &#x2F; P1Y2M10DT2H30M”</li>
+<li>持续时间和结束时间，例如“ P1Y2M10DT2H30M &#x2F; 2008-05-11T15：30：00Z”</li>
+<li>仅持续时间，例如“ P1Y2M10DT2H30M”以及其他上下文信息</li>
+</ul>
+<h3 id="11-6-重复间隔"><a href="#11-6-重复间隔" class="headerlink" title="11.6. 重复间隔"></a>11.6. 重复间隔</h3><p>根据<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/ISO_8601#Repeating_intervals">ISO 8601</a>，<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/ISO_8601#Repeating_intervals">重复间隔</a>为：</p>
+<blockquote>
+<p>通过在间隔表达式的开头添加“ R [n] &#x2F;”来形成，其中R用作字母本身，[n]被重复次数代替。忽略[n]的值意味着无限次数的重复。</p>
+</blockquote>
+<p>例如，要从“ 2008-03-01T13：00：00Z”开始重复五次“ P1Y2M10DT2H30M”间隔，请使用“ R5 &#x2F; 2008-03-01T13：00：00Z &#x2F; P1Y2M10DT2H30M”。</p>
+<h2 id="12-版本控制"><a href="#12-版本控制" class="headerlink" title="12. 版本控制"></a>12. 版本控制</h2><p><strong>所有符合Microsoft REST API准则的API都必须支持显式版本控制。</strong>客户端可以依靠服务保持稳定是至关重要的，服务可以添加功能并进行更改也至关重要。</p>
+<h3 id="12-1-版本格式"><a href="#12-1-版本格式" class="headerlink" title="12.1. 版本格式"></a>12.1. 版本格式</h3><p>服务使用Major.Minor版本控制方案进行版本控制。服务可以选择“仅主要”版本方案，在这种情况下暗含“ .0”，并且本节中的所有其他规则均适用。支持两种用于指定REST API请求版本的选项：</p>
+<ul>
+<li>嵌入在请求URL的路径中，位于服务根目录的末尾： <code>https://api.contoso.com/v1.0/products/users</code></li>
+<li>作为URL的查询字符串参数： <code>https://api.contoso.com/products/users?api-version=1.0</code></li>
+</ul>
+<p>在这两个选项之间进行选择的指导如下：</p>
+<ol>
+<li>共同位于DNS端点后面的服务必须使用相同的版本控制机制。</li>
+<li>在这种情况下，跨端点的一致用户体验至关重要。Microsoft REST API准则工作组建议在未与组织领导团队进行明确对话的情况下，不要创建新的顶级DNS终结点。</li>
+<li>保证其REST API的URL路径稳定的服务，即使通过API的未来版本，也可以采用查询字符串参数机制。这意味着在API交付后，API中描述的关系的命名和结构就无法发展，即使是在具有重大更改的版本之间。</li>
+<li>无法确保未来版本中URL路径稳定性的服务必须将版本嵌入URL路径中。</li>
+</ol>
+<p>某些基础服务（例如Microsoft的Azure Active Directory）可能会暴露在多个终结点之后。此类服务必须支持每个端点的版本控制机制，即使这意味着支持多种版本控制机制。</p>
+<h4 id="12-1-1-组版本控制"><a href="#12-1-1-组版本控制" class="headerlink" title="12.1.1. 组版本控制"></a>12.1.1. 组版本控制</h4><p>组版本控制是一项可选功能，可以使用查询字符串参数机制在服务上提供。组版本允许在通用版本名称下对API端点进行逻辑分组。这使开发人员可以查找单个版本号，并在多个端点之间使用它。组版本号是众所周知的，服务应该拒绝任何无法识别的值。</p>
+<p>在内部，服务将采用组版本并将其映射到适当的Major.Minor版本。</p>
+<p>组版本格式定义为YYYY-MM-DD，例如2012年12月7日为2012-12-07。此日期版本格式仅适用于组版本，不应用作Major.Minor版本的替代。</p>
+<h5 id="组版本控制的示例"><a href="#组版本控制的示例" class="headerlink" title="组版本控制的示例"></a>组版本控制的示例</h5><table>
+<thead>
+<tr>
+<th>组</th>
+<th>主要次要</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2012-12-01</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td></td>
+<td>1.1</td>
+</tr>
+<tr>
+<td></td>
+<td>1.2</td>
+</tr>
+<tr>
+<td>2013-03-21</td>
+<td>1.0</td>
+</tr>
+<tr>
+<td></td>
+<td>2.0</td>
+</tr>
+<tr>
+<td></td>
+<td>3.0</td>
+</tr>
+<tr>
+<td></td>
+<td>3.1</td>
+</tr>
+<tr>
+<td></td>
+<td>3.2</td>
+</tr>
+<tr>
+<td></td>
+<td>3.3</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>版本格式</th>
+<th>例</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>{groupVersion}</td>
+<td>2013-03-21，2012-12-01</td>
+<td>3.3、1.2</td>
+</tr>
+<tr>
+<td>{majorVersion}</td>
+<td>3</td>
+<td>3.0</td>
+</tr>
+<tr>
+<td>{majorVersion}。{minorVersion}</td>
+<td>1.2</td>
+<td>1.2</td>
+</tr>
+</tbody></table>
+<p>客户可以指定组版本或专业版本。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">获取 http://api.contoso.com/acct 1 / c 1 / blob 2 吗？api版本= 1.0</span><br><span class="line">放置 http://api.contoso.com/acct 1 / c 1 / b 2 吗？api-version = 2011-12-07</span><br></pre></td></tr></table></figure>
+
+<h3 id="12-2-何时版本"><a href="#12-2-何时版本" class="headerlink" title="12.2. 何时版本"></a>12.2. 何时版本</h3><p>服务必须响应任何重大的API更改而增加其版本号。请参阅以下部分，详细讨论什么是重大更改。如果需要，服务也可以增加其版本号以进行不间断的更改。</p>
+<p>使用新的主要版本号表示将来将不再支持现有客户端。引入新的主要版本时，服务必须为现有客户提供清晰的升级路径，并制定与业务组策略一致的弃用计划。服务应将新的次要版本号用于所有其他更改。</p>
+<p>版本化服务的在线文档必须指出每个先前API版本的当前支持状态，并提供最新版本的路径。</p>
+<h3 id="12-3-重大变化的定义"><a href="#12-3-重大变化的定义" class="headerlink" title="12.3. 重大变化的定义"></a>12.3. 重大变化的定义</h3><p>对API合同的更改被视为重大更改。影响API向后兼容性的更改是一项重大更改。</p>
+<p>团队可以根据他们的业务需求定义向后兼容性。例如，Azure将响应中的新JSON字段定义为不向后兼容。Office 365具有向后兼容性的较宽松定义，并允许将JSON字段添加到响应中。</p>
+<p>重大更改的清晰示例：</p>
+<ol>
+<li>删除或重命名API或API参数</li>
+<li>现有API的行为更改</li>
+<li>错误代码和故障合同的变更</li>
+<li>任何违反<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Principle_of_least_astonishment">最小惊讶原则的</a>东西</li>
+</ol>
+<p>服务必须明确定义其重大更改的定义，尤其是在向JSON响应中添加新字段以及使用默认字段添加新API参数方面。与其他服务一起位于DNS端点后面的服务在定义合同可扩展性时必须保持一致。</p>
+<p><a target="_blank" rel="noopener" href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398209">OData V4规范本节中</a>描述的适用更改应被视为所有服务必须考虑的重大更改的最低要求的一部分。</p>
+<h2 id="13-长期运行"><a href="#13-长期运行" class="headerlink" title="13. 长期运行"></a>13. 长期运行</h2><p>长时间运行的操作（有时称为异步操作）对不同的人意味着不同的意思。本节针对不同类型的长时间运行设置了指南，并介绍了这些类型的操作的线路协议和最佳实践。</p>
+<ol>
+<li>一个或多个客户端必须能够同时监视和操作同一资源。</li>
+<li>系统状态应始终可发现和可测试。即使操作跟踪资源不再处于活动状态，客户端也应该能够确定系统状态。查询长时间运行状态的操作本身应该利用网络原理。即具有统一接口语义的定义良好的资源。客户端可以在某些资源上发出GET来确定长时间运行的状态</li>
+<li>长期运行的操作应该为希望“解雇”的客户以及希望积极监控结果并根据结果采取行动的客户服务。</li>
+<li>取消并不明确意味着回滚。在按API定义的情况下，这可能意味着回滚，补偿，完成或部分完成等。在取消操作之后，客户不应将服务恢复到允许继续服务的一致状态的责任。</li>
+</ol>
+<h3 id="13-1-基于资源的长期运行（RELO）"><a href="#13-1-基于资源的长期运行（RELO）" class="headerlink" title="13.1. 基于资源的长期运行（RELO）"></a>13.1. 基于资源的长期运行（RELO）</h3><p>基于资源的建模是将操作的状态编码在资源中，并且所使用的有线协议是标准的同步协议。在此模型中，状态转移定义明确，目标状态定义类似。</p>
+<p><em>对于长时间运行的操作，这是首选模型，应尽可能使用它。</em>避免了LRO Wire Protocol的复杂性和机制，对于我们的用户和工具链而言，事情变得更加简单。</p>
+<p>一个示例可能是计算机重新引导，该操作本身同步完成，但是虚拟机资源上的GET操作将具有“状态：正在重新引导”，“状态：正在运行”，可以随时查询。</p>
+<p>该模型可以集成推送通知。</p>
+<p>虽然大多数操作可能是POST语义，但除POST语义外，服务可以通过路由支持PUT语义以简化其API。例如，想要创建一个名为“ db1”的数据库的用户可以调用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">放置 https://api.contoso.com/v 1.0 / databases / db 1</span><br></pre></td></tr></table></figure>
+
+<p>在这种情况下，数据库段正在处理PUT操作。</p>
+<p>服务也可以使用下面定义的混合。</p>
+<h3 id="13-2-分步长期运行"><a href="#13-2-分步长期运行" class="headerlink" title="13.2. 分步长期运行"></a>13.2. 分步长期运行</h3><p>A stepwise operation is one that takes a long, and often unpredictable, length of time to complete, and doesn’t offer state transition modeled in the resource. This section outlines the approach that services should use to expose such long running operations.</p>
+<p>Service MAY expose stepwise operations.</p>
+<blockquote>
+<p>Stepwise Long Running Operations are sometimes called “Async” operations. This causes confusion, as it mixes elements of platforms (“Async &#x2F; await”, “promises”, “futures”) with elements of API operation. This document uses the term “Stepwise Long Running Operation” or often just “Stepwise Operation” to avoid confusion over the word “Async”.</p>
+</blockquote>
+<p>Services MUST perform as much synchronous validation as practical on stepwise requests. Services MUST prioritize returning errors in a synchronous way, with the goal of having only “Valid” operations processed using the long running operation wire protocol.</p>
+<p>For an API that’s defined as a Stepwise Long Running Operation the service MUST go through the Stepwise Long Running Operation flow even if the operation can be completed immediately. In other words, APIs must adopt and stick with an LRO pattern and not change patterns based on circumstance.</p>
+<h4 id="13-2-1-PUT"><a href="#13-2-1-PUT" class="headerlink" title="13.2.1. PUT"></a>13.2.1. PUT</h4><p>Services MAY enable PUT requests for entity creation.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT https://api.contoso.com/v1.0/databases/db1</span><br></pre></td></tr></table></figure>
+
+<p>In this scenario the <em>databases</em> segment is processing the PUT operation.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  202接受的</span><br><span class="line"> 操作位置： https : //api.contoso.com/v1.0/operations/123</span><br></pre></td></tr></table></figure>
+
+<p>对于需要返回此处创建201的服务，请使用下面描述的混合流程。</p>
+<p>202已接受不返回任何正文。201 Created案例应返回目标资源的主体。</p>
+<h4 id="13-2-2。开机自检"><a href="#13-2-2。开机自检" class="headerlink" title="13.2.2。开机自检"></a>13.2.2。开机自检</h4><p>服务可以启用用于实体创建的POST请求。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST https://api.contoso.com/v 1.0 / databases /</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “ fileName ”： “ someFile.db ”，</span><br><span class="line">   “ color ”： “红色” </span><br><span class="line">&#125;</span><br><span class="line">HTTP / 1.1  202接受的</span><br><span class="line"> 操作位置： https : //api.contoso.com/v1.0/operations/123</span><br></pre></td></tr></table></figure>
+
+<h4 id="13-2-3。POST，混合模型"><a href="#13-2-3。POST，混合模型" class="headerlink" title="13.2.3。POST，混合模型"></a>13.2.3。POST，混合模型</h4><p>服务可以对创建资源的集合的POST请求进行同步响应，即使在生成响应时资源没有完全创建。为了使用该模式，响应必须包括不完整资源的表示和不完整资源的指示。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST https://api.contoso.com/v 1.0 / databases / HTTP / 1.1 </span><br><span class="line">主机： api.contoso.com </span><br><span class="line">内容类型： application / json </span><br><span class="line">接受： application / json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “ fileName ”： “ someFile.db ”，</span><br><span class="line">   “ color ”： “红色” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务响应说数据库已经创建，但是通过包含Operation-Location标头指示请求未完成。在这种情况下，响应有效负载中的status属性还指示该操作尚未完全完成。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  201创建</span><br><span class="line"> 位置： https : //api.contoso.com/v1.0/databases/db1 </span><br><span class="line">操作位置： https : //api.contoso.com/v1.0/operations/123</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “的databaseName ”： “ DB1 ”，</span><br><span class="line">   “色”： “红色”，</span><br><span class="line">   “状态”： “供应”，</span><br><span class="line">   [  ...  等 领域 的 “数据库”  ...] </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="13-2-4。运营资源"><a href="#13-2-4。运营资源" class="headerlink" title="13.2.4。运营资源"></a>13.2.4。运营资源</h4><p>服务可以在租户级别提供“ &#x2F; operations”资源。</p>
+<p>提供“ &#x2F; operations”资源的服务必须提供GET语义。GET必须枚举遵循标准分页，排序和过滤语义的操作集。此操作的默认排序顺序必须为：</p>
+<table>
+<thead>
+<tr>
+<th>主要排序</th>
+<th>次要排序</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>未开始的操作</td>
+<td>操作创建时间</td>
+</tr>
+<tr>
+<td>运作中</td>
+<td>操作创建时间</td>
+</tr>
+<tr>
+<td>完成的操作</td>
+<td>操作创建时间</td>
+</tr>
+</tbody></table>
+<p>请注意，“完成的操作”是目标状态（请参见下文），实际上可以是几个不同的状态中的任何一个，例如“成功”，“已取消”，“失败”等。</p>
+<h4 id="13-2-5。经营资源"><a href="#13-2-5。经营资源" class="headerlink" title="13.2.5。经营资源"></a>13.2.5。经营资源</h4><p>操作是用户可寻址资源，它跟踪逐步运行的逐步操作。操作必须支持GET语义。针对某个操作的GET操作务必返回：</p>
+<ol>
+<li>操作资源，其状态以及与特定API相关的任何扩展状态。</li>
+<li>200 OK作为响应代码。</li>
+</ol>
+<p>服务可以通过在操作上暴露DELETE来支持取消操作。如果支持，则删除操作必须是幂等的。</p>
+<blockquote>
+<p>注意：从API设计的角度来看，取消并不明确表示回滚。在按API定义的情况下，这可能意味着回滚，补偿，完成或部分完成等。在取消操作之后，客户不应将服务恢复到允许继续服务的一致状态的责任。</p>
+</blockquote>
+<p>不支持取消操作的服务必须在发生DELETE时返回405 Method Not Allowed。</p>
+<p>操作必须支持以下状态：</p>
+<ol>
+<li>没有开始</li>
+<li>跑步</li>
+<li>成功。终端状态。</li>
+<li>失败了 终端状态。</li>
+</ol>
+<p>服务可以添加其他状态，例如“已取消”或“部分完成”。支持取消的服务必须充分描述其取消，以便可以准确确定系统状态，并且可以运行任何补偿操作。</p>
+<p>支持其他状态的服务应考虑以下规范名称列表，并在可能的情况下避免创建新名称：取消，取消，中止，中止，墓碑，删除，删除。</p>
+<p>一个操作必须包含以下信息，并在GET响应中提供以下信息：</p>
+<ol>
+<li>创建操作的时间戳。</li>
+<li>输入当前状态的时间戳。</li>
+<li>操作状态（未启动&#x2F;正在运行&#x2F;已完成）。</li>
+</ol>
+<p>服务可以在操作中添加额外的，特定于API的字段。返回的操作状态JSON如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “ createdDateTime ”：“ 2015-06-19T12-01-03.45Z ”，</span><br><span class="line">   “ lastActionDateTime ”：“ 2015-06-19T12-01-03.45Z ”，</span><br><span class="line">   “ status ”：“未启动|运行|成功|失败” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="完成百分比"><a href="#完成百分比" class="headerlink" title="完成百分比"></a>完成百分比</h5><p>有时，服务将无法完全准确地知道操作何时完成。这使得使用Retry-After标头有问题。在这种情况下，服务可以在operationStatus JSON中包含完成百分比字段。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “ createdDateTime ”：“ 2015-06-19T12-01-03.45Z ”，</span><br><span class="line">   “ percentComplete ”：“ 50 ”，</span><br><span class="line">   “ status ”：“ running ” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在此示例中，服务器已向客户端指示长时间运行的操作已完成50％。</p>
+<h5 id="目标资源位置"><a href="#目标资源位置" class="headerlink" title="目标资源位置"></a>目标资源位置</h5><p>对于产生或操纵资源的操作，服务必须在操作完成后的状态中包含目标资源位置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “ createdDateTime ”：“ 2015-06-19T12-01-03.45Z ”，</span><br><span class="line">   “ lastActionDateTime ”：“ 2015-06-19T12-06-03.0024Z ”，</span><br><span class="line">   “ status ”：“成功”，</span><br><span class="line">   “ resourceLocation ”：“ https： //api.contoso.com/v1.0/databases/db1 “ </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="13-2-6。行动墓碑"><a href="#13-2-6。行动墓碑" class="headerlink" title="13.2.6。行动墓碑"></a>13.2.6。行动墓碑</h4><p>服务可以选择支持逻辑删除的操作。服务可以在服务定义的一段时间后选择删除逻辑删除。</p>
+<h4 id="13-2-7。典型流程，轮询"><a href="#13-2-7。典型流程，轮询" class="headerlink" title="13.2.7。典型流程，轮询"></a>13.2.7。典型流程，轮询</h4><ul>
+<li>客户端通过使用POST调用动作来调用逐步操作</li>
+<li>服务器必须通过响应202接受的状态码来指示请求已经开始。响应应包含位置标头，该标头包含一个URL，客户端应等待Retry-After标头中指定的秒数后，客户端应轮询结果。</li>
+<li>客户端轮询该位置，直到收到带有终端操作状态的200响应。</li>
+</ul>
+<h5 id="典型流程示例，轮询"><a href="#典型流程示例，轮询" class="headerlink" title="典型流程示例，轮询"></a>典型流程示例，轮询</h5><p>客户端调用重新启动操作：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST https://api.contoso.com/v 1.0 / databases HTTP / 1.1 </span><br><span class="line">接受： application / json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “ fromFile ”： “ myFile.db ”，</span><br><span class="line">   “ color ”： “红色” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务器响应指示请求已创建。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  202接受的</span><br><span class="line"> 操作位置： https : //api.contoso.com/v1.0/operations/123</span><br></pre></td></tr></table></figure>
+
+<p>客户端等待一段时间，然后调用另一个请求以尝试获取操作状态。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET https://api.contoso.com/v 1.0 / operations / 123 </span><br><span class="line">接受： application / json</span><br></pre></td></tr></table></figure>
+
+<p>服务器响应结果仍未准备好，可以选择提供建议以等待30秒。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  200 OK</span><br><span class="line"> 重试后： 30</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “ createdDateTime ”： “ 2015-06-19T12-01-03.4Z ”，</span><br><span class="line">   “ status ”： “正在运行” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户端等待建议的30秒，然后调用另一个请求以获取操作结果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET https://api.contoso.com/v 1.0 / operations / 123 </span><br><span class="line">接受： application / json</span><br></pre></td></tr></table></figure>
+
+<p>服务器以包括资源位置在内的“状态：成功”操作进行响应。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  200 OK</span><br><span class="line"> 内容类型： application / json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “ createdDateTime ”： “ 2015-06-19T12-01-03.45Z ”，</span><br><span class="line">   “ lastActionDateTime ”： “ 2015-06-19T12-06-03.0024Z ”，</span><br><span class="line">   “ status ”： “成功”，</span><br><span class="line">   “ resourceLocation ”： “ https：/ /api.contoso.com/v1.0/databases/db1 “ </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="13-2-8。典型流程，推送通知"><a href="#13-2-8。典型流程，推送通知" class="headerlink" title="13.2.8。典型流程，推送通知"></a>13.2.8。典型流程，推送通知</h4><ol>
+<li>客户端通过使用POST调用操作来调用长时间运行的操作。客户端已经在父资源上设置了推送通知。</li>
+<li>该服务通过响应202接受的状态代码来指示请求已开始。客户端忽略其他所有内容。</li>
+<li>完成整体操作后，服务将通过订阅在父资源上推送通知。</li>
+<li>客户端通过资源URL获取操作结果。</li>
+</ol>
+<h5 id="典型流程示例，推送通知现有订阅"><a href="#典型流程示例，推送通知现有订阅" class="headerlink" title="典型流程示例，推送通知现有订阅"></a>典型流程示例，推送通知现有订阅</h5><p>客户端调用备份操作。客户端已经为db1设置了推送通知订阅。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">POST https://api.contoso.com/v 1.0 / databases / db 1 吗？备份HTTP / 1.1 </span><br><span class="line">接受： application / json</span><br></pre></td></tr></table></figure>
+
+<p>服务器响应指示该请求已被接受。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  202接受的</span><br><span class="line"> 操作位置： https : //api.contoso.com/v1.0/operations/123</span><br></pre></td></tr></table></figure>
+
+<p>调用方将忽略返回中的所有标头。</p>
+<p>操作完成后，目标URL会收到推送通知。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  200 OK</span><br><span class="line"> 内容类型： application / json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “值”：[</span><br><span class="line">    &#123;</span><br><span class="line">      “ subscriptionId ”： “ 1234-5678-1111-2222 ”，</span><br><span class="line">       “上下文”： “设置时指定的订阅上下文”，</span><br><span class="line">       “ resourceUrl ”： “ https://api.contoso.com/v1.0/databases/db1 “，</span><br><span class="line">       ” userId “： ” contoso.com/user@contoso.com “，</span><br><span class="line">       ” tenantId “： ” contoso.com “</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="13-2-9。重试后"><a href="#13-2-9。重试后" class="headerlink" title="13.2.9。重试后"></a>13.2.9。重试后</h4><p>在上面的示例中，“重试之后”标头指示客户端尝试从位置标头标识的URL获取结果之前应等待的秒数。</p>
+<p>HTTP规范允许Retry-After标头替代性地指定HTTP日期，因此客户端也应准备好处理此日期。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  202接受的</span><br><span class="line"> 操作位置： http : //api.contoso.com/v1.0/operations/123 </span><br><span class="line">重试后： 60</span><br></pre></td></tr></table></figure>
+
+<p>注意：HTTP日期的使用与本文档中使用的ISO 8601日期格式的使用不一致，但由[RFC 7231] [rfc-7231-7-1-1-1]中的HTTP标准明确定义。服务应该首选整数秒数（十进制）而不是HTTP日期格式。</p>
+<h3 id="13-3。运营结果保留政策"><a href="#13-3。运营结果保留政策" class="headerlink" title="13.3。运营结果保留政策"></a>13.3。运营结果保留政策</h3><p>在某些情况下，长时间运行的结果不是可以解决的资源。例如，如果你调用一个长时间运行的Action，该Action返回一个布尔值（而不是资源）。在这些情况下，Location标头指向可以检索布尔结果的位置。</p>
+<p>哪个提出了问题：“操作结果应保留多长时间？”</p>
+<p>建议的最短保留时间为24小时。</p>
+<p>从系统中清除操作之前，应先将操作过渡到“逻辑删除”。</p>
+<h2 id="14-节流，配额和限制"><a href="#14-节流，配额和限制" class="headerlink" title="14.节流，配额和限制"></a>14.节流，配额和限制</h2><h3 id="14-1。原则"><a href="#14-1。原则" class="headerlink" title="14.1。原则"></a>14.1。原则</h3><p>服务应尽可能具有响应性，以免阻止呼叫者。根据经验，在第99个百分位数中，任何预期花费超过0.5秒的API调用都应考虑对这些调用使用长时间运行模式。显然，面对呼叫者可能无限的负载，服务无法保证这些响应时间。因此，服务应设计和记录客户的呼叫请求限制，并在超出这些限制时以适当的可操作错误和错误消息进行响应。服务通常在超载时应该以错误快速响应，而不是简单地缓慢响应。最后，许多服务将具有通话配额，可能每小时或每天进行多次操作，通常与服务计划或价格有关。当超出这些配额时，服务还必须提供立即可操作的错误。配额和限制应限制在一个客户单位范围内：订阅，租户，应用程序，计划或没有任何其他标识的IP地址范围……视服务目标而定，以便正确分担负载和一个单位不干扰他人。</p>
+<h3 id="14-2。返回码（429与503）"><a href="#14-2。返回码（429与503）" class="headerlink" title="14.2。返回码（429与503）"></a>14.2。返回码（429与503）</h3><p>HTTP为这些情况指定了两个返回码：“ 429太多请求”和“ 503服务不可用”。如果客户拨打过多电话，服务可以使用429，并且可以通过更改其通话方式来解决这种情况。在一般负载或个别呼叫者无法控制的其他问题导致服务变慢的情况下，服务应以503响应。在所有情况下，服务还应该提供建议呼叫者等待多长时间后才能再次尝试的信息。客户应尊重这些标头，并实施其他瞬态故障处理技术。但是，可能有一些客户端仅在发生故障时立即重试，从而可能增加服务的负载。为了解决这个问题</p>
+<h3 id="14-3。重试后和RateLimit标头"><a href="#14-3。重试后和RateLimit标头" class="headerlink" title="14.3。重试后和RateLimit标头"></a>14.3。重试后和RateLimit标头</h3><p>Retry-After标头是响应受到限制的客户端的标准方法。在限制和配额（但不是整个系统负载）的情况下，使用标头描述超出的限制也很常见，但是可选的。但是，为此，Microsoft和整个行业的服务都使用各种不同的标头。我们建议使用三个标头来描述限制，在该限制下剩余的通话次数以及重置限制的时间。但是，其他标头可能适用于特定类型的限制。在所有情况下，这些都必须记录在案。</p>
+<h3 id="14-4。服务指导"><a href="#14-4。服务指导" class="headerlink" title="14.4。服务指导"></a>14.4。服务指导</h3><p>Services should choose time windows as appropriate for the SLAs or business objectives. In the case of Quotas, the Retry-After time and time window may be very long (hours, days, weeks, even months. Services use 429 to indicate the specific caller has made too many calls, and 503 to indicate that the service is load shedding but that it is not the caller’s responsibility.</p>
+<h4 id="14-4-1-Responsiveness"><a href="#14-4-1-Responsiveness" class="headerlink" title="14.4.1. Responsiveness"></a>14.4.1. Responsiveness</h4><ol>
+<li>Services MUST respond quickly in all circumstances, even when under load.</li>
+<li>Calls that take longer than 1s to respond in the 99th percentile SHOULD use the Long-Running Operation pattern</li>
+<li>Calls that take longer than 0.5s to respond in the 99th percentile should strongly consider the LRO pattern</li>
+<li>Services SHOULD NOT introduce sleeps, pauses, etc. that block callers or are not actionable (“tar-pitting”).</li>
+</ol>
+<h4 id="14-4-2-Rate-Limits-and-Quotas"><a href="#14-4-2-Rate-Limits-and-Quotas" class="headerlink" title="14.4.2. Rate Limits and Quotas"></a>14.4.2. Rate Limits and Quotas</h4><p>When a caller has made too many calls</p>
+<ol>
+<li>Services MUST return a 429 code</li>
+<li>Services MUST return a standard error response describing the specifics so that a programmer can make appropriate changes</li>
+<li>Services MUST return a Retry-After header that indicates how long clients should wait before retrying</li>
+<li>Services MAY return RateLimit headers that document the limit or quota that has been exceeded</li>
+<li>Services MAY return RateLimit-Limit: the number of calls the client is allowed to make in a time window</li>
+<li>Services MAY return RateLimit-Remaining: the number of calls remaining in the time window</li>
+<li>Services MAY return RateLimit-Reset: the time at which the window resets in UTC epoch seconds</li>
+<li>Services MAY return other service specific RateLimit headers as appropriate for more detailed information or specific limits or quotas</li>
+</ol>
+<h4 id="14-4-3-Overloaded-services"><a href="#14-4-3-Overloaded-services" class="headerlink" title="14.4.3. Overloaded services"></a>14.4.3. Overloaded services</h4><p>当服务通常超负荷且负载减少时</p>
+<ol>
+<li>服务必须返回503码</li>
+<li>服务务必返回描述细节的标准错误响应（参见7.10.2），以便程序员可以进行适当的更改</li>
+<li>服务务必返回Retry-After标头，该标头指示客户端在重试之前应等待的时间</li>
+<li>在503的情况下，服务不应返回RateLimit标头</li>
+</ol>
+<h4 id="14-4-4。范例回应"><a href="#14-4-4。范例回应" class="headerlink" title="14.4.4。范例回应"></a>14.4.4。范例回应</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">HTTP / 1.1  429请求过多</span><br><span class="line"> 内容类型：应用/ JSON </span><br><span class="line">重发后： 5 </span><br><span class="line">RateLimit限： 1000 </span><br><span class="line">RateLimit-剩余： 0 </span><br><span class="line">RateLimit复位： 1538152773</span><br><span class="line">&#123;</span><br><span class="line">  “错误”：&#123;</span><br><span class="line">     “代码”： “ requestLimitExceeded ”，</span><br><span class="line">     “消息”： “呼叫者在这段时间内发出过多请求。”，</span><br><span class="line">     “详细信息”：&#123;</span><br><span class="line">       “代码”： “ RateLimit ”，</span><br><span class="line">        “限制”： “ 1000 “，</span><br><span class="line">        ”剩余“： ”0 “，</span><br><span class="line">       “重置”： “ 1538152773 ”，</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="14-5。来电者指导"><a href="#14-5。来电者指导" class="headerlink" title="14.5。来电者指导"></a>14.5。来电者指导</h3><p>调用者包括API的所有用户：工具，门户网站，其他服务，而不仅仅是用户客户端</p>
+<ol>
+<li>在重试请求之前，呼叫者必须等待响应中指定的最短时间。</li>
+<li>调用者可以在收到带有Retry-After标头的响应后，假设该请求是可重试的，而无需对该请求进行任何更改。</li>
+<li>客户端应使用共享的SDK和常见的瞬态故障库来实现适当的行为</li>
+</ol>
+<p>请参阅：<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/azure/architecture/best-practices/transient-faults">https</a> : <a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/azure/architecture/best-practices/transient-faults">&#x2F;&#x2F;docs.microsoft.com&#x2F;zh-cn&#x2F;azure&#x2F;architecture&#x2F;best-practices&#x2F;transient-faults</a></p>
+<h3 id="14-6。处理忽略重试后标头的呼叫者"><a href="#14-6。处理忽略重试后标头的呼叫者" class="headerlink" title="14.6。处理忽略重试后标头的呼叫者"></a>14.6。处理忽略重试后标头的呼叫者</h3><p>理想情况下，429和503退货的成本非常低，即使立即重试的客户也可以处理。在这种情况下，服务团队应尽可能与客户联系或联系他们。如果是已知的合作伙伴，则应提交错误或事件。在极端情况下，可能有必要使用DoS样式保护，例如阻止呼叫者。</p>
+<h2 id="15-通过webhooks推送通知"><a href="#15-通过webhooks推送通知" class="headerlink" title="15.通过webhooks推送通知"></a>15.通过webhooks推送通知</h2><h3 id="15-1-范围"><a href="#15-1-范围" class="headerlink" title="15.1. 范围"></a>15.1. 范围</h3><p>服务可以通过网络挂钩实现推送通知。本节介绍以下关键方案：</p>
+<blockquote>
+<p>通过HTTP回调（通常称为Web挂钩）将通知推送到可公开寻址的服务器。</p>
+</blockquote>
+<p>选择该方法的原因是它的简单性，广泛的适用性以及服务订户进入的门槛低。它旨在作为一组最低要求和其他功能的起点。</p>
+<h3 id="15-2-原则"><a href="#15-2-原则" class="headerlink" title="15.2. 原则"></a>15.2. 原则</h3><p>支持Web挂钩的服务的核心原则是：</p>
+<ol>
+<li>服务必须至少实现戳&#x2F;拉模型。在戳&#x2F;拉模型中，将通知发送给客户端，然后客户端发送请求以获取当前状态或自上次通知以来的更改记录。这种方法避免了消息排序，遗漏消息和变更集的复杂性。服务可以添加更多数据以提供丰富的通知。</li>
+<li>服务必须实现质询&#x2F;响应协议以配置回调URL。</li>
+<li>服务应该有一个建议的过期期限，并可以根据情况灵活调整服务。</li>
+<li>服务应该允许发出成功通知的订阅永久存在，并且应该容忍合理的中断时间。</li>
+<li>Firehose订阅必须仅通过HTTPS交付。服务应该要求其他订阅类型为HTTPS。有关更多详细信息，请参见“安全性”部分。</li>
+</ol>
+<h3 id="15-3-订阅类型"><a href="#15-3-订阅类型" class="headerlink" title="15.3. 订阅类型"></a>15.3. 订阅类型</h3><p>订阅有两种类型，服务可以实现或不实现。支持的订阅类型为：</p>
+<ol>
+<li>Firehose订阅–通常在应用程序注册门户中为订阅应用程序手动创建订阅。任何用户已同意接收应用程序的活动通知将发送到该单个订阅。</li>
+<li>每个资源的订阅–订阅应用程序使用代码在运行时以编程方式创建某些用户特定实体的订阅。</li>
+</ol>
+<p>同时支持两种订阅类型的服务应为两种类型提供差异化的开发人员体验：</p>
+<ol>
+<li>Firehose –服务必须不要求开发人员创建代码，除非直接验证并响应通知。服务必须提供用于订阅管理的管理UI。服务不应假设最终用户知道订阅，而只能假设订阅应用程序的功能。</li>
+<li>每用户–服务必须为开发人员提供一个API，以便开发人员在其应用程序中创建和管理订阅以及验证和响应通知。服务可能希望最终用户知道订阅，并且必须允许最终用户撤销在直接响应用户操作而创建的订阅。</li>
+</ol>
+<h3 id="15-4-通话顺序"><a href="#15-4-通话顺序" class="headerlink" title="15.4. 通话顺序"></a>15.4. 通话顺序</h3><p>订阅firehose的呼叫顺序必须遵循下图。它显示了应用程序和订阅的手动注册，然后是最终用户使用服务的API之一。在流程的这一部分，必须存储两件事：</p>
+<ol>
+<li>服务必须存储最终用户同意从该特定应用程序接收通知的行为（通常是后台使用OAUTH范围）。</li>
+<li>订阅应用程序务必存储最终用户的令牌，以便在收到更改通知后回调详细信息。</li>
+</ol>
+<p>序列的最后一部分是通知流本身。</p>
+<p>非规范实施指南：服务中的资源发生更改，并且该服务需要运行以下逻辑：</p>
+<ol>
+<li>确定有权访问资源的用户组，从而可以期望应用程序代表他们接收有关资源的通知。</li>
+<li>查看其中哪些用户已同意接收通知以及来自哪些应用程序。</li>
+<li>查看哪些应用程序已注册firehose订阅。</li>
+<li>加入1、2、3以产生必须发送到应用程序的具体通知集。</li>
+</ol>
+<p>应该注意的是，用户同意的行为和建立firehose订阅的行为可以以任何顺序到达。服务应发送通知，并以两种顺序处理设置。</p>
+<p><img src="https://camo.githubusercontent.com/df0495791d84a25a2285a6cc1071cafba58efcef/687474703a2f2f7777772e77656273657175656e63656469616772616d732e636f6d2f6367692d62696e2f63647261773f6c7a3d626d39305a534276646d56794945526c646d56736233426c63697767515856306232316864476c76626977675158427749464e6c636e5a6c636a6f67436941674943416751573441454155414a776b6762476c725a53424e62335a705a55316861325679414341475632467564484d6764473867615735305a5764795958526c494864706447676763484a70625746796553427a5a584a3261574e6c4144634752484a7663474a766541706c626d5167626d39305a516f416751774c5169425162334a3059577773494552434149454a42564a6c5a326c7a6448494167526b4852454967546d393061575a70597743424c41567a414345476458526f4143734655774267426a6f675647686c414630654149465f436b4e736157567564414174426d56755a4342316332567963796367596e4a7664334e6c6369427663694270626e4e30595778735a5751675958427743674342495177416769516741494641425143424953384167516f4749446f6754574675645746734149467a45516f4b4367434441676f384c53302d4149497143694136494578765a326c7549476c7564473841676a384a41494931454342565743414b41436f4b4c5434674b77434357424d364149514742553568625755675a58526a4c6743444651344147784a446232356d61584a74414945424345466a5932567a637942556232746c62676f4b41494d33457941745069417441494e6b4351426e426b6c454149454d43774342565155416851494d41495233436d4e7663476c6c63774172434143434948414168484d4d41494d4b44774344414267364948646c596d6876623273676367434365673441676e55534149565144546f41685859485a584941677767474149635442674245435656535443776755324e7663475541687a49475355514b54674347505177416868774e4941434442683441486845416778455062674342616777416778774e41494d61446941416778304d6257463549474e7663486b414c5245416856747141495a484230463164476876636d6c36414959374277434758516374506941724149457544564a6c6358566c63335167595143464f515a306279424551694277636d39305a574e305a5751676157356d62334941696951474367434442517374506941744149637443564a6c5a476c795a574e30414459484147774e494756755a4842766157353041496f57426d45414477317941485947414945514441434a564163415377746c5a41415948674349434167414d4163416341344168476f474145304641494564466d4a6859327367644738416846384e6158526f49474e765a47554167686f61615143426167634167546f484144304a4149492d42334d4150677341676c4548414573464149497a4467434258773041676e3847644739725a57357a414363534149305f42584a705a3268304947396d4149747044554e685932686c4948526f5958516764476870637942566332567949456c454948427962335a705a47566b41494e4e437743495a676f416767634a41494e3744334e776232357a4149305f427743454367597349484a6c5a6e4a6c63326773494746755a43424a524143424841634167514d5041495941445143424441634167555547596e6b416a466b4649456c454149516b47335231636d34416846344d4948527649474d416a523846414977526167434a5677314762473933414959714351434d61516741676d6f4b614746755a3255416a3359464149465842575268644745674c534230655842705932467349485a70595143514467567959574e306157356e414a41504267434a51517432615745416a6e7348436743504e676f67414968444541434b5a7730416b464d4641496b424477434444415541676b59574b77424e437743485741706a4149457942514348526730416857554859574e6f414951654441434566775668626d5167496e4e70626d4e6c49674346455159416b53514f414952334367434e66776341684851464149705145414342556773416846416341494938425746755a4342755a58634159525141684655544f6942566347526864475567633352686448554167536b47414946444251417845776f4b436726733d6d736367656e" alt="Firehose订阅设置"></p>
+<p>对于每个用户的订阅，应用程序注册可以手动或自动进行。每个用户订阅的呼叫流程必须遵循下图。它显示了最终用户使用服务的API之一，并且同样，必须存储相同的两件事：</p>
+<ol>
+<li>服务必须存储最终用户同意从该特定应用程序接收通知的行为（通常是后台使用OAUTH范围）。</li>
+<li>订阅应用程序务必存储最终用户的令牌，以便在收到更改通知后回调详细信息。</li>
+</ol>
+<p>在这种情况下，使用来自订阅应用程序的最终用户令牌以编程方式设置订阅。该应用程序必须将已注册订阅的ID与用户令牌一起存储。</p>
+<p>非规范性实施指南：在序列的最后部分，当服务中的数据项发生更改并且服务需要运行以下逻辑时：</p>
+<ol>
+<li>查找通过资源与已更改数据相对应的一组预订。</li>
+<li>对于使用app + user令牌创建的订阅，请使用订阅创建者的订阅ID和用户ID向每个订阅向应用发送通知。</li>
+</ol>
+<ul>
+<li><p>对于使用仅应用令牌创建的订阅，请检查已更改数据的所有者或具有已更改数据可见性的任何用户均已同意向应用程序发送通知，如果是，则按照每个用户ID向每个应用程序发送一组通知带有订阅ID的订阅。</p>
+<p><img src="https://camo.githubusercontent.com/de3129ed4573bcc492e23ba013ba4c370d00facf/687474703a2f2f7777772e77656273657175656e63656469616772616d732e636f6d2f6367692d62696e2f63647261773f6c7a3d626d39305a534276646d56794945526c646d56736233426c63697767515856306232316864476c76626977675158427749464e6c636e5a6c636a6f67436941674943416751573441454155414a776b6762476c725a53424e62335a705a55316861325679414341475632467564484d6764473867615735305a5764795958526c494864706447676763484a70625746796553427a5a584a3261574e6c4144634752484a7663474a766541706c626d5167626d39305a516f416751774c5169425162334a3059577773494552434149454a42564a6c5a326c7a6448494167526b4852454967546d393061575a70597743424c41567a414345476458526f4143734655774267426a6f675647686c414630654149465f436b4e736157567564414174426d56755a4342316332567963796367596e4a7664334e6c6369427663694270626e4e30595778735a5751675958427743674342495177416769516741494641425143424953384167516f4749446f416757775243677068624851416779554941494548426942794142514d494341416778734c50433074506743445477733649454e76626d5a705a3356795a516f6749414344614173674c5434674b77434357424d4165675a4f5957316c49475630597934416841674641494d61445141664567426442584a744149515f4255466a5932567a637942556232746c41494554426743444f7849674c5434674c5143424667784263484167535551416848774959334a6c644143424778417450674346466773674f69424662574a6c5a41416b46475673633255675457467564574673414949454a41434562516b674f69424d6232647062694270626e527641495542435143424b52465657414347474155414c516f416768386d4149495a4b77434243416341676a6f4e41494973484143474c776b41676a38494149455344674345434159416831454c41496446436d4e7663476c6c63774175434756755a41434565476f4168575148515856306147397961586f4168563848414956364279302d494373416732414e556d56786457567a6443426841495256426e527649455243494842796233526c5933526c5a434270626d5a766367434a5151594b414951614379302d49433041686b6f4a556d566b61584a6c593351414e676341624130675a57356b63473970626e514169544d475951415044584941646759416752414d414968784277424c4332566b414267654149526a43414177423045416351785657416f415351674167527757596d466a617942306277434664417741696c77465932396b5a5143434752707041494670427743424f51634150516b41676a30486377412d437743435541634153775541676a494f414946654451434366675a306232746c626e4d414a7849416a467346636d6c6e61485167623259416977554e5132466a61475567644768686443423061476c7a4946567a5a5849675355516763484a76646d6c6b5a5751416730774c41495536427743434241774167336f5063334276626e4d416a4673484149514a42697767636d566d636d567a614377675957356b49456c454149456342774342417738416944454e4149454d4277434252515a696551434c645155675355514168434d62644856796267434558517767644738675977434d4f77554b4367434c4c326f416a58554d41497754447743504e516f74506973416a6877514f67434f5251646c6367434d56775941673359495a574a6f62323972494656535443776755324e76634755416b414547535551416a776f4f41493572445341416932554b41494e464251434c5977304148424541677a554f4f6942754149453244414267434143444342316f5a5143426151354a52414344597755416168494167684234526d78766477434a4d776b416a45304941495630436d6868626d646c414a4963425143455951566b595852684943306764486c7761574e6862434232615745416b6a5146636d466a64476c755a7743534e5159416a56384c646d6c68414a456842776f416b56774b4941434e666841416841734e414a4a35425143435751384168685946414956514669734154517341696d454b597743424d675541696b384e414968764232466a614143484b41774169416b465957356b49434a7a6157356a5a53494169427347414a4e4b4467434941516f4168423063414946534377434857687741676a77465957356b4947356c647742684641434858784d36494656775a4746305a53427a64474630645143424b51594167554d464144455443676f4b26733d6d736367656e" alt="用户订阅设置"></p>
+</li>
+</ul>
+<h3 id="15-5-验证订阅"><a href="#15-5-验证订阅" class="headerlink" title="15.5. 验证订阅"></a>15.5. 验证订阅</h3><p>当订阅以编程方式更改或响应于通过管理UI门户的更改而更改时，需要保护订阅服务免受来自可能推动大量通知流量的服务的恶意或意外调用的攻击。</p>
+<p>对于所有订阅，无论是firehose还是按用户，服务都必须在发送任何其他通知之前，通过门户网站UI或API请求发送验证请求，作为创建或修改的一部分。</p>
+<p>验证请求的格式必须为订阅的<em>notificationUrl</em>的HTTP &#x2F; HTTPS POST格式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST https：// &#123; notificationUrl &#125; ？validationToken = &#123;randomString&#125; </span><br><span class="line">ClientState： clientOriginatedOpaqueToken（如果由客户端在预订创建时提供）</span><br><span class="line">Content-Length： 0</span><br></pre></td></tr></table></figure>
+
+<p>对于要建立的订阅，应用程序必须对该请求做出200 OK的响应，并且<em>validationToken</em>值为唯一的实体主体。请注意，如果<em>notificationUrl</em>包含查询参数，则必须在<em>validationToken</em>参数后面附加一个<code>&amp;</code>。</p>
+<p>如果任何质询请求在发送请求后的5秒钟内未收到规定的响应，则该服务务必返回错误，不得创建订阅，并且不得将其他请求或通知发送给<em>notificationUrl</em>。</p>
+<p>服务可以对URL所有权执行其他验证。</p>
+<h3 id="15-6-接收通知"><a href="#15-6-接收通知" class="headerlink" title="15.6. 接收通知"></a>15.6. 接收通知</h3><p>服务应发送通知以响应服务数据更改，这些更改不包括更改本身的详细信息，但应包含足够的信息，供订阅应用程序适当地响应以下过程：</p>
+<ol>
+<li>应用程序必须标识正确的缓存OAuth令牌以用于回调</li>
+<li>应用程序可以查找任何先前的delta令牌以获取相关的更改范围</li>
+<li>应用程序必须确定要调用的URL，以对服务的新状态执行相关查询，该查询可以是增量查询。</li>
+</ol>
+<p>提供通知的服务将被中继给最终用户，可以选择在通知数据包中添加更多细节，以减少其服务上的传入呼叫负载。此类服务必须明确，不能保证一定会发送通知，并且通知可能有损或乱序。</p>
+<p>通知可以汇总并分批发送。应用程序必须准备好在单个推送通知中接收多个事件。</p>
+<p>服务必须发送所有Web Hook数据通知作为POST请求。</p>
+<p>服务必须允许30秒钟的通知超时时间。如果发生超时或应用程序以5xx响应进行响应，则服务应以指数退避重试通知。所有其他响应将被忽略。</p>
+<p>服务不得遵循301&#x2F;302重定向请求。</p>
+<h4 id="15-6-1-通知有效负载"><a href="#15-6-1-通知有效负载" class="headerlink" title="15.6.1. 通知有效负载"></a>15.6.1. 通知有效负载</h4><p>通知有效负载的基本格式是一个事件列表，每个事件包含订阅的ID，该订阅的ID已更改，其引用的资源，更改的类型，应消耗的资源（用于标识更改的确切细节）和足够的标识信息以供查找调用该资源所需的令牌。</p>
+<p>对于firehose订阅，具体示例如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “值”：[</span><br><span class="line">    &#123;</span><br><span class="line">      “ subscriptionId ”： “ 32b8cbd6174ab18b ”，</span><br><span class="line">       “资源”： “ https://api.contoso.com/v1.0/users/user@contoso.com/files?$delta ”，</span><br><span class="line">       “ userId ”： “ &lt;用户GUID&gt; “，</span><br><span class="line">       ” tenantId “： ” &lt;Tenant ID&gt; “</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于每个用户的订阅，其具体示例如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “值”：[</span><br><span class="line">    &#123;</span><br><span class="line">      “ subscriptionId ”： “ 32b8cbd6174ab183 ”，</span><br><span class="line">       “ clientState ”： “ clientOriginatedOpaqueToken ”，</span><br><span class="line">       “ expirationDateTime ”： “ 2016-02-04T11：23Z ”，</span><br><span class="line">       “资源”： “ https://api.contoso.com/v1.0/users /user@contoso.com/files/$delta “，</span><br><span class="line">       ” userId “： ” &lt;用户GUID&gt; “，</span><br><span class="line">       ”tenantId “：“ &lt;租户ID&gt; ”</span><br><span class="line">    &#125;，</span><br><span class="line">    &#123;</span><br><span class="line">      “ subscriptionId ”： “ 97b391179fa22 ”，</span><br><span class="line">       “ clientState ”： “ clientOriginatedOpaqueToken ”，</span><br><span class="line">       “ expirationDateTime ”： “ 2016-02-04T11：23Z ”，</span><br><span class="line">       “ resource ”： “ https://api.contoso.com/v1.0/users /user@contoso.com/files/$delta “，</span><br><span class="line">       ” userId “： ” &lt;用户GUID&gt; “，</span><br><span class="line">       ”tenantId “： ”&lt;租户ID&gt; ”</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下是JSON有效负载的详细说明。</p>
+<p>通知项包含一个顶层对象，该对象包含一系列事件，每个事件都标识了由于发送此通知而导致的订阅。</p>
+<table>
+<thead>
+<tr>
+<th>领域</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>值</td>
+<td>自上次通知以来在订阅范围内引发的事件数组。</td>
+</tr>
+</tbody></table>
+<p>事件数组的每一项都包含以下属性：</p>
+<table>
+<thead>
+<tr>
+<th>领域</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>subscriptionId</td>
+<td>已发送此通知的订阅的ID。 服务必须提供<em>subscriptionId</em>字段。</td>
+</tr>
+<tr>
+<td>clientState</td>
+<td>如果服务是在创建订阅时提供的，则服务必须提供<em>clientState</em>字段。</td>
+</tr>
+<tr>
+<td>expirationDateTime</td>
+<td>如果订阅有一个，则服务必须提供<em>expirationDateTime</em>字段。</td>
+</tr>
+<tr>
+<td>资源</td>
+<td>服务必须提供资源字段。订阅应用程序必须将该URL视为不透明。在更丰富的通知的情况下，它可以被隐含在资源URL中的消息内容所包含，以避免重复。 如果服务正在提供此数据作为更详细的数据包的一部分，则无需复制。</td>
+</tr>
+<tr>
+<td>用户身份</td>
+<td>服务必须为用户范围的资源提供此字段。对于用户范围的资源，应使用用户的唯一标识符。 在一组特定用户之间共享资源的情况下，必须发送多个通知，并传递每个用户的唯一标识符。 对于租户范围内的资源，应使用预订的用户ID。</td>
+</tr>
+<tr>
+<td>tenantId</td>
+<td>希望支持跨租户请求的服务应提供此字段。提供有关租户范围数据的通知的服务必须发送此字段。</td>
+</tr>
+</tbody></table>
+<h3 id="15-7-以编程方式管理订阅"><a href="#15-7-以编程方式管理订阅" class="headerlink" title="15.7. 以编程方式管理订阅"></a>15.7. 以编程方式管理订阅</h3><p>对于每个用户的订阅，必须提供一个API以创建和管理订阅。API必须至少支持此处描述的操作。</p>
+<h4 id="15-7-1-创建订阅"><a href="#15-7-1-创建订阅" class="headerlink" title="15.7.1. 创建订阅"></a>15.7.1. 创建订阅</h4><p>客户端通过对订阅资源发出POST请求来创建订阅。订阅名称空间是通过POST操作由客户端定义的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://api.contoso.com/apiVersion/$subscriptions</span><br></pre></td></tr></table></figure>
+
+<p>POST请求包含一个要创建的订阅对象。该订阅对象具有以下属性：</p>
+<table>
+<thead>
+<tr>
+<th>物业名称</th>
+<th>需要</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>资源</td>
+<td>是</td>
+<td>要观看的资源路径。</td>
+</tr>
+<tr>
+<td>notificationUrl</td>
+<td>是</td>
+<td>目标Web挂钩URL。</td>
+</tr>
+<tr>
+<td>clientState</td>
+<td>没有</td>
+<td>不透明字符串在所有通知上传递回客户端。调用者可以选择使用它来提供标记机制。</td>
+</tr>
+</tbody></table>
+<p>如果成功创建了订阅，则服务必须使用状态码201 CREATED和包含至少以下属性的主体进行响应：</p>
+<table>
+<thead>
+<tr>
+<th>物业名称</th>
+<th>需要</th>
+<th>笔记</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ID</td>
+<td>是</td>
+<td>新订阅的唯一ID，以后可用于更新&#x2F;删除订阅。</td>
+</tr>
+<tr>
+<td>expirationDateTime</td>
+<td>没有</td>
+<td>使用现有的Microsoft REST API指南定义的时间格式。</td>
+</tr>
+</tbody></table>
+<p>订阅的创建应该是幂等的。范围限定于auth令牌的属性的组合提供了唯一性约束。</p>
+<p>以下是使用用户+应用程序主体来订阅文件通知的示例请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST https://api.contoso.com/files/v 1.0 / $ subscriptions HTTP 1.1 </span><br><span class="line">授权： Bearer &#123;UserPrincipalBearerToken&#125;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “资源”： “ http://api.service.com/v1.0/files/file1.txt ”，</span><br><span class="line">   “ notificationUrl ”： “ https://contoso.com/myCallbacks ”，</span><br><span class="line">   “ clientState ”： “ clientOriginatedOpaqueToken ” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务应该以最小的响应格式响应这样的消息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “ id ”：“ 32b8cbd6174ab18b ”，</span><br><span class="line">   “ expirationDateTime ”：“” 2016-02-04T11：23Z “ </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面是使用仅应用程序主体的示例，其中应用程序正在监视其授权的所有文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">POST https://api.contoso.com/files/v 1.0 / $ subscriptions HTTP 1.1 </span><br><span class="line">授权： Bearer &#123;ApplicationPrincipalBearerToken&#125;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “ resource ”： “ All.Files ”，</span><br><span class="line">   “ notificationUrl ”： “ https://contoso.com/myCallbacks ”，</span><br><span class="line">   “ clientState ”： “ clientOriginatedOpaqueToken ” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务应该以最小的响应格式响应这样的消息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “ id ”：“ 8cbd6174abb391179 ”，</span><br><span class="line">   “ expirationDateTime ”：“” 2016-02-04T11：23Z “ </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="15-7-2-更新订阅"><a href="#15-7-2-更新订阅" class="headerlink" title="15.7.2. 更新订阅"></a>15.7.2. 更新订阅</h4><p>服务可以支持修改订阅。为了更新现有订阅的属性，客户端使用PATCH请求来提供ID和需要更改的属性。忽略的属性将保留其值。要删除属性，请为其分配JSON null值。</p>
+<p>与创建一样，订阅是单独管理的。</p>
+<p>以下请求更改现有订阅的通知URL：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PATCH https://api.contoso.com/files/v 1.0 / $ subscriptions / &#123; id &#125; HTTP 1.1 </span><br><span class="line">授权： Bearer &#123;UserPrincipalBearerToken&#125;</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  “ notificationUrl ”： “ https://contoso.com/myNewCallback ” </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果PATCH请求包含一个新的<em>notificationUrl</em>，则服务器必须如上所述对其进行验证。如果新的URL验证失败，则该服务务必使PATCH请求失败，并使订阅保持其先前状态。</p>
+<p>服务必须返回一个空的主体并<code>204 No Content</code>指示补丁成功。</p>
+<p>如果补丁失败，服务必须返回错误体和状态码。</p>
+<p>该操作必须成功完成或失败。</p>
+<h4 id="15-7-3-删除订阅"><a href="#15-7-3-删除订阅" class="headerlink" title="15.7.3. 删除订阅"></a>15.7.3. 删除订阅</h4><p>服务必须支持删除订阅。可以通过对订阅资源发出DELETE请求来删除现有订阅：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">删除 https://api.contoso.com/files/v 1.0 / $ subscriptions / &#123; id &#125; HTTP 1.1 </span><br><span class="line">授权： Bearer &#123;UserPrincipalBearerToken&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与更新一样，服务必须返回<code>204 No Content</code>以成功删除，或者返回错误体和状态码以指示失败。</p>
+<h4 id="15-7-4-枚举订阅"><a href="#15-7-4-枚举订阅" class="headerlink" title="15.7.4. 枚举订阅"></a>15.7.4. 枚举订阅</h4><p>为了获取活动订阅的列表，客户端使用用户+应用程序或仅应用程序承载令牌对订阅资源发出GET请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET https://api.contoso.com/files/v 1.0 / $ subscriptions HTTP 1.1 </span><br><span class="line">授权： Bearer &#123;UserPrincipalBearerToken&#125;</span><br></pre></td></tr></table></figure>
+
+<p>服务必须使用用户+应用程序主体承载令牌返回以下格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “值”：[</span><br><span class="line">    &#123;</span><br><span class="line">      “ id ”： “ 32b8cbd6174ab18b ”，</span><br><span class="line">       “资源”： “ http://api.contoso.com/v1.0/files/file1.txt ”，</span><br><span class="line">       “ notificationUrl ”： “ https://contoso.com/myCallbacks ”，</span><br><span class="line">       “ clientState ”： “ clientOriginatedOpaqueToken ”，</span><br><span class="line">       “ expirationDateTime ”： “” 2016-02-04T11：23Z “</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以使用仅应用程序主体承载令牌返回的示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   “值”：[</span><br><span class="line">    &#123;</span><br><span class="line">      “ id ”： “ 6174ab18bfa22 ”，</span><br><span class="line">       “资源”： “ All.Files ”，</span><br><span class="line">       “ notificationUrl ”： “ https://contoso.com/myCallbacks ”，</span><br><span class="line">       “ clientState ”： “ clientOriginatedOpaqueToken ”，</span><br><span class="line">       “ expirationDateTime ”： “ 2016-02 -04T11：23Z “</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="15-8-安全"><a href="#15-8-安全" class="headerlink" title="15.8. 安全"></a>15.8. 安全</h3><p>所有服务URL必须为HTTPS（也就是说，所有入站呼叫必须为HTTPS）。处理Web Hooks的服务必须接受HTTPS。</p>
+<p>我们建议允许客户端定义的Web Hook回调URL的服务不应通过HTTP传输数据。这是因为信息可能会通过客户端，网络，服务器日志和其他机制无意间公开。</p>
+<p>但是，在某些情况下，由于客户端端点或软件限制，无法遵循上述建议。因此，服务可以允许Web钩URL为HTTP。</p>
+<p>此外，允许客户端定义的HTTP Web挂钩回调URL的服务应符合工程领导者指定的隐私政策。这通常包括建议客户端选择SSL连接并遵守特殊的预防措施，以确保正确处理日志和其他服务数据收集。</p>
+<p>例如，服务可能不希望要求开发人员在船上生成证书。服务可能仅在测试帐户上启用此功能。</p>
+<h2 id="16-不支持的请求"><a href="#16-不支持的请求" class="headerlink" title="16. 不支持的请求"></a>16. 不支持的请求</h2><p>RESTful API客户端可以请求当前不支持的功能。RESTful API必须响应与本节一致的有效但不受支持的请求。</p>
+<h3 id="16-1-基本指导"><a href="#16-1-基本指导" class="headerlink" title="16.1. 基本指导"></a>16.1. 基本指导</h3><p>RESTful API通常会选择限制客户端可以执行的功能。例如，审核系统允许创建记录，但不能修改或删除记录。类似地，某些API将公开集合，但要求或以其他方式限制过滤和排序标准，或者可能不支持客户端驱动的分页。</p>
+<h3 id="16-2-功能允许列表"><a href="#16-2-功能允许列表" class="headerlink" title="16.2. 功能允许列表"></a>16.2. 功能允许列表</h3><p>如果服务不支持以下任何API功能，则如果调用者请求该功能，则必须提供错误响应。功能包括：</p>
+<ul>
+<li>集合中的关键地址，例如： <code>https://api.contoso.com/v1.0/people/user1@contoso.com</code></li>
+<li>按属性值过滤集合，例如： <code>https://api.contoso.com/v1.0/people?$filter=name eq &#39;david&#39;</code></li>
+<li>按范围过滤集合，例如： <code>http://api.contoso.com/v1.0/people?$filter=hireDate ge 2014-01-01 and hireDate le 2014-12-31</code></li>
+<li>通过$ top和$ skip进行客户驱动的分页，例如： <code>http://api.contoso.com/v1.0/people?$top=5&amp;$skip=2</code></li>
+<li>按$ orderBy排序，例如： <code>https://api.contoso.com/v1.0/people?$orderBy=name desc</code></li>
+<li>提供$ delta令牌，例如： <code>https://api.contoso.com/v1.0/people?$delta</code></li>
+</ul>
+<h4 id="16-2-1-错误响应"><a href="#16-2-1-错误响应" class="headerlink" title="16.2.1. 错误响应"></a>16.2.1. 错误响应</h4><p>如果呼叫者请求在功能允许列表中找到不支持的功能，则服务必须提供错误响应。错误响应必须是4xx系列的HTTP状态代码，指示无法满足该请求。除非更具体的错误状态适合给定请求，否则服务应返回“ 400 Bad Request”和符合Microsoft REST API指南中提供的错误响应指南的错误有效负载。服务应在响应消息中包含足够的详细信息，以供开发人员确定不支持请求的哪一部分。</p>
+<p>例子：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET https<span class="punctuation">:</span><span class="comment">//api.contoso.com/v1.0/people?$orderBy=name HTTP/1.1</span></span><br><span class="line">Accept<span class="punctuation">:</span> application/json</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;error&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;code&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ErrorUnsupportedOrderBy&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;message&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Ordering by name is not supported.&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="17-命名准则"><a href="#17-命名准则" class="headerlink" title="17.命名准则"></a>17.命名准则</h2><h3 id="17-1-方法"><a href="#17-1-方法" class="headerlink" title="17.1. 方法"></a>17.1. 方法</h3><p>命名策略应帮助开发人员发现功能，而不必经常参考文档。使用通用模式和标准约定可以极大地帮助开发人员正确猜测通用属性名称和含义。服务应使用冗长的命名模式，并且不应使用除首字母缩略词外的缩写，首字母缩略词是由API表示的域（例如Url）中的主要表达方式。</p>
+<h3 id="17-2-套管"><a href="#17-2-套管" class="headerlink" title="17.2. 套管"></a>17.2. 套管</h3><ul>
+<li>首字母缩略词应遵循大小写约定，就像它们是常规单词一样（例如Url）。</li>
+<li>所有标识符，包括名称空间，entityTypes，entitySets，属性，操作，函数和枚举值，均应使用lowerCamelCase。</li>
+<li>HTTP标头是一个例外，应该使用大写字母连字符的标准HTTP约定。</li>
+</ul>
+<h3 id="17-3-避免使用的名称"><a href="#17-3-避免使用的名称" class="headerlink" title="17.3. 避免使用的名称"></a>17.3. 避免使用的名称</h3><p>某些名称在API域中是如此重载，以至于它们失去所有含义或与使用REST API（如OAUTH）时无法避免的域中的其他常见用法冲突。服务不应使用以下名称：</p>
+<ul>
+<li>语境</li>
+<li>范围</li>
+<li>资源资源</li>
+</ul>
+<h3 id="17-4-形成化合物名称"><a href="#17-4-形成化合物名称" class="headerlink" title="17.4. 形成化合物名称"></a>17.4. 形成化合物名称</h3><ul>
+<li>服务应避免使用诸如“ a”，“ the”，“ of”之类的术语，除非需要传达含义。<ul>
+<li>例如，不应使用诸如aUser，theAccount，countOfBooks之类的名称，而应首选用户，帐户，bookCount。</li>
+</ul>
+</li>
+<li>如果不这样做，服务应该在属性名称中添加一个类型，这会导致关于数据表示方式的歧义，或者导致服务不使用通用属性名称。</li>
+<li>在属性名称中添加类型时，服务务必在末尾添加类型，例如createdDateTime。</li>
+</ul>
+<h3 id="17-5-身份属性"><a href="#17-5-身份属性" class="headerlink" title="17.5. 身份属性"></a>17.5. 身份属性</h3><ul>
+<li>服务必须为身份属性使用字符串类型。</li>
+<li>对于OData服务，该服务务必使用OData @id属性来表示资源的规范标识符。</li>
+<li>服务可以使用简单的’id’属性来表示资源的本地或遗留主键值。</li>
+<li>服务应该使用后缀为“ Id”的关系的名称来表示另一个资源的外键，例如subscriptionId。<ul>
+<li>这个属性的内容应该是被引用资源的规范ID。</li>
+</ul>
+</li>
+</ul>
+<h3 id="17-6-日期和时间属性"><a href="#17-6-日期和时间属性" class="headerlink" title="17.6. 日期和时间属性"></a>17.6. 日期和时间属性</h3><ul>
+<li>对于同时需要日期和时间的属性，服务必须使用后缀“ DateTime”。</li>
+<li>对于只需要日期信息而不指定时间的属性，服务必须使用后缀“ Date”，例如birthDate。</li>
+<li>对于只需要时间信息而不指定日期的属性，服务必须使用后缀“ Time”，例如约会开始时间。</li>
+</ul>
+<h3 id="17-7-名称属性"><a href="#17-7-名称属性" class="headerlink" title="17.7. 名称属性"></a>17.7. 名称属性</h3><ul>
+<li>对于通常显示给用户的资源的整体名称，服务必须使用属性名称“ displayName”。</li>
+<li>服务可以使用其他通用的命名属性，例如，giveName，surname，signInName。</li>
+</ul>
+<h3 id="17-8-收集和计数"><a href="#17-8-收集和计数" class="headerlink" title="17.8. 收集和计数"></a>17.8. 收集和计数</h3><ul>
+<li>服务必须使用正确的英语将集合命名为复数名词或复数名词短语。</li>
+<li>对于可能具有复数形式但不常见的口头名词，服务可以使用简化的英语。<ul>
+<li>例如，可以使用模式代替模式。</li>
+</ul>
+</li>
+<li>服务必须使用带有“ Count”后缀的名词或名词短语来命名资源计数。</li>
+</ul>
+<h3 id="17-9-共同属性名称"><a href="#17-9-共同属性名称" class="headerlink" title="17.9. 共同属性名称"></a>17.9. 共同属性名称</h3><p>如果服务具有属性，其数据与下面的名称匹配，则服务必须使用此表中的名称。随着服务添加将更常用的术语，该表将增长。添加此类术语的服务所有者应在本文档中提出其他建议。</p>
+<table>
+<thead>
+<tr>
+<th>attendees</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>body</td>
+</tr>
+<tr>
+<td>createdDateTime</td>
+</tr>
+<tr>
+<td>childCount</td>
+</tr>
+<tr>
+<td>children</td>
+</tr>
+<tr>
+<td>contentUrl</td>
+</tr>
+<tr>
+<td>country</td>
+</tr>
+<tr>
+<td>createdBy</td>
+</tr>
+<tr>
+<td>displayName</td>
+</tr>
+<tr>
+<td>errorUrl</td>
+</tr>
+<tr>
+<td>eTag</td>
+</tr>
+<tr>
+<td>event</td>
+</tr>
+<tr>
+<td>expirationDateTime</td>
+</tr>
+<tr>
+<td>givenName</td>
+</tr>
+<tr>
+<td>jobTitle</td>
+</tr>
+<tr>
+<td>kind</td>
+</tr>
+<tr>
+<td>id</td>
+</tr>
+<tr>
+<td>lastModifiedDateTime</td>
+</tr>
+<tr>
+<td>location</td>
+</tr>
+<tr>
+<td>memberOf</td>
+</tr>
+<tr>
+<td>message</td>
+</tr>
+<tr>
+<td>name</td>
+</tr>
+<tr>
+<td>owner</td>
+</tr>
+<tr>
+<td>people</td>
+</tr>
+<tr>
+<td>person</td>
+</tr>
+<tr>
+<td>postalCode</td>
+</tr>
+<tr>
+<td>photo</td>
+</tr>
+<tr>
+<td>preferredLanguage</td>
+</tr>
+<tr>
+<td>properties</td>
+</tr>
+<tr>
+<td>signInName</td>
+</tr>
+<tr>
+<td>surname</td>
+</tr>
+<tr>
+<td>tags</td>
+</tr>
+<tr>
+<td>userPrincipalName</td>
+</tr>
+<tr>
+<td>webUrl</td>
+</tr>
+</tbody></table>
+<h2 id="18-附录"><a href="#18-附录" class="headerlink" title="18.附录"></a>18.附录</h2><h3 id="18-1-时序图注意事项"><a href="#18-1-时序图注意事项" class="headerlink" title="18.1. 时序图注意事项"></a>18.1. 时序图注意事项</h3><p>本文档中的所有序列图均使用 <a target="_blank" rel="noopener" href="https://www.websequencediagrams.com/">WebSequenceDiagrams.com</a> 生成。要生成它们，请将下面的文本粘贴到 Web 工具中。</p>
+<h4 id="18-1-1-按用户流推送通知"><a href="#18-1-1-按用户流推送通知" class="headerlink" title="18.1.1. 按用户流推送通知"></a>18.1.1. 按用户流推送通知</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">=== Begin Text ===</span><br><span class="line">note over Developer, Automation, App Server:</span><br><span class="line">     An App Developer like MovieMaker</span><br><span class="line">     Wants to integrate with primary service like Dropbox</span><br><span class="line">end note</span><br><span class="line">note over DB Portal, DB App Registration, DB Notifications, DB Auth, DB Service: The primary service like Dropbox</span><br><span class="line">note over Client: The end users&#x27; browser or installed app</span><br><span class="line"></span><br><span class="line">note over Developer, Automation, App Server, DB Portal, DB App Registration, DB Notifications, Client : Manual App Registration</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Developer &lt;--&gt; DB Portal : Login into Portal, App Registration UX</span><br><span class="line">DB Portal -&gt; +DB App Registration: App Name etc.</span><br><span class="line">note over DB App Registration: Confirm Portal Access Token</span><br><span class="line"></span><br><span class="line">DB App Registration -&gt; -DB Portal: App ID</span><br><span class="line">DB Portal &lt;--&gt; App Server: Developer copies App ID</span><br><span class="line"></span><br><span class="line">note over Developer, Automation, App Server, DB Portal, DB App Registration, DB Notifications, Client : Manual Notification Registration</span><br><span class="line"></span><br><span class="line">Developer &lt;--&gt; DB Portal: webhook registration UX</span><br><span class="line">DB Portal -&gt; +DB Notifications: Register: App Server webhook URL, Scope, App ID</span><br><span class="line">Note over DB Notifications : Confirm Portal Access Token</span><br><span class="line">DB Notifications -&gt; -DB Portal: notification ID</span><br><span class="line">DB Portal --&gt; App Server : Developer may copy notification ID</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">note over Developer, Automation, App Server, DB Portal, DB App Registration, DB Notifications, Client : Client Authorization</span><br><span class="line"></span><br><span class="line">Client -&gt; +App Server : Request access to DB protected information</span><br><span class="line">App Server -&gt; -Client : Redirect to DB Authorization endpoint with authorization request</span><br><span class="line">Client -&gt; +DB Auth : Redirected authorization request</span><br><span class="line">Client &lt;--&gt; DB Auth : Authorization UX</span><br><span class="line">DB Auth -&gt; -Client : Redirect back to App Server with code</span><br><span class="line">Client -&gt; +App Server : Redirect request back to access server with access code</span><br><span class="line">App Server -&gt; +DB Auth : Request tokens with access code</span><br><span class="line">note right of DB Service: Cache that this User ID provided access to App ID</span><br><span class="line">DB Auth -&gt; -App Server : Response with access, refresh, and ID tokens</span><br><span class="line">note right of App Server : Cache tokens by user ID</span><br><span class="line">App Server -&gt; -Client : Return information to client</span><br><span class="line"></span><br><span class="line">note over Developer, Automation, App Server, DB Portal, DB App Registration, DB Notifications, Client : Notification Flow</span><br><span class="line"></span><br><span class="line">Client &lt;--&gt; DB Service: Changes to user data - typical via interacting with App Server via Client</span><br><span class="line">DB Service -&gt; App Server : Notification with notification ID and user ID</span><br><span class="line">App Server -&gt; +DB Service : Request changed information with cached access tokens and &quot;since&quot; token</span><br><span class="line">note over DB Service: Confirm User Access Token</span><br><span class="line">DB Service -&gt; -App Server : Response with data and new &quot;since&quot; token</span><br><span class="line">note right of App Server: Update status and cache new &quot;since&quot; token</span><br><span class="line">=== End Text ===</span><br></pre></td></tr></table></figure>
+
+<h4 id="18-1-2-推送通知，消防水流"><a href="#18-1-2-推送通知，消防水流" class="headerlink" title="18.1.2. 推送通知，消防水流"></a>18.1.2. 推送通知，消防水流</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">=== Begin Text ===</span><br><span class="line">note over Developer, Automation, App Server:</span><br><span class="line">     An App Developer like MovieMaker</span><br><span class="line">     Wants to integrate with primary service like Dropbox</span><br><span class="line">end note</span><br><span class="line">note over DB Portal, DB App Registration, DB Notifications, DB Auth, DB Service: The primary service like Dropbox</span><br><span class="line">note over Client: The end users&#x27; browser or installed app</span><br><span class="line"></span><br><span class="line">note over Developer, Automation, App Server, DB Portal, DB App Registration, DB Notifications, Client : App Registration</span><br><span class="line"></span><br><span class="line">alt Automated app registration</span><br><span class="line">   Developer &lt;--&gt; Automation: Configure</span><br><span class="line">   Automation -&gt; +DB App Registration: App Name etc.</span><br><span class="line">   note over DB App Registration: Confirm App Access Token</span><br><span class="line">   DB App Registration -&gt; -Automation: App ID, App Secret</span><br><span class="line">   Automation --&gt; App Server : Embed App ID, App Secret</span><br><span class="line">else Manual app registration</span><br><span class="line">   Developer &lt;--&gt; DB Portal : Login into Portal, App Registration UX</span><br><span class="line">   DB Portal -&gt; +DB App Registration: App Name etc.</span><br><span class="line">   note over DB App Registration: Confirm Portal Access Token</span><br><span class="line"></span><br><span class="line">   DB App Registration -&gt; -DB Portal: App ID</span><br><span class="line">   DB Portal &lt;--&gt; App Server: Developer copies App ID</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">note over Developer, Automation, App Server, DB Portal, DB App Registration, DB Notifications, Client : Client Authorization</span><br><span class="line"></span><br><span class="line">Client -&gt; +App Server : Request access to DB protected information</span><br><span class="line">App Server -&gt; -Client : Redirect to DB Authorization endpoint with authorization request</span><br><span class="line">Client -&gt; +DB Auth : Redirected authorization request</span><br><span class="line">Client &lt;--&gt; DB Auth : Authorization UX</span><br><span class="line">DB Auth -&gt; -Client : Redirect back to App Server with code</span><br><span class="line">Client -&gt; +App Server : Redirect request back to access server with access code</span><br><span class="line">App Server -&gt; +DB Auth : Request tokens with access code</span><br><span class="line">note right of DB Service: Cache that this User ID provided access to App ID</span><br><span class="line">DB Auth -&gt; -App Server : Response with access, refresh, and ID tokens</span><br><span class="line">note right of App Server : Cache tokens by user ID</span><br><span class="line">App Server -&gt; -Client : Return information to client</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">note over Developer, Automation, App Server, DB Portal, DB App Registration, DB Notifications, Client : Notification Registration</span><br><span class="line"></span><br><span class="line">App Server-&gt;+DB Notifications: Register: App server webhook URL, Scope, App ID</span><br><span class="line">note over DB Notifications : Confirm User Access Token</span><br><span class="line">DB Notifications -&gt; -App Server: notification ID</span><br><span class="line">note right of App Server : Cache the Notification ID and User Access Token</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">note over Developer, Automation, App Server, DB Portal, DB App Registration, DB Notifications, Client : Notification Flow</span><br><span class="line"></span><br><span class="line">Client &lt;--&gt; DB Service: Changes to user data - typical via interacting with App Server via Client</span><br><span class="line">DB Service -&gt; App Server : Notification with notification ID and user ID</span><br><span class="line">App Server -&gt; +DB Service : Request changed information with cached access tokens and &quot;since&quot; token</span><br><span class="line">note over DB Service: Confirm User Access Token</span><br><span class="line">DB Service -&gt; -App Server : Response with data and new &quot;since&quot; token</span><br><span class="line">note right of App Server: Update status and cache new &quot;since&quot; token</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">=== End Text ===</span><br></pre></td></tr></table></figure> 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/12/15/%E5%BE%AE%E8%BD%AF-REST-API-%E5%87%86%E5%88%99/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

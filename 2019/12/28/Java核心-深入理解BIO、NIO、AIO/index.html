@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Java核心-深入理解BIO、NIO、AIO |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java核心-深入理解BIO、NIO、AIO"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Java核心-深入理解BIO、NIO、AIO
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/28/Java%E6%A0%B8%E5%BF%83-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3BIO%E3%80%81NIO%E3%80%81AIO/" class="article-date">
+  <time datetime="2019-12-27T17:41:35.000Z" itemprop="datePublished">2019-12-28</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">12 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：王磊</p>
+<p>链接：<a target="_blank" rel="noopener" href="http://www.imooc.com/article/265871">http://www.imooc.com/article/265871</a></p>
+<p>来源：慕课网</p>
+</blockquote>
+<p>导读：本文你将获取到：同&#x2F;异步 + 阻&#x2F;非阻塞的性能区别；BIO、NIO、AIO 的区别；理解和实现 NIO 操作 Socket 时的多路复用；同时掌握 IO 最底层最核心的操作技巧。</p>
+<blockquote>
+<p>BIO、NIO、AIO 的区别是什么？</p>
+<p>同&#x2F;异步、阻&#x2F;非阻塞的区别是什么？</p>
+<p>文件读写最优雅的实现方式是什么？</p>
+<p>NIO 如何实现多路复用功能？</p>
+</blockquote>
+<p>带着以上这几个问题，让我们一起进入 IO 的世界吧。</p>
+<p>在开始之前，我们先来思考一个问题：我们经常所说的“IO”的全称到底是什么？</p>
+<p>可能很多人看到这个问题和我一样一脸懵逼，IO 的全称其实是：Input&#x2F;Output 的缩写。</p>
+<h2 id="一、IO-介绍"><a href="#一、IO-介绍" class="headerlink" title="一、IO 介绍"></a>一、IO 介绍</h2><p>我们通常所说的 BIO 是相对于 NIO 来说的，BIO 也就是 Java 开始之初推出的 IO 操作模块，BIO 是 BlockingIO 的缩写，顾名思义就是阻塞 IO 的意思。</p>
+<h3 id="1-1-BIO、NIO、AIO-的区别"><a href="#1-1-BIO、NIO、AIO-的区别" class="headerlink" title="1.1 BIO、NIO、AIO 的区别"></a>1.1 BIO、NIO、AIO 的区别</h3><ol>
+<li>BIO 就是传统的 <a href="https://link.zhihu.com/?target=http://java.io/" title="java.io">java.io</a> 包，它是基于流模型实现的，交互的方式是同步、阻塞方式，也就是说在读入输入流或者输出流时，在读写动作完成之前，线程会一直阻塞在那里，它们之间的调用时可靠的线性顺序。它的优点就是代码比较简单、直观；缺点就是 IO 的效率和扩展性很低，容易成为应用性能瓶颈。</li>
+<li>NIO 是 Java 1.4 引入的 java.nio 包，提供了 Channel、Selector、Buffer 等新的抽象，可以构建多路复用的、同步非阻塞 IO 程序，同时提供了更接近操作系统底层高性能的数据操作方式。</li>
+<li>AIO 是 Java 1.7 之后引入的包，是 NIO 的升级版本，提供了异步非堵塞的 IO 操作方式，所以人们叫它 AIO（Asynchronous IO），异步 IO 是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。</li>
+</ol>
+<h3 id="1-2-全面认识-IO"><a href="#1-2-全面认识-IO" class="headerlink" title="1.2 全面认识 IO"></a>1.2 全面认识 IO</h3><p>传统的 IO 大致可以分为 4 种类型：</p>
+<ul>
+<li>InputStream、OutputStream 基于字节操作的 IO</li>
+<li>Writer、Reader 基于字符操作的 IO</li>
+<li>File 基于磁盘操作的 IO</li>
+<li>Socket 基于网络操作的 IO</li>
+</ul>
+<p><a href="https://link.zhihu.com/?target=http://java.net/" title="java.net">java.net</a> 下提供的 Scoket 很多时候人们也把它归为 同步阻塞 IO ,因为网络通讯同样是 IO 行为。</p>
+<p><a href="https://link.zhihu.com/?target=http://java.io/" title="java.io">java.io</a> 下的类和接口很多，但大体都是 InputStream、OutputStream、Writer、Reader 的子集，所有掌握这 4 个类和 File 的使用，是用好 IO 的关键。</p>
+<h3 id="1-3-IO-使用"><a href="#1-3-IO-使用" class="headerlink" title="1.3 IO 使用"></a>1.3 IO 使用</h3><p>接下来看 InputStream、OutputStream、Writer、Reader 的继承关系图和使用示例。</p>
+<h4 id="1-3-1-InputStream-使用"><a href="#1-3-1-InputStream-使用" class="headerlink" title="1.3.1 InputStream 使用"></a>1.3.1 InputStream 使用</h4><p>继承关系图和类方法，如下图：</p>
+<p><img src="https://pic3.zhimg.com/80/v2-59de77ec698c7c214a4c85f55634289a_hd.jpg"></p>
+<p>InputStream 使用示例：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">InputStream inputStream = new FileInputStream(&quot;D:\\log.txt&quot;);</span><br><span class="line">byte[] bytes = new byte[inputStream.available()];</span><br><span class="line">inputStream.read(bytes);</span><br><span class="line">String str = new String(bytes, &quot;utf-8&quot;);</span><br><span class="line">System.out.println(str);</span><br><span class="line">inputStream.close();</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-2-OutputStream-使用"><a href="#1-3-2-OutputStream-使用" class="headerlink" title="1.3.2 OutputStream 使用"></a>1.3.2 OutputStream 使用</h4><p>继承关系图和类方法，如下图：</p>
+<p><img src="https://pic1.zhimg.com/80/v2-c46a095e36b62b67b7bfd7cd5a96ae10_hd.jpg"></p>
+<p>OutputStream 使用示例：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">OutputStream outputStream = new FileOutputStream(&quot;D:\\log.txt&quot;,true);</span><br><span class="line">// 参数二，表示是否追加，true=追加</span><br><span class="line">outputStream.write(&quot;你好，老王&quot;.getBytes(&quot;utf-8&quot;));</span><br><span class="line">outputStream.close();</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-3-Writer-使用"><a href="#1-3-3-Writer-使用" class="headerlink" title="1.3.3 Writer 使用"></a>1.3.3 Writer 使用</h4><p>Writer 继承关系图和类方法，如下图：</p>
+<p><img src="https://pic1.zhimg.com/80/v2-a1078f9d982b852f63622497c3eda404_hd.jpg"></p>
+<p>Writer 使用示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Writer</span> <span class="variable">writer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileWriter</span>(<span class="string">&quot;D:\\log.txt&quot;</span>,<span class="literal">true</span>);</span><br><span class="line"><span class="comment">// 参数二，是否追加文件，true=追加</span></span><br><span class="line">writer.append(<span class="string">&quot;老王，你好&quot;</span>);</span><br><span class="line">writer.close();</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-4-Reader-使用"><a href="#1-3-4-Reader-使用" class="headerlink" title="1.3.4 Reader 使用"></a>1.3.4 Reader 使用</h4><p>Reader 继承关系图和类方法，如下图：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-baa12511b36d760c534ce711d2660d71_hd.jpg"></p>
+<p>Reader 使用示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Reader</span> <span class="variable">reader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileReader</span>(filePath);</span><br><span class="line"><span class="type">BufferedReader</span> <span class="variable">bufferedReader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(reader);</span><br><span class="line"><span class="type">StringBuffer</span> <span class="variable">bf</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuffer</span>();</span><br><span class="line">String str;</span><br><span class="line"><span class="keyword">while</span> ((str = bufferedReader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">    bf.append(str + <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">bufferedReader.close();</span><br><span class="line">reader.close();</span><br><span class="line">System.out.println(bf.toString());</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、同步、异步、阻塞、非阻塞"><a href="#二、同步、异步、阻塞、非阻塞" class="headerlink" title="二、同步、异步、阻塞、非阻塞"></a>二、同步、异步、阻塞、非阻塞</h2><p>上面说了很多关于同步、异步、阻塞和非阻塞的概念，接下来就具体聊一下它们 4 个的含义，以及组合之后形成的性能分析。</p>
+<h3 id="2-1-同步与异步"><a href="#2-1-同步与异步" class="headerlink" title="2.1 同步与异步"></a>2.1 同步与异步</h3><p>同步就是一个任务的完成需要依赖另外一个任务时，只有等待被依赖的任务完成后，依赖的任务才能算完成，这是一种可靠的任务序列。要么成功都成功，失败都失败，两个任务的状态可以保持一致。而异步是不需要等待被依赖的任务完成，只是通知被依赖的任务要完成什么工作，依赖的任务也立即执行，只要自己完成了整个任务就算完成了。至于被依赖的任务最终是否真正完成，依赖它的任务无法确定，所以它是不可靠的任务序列。我们可以用打电话和发短信来很好的比喻同步与异步操作。</p>
+<h3 id="2-2-阻塞与非阻塞"><a href="#2-2-阻塞与非阻塞" class="headerlink" title="2.2 阻塞与非阻塞"></a>2.2 阻塞与非阻塞</h3><p><strong>阻塞请求</strong>，A 调用 B，A 一直等着 B 的返回，别的事情什么也不干。<br><strong>非阻塞请求</strong>，A 调用 B，A 不用一直等着 B 的返回，先去忙别的事情了。</p>
+<h3 id="2-3-同-x2F-异、阻-x2F-非堵塞-组合"><a href="#2-3-同-x2F-异、阻-x2F-非堵塞-组合" class="headerlink" title="2.3 同&#x2F;异、阻&#x2F;非堵塞 组合"></a>2.3 同&#x2F;异、阻&#x2F;非堵塞 组合</h3><p>同&#x2F;异、阻&#x2F;非堵塞的组合，有四种类型，如下表：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-60266a1b62d38c452ff7d544640ef7e5_hd.jpg"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-b38090898823163b74db78d2457f39a6_hd.jpg"></p>
+<h2 id="三、优雅的文件读写"><a href="#三、优雅的文件读写" class="headerlink" title="三、优雅的文件读写"></a>三、优雅的文件读写</h2><p>Java 7 之前文件的读取是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 添加文件</span></span><br><span class="line"><span class="type">FileWriter</span> <span class="variable">fileWriter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileWriter</span>(filePath, <span class="literal">true</span>);</span><br><span class="line">fileWriter.write(Content);</span><br><span class="line">fileWriter.close();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取文件FileReader fileReader = new FileReader(filePath);</span></span><br><span class="line"><span class="type">BufferedReader</span> <span class="variable">bufferedReader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(fileReader);</span><br><span class="line"><span class="type">StringBuffer</span> <span class="variable">bf</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuffer</span>();</span><br><span class="line">String str;<span class="keyword">while</span> ((str = bufferedReader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">    bf.append(str + <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">bufferedReader.close();</span><br><span class="line">fileReader.close();</span><br><span class="line">System.out.println(bf.toString());</span><br></pre></td></tr></table></figure>
+
+<p>Java 7 引入了 Files（java.nio 包下）的，大大简化了文件的读写，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 写入文件（追加方式：StandardOpenOption.APPEND）</span></span><br><span class="line">Files.write(Paths.get(filePath), Content.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取文件</span></span><br><span class="line"><span class="type">byte</span>[] data = Files.readAllBytes(Paths.get(filePath));</span><br><span class="line">System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(data, StandardCharsets.UTF_8));</span><br></pre></td></tr></table></figure>
+
+<p>读写文件都是一行代码搞定，没错这就是最优雅的文件操作。</p>
+<p>Files 下还有很多有用的方法，比如创建多层文件夹，写法上也简单了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建多（单）层目录（如果不存在创建，存在不会报错）</span></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;D://a//b&quot;</span>).mkdirs();</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、Socket-和-NIO-的多路复用"><a href="#四、Socket-和-NIO-的多路复用" class="headerlink" title="四、Socket 和 NIO 的多路复用"></a>四、Socket 和 NIO 的多路复用</h2><p>本节带你实现最基础的 Socket 的同时，同时会实现 NIO 多路复用，还有 AIO 中 Socket 的实现。</p>
+<h3 id="4-1-传统的-Socket-实现"><a href="#4-1-传统的-Socket-实现" class="headerlink" title="4.1 传统的 Socket 实现"></a>4.1 传统的 Socket 实现</h3><p>接下来我们将会实现一个简单的 Socket，服务器端只发给客户端信息，再由客户端打印出来的例子，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> <span class="number">4343</span>; <span class="comment">//端口号</span></span><br><span class="line"><span class="comment">// Socket 服务器端（简单的发送信息）</span></span><br><span class="line"><span class="type">Thread</span> <span class="variable">sThread</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ServerSocket</span> <span class="variable">serverSocket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerSocket</span>(port);</span><br><span class="line">            <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">                <span class="comment">// 等待连接</span></span><br><span class="line">                <span class="type">Socket</span> <span class="variable">socket</span> <span class="operator">=</span> serverSocket.accept();</span><br><span class="line">                <span class="type">Thread</span> <span class="variable">sHandlerThread</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                        <span class="keyword">try</span> (<span class="type">PrintWriter</span> <span class="variable">printWriter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PrintWriter</span>(socket.getOutputStream())) &#123;</span><br><span class="line">                            printWriter.println(<span class="string">&quot;hello world！&quot;</span>);</span><br><span class="line">                            printWriter.flush();</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">                sHandlerThread.start();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line">sThread.start();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Socket 客户端（接收信息并打印）</span></span><br><span class="line"><span class="keyword">try</span> (<span class="type">Socket</span> <span class="variable">cSocket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>(InetAddress.getLocalHost(), port)) &#123;</span><br><span class="line">    <span class="type">BufferedReader</span> <span class="variable">bufferedReader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(cSocket.getInputStream()));</span><br><span class="line">    bufferedReader.lines().forEach(s -&gt; System.out.println(<span class="string">&quot;客户端：&quot;</span> + s));&#125; <span class="keyword">catch</span> (UnknownHostException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>调用 accept 方法，阻塞等待客户端连接；</li>
+<li>利用 Socket 模拟了一个简单的客户端，只进行连接、读取和打印；</li>
+</ul>
+<p>在 Java 中，线程的实现是比较重量级的，所以线程的启动或者销毁是很消耗服务器的资源的，即使使用线程池来实现，使用上述传统的 Socket 方式，当连接数极具上升也会带来性能瓶颈，原因是线程的上线文切换开销会在高并发的时候体现的很明显，并且以上操作方式还是同步阻塞式的编程，性能问题在高并发的时候就会体现的尤为明显。</p>
+<p>以上的流程，如下图：</p>
+<p><img src="https://pic3.zhimg.com/80/v2-48c0da70e77fec80b14a3057af502f12_hd.jpg"></p>
+<h3 id="4-2-NIO-多路复用"><a href="#4-2-NIO-多路复用" class="headerlink" title="4.2 NIO 多路复用"></a>4.2 NIO 多路复用</h3><p>介于以上高并发的问题，NIO 的多路复用功能就显得意义非凡了。</p>
+<p>NIO 是利用了单线程轮询事件的机制，通过高效地定位就绪的 Channel，来决定做什么，仅仅 select 阶段是阻塞的，可以有效避免大量客户端连接时，频繁线程切换带来的问题，应用的扩展能力有了非常大的提高。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NIO 多路复用</span></span><br><span class="line"><span class="type">ThreadPoolExecutor</span> <span class="variable">threadPool</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(<span class="number">4</span>, <span class="number">4</span>,</span><br><span class="line">        <span class="number">60L</span>, TimeUnit.SECONDS, <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;Runnable&gt;());</span><br><span class="line">threadPool.execute(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> (<span class="type">Selector</span> <span class="variable">selector</span> <span class="operator">=</span> Selector.open();</span><br><span class="line">             <span class="type">ServerSocketChannel</span> <span class="variable">serverSocketChannel</span> <span class="operator">=</span> ServerSocketChannel.open();) &#123;</span><br><span class="line">            serverSocketChannel.bind(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(InetAddress.getLocalHost(), port));</span><br><span class="line">            serverSocketChannel.configureBlocking(<span class="literal">false</span>);</span><br><span class="line">            serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);</span><br><span class="line">            <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">                selector.select(); <span class="comment">// 阻塞等待就绪的Channel</span></span><br><span class="line">                Set&lt;SelectionKey&gt; selectionKeys = selector.selectedKeys();</span><br><span class="line">                Iterator&lt;SelectionKey&gt; iterator = selectionKeys.iterator();</span><br><span class="line">                <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">                    <span class="type">SelectionKey</span> <span class="variable">key</span> <span class="operator">=</span> iterator.next();</span><br><span class="line">                    <span class="keyword">try</span> (<span class="type">SocketChannel</span> <span class="variable">channel</span> <span class="operator">=</span> ((ServerSocketChannel) key.channel()).accept()) &#123;</span><br><span class="line">                        channel.write(Charset.defaultCharset().encode(<span class="string">&quot;你好，世界&quot;</span>));</span><br><span class="line">                    &#125;</span><br><span class="line">                    iterator.remove();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// Socket 客户端（接收信息并打印）</span></span><br><span class="line"><span class="keyword">try</span> (<span class="type">Socket</span> <span class="variable">cSocket</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Socket</span>(InetAddress.getLocalHost(), port)) &#123;</span><br><span class="line">    <span class="type">BufferedReader</span> <span class="variable">bufferedReader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(cSocket.getInputStream()));</span><br><span class="line">    bufferedReader.lines().forEach(s -&gt; System.out.println(<span class="string">&quot;NIO 客户端：&quot;</span> + s));</span><br><span class="line">&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>首先，通过 Selector.open() 创建一个 Selector，作为类似调度员的角色；</li>
+<li>然后，创建一个 ServerSocketChannel，并且向 Selector 注册，通过指定 SelectionKey.OP_ACCEPT，告诉调度员，它关注的是新的连接请求；</li>
+<li>为什么我们要明确配置非阻塞模式呢？这是因为阻塞模式下，注册操作是不允许的，会抛出 IllegalBlockingModeException 异常；</li>
+<li>Selector 阻塞在 select 操作，当有 Channel 发生接入请求，就会被唤醒；</li>
+</ul>
+<p>下面的图，可以有效的说明 NIO 复用的流程：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-90aab8868e33f22bc95f0d2706324cad_hd.jpg"></p>
+<p>就这样 NIO 的多路复用就大大提升了服务器端响应高并发的能力。</p>
+<h3 id="4-3-AIO-版-Socket-实现"><a href="#4-3-AIO-版-Socket-实现" class="headerlink" title="4.3 AIO 版 Socket 实现"></a>4.3 AIO 版 Socket 实现</h3><p>Java 1.7 提供了 AIO 实现的 Socket 是这样的，如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AIO线程复用版</span></span><br><span class="line"><span class="type">Thread</span> <span class="variable">sThread</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">AsynchronousChannelGroup</span> <span class="variable">group</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            group = AsynchronousChannelGroup.withThreadPool(Executors.newFixedThreadPool(<span class="number">4</span>));</span><br><span class="line">            <span class="type">AsynchronousServerSocketChannel</span> <span class="variable">server</span> <span class="operator">=</span> AsynchronousServerSocketChannel.open(group).bind(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(InetAddress.getLocalHost(), port));</span><br><span class="line">            server.accept(<span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">CompletionHandler</span>&lt;AsynchronousSocketChannel, AsynchronousServerSocketChannel&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">completed</span><span class="params">(AsynchronousSocketChannel result, AsynchronousServerSocketChannel attachment)</span> &#123;</span><br><span class="line">                    server.accept(<span class="literal">null</span>, <span class="built_in">this</span>); <span class="comment">// 接收下一个请求</span></span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Future&lt;Integer&gt; f = result.write(Charset.defaultCharset().encode(<span class="string">&quot;你好，世界&quot;</span>));</span><br><span class="line">                        f.get();</span><br><span class="line">                        System.out.println(<span class="string">&quot;服务端发送时间：&quot;</span> + <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>).format(<span class="keyword">new</span> <span class="title class_">Date</span>()));</span><br><span class="line">                        result.close();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException | ExecutionException | IOException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">failed</span><span class="params">(Throwable exc, AsynchronousServerSocketChannel attachment)</span> &#123;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException | InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line">sThread.start();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Socket 客户端</span></span><br><span class="line"><span class="type">AsynchronousSocketChannel</span> <span class="variable">client</span> <span class="operator">=</span> AsynchronousSocketChannel.open();</span><br><span class="line">Future&lt;Void&gt; future = client.connect(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(InetAddress.getLocalHost(), port));</span><br><span class="line">future.get();</span><br><span class="line"><span class="type">ByteBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> ByteBuffer.allocate(<span class="number">100</span>);</span><br><span class="line">client.read(buffer, <span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">CompletionHandler</span>&lt;Integer, Void&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">completed</span><span class="params">(Integer result, Void attachment)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;客户端打印：&quot;</span> + <span class="keyword">new</span> <span class="title class_">String</span>(buffer.array()));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">failed</span><span class="params">(Throwable exc, Void attachment)</span> &#123;</span><br><span class="line">        exc.printStackTrace();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            client.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line">Thread.sleep(<span class="number">10</span> * <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>以上基本就是 IO 从 1.0 到目前版本（本文的版本）JDK 8 的核心使用操作了，可以看出来 IO 作为比较常用的基础功能，发展变化的改动也很大，而且使用起来也越来越简单了，IO 的操作也是比较好理解的，一个输入一个输出，掌握好了输入输出也就掌握好了 IO，Socket 作为网络交互的集成功能，显然 NIO 的多路复用，给 Socket 带来了更多的活力和选择，用户可以根据自己的实际场景选择相应的代码策略。</p>
+<p>当然本文的最后，也给各位看官大爷，附上了本文的示例代码：<a href="https://link.zhihu.com/?target=https://github.com/vipstone/java-core-example" title="https://github.com/vipstone/java-core-example">https://github.com/vipstone/java-core-example</a></p>
+<h2 id="六、参考文档"><a href="#六、参考文档" class="headerlink" title="六、参考文档"></a>六、参考文档</h2><p><a href="https://link.zhihu.com/?target=http://t.cn/EwUJvWA" title="http://t.cn/EwUJvWA">http://t.cn/EwUJvWA</a></p>
+<p><a href="https://link.zhihu.com/?target=https://www.ibm.com/developerworks/cn/java/j-lo-javaio/index.html" title="https://www.ibm.com/developerworks/cn/java/j-lo-javaio/index.html">https://www.ibm.com/developerworks/cn/java/j-lo-javaio/index.html</a></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/12/28/Java%E6%A0%B8%E5%BF%83-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3BIO%E3%80%81NIO%E3%80%81AIO/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

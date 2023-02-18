@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>目前为止全网最全的 SpringBoot 参数传递方案 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-目前为止全网最全的-SpringBoot-参数传递方案"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  目前为止全网最全的 SpringBoot 参数传递方案
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/07/%E7%9B%AE%E5%89%8D%E4%B8%BA%E6%AD%A2%E5%85%A8%E7%BD%91%E6%9C%80%E5%85%A8%E7%9A%84-SpringBoot-%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E6%96%B9%E6%A1%88/" class="article-date">
+  <time datetime="2019-12-07T06:12:54.000Z" itemprop="datePublished">2019-12-07</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文作者：<a target="_blank" rel="noopener" href="https://yq.aliyun.com/users/js22r6xxzrg3m">小柒2012</a></p>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://yq.aliyun.com/articles/723593?utm_content=g_1000083974">https://yq.aliyun.com/articles/723593?utm_content=g_1000083974</a></p>
+<p>小结：</p>
+<p>String username, String password</p>
+<p>SysUser user</p>
+<p>多参数无实体一：</p>
+<p>@RequestBody Map&lt;String,Object&gt; map</p>
+<p>多参数无实体二：</p>
+<p>@RequestParam Map&lt;String,Object&gt; map</p>
+<p>数组：</p>
+<p>@RequestParam(value &#x3D; “ids[]”) Integer[] ids</p>
+<p>集合：</p>
+<p>@RequestParam(value &#x3D; “ids[]”) List<Integer> ids</p>
+<p>集合实体对象：</p>
+<p>@RequestBody List<SysUser> list</p>
+<p>集合实体对象一对多：</p>
+<p>@RequestBody List<SysUser> list</p>
+<ul>
+<li><p><code>@RequestBody </code>注解，必须与 <code>contentType</code> 类型<code>application/json</code>配合使用。</p>
+</li>
+<li><p><code>@RequestParam </code>注解，必须与 <code>contentType</code> 类型<code>application/x-www-form-urlencoded</code>配合使用，其为默认类型。</p>
+</li>
+<li><p><code>JSON.stringify()</code> 把对象类型转换为字符串类型，一般配合 <code>@RequestBody </code>注解和<code>contentType</code> 类型<code>application/json</code>使用。</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h2><p>开发这么多年，肯定还有不少小伙伴搞不清各种类型的参数是如何传递的，很多同学都是拿来即用，复制粘贴一把撸，遇到问题还是一脸懵逼。</p>
+<h2 id="2-姿势"><a href="#2-姿势" class="headerlink" title="2. 姿势"></a>2. 姿势</h2><p>学习参数传递的正确姿势，先说怎么做，再说为什么，本质上还是复制粘贴一把撸，问题是你想问不想问为什么！</p>
+<h2 id="3-传递"><a href="#3-传递" class="headerlink" title="3. 传递"></a>3. 传递</h2><h4 id="用户登录"><a href="#用户登录" class="headerlink" title="用户登录"></a>用户登录</h4><p>前端代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> param = &#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">    <span class="string">&quot;password&quot;</span>: <span class="string">&quot;admin&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">$.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">    <span class="attr">url</span>: <span class="string">&quot;/sys/login&quot;</span>,</span><br><span class="line">    <span class="attr">data</span>: param,</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&quot;post&quot;</span>,</span><br><span class="line">    <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">    <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">data</span>) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>后端代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/sys&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoginController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span> LoggerFactory.getLogger(LoginController.class);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 登录</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/login&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">login</span><span class="params">(String username, String password)</span>&#123;</span><br><span class="line">        logger.info(<span class="string">&quot;用户登录&quot;</span>+username);</span><br><span class="line">        <span class="comment">//业务逻辑</span></span><br><span class="line">        <span class="keyword">return</span> Result.ok(<span class="string">&quot;登录成功&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然，你也可以这么实现，<code>@RequestParam(value=&quot;username&quot;, required=true)</code> ，<code>required</code> 默认为 <code>true</code>，如果前台不传递此参数，后台会报错。如果设置为 <code>false</code>，如果不传，默认为 <code>null</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 登录</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/login&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">login</span><span class="params">(<span class="meta">@RequestParam(value=&quot;username&quot;, required=true)</span> String username,</span></span><br><span class="line"><span class="params">                    <span class="meta">@RequestParam(value=&quot;password&quot;, required=true)</span> String password)</span>&#123;</span><br><span class="line">    logger.info(<span class="string">&quot;用户登录&quot;</span>+username);</span><br><span class="line">    <span class="comment">//业务逻辑</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok(<span class="string">&quot;登录成功&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="用户注册"><a href="#用户注册" class="headerlink" title="用户注册"></a>用户注册</h4><p>前端代码，提交方式与登录基本保持一致。</p>
+<p>后端代码：</p>
+<p>用一个对象来接收前台参数，一般后端有对应的实体类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 注册</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/register&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">register</span><span class="params">(SysUser user)</span>&#123;</span><br><span class="line">    logger.info(<span class="string">&quot;&#123;&#125;，用户注册&quot;</span>,user.getUsername());</span><br><span class="line">    <span class="comment">//业务逻辑</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok(<span class="string">&quot;注册成功&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="多参数无实体一"><a href="#多参数无实体一" class="headerlink" title="多参数无实体一"></a>多参数无实体一</h4><p>前端代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> param = &#123;</span><br><span class="line">    <span class="string">&quot;title&quot;</span>: <span class="string">&quot;爪哇笔记&quot;</span>,</span><br><span class="line">    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;一个有趣的公众号&quot;</span>,</span><br><span class="line">    <span class="string">&quot;author&quot;</span>: <span class="string">&quot;小柒2012&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">param = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(param);</span><br><span class="line">$.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">    <span class="attr">url</span>: <span class="string">&quot;/sys/multiParameter&quot;</span>,</span><br><span class="line">    <span class="attr">data</span>: param,</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&quot;post&quot;</span>,</span><br><span class="line">    <span class="attr">contentType</span>: <span class="string">&quot;application/json&quot;</span>,</span><br><span class="line">    <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">    <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">data</span>) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>后端实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 多参数</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/multiParameter&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">register</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;String,Object&gt; map)</span>&#123;</span><br><span class="line">    logger.info(<span class="string">&quot;多参数传递:&#123;&#125;,&#123;&#125;&quot;</span>,map.get(<span class="string">&quot;title&quot;</span>),map.get(<span class="string">&quot;content&quot;</span>));</span><br><span class="line">    <span class="comment">//业务逻辑</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok(<span class="string">&quot;接收多参数成功&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="多参数无实体二"><a href="#多参数无实体二" class="headerlink" title="多参数无实体二"></a>多参数无实体二</h4><p>前端代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> param = &#123;</span><br><span class="line">    <span class="string">&quot;title&quot;</span>: <span class="string">&quot;爪哇笔记&quot;</span>,</span><br><span class="line">    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;一个有趣的公众号&quot;</span>,</span><br><span class="line">    <span class="string">&quot;author&quot;</span>: <span class="string">&quot;小柒2012&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">$.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">    <span class="attr">url</span>: <span class="string">&quot;/sys/multiParameter&quot;</span>,</span><br><span class="line">    <span class="attr">data</span>: param,</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&quot;post&quot;</span>,</span><br><span class="line">    <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">    <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">data</span>) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>后端实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 多参数</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/multiParameter&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">register</span><span class="params">(<span class="meta">@RequestParam</span> Map&lt;String,Object&gt; map)</span>&#123;</span><br><span class="line">    logger.info(<span class="string">&quot;多参数传递:&#123;&#125;,&#123;&#125;&quot;</span>,map.get(<span class="string">&quot;title&quot;</span>),map.get(<span class="string">&quot;content&quot;</span>));</span><br><span class="line">    <span class="comment">//业务逻辑</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok(<span class="string">&quot;接收多参数成功&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="传递数组"><a href="#传递数组" class="headerlink" title="传递数组"></a>传递数组</h4><p>前端代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> param = &#123;</span><br><span class="line">    <span class="string">&quot;ids&quot;</span>: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]</span><br><span class="line">&#125;</span><br><span class="line">$.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">    <span class="attr">url</span>: <span class="string">&quot;/sys/array&quot;</span>,</span><br><span class="line">    <span class="attr">data</span>: param,</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&quot;post&quot;</span>,</span><br><span class="line">    <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">    <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">data</span>) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>后端实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 数组</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;array&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">array</span><span class="params">(<span class="meta">@RequestParam(value = &quot;ids[]&quot;)</span> Integer[] ids)</span> &#123;</span><br><span class="line">    logger.info(<span class="string">&quot;数据&#123;&#125;&quot;</span>, Arrays.asList(ids));</span><br><span class="line">    <span class="comment">//业务逻辑</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="传递集合"><a href="#传递集合" class="headerlink" title="传递集合"></a>传递集合</h4><p>前端代码与传递数组保持一致。</p>
+<p>后端实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 集合</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;array&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">array</span><span class="params">(<span class="meta">@RequestParam(value = &quot;ids[]&quot;)</span> List&lt;Integer&gt; ids)</span> &#123;</span><br><span class="line">    logger.info(<span class="string">&quot;数据&#123;&#125;&quot;</span>, ids.toString());</span><br><span class="line">    <span class="comment">//业务逻辑</span></span><br><span class="line">    <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="传递集合实体对象"><a href="#传递集合实体对象" class="headerlink" title="传递集合实体对象"></a>传递集合实体对象</h4><p>比如，后端想接收一个实体对象集合 <code>List</code></p>
+<p>前端代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> list = [];</span><br><span class="line">list.<span class="title function_">push</span>(&#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>: <span class="string">&quot;小柒2012&quot;</span>,</span><br><span class="line">    <span class="string">&quot;mobile&quot;</span>: <span class="string">&quot;17762288888&quot;</span></span><br><span class="line">&#125;);</span><br><span class="line">list.<span class="title function_">push</span>(&#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>: <span class="string">&quot;小柒2013&quot;</span>,</span><br><span class="line">    <span class="string">&quot;mobile&quot;</span>: <span class="string">&quot;17762289999&quot;</span></span><br><span class="line">&#125;);</span><br><span class="line">$.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">    <span class="attr">url</span>: <span class="string">&quot;/sys/listUser&quot;</span>,</span><br><span class="line">    <span class="attr">data</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(list),</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&quot;post&quot;</span>,</span><br><span class="line">    <span class="attr">contentType</span>: <span class="string">&quot;application/json&quot;</span>,</span><br><span class="line">    <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">    <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">data</span>) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>后端代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 爪哇笔记</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;listUser&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">listUser</span><span class="params">(<span class="meta">@RequestBody</span> List&lt;SysUser&gt; list)</span> &#123;</span><br><span class="line">   logger.info(<span class="string">&quot;数据&#123;&#125;&quot;</span>, list.size());</span><br><span class="line">   list.forEach(user-&gt;&#123;</span><br><span class="line">      <span class="comment">//输出实体对象</span></span><br><span class="line">      System.out.println(user.getUsername());</span><br><span class="line">   &#125;);</span><br><span class="line">   <span class="comment">//业务逻辑</span></span><br><span class="line">   <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="传递集合实体对象一对多"><a href="#传递集合实体对象一对多" class="headerlink" title="传递集合实体对象一对多"></a>传递集合实体对象一对多</h4><p>比如，一个用户有多个角色 <code>List roleList</code></p>
+<p>前端代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> roleList = [];</span><br><span class="line">roleList.<span class="title function_">push</span>(&#123;</span><br><span class="line">    <span class="string">&quot;roleSign&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">    <span class="string">&quot;roleName&quot;</span>: <span class="string">&quot;管理员&quot;</span></span><br><span class="line">&#125;);</span><br><span class="line">roleList.<span class="title function_">push</span>(&#123;</span><br><span class="line">    <span class="string">&quot;roleSign&quot;</span>: <span class="string">&quot;user&quot;</span>,</span><br><span class="line">    <span class="string">&quot;roleName&quot;</span>: <span class="string">&quot;普通用户&quot;</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">var</span> list = [];</span><br><span class="line"><span class="keyword">var</span> user = &#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>: <span class="string">&quot;小柒2012&quot;</span>,</span><br><span class="line">    <span class="string">&quot;mobile&quot;</span>: <span class="string">&quot;17762288888&quot;</span></span><br><span class="line">&#125;;</span><br><span class="line">user.<span class="property">roleList</span> = roleList;</span><br><span class="line">list.<span class="title function_">push</span>(user);</span><br><span class="line">$.<span class="title function_">ajax</span>(&#123;</span><br><span class="line">    <span class="attr">url</span>: <span class="string">&quot;/sys/listUserRole&quot;</span>,</span><br><span class="line">    <span class="attr">data</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(list),</span><br><span class="line">    <span class="attr">type</span>: <span class="string">&quot;post&quot;</span>,</span><br><span class="line">    <span class="attr">contentType</span>: <span class="string">&quot;application/json&quot;</span>,</span><br><span class="line">    <span class="attr">dataType</span>: <span class="string">&quot;json&quot;</span>,</span><br><span class="line">    <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">data</span>) &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>后端实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 爪哇笔记</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;listUserRole&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">listUserRole</span><span class="params">(<span class="meta">@RequestBody</span> List&lt;SysUser&gt; list)</span> &#123;</span><br><span class="line">    logger.info(<span class="string">&quot;数据&#123;&#125;&quot;</span>, list.size());</span><br><span class="line">    list.forEach(user-&gt;&#123;</span><br><span class="line">        List&lt;SysRole&gt; roleList = user.getRoleList();</span><br><span class="line">        roleList.forEach(role-&gt;&#123;</span><br><span class="line">          System.out.println(role.getRoleName());</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> Result.ok();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="炒鸡复杂"><a href="#炒鸡复杂" class="headerlink" title="炒鸡复杂"></a>炒鸡复杂</h4><p>传输对象有实体，有集合，有各种类型的数据，这时候最简单的方式就是传递 <code>Key-Value</code> 结构的 <code>JSON</code> 字符串，后台 <code>Map</code> 类型接收，然后通过<code>FastJson</code>的 <code>JSON.parseObject()</code> 和 <code>JSON.parseArray()</code> 方法转化为对应的实体或者集合。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">user</span> <span class="operator">=</span> parseMap.get(<span class="string">&quot;user&quot;</span>).toString();</span><br><span class="line"><span class="type">SysUser</span> <span class="variable">sysUser</span> <span class="operator">=</span> JSON.parseObject(user,SysUser.class);</span><br><span class="line"><span class="type">String</span> <span class="variable">contractClause</span> <span class="operator">=</span> parseMap.get(<span class="string">&quot;rules&quot;</span>).toString();</span><br><span class="line">List&lt;Rule&gt; ruleList = JSON.parseArray(contractClause,Rule.class);</span><br></pre></td></tr></table></figure>
+
+<h4 id="RESTful-风格"><a href="#RESTful-风格" class="headerlink" title="RESTful 风格"></a>RESTful 风格</h4><p>比如，访问某篇文章：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * 爪哇笔记</span></span><br><span class="line"><span class="comment">  * https://blog.52itstyle.vip</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="meta">@GetMapping(&quot;article/&#123;id&#125;&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">article</span><span class="params">(<span class="meta">@PathVariable(&quot;id&quot;)</span> String id)</span> &#123;</span><br><span class="line">    logger.info(<span class="string">&quot;文章&#123;&#125;&quot;</span>,id);</span><br><span class="line">    <span class="comment">//业务逻辑</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-原则"><a href="#4-原则" class="headerlink" title="4. 原则"></a>4. 原则</h2><p>记住以下几点：</p>
+<ul>
+<li><code>@RequestBody </code>注解，必须与 <code>contentType</code> 类型<code>application/json</code>配合使用。</li>
+<li><code>@RequestParam </code>注解，必须与 <code>contentType</code> 类型<code>application/x-www-form-urlencoded</code>配合使用，其为默认类型。</li>
+<li><code>JSON.stringify()</code> 把对象类型转换为字符串类型，一般配合 <code>@RequestBody </code>注解和<code>contentType</code> 类型<code>application/json</code>使用。</li>
+</ul>
+<h2 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h2><p>在以上只涉及了两种 <code>contentType</code> 类型，其实还有两种常见的类型：</p>
+<h4 id="multipart-form-data"><a href="#multipart-form-data" class="headerlink" title="multipart/form-data"></a><code>multipart/form-data</code></h4><p>一般用于表单文件上传，必须让 form 的 enctype 等于这个值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;form action=&quot;/upload&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;</span><br><span class="line">  &lt;input type=&quot;text&quot; name=&quot;description&quot; value=&quot;爪哇笔记，一个神奇的公众号&quot;&gt;</span><br><span class="line">  &lt;input type=&quot;file&quot; name=&quot;myFile&quot;&gt;</span><br><span class="line">  &lt;button type=&quot;submit&quot;&gt;Submit&lt;/button&gt;</span><br><span class="line">&lt;/form&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="text-xml"><a href="#text-xml" class="headerlink" title="text/xml"></a><code>text/xml</code></h4><p>做过微信支付的小伙伴一定会知道，微信就喜欢用这种方式，去年还发生过 <code>XXE</code> 漏洞，在解析XML文档时，解析器通过 ENTITY 扩展的功能，读取本地受保护的文件，并且使用扩展功能将受保护的文件发送到远程地址。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>不敢说是最完整的传参方案，但绝对敢保证是最正确的，因为所有的传参方式都经过 360° 官方检验。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/12/07/%E7%9B%AE%E5%89%8D%E4%B8%BA%E6%AD%A2%E5%85%A8%E7%BD%91%E6%9C%80%E5%85%A8%E7%9A%84-SpringBoot-%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E6%96%B9%E6%A1%88/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%BD%AC%E8%BD%BD/" rel="tag">转载</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/12/10/%E5%A6%82%E4%BD%95%E5%9C%A8CentOS-7-Fedora-31-30-29%E4%B8%8A%E5%AE%89%E8%A3%85ELK-Stack/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            如何在CentOS 7 / Fedora 31/30/29上安装ELK Stack
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/12/07/Spring-Boot%EF%BC%9A%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Spring Boot：传递参数</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

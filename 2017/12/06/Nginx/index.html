@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Nginx |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Nginx"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Nginx
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2017/12/06/Nginx/" class="article-date">
+  <time datetime="2017-12-06T09:22:22.000Z" itemprop="datePublished">2017-12-06</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">9 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h2 id="1-什么是Nginx"><a href="#1-什么是Nginx" class="headerlink" title="1. 什么是Nginx"></a>1. 什么是Nginx</h2><p>Nginx</p>
+<ul>
+<li>俄罗斯人开发的一个Web服务器软件。</li>
+<li>Nginx 具有极好的并发性能！资源占用低。</li>
+<li>用于解决高并发问题<ul>
+<li>利用Nginx与应用服务器组建反向代理负载均衡服务器集群。</li>
+<li>Nginx 充当前置代理机</li>
+</ul>
+</li>
+<li>据测算Nginx本身能够支持500000并发！</li>
+</ul>
+<h2 id="2-Web-Server"><a href="#2-Web-Server" class="headerlink" title="2. Web Server"></a>2. Web Server</h2><ul>
+<li>开源Web Server(Windows Linux Unix)<ul>
+<li>Nginx Apache</li>
+</ul>
+</li>
+<li>商业服务器<ul>
+<li>MS IIS Server （Windows）</li>
+</ul>
+</li>
+<li>Java<ul>
+<li>开源 Tomcat Jetty JBoss</li>
+<li>商业 IBM WebSpare， Oracle WebLogic</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-安装Nginx"><a href="#3-安装Nginx" class="headerlink" title="3. 安装Nginx"></a>3. 安装Nginx</h2><h3 id="3-1-使用yum-安装nginx"><a href="#3-1-使用yum-安装nginx" class="headerlink" title="3.1 使用yum 安装nginx"></a>3.1 使用yum 安装nginx</h3><ol>
+<li><p>安装</p>
+<p>yum install nginx</p>
+<span id="more"></span>
+</li>
+<li><p>启动</p>
+<p>systemctl start nginx.service</p>
+</li>
+<li><p>配置文件</p>
+<p>&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</p>
+</li>
+</ol>
+<h3 id="3-2-使用源码安装"><a href="#3-2-使用源码安装" class="headerlink" title="3.2 使用源码安装"></a>3.2 使用源码安装</h3><ol>
+<li><p>下载源码：</p>
+<p>在 <a target="_blank" rel="noopener" href="http://nginx.org/en/download.html">http://nginx.org/en/download.html</a> 找到下载地址<br>wget <a target="_blank" rel="noopener" href="http://nginx.org/download/nginx-1.12.2.tar.gz">http://nginx.org/download/nginx-1.12.2.tar.gz</a></p>
+</li>
+<li><p>编译， 需要安装 gcc openssl 包</p>
+<p>tar -zxvf nginx-1.12.0.tar.gz</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">useradd nginx</span><br><span class="line">cd nginx-<span class="number">1.12</span><span class="selector-class">.0</span></span><br><span class="line">./configure <span class="attr">--prefix</span>=/usr/local/nginx <span class="attr">--user</span>=nginx <span class="attr">--group</span>=nginx <span class="attr">--with-http_ssl_module</span></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动nginx（使用root用户）<br>​	<br>cd &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;sbin<br>.&#x2F;nginx -c &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;nginx.conf</p>
+</li>
+<li><p>检查Nginx是否正在运行</p>
+<p>ps -A | grep nginx<br>netstat -utnalp | grep 80</p>
+</li>
+<li><p>配置防火墙，开启 80 端口</p>
+<p>firewall-cmd –permanent –add-port&#x3D;80&#x2F;tcp<br>firewall-cmd –reload</p>
+</li>
+<li><p>再另外一个电脑上用浏览器访问服务器</p>
+</li>
+</ol>
+<h2 id="4-Nginx-的配置文件"><a href="#4-Nginx-的配置文件" class="headerlink" title="4. Nginx 的配置文件"></a>4. Nginx 的配置文件</h2><p>编译安装的配置文件： </p>
+<pre><code>/usr/local/nginx/conf/nginx.conf
+</code></pre>
+<p>yum安装的配置文件：</p>
+<pre><code>/etc/nginx/conf/nginx.conf
+</code></pre>
+<p>Nginx 配置文件结构：</p>
+<pre><code>通用参数
+http&#123;
+    http 参数
+
+    server&#123;
+        虚拟机参数
+        location&#123;
+            文件位置
+        &#125;
+    &#125;
+
+    server&#123;
+        ...
+    &#125;
+&#125;
+</code></pre>
+<h2 id="5-通用参数"><a href="#5-通用参数" class="headerlink" title="5. 通用参数"></a>5. 通用参数</h2><pre><code>user  nginx;  //Nginx的启动用户
+worker_processes  1; //Nginx 进程数量，建议按照处理器个数设置
+
+error_log  logs/error.log; //错误日志文件
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+pid        logs/nginx.pid; //保存nginx进程号的文件
+
+events &#123;
+    worker_connections  2048; //每个进程可以开启的线程数
+&#125;
+</code></pre>
+<blockquote>
+<p>nginx配置文件中的#表示注释</p>
+</blockquote>
+<h2 id="6-nginx-HTTP通用参数"><a href="#6-nginx-HTTP通用参数" class="headerlink" title="6. nginx HTTP通用参数"></a>6. nginx HTTP通用参数</h2><pre><code>include       mime.types;  //配置文件任何位置都可以使用include
+default_type  application/octet-stream;
+access_log  logs/access.log  main; //保存访问日志
+sendfile        on;  //发生文件
+#tcp_nopush     on;
+#keepalive_timeout  0;
+keepalive_timeout  65; //设置服务器保持连接等待时间
+#gzip  on;	//支持响应压缩技术
+</code></pre>
+<h2 id="7-nginx-虚拟主机设置"><a href="#7-nginx-虚拟主机设置" class="headerlink" title="7. nginx 虚拟主机设置"></a>7. nginx 虚拟主机设置</h2><p>虚拟主机： 复用同一台服务器，为多个网站提供服务。 对于客户端干就是两个主机一样。</p>
+<p>虚拟主机方式有3种</p>
+<ol>
+<li>基于IP的虚拟主机</li>
+<li>基于端口的虚拟主机</li>
+<li>基于域名的虚拟主机，这个方式最常用的方式。</li>
+</ol>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/abi2kaKmIc.png" alt=" "></p>
+<p>案例测试步骤:</p>
+<ol>
+<li><p>客户端利用hosts文件模拟解析域名，实际工作中可以利用DNS服务解析域名：</p>
+<p>修改客户端&#x2F;etc&#x2F;hosts文件，添加：</p>
+<pre><code>192.168.22.21   laowang.com
+192.168.22.21   laoli.com
+</code></pre>
+</li>
+<li><p>修改服务器nginx配置文件</p>
+<p>修改服务器端 &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;nginx.conf </p>
+<p>添加：</p>
+<pre><code>server &#123;
+    listen       80;
+    server_name  laowang.com;
+    charset      utf-8;
+    location / &#123;
+        root    web1;
+        index   index.html  index.htm;
+    &#125;
+&#125;
+
+server &#123;
+    listen       80;
+    server_name  laoli.com;
+    charset      utf-8;
+    location / &#123;
+        root    web2;
+        index   index.html  index.htm;
+    &#125;
+&#125;
+</code></pre>
+</li>
+<li><p>利用nginx 测试配置文件：</p>
+<p>nginx -t &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;nginx.conf</p>
+</li>
+<li><p>重写加载配置文件：</p>
+<p>nginx -s reload</p>
+<pre><code>或者关闭再重写启动
+
+nginx -s stop
+nginx -c /usr/local/nginx/conf/nginx.conf
+</code></pre>
+</li>
+<li><p>客户端测试，利用浏览器访问域名或者:</p>
+<p>  wget <a target="_blank" rel="noopener" href="http://laowang.com/index.html">http://laowang.com/index.html</a><br>  wget <a target="_blank" rel="noopener" href="http://laoli.com/index.html">http://laoli.com/index.html</a></p>
+</li>
+</ol>
+<h2 id="8-在阿里云配置Nginx虚拟主机"><a href="#8-在阿里云配置Nginx虚拟主机" class="headerlink" title="8. 在阿里云配置Nginx虚拟主机"></a>8. 在阿里云配置Nginx虚拟主机</h2><ol>
+<li>配置域名解析：</li>
+</ol>
+<p>  <img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/LgBgCIleIb.png" alt=" "></p>
+<pre><code>  解析两个域名
+  t1.canglaoshi.org  --&gt;  ip
+  t2.canglaoshi.org  --&gt;  ip
+</code></pre>
+<ol start="2">
+<li><p>安装 nginx</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install nginx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改nginx配置文件 &#x2F;etc&#x2F;nginx&#x2F;nginx.conf：<br>   ​	</p>
+   <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span>  <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span> t1.canglaoshi.org;</span><br><span class="line">    <span class="section">location</span> / &#123;</span><br><span class="line">        <span class="attribute">root</span> web1;</span><br><span class="line">        <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span>  <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span> t2.canglaoshi.org;</span><br><span class="line">    <span class="section">location</span> / &#123;</span><br><span class="line">        <span class="attribute">root</span> web2;</span><br><span class="line">        <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>   ​</p>
+</li>
+<li><p>添加文件夹和文件</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">cd</span> /<span class="selector-tag">usr</span>/<span class="selector-tag">share</span>/<span class="selector-tag">nginx</span></span><br><span class="line"><span class="selector-tag">mkdir</span> <span class="selector-tag">web1</span></span><br><span class="line"><span class="selector-tag">mkdir</span> <span class="selector-tag">web2</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>添加文件 web1&#x2F;index.html</p>
+</blockquote>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Hello</span> <span class="selector-tag">web1</span>!</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>添加文件 web2&#x2F;index.html</p>
+</blockquote>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Hello</span> <span class="selector-tag">web2</span>!</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试配置 </p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">nginx</span> <span class="selector-tag">-t</span> <span class="selector-tag">-c</span> /<span class="selector-tag">etc</span>/<span class="selector-tag">nginx</span>/<span class="selector-tag">nginx</span><span class="selector-class">.conf</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动nginx </p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">systemctl</span> <span class="selector-tag">start</span> <span class="selector-tag">nginx</span><span class="selector-class">.service</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>停止 </p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">systemctl</span> <span class="selector-tag">stop</span> <span class="selector-tag">nginx</span><span class="selector-class">.service</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启动</p>
+<p>systemctl restart nginx.service</p>
+</li>
+<li><p>浏览器测试：</p>
+ <figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://t1.canglaoshi.org</span><br><span class="line">http://t2.canglaoshi.org</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="9-HTTPS-虚拟主机"><a href="#9-HTTPS-虚拟主机" class="headerlink" title="9. HTTPS 虚拟主机"></a>9. HTTPS 虚拟主机</h2><p>支持HTTPS加密的虚拟主机，应用十分广泛：</p>
+<p>其原理是在SSL加密的TCP通信基础上进行 HTTP 通信：</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/g2Ce5i11mg.png" alt=" "></p>
+<p>服务器配置步骤： </p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/AkbICmID6E.png" alt=" "></p>
+<ol>
+<li><p>重新编译nginx增加ssl模块</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">useradd</span> nginx</span><br><span class="line">cd /usr/local/nginx/nginx-<span class="number">1</span>.<span class="number">12</span>.<span class="number">0</span></span><br><span class="line">./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_ssl_module</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更新nginx.conf增加ssl主机配置</p>
+<p>​</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">443</span>;</span><br><span class="line">    <span class="attribute">server_name</span> tts.canglaoshi.org;</span><br><span class="line">    <span class="attribute">ssl</span> <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">ssl_certificate</span>   cert/<span class="number">214438499540580</span>.pem;</span><br><span class="line">    <span class="attribute">ssl_certificate_key</span>  cert/<span class="number">214438499540580</span>.key;</span><br><span class="line">    <span class="attribute">ssl_session_timeout</span> <span class="number">5m</span>;</span><br><span class="line">    <span class="attribute">ssl_ciphers</span> ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;</span><br><span class="line">    <span class="attribute">ssl_protocols</span> TLSv1 TLSv1.<span class="number">1</span> TLSv1.<span class="number">2</span>;</span><br><span class="line">    <span class="attribute">ssl_prefer_server_ciphers</span> <span class="literal">on</span>;</span><br><span class="line">    <span class="section">location</span> / &#123;</span><br><span class="line">        <span class="attribute">root</span> web3;</span><br><span class="line">        <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载 证书文件 cert.zip 释放 到 &#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;cert</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/nginx/conf/<span class="attribute">cert</span></span><br><span class="line">						|-- <span class="number">214438499540580</span>.pem</span><br><span class="line">						|-- <span class="number">214438499540580</span>.key</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加web文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/nginx/web3/index.html</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在防火墙上开启端口 443</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --permanent --add-port=443/tcp</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试nginx配置文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nginx -t -c /usr/local/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关闭nginx重新启动</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nginx</span> -s stop</span><br><span class="line">nginx -c /usr/local/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改客户端 hosts 文件解析域名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.22.21  tts.canglaoshi.org</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>用浏览器测试</p>
+<p> <a target="_blank" rel="noopener" href="https://tts.canglaoshi.org/">https://tts.canglaoshi.org</a><br> 或者<br> wget <a target="_blank" rel="noopener" href="https://tts.canglaoshi.org/index.html">https://tts.canglaoshi.org/index.html</a></p>
+</li>
+</ol>
+<h3 id="9-1-添加用户功能"><a href="#9-1-添加用户功能" class="headerlink" title="9.1 添加用户功能"></a>9.1 添加用户功能</h3><p>命令：</p>
+<pre><code>useradd 用户名
+</code></pre>
+<p>案例：</p>
+<pre><code>useradd tom
+cat /etc/passwd|grep tom
+</code></pre>
+<h3 id="9-2-为用户设置密码："><a href="#9-2-为用户设置密码：" class="headerlink" title="9.2 为用户设置密码："></a>9.2 为用户设置密码：</h3><p>命令</p>
+<pre><code>passwd 用户名
+</code></pre>
+<p>案例：</p>
+<pre><code>passwd tom
+</code></pre>
+<h3 id="9-3-删除用户"><a href="#9-3-删除用户" class="headerlink" title="9.3 删除用户"></a>9.3 删除用户</h3><p>命令</p>
+<pre><code>userdel 用户名
+</code></pre>
+<p>案例：</p>
+<pre><code>userdel tom
+</code></pre>
+<h2 id="10-反向代理"><a href="#10-反向代理" class="headerlink" title="10. 反向代理"></a>10. 反向代理</h2><p>利用服务器代理用户上网称为正向代理，相反利用服务器代理应用服务器提供网络服务称为反向代理。</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/idfCk0j4d4.png" alt=" "></p>
+<p>搭建反向代理服务器群的目的就是为了解决“高并发”问题。</p>
+<h2 id="11-Nginx反向代理集群搭建"><a href="#11-Nginx反向代理集群搭建" class="headerlink" title="11. Nginx反向代理集群搭建"></a>11. Nginx反向代理集群搭建</h2><p>搭建环境设计：</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/l4FaK5l46D.png" alt="nginx"></p>
+<p>搭建步骤：</p>
+<ol>
+<li><p>配置并且启动Tomcat服务器</p>
+<ol>
+<li>更新Tomcat的首页文件 tomcat&#x2F;webapps&#x2F;ROOT&#x2F;index.jsp</li>
+<li>设置Tomcat启动脚本执行权限： <code>chmod +x tomcat/bin/*.sh</code></li>
+<li>在防火墙上开启 8080 端口</li>
+<li>启动Tomcat <code>tomcat/bin/startup.sh</code></li>
+<li>检查tomcat是否成功提供服务</li>
+</ol>
+</li>
+<li><p>配置第二台tomcat</p>
+</li>
+<li><p>更新添加集群配置文件 toms.conf</p>
+</li>
+</ol>
+  <figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">upstream</span> toms &#123;</span><br><span class="line">	<span class="attribute">server</span> <span class="number">192.168.27.113:8080</span>;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.140:8080</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span> toms.canglaoshi.org;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">access_log</span>  logs/toms.log;</span><br><span class="line">    <span class="attribute">error_log</span>  logs/toms.<span class="literal">error</span>.log;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">index</span>  index.html index.htm index.jsp ;</span><br><span class="line"></span><br><span class="line">    <span class="comment">## send request back to apache ##</span></span><br><span class="line">    <span class="section">location</span> / &#123;</span><br><span class="line">        <span class="attribute">proxy_redirect</span>     <span class="literal">off</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span>   Host             <span class="variable">$host</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span>   X-Real-IP        <span class="variable">$remote_addr</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span>   X-Forwarded-For  <span class="variable">$proxy_add_x_forwarded_for</span>;</span><br><span class="line">        <span class="attribute">proxy_next_upstream</span> <span class="literal">error</span> timeout invalid_header http_500 http_502 http_503 http_504;</span><br><span class="line">        <span class="attribute">proxy_max_temp_file_size</span> <span class="number">0</span>;</span><br><span class="line">        <span class="attribute">proxy_connect_timeout</span>      <span class="number">90</span>;</span><br><span class="line">        <span class="attribute">proxy_send_timeout</span>         <span class="number">90</span>;</span><br><span class="line">        <span class="attribute">proxy_read_timeout</span>         <span class="number">90</span>;</span><br><span class="line">        <span class="attribute">proxy_buffer_size</span>          <span class="number">4k</span>;</span><br><span class="line">        <span class="attribute">proxy_buffers</span>              <span class="number">4</span> <span class="number">32k</span>;</span><br><span class="line">        <span class="attribute">proxy_busy_buffers_size</span>    <span class="number">64k</span>;</span><br><span class="line">        <span class="attribute">proxy_temp_file_write_size</span> <span class="number">64k</span>;</span><br><span class="line">       </span><br><span class="line">	<span class="attribute">proxy_pass</span> http://toms;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><p>更新 nginx 配置文件nginx.conf，引用toms.conf</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">include</span> toms.conf;	</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>测试 nginx 配置文件</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nginx</span> -t -c /usr/local/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果测试出现问题，请根据提示更正</p>
+</blockquote>
+</li>
+<li><p>重新启动Nginx</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">nginx</span> -s reload</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更新客户端hosts文件，解析域名</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.27.63 toms.canglaoshi.org</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>windows的hosts文件位置: <code>C:/Windows/system32/driver/etc</code></p>
+</blockquote>
+</li>
+<li><p>利用浏览器访问，测试</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://toms.canglaoshi.org</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="12-Nginx-的负载均衡分配方案"><a href="#12-Nginx-的负载均衡分配方案" class="headerlink" title="12. Nginx 的负载均衡分配方案"></a>12. Nginx 的负载均衡分配方案</h2><p>Nginx 包含4种分配策略</p>
+<ol>
+<li>轮询（默认）逐个转发请求<ul>
+<li>可以指定权重，权重大的服务器分担的任务重</li>
+<li>weight 指定权重</li>
+</ul>
+</li>
+<li>ip_hash 根据客户端的IP地址分配固定的服务器<ul>
+<li>可以将用户与服务对应有利于保持Session</li>
+</ul>
+</li>
+<li>fair：需要使用 fair模块</li>
+<li>url_hash: 第三方模块，根据URL映射到固定服务器</li>
+</ol>
+<p>ip_hash 原理:</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180123/d742Cfi8K0.png" alt="ip-hash"></p>
+<h3 id="12-1-服务器配置"><a href="#12-1-服务器配置" class="headerlink" title="12.1 服务器配置"></a>12.1 服务器配置</h3><p>配置轮询权重</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">upstream</span> toms &#123;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.113:8080</span> weight=<span class="number">10</span>;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.140:8080</span> weight=<span class="number">20</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>撤掉服务器</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">upstream</span> toms &#123;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.113:8080</span> weight=<span class="number">10</span>;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.140:8080</span> down;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>备份服务器 </p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">upstream</span> toms &#123;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.113:8080</span> weight=<span class="number">10</span>;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.140:8080</span> backup;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>失败时间</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">upstream</span> toms &#123;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.113:8080</span> weight=<span class="number">10</span>;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.168.27.140:8080</span> ;</span><br><span class="line">	<span class="attribute">fail_timeout</span> <span class="number">30</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2017/12/06/Nginx/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2017/12/06/Redis/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Redis
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2017/12/01/%E5%9F%BA%E4%BA%8ESSM%E7%9A%84%E4%BA%8B%E5%8A%A1/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">基于SSM的事务</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

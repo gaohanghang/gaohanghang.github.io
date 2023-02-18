@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>如何设计一个电商平台积分兑换系统？ |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-如何设计一个电商平台积分兑换系统？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  如何设计一个电商平台积分兑换系统？
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/07/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E7%94%B5%E5%95%86%E5%B9%B3%E5%8F%B0%E7%A7%AF%E5%88%86%E5%85%91%E6%8D%A2%E7%B3%BB%E7%BB%9F%EF%BC%9F/" class="article-date">
+  <time datetime="2019-06-07T06:10:55.000Z" itemprop="datePublished">2019-06-07</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">11 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="如何设计一个电商平台积分兑换系统？"><a href="#如何设计一个电商平台积分兑换系统？" class="headerlink" title="如何设计一个电商平台积分兑换系统？"></a>如何设计一个电商平台积分兑换系统？</h1><blockquote>
+<p>公众号：狸猫技术窝</p>
+<p>作者：原子弹大侠，高级技术专家</p>
+</blockquote>
+<p><strong>目录</strong></p>
+<p>1.拉开差距的一类面试题 </p>
+<p>2.业务需求描述</p>
+<p>3.对业务流程的思考</p>
+<p>4.物流配送进度查询，考虑到了吗？</p>
+<p>5.事务的保证</p>
+<p>6.消息中间件的引入</p>
+<p>7.重试机制的引入</p>
+<p>8.引入幂等性机制</p>
+<p>9.对这类面试题的总结</p>
+<h3 id="1、拉开差距的一类面试题"><a href="#1、拉开差距的一类面试题" class="headerlink" title="1、拉开差距的一类面试题"></a>1、拉开差距的一类面试题</h3><p>现在面试经常会遇到一类问题，面试官让你现场设计出某个业务场景下的一个系统，这个系统往往在业务或者技术上有一定难度，主要考察的是你多年积淀下来的系统设计的能力以及技术思维的能力。</p>
+<p>类似的这类系统设计题目很多，比如：</p>
+<ul>
+<li>请你设计一个秒杀系统</li>
+<li>请你设计一个支撑百万用户的IM消息系统</li>
+<li>请你设计一个微信红包系统</li>
+<li>请你设计一个电商平台积分兑换系统</li>
+</ul>
+<p>这些题目本身都是开放式命题，没有固定答案。遇到这种问题，一定不要慌，关键是在现场要思路清楚，有理有据，慢慢分析。</p>
+<p>本文就其中一个问题：<strong>设计一个电商平台的积分兑换系统</strong>，来详细阐述一下。文中会详细指出在系统设计的时候要考虑哪些要点，给大家展示出来这类问题思考的一个过程。</p>
+<h3 id="2、业务需求的描述"><a href="#2、业务需求的描述" class="headerlink" title="2、业务需求的描述"></a>2、业务需求的描述</h3><p>假设面试官现在给出来对于这个电商平台的积分兑换系统的相关需求如下：</p>
+<ol>
+<li>用户在电商平台里平时通过购买商品、晒单评论可以有不断的积累积分</li>
+<li>积累到足够的积分后，就可以在电商平台的积分兑换页面中，选择使用自己的积分来兑换一些礼品</li>
+</ol>
+<p>需求其实就这么简单，那么面试官说了，针对这个业务场景给出你对这个机制实现的思考过程以及这里要注意的一些地方。</p>
+<h3 id="3、对业务流程的思考"><a href="#3、对业务流程的思考" class="headerlink" title="3、对业务流程的思考"></a>3、对业务流程的思考</h3><p>如何思考？首先，用户不停的购买商品以及晒单评论，会不断的获取积分，那么是不是需要一张积分表，专门用来存储每个用户的积分呢？</p>
+<p>没错，这个表是一定需要的，可以现场给出下述的表结构。</p>
+<p><strong>积分表</strong>：</p>
+<ul>
+<li><strong>id</strong>（自增id主键）</li>
+<li><strong>user_id</strong>（用户id）</li>
+<li><strong>credit</strong>（积分）</li>
+</ul>
+<p>继续来看，假设在积分兑换页面，用户选择用自己的20000积分兑换一瓶洗发水，后台的逻辑应该如何设计呢？</p>
+<p>这个也是必须得现场给出一个思考过程的，这个其实看起来简单，但是很多年纪较轻，经验不足的朋友，可能没法快速思考出来。</p>
+<p>首先你要用20000积分去进行兑换，那么一定是必须要在积分表里扣减掉这20000积分的吧？所以在流程设计中，首先就得有一个20000积分扣减的过程。</p>
+<p>其次，你用这20000积分兑换了什么东西呢？</p>
+<p>所以你是不是还需要一张单独的表，叫做积分兑换记录表，记录下来你这个用户本次用多少积分兑换了一件什么商品？</p>
+<p>这个积分兑换记录表的结构如下所示，你是不是需要在下面的那个表里插入一条记录，说这个用户本次用多少积分兑换了哪个商品？</p>
+<p><strong>积分兑换表</strong>：</p>
+<ul>
+<li><strong>id</strong>（自增id主键）</li>
+<li><strong>user_id</strong>（用户id）</li>
+<li><strong>exchanged_credit</strong>（用于兑换的积分）</li>
+<li><strong>product_id</strong>（兑换的商品id）</li>
+</ul>
+<p>最后，光是插入上述那条积分兑换记录是不够的，你必须得调用仓储业务模块的接口，通知仓储业务模块新增一条发货申请，而且应该是积分兑换对应的发货申请，这样保证仓库可以准备对应的商品进行发货。</p>
+<p>这个发货申请大致对应如下的表结构：</p>
+<p><strong>发货申请表</strong>：</p>
+<ul>
+<li><strong>id</strong>（自增id主键）</li>
+<li><strong>type</strong>（发货类型，1：购买，2：积分兑换）</li>
+<li><strong>credit_exchange_id</strong>（积分兑换表的id）</li>
+<li><strong>product_id</strong>（要发货的商品id）</li>
+</ul>
+<p>其实这里的发货申请表简化了很多，按理说还得有发货商品的数量等等字段，但是这里可以简化处理也没事，毕竟是面试现场。</p>
+<p>简单画出来这个流程大致如下所示。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190607144159.png"></p>
+<span id="more"></span>
+
+<h3 id="4、物流配送进度查询，考虑到了吗？"><a href="#4、物流配送进度查询，考虑到了吗？" class="headerlink" title="4、物流配送进度查询，考虑到了吗？"></a>4、物流配送进度查询，考虑到了吗？</h3><p>如果把上面那整个业务流程给面试官说了，就完事了吗？</p>
+<p>当然不是！</p>
+<p>你可以站在用户的角度考虑一下，你是不是肯定还需要查看积分兑换的记录？这个在积分兑换表里可以查看到你用多少积分兑换了什么商品。</p>
+<p>但是你兑换商品的物流配送进度，能查看到吗？不能。所以你应该在业务流程里再考虑进去对应的物流配送的逻辑。</p>
+<p>通常来说一个基本的逻辑，就是在生产发货申请单的时候，需要调用第三方物流公司的接口申请一个物流单，这样仓库管理员打包准备好商品，坐等物流公司商品收快递就可以了。</p>
+<p>物流公司会根据物流单去进行配送，这个配送地址当然是用户自己在电商平台选择的自己的某个地址。</p>
+<p>此时发货申请单的表结构是不是如下所示？</p>
+<p><strong>发货申请表</strong>：</p>
+<ul>
+<li><strong>id</strong>（自增id主键）</li>
+<li><strong>type</strong>（发货类型，1：购买，2：积分兑换）</li>
+<li><strong>credit_exchange_id</strong>（积分兑换表的id）</li>
+<li><strong>product_id</strong>（要发货的商品id）</li>
+<li><strong>express_no</strong>（物流单号）</li>
+</ul>
+<p>所以在生产发货申请单时，先得调用第三方物流公司的接口申请一个物流单，这样发货申请单中是有一个物流单号的，而且每个积分兑换记录都通过id跟发货申请单关联起来。</p>
+<p>这样在页面上对每个兑换记录，是不是可以找到发货申请单中的物流单号，然后根据物流单号调用第三方物流公司的接口，去获取配送的进度？</p>
+<p>这就是一个非常典型的业务系统的技术实现的逻辑思考，一个经验丰富合格的工程师，往往都具备了一定的业务思维，可以很好的根据业务系统中的用户逻辑来考虑，反推自己的系统技术实现逻辑。</p>
+<p>上述整个过程，如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190607144221.png"></p>
+<h3 id="5、事务的保证"><a href="#5、事务的保证" class="headerlink" title="5、事务的保证"></a>5、事务的保证</h3><p>业务流程整个捋顺之后，接下来就涉及到技术的考虑了。你得考虑一下，这种业务系统里怎么能没有事务呢？</p>
+<p>扣减积分、新增积分兑换记录、新增发货申请单，这三个步骤必须是要么一起完成，要么一起失败的。也就是说，这三个步骤必须是在一个事务里的。</p>
+<p>现在有一个问题，对一个电商平台自身的业务系统来说，仅仅包含积分服务。但是仓储服务一般是独立部署的一套系统，或者是一个独立的服务。</p>
+<p>也就是说，扣减积分和新增积分兑换记录可以在一个服务里是一个事务，但是新增发货申请单，他是在另外一个服务里的，这个事务如何保证呢？</p>
+<p>有朋友可能马上回答：用分布式事务啊！先别急，咱们可以先用最简单的模式来实现一下。</p>
+<p>比如积分服务在一个事务代码块中，先执行扣减积分、新增积分兑换记录两个步骤。</p>
+<p>然后记住，在事务代码块中，最后一步调用仓储服务的接口，如果接口调用成功，那么就可以提交事务了。如果接口调用失败，那么就抛异常让事务回滚，这样可以不可以？</p>
+<p>这个流程如下所示：</p>
+<p>积分服务 事务 {</p>
+<p>-&gt; 扣减积分</p>
+<p>-&gt; 新增积分兑换记录</p>
+<p>-&gt; 调用仓储服务</p>
+<p>}</p>
+<h3 id="6、消息中间件的引入"><a href="#6、消息中间件的引入" class="headerlink" title="6、消息中间件的引入"></a>6、消息中间件的引入</h3><p>上述设计其实理论上是没问题的，但是这里你忽略了一个问题，在这个业务场景中，积分服务是没有必要同步调用仓储服务的。</p>
+<p>因为积分兑换是一个用户执行的操作，假设你的仓储服务在生成发货申请单的时候调用第三方物流公司的接口，被卡住了，或者失败了，怎么办？</p>
+<p>此时可能导致用户在页面上看到积分兑换按钮点击之后，卡在那儿可能几十秒都无法执行成功，所以这个系统如此设计是错误的。</p>
+<p>那应该怎么做呢？你必须得在这里引入消息中间件进行异步化的解耦，保证用户点击积分兑换按钮之后，尽快返回。如下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190607144257.png"></p>
+<h3 id="7、重试机制的引入"><a href="#7、重试机制的引入" class="headerlink" title="7、重试机制的引入"></a>7、重试机制的引入</h3><p>到这里就OK了吗？还没呢！</p>
+<p>一旦引入消息中间件之后，<strong>好处</strong>是用户点击积分兑换按钮，直接就是在积分服务里扣减积分以及新增积分兑换记录，然后发送一条消息到消息中间件里就结束了，速度很快，保证了用户体验。</p>
+<p>但是<strong>坏处</strong>就是，万一仓储服务执行新增发货申请失败了怎么办？</p>
+<p>这个时候就需要引入可靠消息服务了，他需要去保证仓储服务一定会完成新增发货申请这个事。</p>
+<p>具体的流程如下：</p>
+<ul>
+<li>积分服务发送消息给可靠消息服务，可靠消息服务在消息表中新增记录，然后发送消息到MQ（消息中间件）</li>
+<li>然后仓储服务消费消息新增发货申请单，如果成功就回调可靠消息服务的一个接口说自己成功了，可靠消息服务就可以更新本地消息表中的记录状态为成功</li>
+<li>如果仓储服务长时间没通知可靠消息服务自己成功了，可靠消息服务不停的重试再次发送消息</li>
+</ul>
+<p>通过这样的设计，就可以保证可靠消息服务一定会无限次重试保证让仓储服务成功执行。再加上重试机制后，整个流程图如下所示：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190607144325.png"></p>
+<h3 id="8、引入幂等性机制"><a href="#8、引入幂等性机制" class="headerlink" title="8、引入幂等性机制"></a>8、引入幂等性机制</h3><p>最后一个问题，如果仓储服务卡在第三方物流系统申请物流单的环节，长时间阻塞，所以没回调通知可靠消息服务。</p>
+<p>但是可靠消息服务过了一段时间，感觉没收到回调通知，就自己重试发送了消息，这样岂不是会让仓储服务新增两条发货申请单？</p>
+<p>因此我们还要保证仓储服务新增发货申请单的幂等性，其实也非常简单，回顾一下发货申请单表的结构：</p>
+<p><strong>发货申请表</strong>：</p>
+<ul>
+<li><strong>id</strong>（自增id主键）</li>
+<li><strong>type</strong>（发货类型，1：购买，2：积分兑换）</li>
+<li><strong>credit_exchange_id</strong>（积分兑换表的id）</li>
+<li><strong>product_id</strong>（要发货的商品id）</li>
+<li><strong>express_no</strong>（物流单号）</li>
+</ul>
+<p>只要在“credit_exchange_id”字段上建立一个唯一索引就可以了，保证每个积分兑换记录只能创建一条发货申请单，如果重复创建就会被唯一索引被阻止，这样就可以保证这个行为的幂等性了。</p>
+<p>至此，对这道系统设计题目的回答，全部结束。</p>
+<h3 id="9、对这类面试题的总结"><a href="#9、对这类面试题的总结" class="headerlink" title="9、对这类面试题的总结"></a>9、对这类面试题的总结</h3><p>通过这篇文章的分析，可以看到对这类开放式面试题的一个回答思路，首先得从业务上来考虑这个系统应该有哪些业务组成部分，如何实现业务流程？</p>
+<p>其次就是你得考虑面临对应的业务场景的时候，这个系统会有哪些技术挑战，各个环节可能会有哪些技术问题？</p>
+<p>然后应该针对这些技术挑战和技术问题，现场给出一些你的思路。只要给出大致的思路就可以，比如应该往哪个方向去解决，应该引入哪些机制。</p>
+<p>说实话，大部分人是没实际做过这类系统的。比如让你设计一个秒杀系统，如何设计？</p>
+<p>试问，国内有多少人真的做过秒杀系统？其实面试官只不过是通过这个问题考察你的技术面、技术功底，对各种常规技术方案的积累，以及现场分析业务，分析技术问题，进而基于你过去的技术积累，给出合理解决方案的一个能力。</p>
+<p>这种能力，是一个高级Java工程师必须具备的能力，因为如果你是一个有5年以上经验的高级工程师，那你必须在团队里能独立负责一个系统。</p>
+<p>此时你必须有这个能力，对项目面临的问题，要能够分析业务，分析技术问题，然后给出合理的技术方案和架构设计。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/06/07/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E7%94%B5%E5%95%86%E5%B9%B3%E5%8F%B0%E7%A7%AF%E5%88%86%E5%85%91%E6%8D%A2%E7%B3%BB%E7%BB%9F%EF%BC%9F/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag">系统设计</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/06/07/docsify%E4%BD%BF%E7%94%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            docsify使用
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/06/05/IM%E8%A1%A8%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">IM表结构设计</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

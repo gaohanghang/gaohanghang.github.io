@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>JDK13新特性详解 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-JDK13新特性详解"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  JDK13新特性详解
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/10/15/JDK13%E6%96%B0%E7%89%B9%E6%80%A7%E8%AF%A6%E8%A7%A3/" class="article-date">
+  <time datetime="2019-10-15T14:32:02.000Z" itemprop="datePublished">2019-10-15</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a target="_blank" rel="noopener" href="https://my.oschina.net/mdxlcj/blog/3107021">https://my.oschina.net/mdxlcj/blog/3107021</a></p>
+</blockquote>
+<h2 id="1、switch优化更新"><a href="#1、switch优化更新" class="headerlink" title="1、switch优化更新"></a>1、switch优化更新</h2><p>JDK11以及之前的版本</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (day) &#123;</span><br><span class="line">    <span class="keyword">case</span> MONDAY:</span><br><span class="line">    <span class="keyword">case</span> FRIDAY:</span><br><span class="line">    <span class="keyword">case</span> SUNDAY:</span><br><span class="line">         System.out.println(<span class="number">6</span>);</span><br><span class="line">         <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> TUESDAY:</span><br><span class="line">        System.out.println(<span class="number">7</span>);</span><br><span class="line">        <span class="keyword">break</span>; <span class="keyword">case</span> THURSDAY:</span><br><span class="line">    <span class="keyword">case</span> SATURDAY:</span><br><span class="line">        System.out.println(<span class="number">8</span>);</span><br><span class="line">         <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> WEDNESDAY:</span><br><span class="line">         System.out.println(<span class="number">9</span>);</span><br><span class="line">         <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>JDK12版本</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (day) &#123;</span><br><span class="line">    <span class="keyword">case</span> MONDAY, FRIDAY, SUNDAY -&gt; System.out.println(<span class="number">6</span>);</span><br><span class="line">    <span class="keyword">case</span> TUESDAY -&gt; System.out.println(<span class="number">7</span>);</span><br><span class="line">    <span class="keyword">case</span> THURSDAY, SATURDAY -&gt; System.out.println(<span class="number">8</span>);</span><br><span class="line">    <span class="keyword">case</span> WEDNESDAY -&gt; System.out.println(<span class="number">9</span>);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>JDK13版本</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">howMany</span><span class="params">(<span class="type">int</span> k)</span> &#123;</span><br><span class="line">    System.out.println(</span><br><span class="line">        <span class="keyword">switch</span> (k) &#123;</span><br><span class="line">            <span class="keyword">case</span>  <span class="number">1</span> -&gt; <span class="string">&quot;one&quot;</span></span><br><span class="line">            <span class="keyword">case</span>  <span class="number">2</span> -&gt; <span class="string">&quot;two&quot;</span></span><br><span class="line">            <span class="keyword">default</span> -&gt; <span class="string">&quot;many&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2、文本块升级"><a href="#2、文本块升级" class="headerlink" title="2、文本块升级"></a>2、文本块升级</h2><h3 id="2-1、html例子"><a href="#2-1、html例子" class="headerlink" title="2.1、html例子"></a>2.1、html例子</h3><p>JDK13之前</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">html</span> <span class="operator">=</span> <span class="string">&quot;&lt;html&gt;\n&quot;</span> +</span><br><span class="line">              <span class="string">&quot;    &lt;body&gt;\n&quot;</span> +</span><br><span class="line">              <span class="string">&quot;        &lt;p&gt;Hello, world&lt;/p&gt;\n&quot;</span> +</span><br><span class="line">              <span class="string">&quot;    &lt;/body&gt;\n&quot;</span> +</span><br><span class="line">              <span class="string">&quot;&lt;/html&gt;\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>JDK13优化的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">html</span> <span class="operator">=</span> <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">              &lt;html&gt;</span></span><br><span class="line"><span class="string">                  &lt;body&gt;</span></span><br><span class="line"><span class="string">                      &lt;p&gt;Hello, world&lt;/p&gt;</span></span><br><span class="line"><span class="string">                  &lt;/body&gt;</span></span><br><span class="line"><span class="string">              &lt;/html&gt;</span></span><br><span class="line"><span class="string">              &quot;&quot;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2、SQL变化"><a href="#2-2、SQL变化" class="headerlink" title="2.2、SQL变化"></a>2.2、SQL变化</h3><p>JDK13之前</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> <span class="string">&quot;SELECT `EMP_ID`, `LAST_NAME` FROM `EMPLOYEE_TB`\n&quot;</span> +</span><br><span class="line">               <span class="string">&quot;WHERE `CITY` = &#x27;INDIANAPOLIS&#x27;\n&quot;</span> +</span><br><span class="line">               <span class="string">&quot;ORDER BY `EMP_ID`, `LAST_NAME`;\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>JDK13</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">                SELECT `EMP_ID`, `LAST_NAME` FROM `EMPLOYEE_TB`</span></span><br><span class="line"><span class="string">                WHERE `CITY` = &#x27;INDIANAPOLIS&#x27;</span></span><br><span class="line"><span class="string">                ORDER BY `EMP_ID`, `LAST_NAME`;</span></span><br><span class="line"><span class="string">               &quot;&quot;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3、解释"><a href="#2-3、解释" class="headerlink" title="2.3、解释"></a>2.3、解释</h3><p>文本块</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">line 1</span></span><br><span class="line"><span class="string">line 2</span></span><br><span class="line"><span class="string">line 3</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>相当于字符串文字</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;line 1\nline 2\nline 3\n&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3、动态CDS档案"><a href="#3、动态CDS档案" class="headerlink" title="3、动态CDS档案"></a>3、动态CDS档案</h2><p>目标：</p>
+<blockquote>
+<p>提高应用程序类 - 数据共享（AppCDS）的可用性。消除了用户进行试运行以创建每个应用程序的类列表的需要。</p>
+<p>-Xshare:dump</p>
+<p>使用类列表由该选项启用的静态归档应继续工作。这包括内置类加载器和用户定义的类加载器的类。</p>
+</blockquote>
+<h2 id="4、取消使用未使用的内存"><a href="#4、取消使用未使用的内存" class="headerlink" title="4、取消使用未使用的内存"></a>4、取消使用未使用的内存</h2><p>摘要：</p>
+<blockquote>
+<p>增强ZGC以将未使用的堆内存返回给操作系统。</p>
+</blockquote>
+<p>动机：</p>
+<blockquote>
+<p>ZGC目前没有取消提交并将内存返回给操作系统，即使该内存长时间未使用。对于所有类型的应用程序和环境，此行为并非最佳， 尤其是那些需要关注内存占用的应用程序和环境 例如：通过使用支付资源的容器环境。应用程序可能长时间处于空闲状态并与许多其 他应用程序共享或竞争资源的环境。应用程序在执行期间可能具有非常不同的堆空间要求。</p>
+<p>例如，启动期间所需的堆可能大于稳态执行期间稍后所需的堆。HotSpot中的其他垃圾收集器，如G1和Shenandoah，今天提供 了这种功能，某些类别的用户发现它非常有用。将此功能添加到ZGC将受到同一组用户的欢迎。</p>
+</blockquote>
+<h2 id="5、重新实现旧版套接字API"><a href="#5、重新实现旧版套接字API" class="headerlink" title="5、重新实现旧版套接字API"></a>5、重新实现旧版套接字API</h2><p>摘要：</p>
+<blockquote>
+<p>使用更简单，更现代的实现替换java.net.Socket和java.net.ServerSocketAPI 使用的底层实现，易于维护和调试。新的实 现很容易适应用户模式线程，也就是光纤，目前正在Project Loom中进行探索。</p>
+</blockquote>
+<p>动机：</p>
+<blockquote>
+<p>在java.net.Socket和java.net.ServerSocketAPI，以及它们的底层实现，可以追溯到JDK 1.0。实现是遗留Java和C代 码的混合，维护和调试很痛苦。该实现使用线程堆栈作为I&#x2F;O缓冲区，这种方法需要多次增加默认线程堆栈大小。该实现使用本机数据 结构来支持异步关闭，这是多年来微妙可靠性和移植问题的根源。该实现还有几个并发问题，需要进行大修才能正确解决。在未来的光 纤世界环境中，而不是在本机方法中阻塞线程，当前的实现不适用于目的。</p>
+</blockquote>
+<h2 id="6、FileSystems-newFileSystem新方法"><a href="#6、FileSystems-newFileSystem新方法" class="headerlink" title="6、FileSystems.newFileSystem新方法"></a>6、FileSystems.newFileSystem新方法</h2><p>核心库&#x2F; java.nio中添加了FileSystems.newFileSystem（Path，Map ）方法</p>
+<p>添加了三种新方法java.nio.file.FileSystems，以便更轻松地使用将文件内容视为文件系统的文件系统提供程序。</p>
+<span id="more"></span>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>、newFileSystem(Path)</span><br><span class="line"><span class="number">2</span>、newFileSystem(Path, Map&lt;String, ?&gt;)</span><br><span class="line"><span class="number">3</span>、newFileSystem(Path, Map&lt;String, ?&gt;, ClassLoader)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>添加为newFileSystem(Path, Map) 已使用现有2-arg newFileSystem(Path, ClassLoader)并指定类加载器 的代码创建源（但不是二进制）兼容性问题。null.例如，由于引用newFileSystem不明确，因此无法编译以下内容：</p>
+<p>FileSystem fs &#x3D; FileSystems.newFileSystem(path, null);</p>
+<p>为了避免模糊引用，需要修改此代码以将第二个参数强制转换为java.lang.ClassLoader。</p>
+</blockquote>
+<h2 id="7、nio新方法"><a href="#7、nio新方法" class="headerlink" title="7、nio新方法"></a>7、nio新方法</h2><p>核心库&#x2F; java.nio中新的java.nio.ByteBuffer批量获取&#x2F;放置方法转移字节而不考虑缓冲区位置。</p>
+<blockquote>
+<p>java.nio.ByteBufferjava.nio现在，其他缓冲区类型定义绝对批量get和put传输连续字节序列的方法，而不考虑或影响缓冲区位置。</p>
+</blockquote>
+<h2 id="8、核心库-x2F-java-time"><a href="#8、核心库-x2F-java-time" class="headerlink" title="8、核心库&#x2F; java.time"></a>8、核心库&#x2F; java.time</h2><blockquote>
+<p>新日本时代名称Reiwa，此更新中添加了代表新Reiwa时代的实例。与其他时代不同，这个时代没有公共领域。它可以通过调用 JapaneseEra.of(3)或获得JapaneseEra.valueOf(“Reiwa”)。JDK13及更高版本将有一个新的公共领域来代表这个时代。</p>
+<p>NewEra从2019年5月1日开始的日本时代的占位符名称“ ”已被新的官方名称取代。依赖占位符名称（请参阅JDK-8202088）获 取新时代单例（JapaneseEra.valueOf(“NewEra”)）的应用程序将不再起作用。请参阅JDK-8205432</p>
+</blockquote>
+<h2 id="9、核心库-x2F-java-util中：I18N"><a href="#9、核心库-x2F-java-util中：I18N" class="headerlink" title="9、核心库&#x2F; java.util中：I18N"></a>9、核心库&#x2F; java.util中：I18N</h2><p>支持Unicode 12.1，此版本将Unicode支持升级到12.1，其中包括以下内容：</p>
+<blockquote>
+<p>java.lang.Character支持12.1级的Unicode字符数据库，其中12.0从11.0开始增加554个字符，总共137,928个 字符。这些新增内容包括4个新脚本，总共150个脚本，以及61个新的表情符号字符。U+32FF SQUARE ERA NAME REIWA从 12.0开始，12.1只添加一个字符。java.text.Bidi和java.text.Normalizer类分别支持12.0级的Unicode标准附件， ＃9和＃15。java.util.regexpackage支持基于12.0级Unicode标准附件＃29的扩展字形集群。</p>
+</blockquote>
+<h2 id="10、热点-x2F-GC"><a href="#10、热点-x2F-GC" class="headerlink" title="10、热点&#x2F; GC"></a>10、热点&#x2F; GC</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">10.1</span> JEP <span class="number">351</span> ZGC取消提交未使用的存储器</span><br><span class="line"><span class="number">10.2</span> 添加了-XXSoftMaxHeapSize标志</span><br><span class="line"><span class="number">10.3</span> ZGC支持的最大堆大小从4TB增加到16TB</span><br></pre></td></tr></table></figure>
+
+<h2 id="11、安全库-x2F-java-security"><a href="#11、安全库-x2F-java-security" class="headerlink" title="11、安全库&#x2F; java.security"></a>11、安全库&#x2F; java.security</h2><blockquote>
+<p>11.1 该com.sun.security.crl.readtimeout系统属性设置为CRL检索的最大读取超时，单位为秒。如果尚未设置该属性，或者其值为负，则将其设置为默认值15秒。值0表示无限超时。</p>
+<p>11.2 新的keytool -showinfo -tls用于显示TLS配置信息的命令keytool -showinfo -tls添加了一个显示TLS配置信 息的新命令。</p>
+<p>11.3 SunMSCAPI提供程序现在支持以下一代加密（CNG）格式读取私钥。这意味着CNG格式的RSA和EC密钥可从Windows密钥 库加载，例如“Windows-MY”。与EC（签名算法SHA1withECDSA，SHA256withECDSA等等）也支持。</p>
+</blockquote>
+<h2 id="12、删除功能"><a href="#12、删除功能" class="headerlink" title="12、删除功能"></a>12、删除功能</h2><p>删除的部分功能：</p>
+<blockquote>
+<p>12.1 核心库&#x2F;java.net中，不再支持Pre-JDK 1.4 SocketImpl实现java.net.SocketImpl此版本已删除对为JavaSE1.3及更早版本编译的自定义实现的支持。此更改对SocketImpl为Java SE 1.4（2002年发布）或更新版本编译的实现没有影响。</p>
+<p>12.2 核心库&#x2F;java.lang中，删除运行时跟踪方法，过时的方法traceInstructions(boolean)，并traceMethodCalls(boolean)已经从删除java.lang.Runtime类。这些方法对许多版本都不起作用，它们的预期功能由Java虚拟机工具接口（JVMTI）提供。</p>
+</blockquote>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/10/15/JDK13%E6%96%B0%E7%89%B9%E6%80%A7%E8%AF%A6%E8%A7%A3/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/10/16/%E6%80%9D%E8%80%83-6-%E7%9F%A5%E8%AF%86%E4%B8%8E%E6%8A%80%E8%83%BD%E5%9C%A8%E5%BF%AB%E9%80%9F%E8%B4%AC%E5%80%BC%EF%BC%8C%E6%88%91%E4%BB%AC%E8%AF%A5%E6%80%8E%E4%B9%88%E5%8A%9E/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            思考 6 知识与技能在快速贬值，我们该怎么办
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/10/13/%E6%88%91%E5%B8%8C%E6%9C%9B%E5%9C%A8%E6%88%91%E5%BC%80%E5%A7%8B%E7%BC%96%E7%A8%8B%E4%B9%8B%E5%89%8D%E5%B0%B1%E7%9F%A5%E9%81%93%E7%9A%8430%E4%BB%B6%E4%BA%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">我希望在我开始编程之前就知道的30件事(翻译)</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

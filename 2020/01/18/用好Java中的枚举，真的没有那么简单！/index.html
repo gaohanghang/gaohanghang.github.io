@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>用好Java中的枚举，真的没有那么简单！ |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-用好Java中的枚举，真的没有那么简单！"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  用好Java中的枚举，真的没有那么简单！
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/01/18/%E7%94%A8%E5%A5%BDJava%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%EF%BC%8C%E7%9C%9F%E7%9A%84%E6%B2%A1%E6%9C%89%E9%82%A3%E4%B9%88%E7%AE%80%E5%8D%95%EF%BC%81/" class="article-date">
+  <time datetime="2020-01-17T17:35:31.000Z" itemprop="datePublished">2020-01-18</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">13 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>最近重看 Java 枚举，看到这篇觉得还不错的文章，于是简单翻译和完善了一些内容，分享给大家，希望你们也能有所收获。另外，不要忘了文末还有补充哦！</p>
+<p>ps: 这里发一篇枚举的文章，也是因为后面要发一篇非常实用的关于 SpringBoot 全局异常处理的比较好的实践里面就用到了枚举。</p>
+<p>这篇文章由 JavaGuide 翻译，</p>
+<p>公众号: JavaGuide,原文地址：<a target="_blank" rel="noopener" href="https://www.baeldung.com/a-guide-to-java-enums">https://www.baeldung.com/a-guide-to-java-enums</a> 。</p>
+<p>转载请注明上面这段文字。</p>
+</blockquote>
+<h2 id="1-概览"><a href="#1-概览" class="headerlink" title="1.概览"></a><strong>1.概览</strong></h2><p>在本文中，我们将看到什么是 Java 枚举，它们解决了哪些问题以及如何在实践中使用  Java 枚举实现一些设计模式。</p>
+<p>enum关键字在 java5 中引入，表示一种特殊类型的类，其总是继承java.lang.Enum类，更多内容可以自行查看其官方文档。</p>
+<p>枚举在很多时候会和常量拿来对比，可能因为本身我们大量实际使用枚举的地方就是为了替代常量。那么这种方式由什么优势呢？</p>
+<p><strong>以这种方式定义的常量使代码更具可读性，允许进行编译时检查，预先记录可接受值的列表，并避免由于传入无效值而引起的意外行为。</strong></p>
+<p>下面示例定义一个简单的枚举类型 pizza 订单的状态，共有三种 ORDERED, READY, DELIVERED状态:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> shuang.kou.enumdemo.enumtest;</span><br><span class="line"></span><br><span class="line">publicenum PizzaStatus &#123;</span><br><span class="line">    ORDERED,</span><br><span class="line">    READY,</span><br><span class="line">    DELIVERED;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>简单来说，我们通过上面的代码避免了定义常量，我们将所有和 pizza 订单的状态的常量都统一放到了一个枚举类型里面。</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(PizzaStatus.ORDERED.name());//ORDERED</span><br><span class="line">System.out.println(PizzaStatus.ORDERED);//ORDERED</span><br><span class="line">System.out.println(PizzaStatus.ORDERED.name().getClass());//class java.lang.String</span><br><span class="line">System.out.println(PizzaStatus.ORDERED.getClass());//class shuang.kou.enumdemo.enumtest.PizzaStatus</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-自定义枚举方法"><a href="#2-自定义枚举方法" class="headerlink" title="2.自定义枚举方法"></a><strong>2.自定义枚举方法</strong></h2><p>现在我们对枚举是什么以及如何使用它们有了基本的了解，让我们通过在枚举上定义一些额外的API方法，将上一个示例提升到一个新的水平：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">publicclass Pizza &#123;</span><br><span class="line">    <span class="keyword">private</span> PizzaStatus status;</span><br><span class="line">    publicenum PizzaStatus &#123;</span><br><span class="line">        ORDERED,</span><br><span class="line">        READY,</span><br><span class="line">        DELIVERED;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isDeliverable</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (getStatus() == PizzaStatus.READY) &#123;</span><br><span class="line">            returntrue;</span><br><span class="line">        &#125;</span><br><span class="line">        returnfalse;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    <span class="comment">// Methods that set and get the status variable.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-使用-x3D-x3D-比较枚举类型"><a href="#3-使用-x3D-x3D-比较枚举类型" class="headerlink" title="3.使用 &#x3D;&#x3D; 比较枚举类型"></a><strong>3.使用 &#x3D;&#x3D; 比较枚举类型</strong></h2><p>由于枚举类型确保JVM中仅存在一个常量实例，因此我们可以安全地使用“ &#x3D;&#x3D;”运算符比较两个变量，如上例所示；此外，“ &#x3D;&#x3D;”运算符可提供编译时和运行时的安全性。</p>
+<p>首先，让我们看一下以下代码段中的运行时安全性，其中“ &#x3D;&#x3D;”运算符用于比较状态，并且如果两个值均为null 都不会引发 NullPointerException。相反，如果使用equals方法，将抛出 NullPointerException：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if(testPz.getStatus().equals(Pizza.PizzaStatus.DELIVERED));</span><br><span class="line">if(testPz.getStatus() == Pizza.PizzaStatus.DELIVERED);</span><br></pre></td></tr></table></figure>
+
+<p>对于编译时安全性，我们看另一个示例，两个不同枚举类型进行比较，使用equal方法比较结果确定为true，因为getStatus方法的枚举值与另一个类型枚举值一致，但逻辑上应该为false。这个问题可以使用&#x3D;&#x3D;操作符避免。因为编译器会表示类型不兼容错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">if(testPz.getStatus().equals(TestColor.GREEN));</span><br><span class="line">if(testPz.getStatus() == TestColor.GREEN);</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-在-switch-语句中使用枚举类型"><a href="#4-在-switch-语句中使用枚举类型" class="headerlink" title="4.在 switch 语句中使用枚举类型"></a><strong>4.在 switch 语句中使用枚举类型</strong></h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public int getDeliveryTimeInDays() &#123;</span><br><span class="line">    switch (status) &#123;</span><br><span class="line">        case ORDERED: return5;</span><br><span class="line">        case READY: return2;</span><br><span class="line">        case DELIVERED: return0;</span><br><span class="line">    &#125;</span><br><span class="line">    return0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-枚举类型的属性-方法和构造函数"><a href="#5-枚举类型的属性-方法和构造函数" class="headerlink" title="5.枚举类型的属性,方法和构造函数"></a><strong>5.枚举类型的属性,方法和构造函数</strong></h2><blockquote>
+<p>“</p>
+<p>文末有我(JavaGuide)的补充。</p>
+<p>”</p>
+</blockquote>
+<p>你可以通过在枚举类型中定义属性,方法和构造函数让它变得更加强大。</p>
+<p>下面，让我们扩展上面的示例，实现从比萨的一个阶段到另一个阶段的过渡，并了解如何摆脱之前使用的if语句和switch语句：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">publicclass Pizza &#123;</span><br><span class="line"> </span><br><span class="line">    private PizzaStatus status;</span><br><span class="line">    publicenum PizzaStatus &#123;</span><br><span class="line">        ORDERED (5)&#123;</span><br><span class="line">            @Override</span><br><span class="line">            public boolean isOrdered() &#123;</span><br><span class="line">                returntrue;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        READY (2)&#123;</span><br><span class="line">            @Override</span><br><span class="line">            public boolean isReady() &#123;</span><br><span class="line">                returntrue;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        DELIVERED (0)&#123;</span><br><span class="line">            @Override</span><br><span class="line">            public boolean isDelivered() &#123;</span><br><span class="line">                returntrue;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"> </span><br><span class="line">        privateint timeToDelivery;</span><br><span class="line"> </span><br><span class="line">        public boolean isOrdered() &#123;returnfalse;&#125;</span><br><span class="line"> </span><br><span class="line">        public boolean isReady() &#123;returnfalse;&#125;</span><br><span class="line"> </span><br><span class="line">        public boolean isDelivered()&#123;returnfalse;&#125;</span><br><span class="line"> </span><br><span class="line">        public int getTimeToDelivery() &#123;</span><br><span class="line">            return timeToDelivery;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        PizzaStatus (int timeToDelivery) &#123;</span><br><span class="line">            this.timeToDelivery = timeToDelivery;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public boolean isDeliverable() &#123;</span><br><span class="line">        returnthis.status.isReady();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void printTimeToDeliver() &#123;</span><br><span class="line">        System.out.println(&quot;Time to delivery is &quot; +</span><br><span class="line">          this.getStatus().getTimeToDelivery());</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    // Methods that set and get the status variable.</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面这段代码展示它是如何 work 的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void givenPizaOrder_whenReady_thenDeliverable() &#123;</span><br><span class="line">    Pizza testPz = new Pizza();</span><br><span class="line">    testPz.setStatus(Pizza.PizzaStatus.READY);</span><br><span class="line">    assertTrue(testPz.isDeliverable());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6-EnumSet-and-EnumMap"><a href="#6-EnumSet-and-EnumMap" class="headerlink" title="6.EnumSet and EnumMap"></a><strong>6.EnumSet and EnumMap</strong></h2><h3 id="6-1-EnumSet"><a href="#6-1-EnumSet" class="headerlink" title="6.1. EnumSet"></a>6.1. EnumSet</h3><p><code>EnumSet</code> 是一种专门为枚举类型所设计的 <code>Set</code> 类型。</p>
+<p>与<code>HashSet</code>相比，由于使用了内部位向量表示，因此它是特定 <code>Enum</code> 常量集的非常有效且紧凑的表示形式。</p>
+<p>它提供了类型安全的替代方法，以替代传统的基于int的“位标志”，使我们能够编写更易读和易于维护的简洁代码。</p>
+<p><code>EnumSet</code> 是抽象类，其有两个实现：<code>RegularEnumSet</code> 、<code>JumboEnumSet</code>，选择哪一个取决于实例化时枚举中常量的数量。</p>
+<p>在很多场景中的枚举常量集合操作（如：取子集、增加、删除、<code>containsAll</code>和<code>removeAll</code>批操作）使用<code>EnumSet</code>非常合适；如果需要迭代所有可能的常量则使用<code>Enum.values()</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">publicclass Pizza &#123;</span><br><span class="line"> </span><br><span class="line">    privatestatic EnumSet&lt;PizzaStatus&gt; undeliveredPizzaStatuses =</span><br><span class="line">      EnumSet.of(PizzaStatus.ORDERED, PizzaStatus.READY);</span><br><span class="line"> </span><br><span class="line">    private PizzaStatus status;</span><br><span class="line"> </span><br><span class="line">    publicenum PizzaStatus &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public boolean isDeliverable() &#123;</span><br><span class="line">        returnthis.status.isReady();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void printTimeToDeliver() &#123;</span><br><span class="line">        System.out.println(&quot;Time to delivery is &quot; +</span><br><span class="line">          this.getStatus().getTimeToDelivery() + &quot; days&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static List&lt;Pizza&gt; getAllUndeliveredPizzas(List&lt;Pizza&gt; input) &#123;</span><br><span class="line">        return input.stream().filter(</span><br><span class="line">          (s) -&gt; undeliveredPizzaStatuses.contains(s.getStatus()))</span><br><span class="line">            .collect(Collectors.toList());</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void deliver() &#123;</span><br><span class="line">        if (isDeliverable()) &#123;</span><br><span class="line">            PizzaDeliverySystemConfiguration.getInstance().getDeliveryStrategy()</span><br><span class="line">              .deliver(this);</span><br><span class="line">            this.setStatus(PizzaStatus.DELIVERED);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">     </span><br><span class="line">    // Methods that set and get the status variable.</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面的测试演示了展示了 <code>EnumSet</code> 在某些场景下的强大功能：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void givenPizaOrders_whenRetrievingUnDeliveredPzs_thenCorrectlyRetrieved() &#123;</span><br><span class="line">    List&lt;Pizza&gt; pzList = new ArrayList&lt;&gt;();</span><br><span class="line">    Pizza pz1 = new Pizza();</span><br><span class="line">    pz1.setStatus(Pizza.PizzaStatus.DELIVERED);</span><br><span class="line"> </span><br><span class="line">    Pizza pz2 = new Pizza();</span><br><span class="line">    pz2.setStatus(Pizza.PizzaStatus.ORDERED);</span><br><span class="line"> </span><br><span class="line">    Pizza pz3 = new Pizza();</span><br><span class="line">    pz3.setStatus(Pizza.PizzaStatus.ORDERED);</span><br><span class="line"> </span><br><span class="line">    Pizza pz4 = new Pizza();</span><br><span class="line">    pz4.setStatus(Pizza.PizzaStatus.READY);</span><br><span class="line"> </span><br><span class="line">    pzList.add(pz1);</span><br><span class="line">    pzList.add(pz2);</span><br><span class="line">    pzList.add(pz3);</span><br><span class="line">    pzList.add(pz4);</span><br><span class="line"> </span><br><span class="line">    List&lt;Pizza&gt; undeliveredPzs = Pizza.getAllUndeliveredPizzas(pzList);</span><br><span class="line">    assertTrue(undeliveredPzs.size() == 3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-2-EnumMap"><a href="#6-2-EnumMap" class="headerlink" title="6.2. EnumMap"></a>6.2. EnumMap</h3><p><code>EnumMap</code>是一个专门化的映射实现，用于将枚举常量用作键。与对应的 <code>HashMap</code> 相比，它是一个高效紧凑的实现，并且在内部表示为一个数组:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EnumMap&lt;Pizza.PizzaStatus, Pizza&gt; map;</span><br></pre></td></tr></table></figure>
+
+<p>让我们快速看一个真实的示例，该示例演示如何在实践中使用它：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">publicstatic EnumMap&lt;PizzaStatus, List&lt;Pizza&gt;&gt;</span><br><span class="line">  groupPizzaByStatus(List&lt;Pizza&gt; pizzaList) &#123;</span><br><span class="line">    EnumMap&lt;PizzaStatus, List&lt;Pizza&gt;&gt; pzByStatus =</span><br><span class="line">      new EnumMap&lt;PizzaStatus, List&lt;Pizza&gt;&gt;(PizzaStatus.class);</span><br><span class="line">     </span><br><span class="line">    for (Pizza pz : pizzaList) &#123;</span><br><span class="line">        PizzaStatus status = pz.getStatus();</span><br><span class="line">        if (pzByStatus.containsKey(status)) &#123;</span><br><span class="line">            pzByStatus.get(status).add(pz);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            List&lt;Pizza&gt; newPzList = new ArrayList&lt;Pizza&gt;();</span><br><span class="line">            newPzList.add(pz);</span><br><span class="line">            pzByStatus.put(status, newPzList);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return pzByStatus;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面的测试演示了展示了 <code>EnumMap</code> 在某些场景下的强大功能：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void givenPizaOrders_whenGroupByStatusCalled_thenCorrectlyGrouped() &#123;</span><br><span class="line">    List&lt;Pizza&gt; pzList = new ArrayList&lt;&gt;();</span><br><span class="line">    Pizza pz1 = new Pizza();</span><br><span class="line">    pz1.setStatus(Pizza.PizzaStatus.DELIVERED);</span><br><span class="line"> </span><br><span class="line">    Pizza pz2 = new Pizza();</span><br><span class="line">    pz2.setStatus(Pizza.PizzaStatus.ORDERED);</span><br><span class="line"> </span><br><span class="line">    Pizza pz3 = new Pizza();</span><br><span class="line">    pz3.setStatus(Pizza.PizzaStatus.ORDERED);</span><br><span class="line"> </span><br><span class="line">    Pizza pz4 = new Pizza();</span><br><span class="line">    pz4.setStatus(Pizza.PizzaStatus.READY);</span><br><span class="line"> </span><br><span class="line">    pzList.add(pz1);</span><br><span class="line">    pzList.add(pz2);</span><br><span class="line">    pzList.add(pz3);</span><br><span class="line">    pzList.add(pz4);</span><br><span class="line"> </span><br><span class="line">    EnumMap&lt;Pizza.PizzaStatus,List&lt;Pizza&gt;&gt; map = Pizza.groupPizzaByStatus(pzList);</span><br><span class="line">    assertTrue(map.get(Pizza.PizzaStatus.DELIVERED).size() == 1);</span><br><span class="line">    assertTrue(map.get(Pizza.PizzaStatus.ORDERED).size() == 2);</span><br><span class="line">    assertTrue(map.get(Pizza.PizzaStatus.READY).size() == 1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-通过枚举实现一些设计模式"><a href="#7-通过枚举实现一些设计模式" class="headerlink" title="7. 通过枚举实现一些设计模式"></a><strong>7. 通过枚举实现一些设计模式</strong></h2><h3 id="7-1-单例模式"><a href="#7-1-单例模式" class="headerlink" title="7.1 单例模式"></a>7.1 单例模式</h3><p>通常，使用类实现 Singleton 模式并非易事，枚举提供了一种实现单例的简便方法。</p>
+<p>《Effective Java 》和《Java与模式》都非常推荐这种方式，使用这种方式方式实现枚举可以有什么好处呢？</p>
+<p>《Effective Java》</p>
+<blockquote>
+<p>“</p>
+<p>这种方法在功能上与公有域方法相近，但是它更加简洁，无偿提供了序列化机制，绝对防止多次实例化，即使是在面对复杂序列化或者反射攻击的时候。虽然这种方法还没有广泛采用，但是单元素的枚举类型已经成为实现 Singleton的最佳方法。—-《Effective Java 中文版 第二版》</p>
+<p>”</p>
+</blockquote>
+<p>《Java与模式》</p>
+<blockquote>
+<p>“</p>
+<p>《Java与模式》中，作者这样写道，使用枚举来实现单实例控制会更加简洁，而且无偿地提供了序列化机制，并由JVM从根本上提供保障，绝对防止多次实例化，是更简洁、高效、安全的实现单例的方式。</p>
+<p>”</p>
+</blockquote>
+<p>下面的代码段显示了如何使用枚举实现单例模式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">publicenum PizzaDeliverySystemConfiguration &#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">    PizzaDeliverySystemConfiguration() &#123;</span><br><span class="line">        // Initialization configuration which involves</span><br><span class="line">        // overriding defaults like delivery strategy</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    private PizzaDeliveryStrategy deliveryStrategy = PizzaDeliveryStrategy.NORMAL;</span><br><span class="line"> </span><br><span class="line">    public static PizzaDeliverySystemConfiguration getInstance() &#123;</span><br><span class="line">        return INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public PizzaDeliveryStrategy getDeliveryStrategy() &#123;</span><br><span class="line">        return deliveryStrategy;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如何使用呢？请看下面的代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PizzaDeliveryStrategy deliveryStrategy = PizzaDeliverySystemConfiguration.getInstance().getDeliveryStrategy();</span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>PizzaDeliverySystemConfiguration.getInstance()</code> 获取的就是单例的 <code>PizzaDeliverySystemConfiguration</code></p>
+<h3 id="7-2-策略模式"><a href="#7-2-策略模式" class="headerlink" title="7.2 策略模式"></a>7.2 策略模式</h3><p>通常，策略模式由不同类实现同一个接口来实现的。</p>
+<p>这也就意味着添加新策略意味着添加新的实现类。使用枚举，可以轻松完成此任务，添加新的实现意味着只定义具有某个实现的另一个实例。</p>
+<p>下面的代码段显示了如何使用枚举实现策略模式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">publicenum PizzaDeliveryStrategy &#123;</span><br><span class="line">    EXPRESS &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void deliver(Pizza pz) &#123;</span><br><span class="line">            System.out.println(&quot;Pizza will be delivered in express mode&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    NORMAL &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void deliver(Pizza pz) &#123;</span><br><span class="line">            System.out.println(&quot;Pizza will be delivered in normal mode&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"> </span><br><span class="line">    public abstract void deliver(Pizza pz);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>给 <code>Pizza</code>增加下面的方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public void deliver() &#123;</span><br><span class="line">    if (isDeliverable()) &#123;</span><br><span class="line">        PizzaDeliverySystemConfiguration.getInstance().getDeliveryStrategy()</span><br><span class="line">          .deliver(this);</span><br><span class="line">        this.setStatus(PizzaStatus.DELIVERED);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如何使用呢？请看下面的代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void givenPizaOrder_whenDelivered_thenPizzaGetsDeliveredAndStatusChanges() &#123;</span><br><span class="line">    Pizza pz = new Pizza();</span><br><span class="line">    pz.setStatus(Pizza.PizzaStatus.READY);</span><br><span class="line">    pz.deliver();</span><br><span class="line">    assertTrue(pz.getStatus() == Pizza.PizzaStatus.DELIVERED);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="8-Java-8-与枚举"><a href="#8-Java-8-与枚举" class="headerlink" title="8. Java 8 与枚举"></a><strong>8. Java 8 与枚举</strong></h2><p>Pizza 类可以用Java 8重写，您可以看到方法 lambda 和Stream API如何使 <code>getAllUndeliveredPizzas（）</code>和<code>groupPizzaByStatus（）</code>方法变得如此简洁：</p>
+<p><code>getAllUndeliveredPizzas（）</code>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Pizza&gt; <span class="title function_">getAllUndeliveredPizzas</span><span class="params">(List&lt;Pizza&gt; input)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> input.stream().filter(</span><br><span class="line">      (s) -&gt; !deliveredPizzaStatuses.contains(s.getStatus()))</span><br><span class="line">        .collect(Collectors.toList());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>groupPizzaByStatus（）</code> :</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">publicstatic EnumMap&lt;PizzaStatus, List&lt;Pizza&gt;&gt;</span><br><span class="line">  <span class="title function_">groupPizzaByStatus</span><span class="params">(List&lt;Pizza&gt; pzList)</span> &#123;</span><br><span class="line">    EnumMap&lt;PizzaStatus, List&lt;Pizza&gt;&gt; map = pzList.stream().collect(</span><br><span class="line">      Collectors.groupingBy(Pizza::getStatus,</span><br><span class="line">      () -&gt; <span class="keyword">new</span> <span class="title class_">EnumMap</span>&lt;&gt;(PizzaStatus.class), Collectors.toList()));</span><br><span class="line">    <span class="keyword">return</span> map;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="9-Enum-类型的-JSON-表现形式"><a href="#9-Enum-类型的-JSON-表现形式" class="headerlink" title="9. Enum 类型的 JSON 表现形式"></a><strong>9. Enum 类型的 JSON 表现形式</strong></h2><p>使用Jackson库，可以将枚举类型的JSON表示为POJO。下面的代码段显示了可以用于同一目的的Jackson批注：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@JsonFormat(shape = JsonFormat.Shape.OBJECT)</span></span><br><span class="line">publicenum PizzaStatus &#123;</span><br><span class="line">    ORDERED (<span class="number">5</span>)&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isOrdered</span><span class="params">()</span> &#123;</span><br><span class="line">            returntrue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    READY (<span class="number">2</span>)&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isReady</span><span class="params">()</span> &#123;</span><br><span class="line">            returntrue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    DELIVERED (<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isDelivered</span><span class="params">()</span> &#123;</span><br><span class="line">            returntrue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"> </span><br><span class="line">    privateint timeToDelivery;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isOrdered</span><span class="params">()</span> &#123;<span class="keyword">return</span> <span class="literal">false</span>;&#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isReady</span><span class="params">()</span> &#123;<span class="keyword">return</span> <span class="literal">false</span>;&#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">isDelivered</span><span class="params">()</span>&#123;<span class="keyword">return</span> <span class="literal">false</span>;&#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@JsonProperty(&quot;timeToDelivery&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getTimeToDelivery</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> timeToDelivery;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">PizzaStatus</span> <span class="params">(<span class="type">int</span> timeToDelivery)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.timeToDelivery = timeToDelivery;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以按如下方式使用 <code>Pizza</code> 和 <code>PizzaStatus</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Pizza pz = new Pizza();</span><br><span class="line">pz.setStatus(Pizza.PizzaStatus.READY);</span><br><span class="line">System.out.println(Pizza.getJsonString(pz));</span><br></pre></td></tr></table></figure>
+
+<p>生成 Pizza 状态以以下JSON展示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;status&quot; : &#123;</span><br><span class="line">    &quot;timeToDelivery&quot; : 2,</span><br><span class="line">    &quot;ready&quot; : true,</span><br><span class="line">    &quot;ordered&quot; : false,</span><br><span class="line">    &quot;delivered&quot; : false</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;deliverable&quot; : true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有关枚举类型的JSON序列化&#x2F;反序列化（包括自定义）的更多信息，请参阅Jackson-将枚举序列化为JSON对象。</p>
+<h2 id="10-总结"><a href="#10-总结" class="headerlink" title="10.总结"></a><strong>10.总结</strong></h2><p>本文我们讨论了Java枚举类型，从基础知识到高级应用以及实际应用场景，让我们感受到枚举的强大功能。</p>
+<h2 id="11-补充"><a href="#11-补充" class="headerlink" title="11. 补充"></a><strong>11. 补充</strong></h2><p>我们在上面讲到了，我们可以通过在枚举类型中定义属性,方法和构造函数让它变得更加强大。</p>
+<p>下面我通过一个实际的例子展示一下，当我们调用短信验证码的时候可能有几种不同的用途，我们在下面这样定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">publicenum PinType &#123;</span><br><span class="line"></span><br><span class="line">    REGISTER(100000, &quot;注册使用&quot;),</span><br><span class="line">    FORGET_PASSWORD(100001, &quot;忘记密码使用&quot;),</span><br><span class="line">    UPDATE_PHONE_NUMBER(100002, &quot;更新手机号码使用&quot;);</span><br><span class="line"></span><br><span class="line">    privatefinalint code;</span><br><span class="line">    privatefinal String message;</span><br><span class="line"></span><br><span class="line">    PinType(int code, String message) &#123;</span><br><span class="line">        this.code = code;</span><br><span class="line">        this.message = message;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public int getCode() &#123;</span><br><span class="line">        return code;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public String getMessage() &#123;</span><br><span class="line">        return message;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public String toString() &#123;</span><br><span class="line">        return&quot;PinType&#123;&quot; +</span><br><span class="line">                &quot;code=&quot; + code +</span><br><span class="line">                &quot;, message=&#x27;&quot; + message + &#x27;\&#x27;&#x27; +</span><br><span class="line">                &#x27;&#125;&#x27;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实际使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(PinType.FORGET_PASSWORD.getCode());</span><br><span class="line">System.out.println(PinType.FORGET_PASSWORD.getMessage());</span><br><span class="line">System.out.println(PinType.FORGET_PASSWORD.toString());</span><br></pre></td></tr></table></figure>
+
+<p>Output:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">100001</span><br><span class="line">忘记密码使用</span><br><span class="line">PinType&#123;code=100001, message=&#x27;忘记密码使用&#x27;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样的话，在实际使用起来就会非常灵活方便！</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2020/01/18/%E7%94%A8%E5%A5%BDJava%E4%B8%AD%E7%9A%84%E6%9E%9A%E4%B8%BE%EF%BC%8C%E7%9C%9F%E7%9A%84%E6%B2%A1%E6%9C%89%E9%82%A3%E4%B9%88%E7%AE%80%E5%8D%95%EF%BC%81/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/01/19/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E4%B8%A4%E4%B8%AA%E7%BA%BF%E7%A8%8B%E4%BA%A4%E6%9B%BF%E6%89%93%E5%8D%B01-100%EF%BC%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            如何使用两个线程交替打印1--100？
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/01/13/Redis%E5%92%8Cmysql%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E4%BF%9D%E6%8C%81%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E7%9A%84%EF%BC%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Redis和mysql数据怎么保持数据一致的？</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

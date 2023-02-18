@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Java代码乱象！ |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java代码乱象！"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Java代码乱象！
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/11/Java%E4%BB%A3%E7%A0%81%E4%B9%B1%E8%B1%A1%EF%BC%81/" class="article-date">
+  <time datetime="2019-08-11T05:58:19.000Z" itemprop="datePublished">2019-08-11</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">18 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/svYS4wNloWm25BrJH6KKXA">https://mp.weixin.qq.com/s/svYS4wNloWm25BrJH6KKXA</a></p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811135909.png"></p>
+<p><strong>导读</strong></p>
+<hr>
+<p>查尔斯·狄更斯在《双城记》中写道：“这是一个最好的时代，也是一个最坏的时代。”</p>
+<p>移动互联网的快速发展，出现了许多新机遇，很多创业者伺机而动；随着行业竞争加剧，互联网红利逐渐消失，很多创业公司九死一生。笔者在初创公司摸爬滚打数年，接触了各式各样的 Java 微服务架构，从中获得了一些优秀的理念，但也发现了一些不合理的现象。现在，笔者总结了一些创业公司存在的 Java 服务端乱象，并尝试性地给出了一些不成熟的建议。</p>
+<h2 id="1-使用Controller基类和Service基类"><a href="#1-使用Controller基类和Service基类" class="headerlink" title="1.使用Controller基类和Service基类"></a>1.使用Controller基类和Service基类</h2><h3 id="1-1-现象描述"><a href="#1-1-现象描述" class="headerlink" title="1.1.现象描述"></a><strong>1.1.现象描述</strong></h3><h4 id="1-1-1-Controller-基类"><a href="#1-1-1-Controller-基类" class="headerlink" title="1.1.1.Controller 基类"></a>1.1.1.Controller 基类</h4><p>常见的 Controller 基类如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 基础控制器类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BaseController</span> &#123;</span><br><span class="line">    <span class="comment">/** 注入服务相关 */</span></span><br><span class="line">    <span class="comment">/** 用户服务 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">protected</span> UserService userService;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 静态常量相关 */</span></span><br><span class="line">    <span class="comment">/** 手机号模式 */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PHONE_PATTERN</span> <span class="operator">=</span> <span class="string">&quot;/^[1]([3-9])[0-9]&#123;9&#125;$/&quot;</span>;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 静态函数相关 */</span></span><br><span class="line">    <span class="comment">/** 验证电话 */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> <span class="title function_">vaildPhone</span><span class="params">(String phone)</span> &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>常见的 Controller 基类主要包含注入服务、静态常量和静态函数等，便于所有的Controller 继承它，并在函数中可以直接使用这些资源。</p>
+<h4 id="1-1-2-Service-基类"><a href="#1-1-2-Service-基类" class="headerlink" title="1.1.2. Service 基类"></a><strong>1.1.2. Service 基类</strong></h4><p>常见的 Service 基类如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 基础服务类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BaseService</span> &#123;</span><br><span class="line">    <span class="comment">/** 注入DAO相关 */</span></span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">protected</span> UserDAO userDAO;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 注入服务相关 */</span></span><br><span class="line">    <span class="comment">/** 短信服务 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">protected</span> SmsService smsService;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** 注入参数相关 */</span></span><br><span class="line">    <span class="comment">/** 系统名称 */</span></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;example.systemName&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">protected</span> String systemName;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 静态常量相关 */</span></span><br><span class="line">    <span class="comment">/** 超级用户标识 */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">SUPPER_USER_ID</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 服务函数相关 */</span></span><br><span class="line">    <span class="comment">/** 获取用户函数 */</span></span><br><span class="line">    <span class="keyword">protected</span> UserDO <span class="title function_">getUser</span><span class="params">(Long userId)</span> &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 静态函数相关 */</span></span><br><span class="line">    <span class="comment">/** 获取用户名称 */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> String <span class="title function_">getUserName</span><span class="params">(UserDO user)</span> &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>常见的 Service 基类主要包括注入 DAO、注入服务、注入参数、静态常量、服务函数、静态函数等，便于所有的 Service 继承它，并在函数中可以直接使用这些资源。</p>
+<h3 id="1-2-论证基类必要性"><a href="#1-2-论证基类必要性" class="headerlink" title="1.2.论证基类必要性"></a><strong>1.2.论证基类必要性</strong></h3><p>首先，了解一下里氏替换原则：</p>
+<blockquote>
+<p>里氏代换原则（Liskov Substitution Principle，简称LSP）：所有引用基类（父类）的地方必须能透明地使用其子类的对象。</p>
+</blockquote>
+<p>其次，了解一下基类的优点：</p>
+<ul>
+<li>子类拥有父类的所有方法和属性，从而减少了创建子类的工作量；</li>
+<li>提高了代码的重用性，子类拥有父类的所有功能；</li>
+<li>提高了代码的扩展性，子类可以添加自己的功能。</li>
+</ul>
+<p>所以，我们可以得出以下结论：</p>
+<ul>
+<li>Controller 基类和 Service 基类在整个项目中并没有直接被使用，也就没有可使用其子类替换基类的场景，所以不满足里氏替换原则；</li>
+<li>Controller 基类和 Service 基类并没有抽象接口函数或虚函数，即所有继承基类的子类间没有相关共性，直接导致在项目中仍然使用的是子类；</li>
+<li>Controller 基类和 Service 基类只关注了重用性，即子类能够轻松使用基类的注入DAO、注入服务、注入参数、静态常量、服务函数、静态函数等资源。但是，忽略了这些资源的必要性，即这些资源并不是子类所必须的，反而给子类带来了加载时的性能损耗。</li>
+</ul>
+<p><strong>综上所述</strong>，Controller 基类和 Service 基类只是一个杂凑类，并不是一个真正意义上的基类，需要进行拆分。</p>
+<h3 id="1-3-拆分基类的方法"><a href="#1-3-拆分基类的方法" class="headerlink" title="1.3.拆分基类的方法"></a><strong>1.3.拆分基类的方法</strong></h3><p>由于 Service 基类比 Controller 基类更典型，本文以 Service 基类举例说明如何来拆分“基类”。</p>
+<h4 id="1-3-1-把注入实例放入实现类"><a href="#1-3-1-把注入实例放入实现类" class="headerlink" title="1.3.1.把注入实例放入实现类"></a>1.3.1.把注入实例放入实现类</h4><p>根据“使用即引入、无用则删除”原则，在需要使用的实现类中注入需要使用的DAO、服务和参数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDAO userDAO;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 短信服务 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SmsService smsService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 系统名称 */</span></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;example.systemName&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String systemName;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h4 id="1-3-2-把静态常量放入常量类"><a href="#1-3-2-把静态常量放入常量类" class="headerlink" title="1.3.2.把静态常量放入常量类"></a>1.3.2.把静态常量放入常量类</h4><p>对于静态常量，可以把它们封装到对应的常量类中，在需要时直接使用即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 例子常量类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ExampleConstants</span> &#123;</span><br><span class="line">    <span class="comment">/** 超级用户标识 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">SUPPER_USER_ID</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-3-把服务函数放入服务类"><a href="#1-3-3-把服务函数放入服务类" class="headerlink" title="1.3.3.把服务函数放入服务类"></a>1.3.3.把服务函数放入服务类</h4><p>对于服务函数，可以把它们封装到对应的服务类中。在别的服务类使用时，可以注入该服务类实例，然后通过实例调用服务函数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 获取用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> UserDO <span class="title function_">getUser</span><span class="params">(Long userId)</span> &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 公司服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CompanyService</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户服务 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** 获取管理员 */</span></span><br><span class="line">    <span class="keyword">public</span> UserDO <span class="title function_">getManager</span><span class="params">(Long companyId)</span> &#123;</span><br><span class="line">        <span class="type">CompanyDO</span> <span class="variable">company</span> <span class="operator">=</span> ...;</span><br><span class="line">        <span class="keyword">return</span> userService.getUser(company.getManagerId());</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-4-把静态函数放入工具类"><a href="#1-3-4-把静态函数放入工具类" class="headerlink" title="1.3.4.把静态函数放入工具类"></a>1.3.4.把静态函数放入工具类</h4><p>对于静态函数，可以把它们封装到对应的工具类中，在需要时直接使用即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户辅助类 */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserHelper</span> &#123;</span><br><span class="line">    <span class="comment">/** 获取用户名称 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">getUserName</span><span class="params">(UserDO user)</span> &#123;...&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-把业务代码写在-Controller-中"><a href="#2-把业务代码写在-Controller-中" class="headerlink" title="2.把业务代码写在 Controller 中"></a><strong>2.把业务代码写在 Controller 中</strong></h2><p><strong>2.1.现象描述</strong></p>
+<p>我们会经常会在 Controller 类中看到这样的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户控制器类 */</span></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDAO userDAO;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 获取用户函数 */</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="meta">@RequestMapping(path = &quot;/getUser&quot;, method = RequestMethod.GET)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;UserVO&gt; <span class="title function_">getUser</span><span class="params">(<span class="meta">@RequestParam(name = &quot;userId&quot;, required = true)</span> Long userId)</span> &#123;</span><br><span class="line">        <span class="comment">// 获取用户信息</span></span><br><span class="line">        <span class="type">UserDO</span> <span class="variable">userDO</span> <span class="operator">=</span> userDAO.getUser(userId);</span><br><span class="line">        <span class="keyword">if</span> (Objects.isNull(userDO)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 拷贝并返回用户</span></span><br><span class="line">        <span class="type">UserVO</span> <span class="variable">userVO</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserVO</span>();</span><br><span class="line">        BeanUtils.copyProperties(userDO, userVO);</span><br><span class="line">        <span class="keyword">return</span> Result.success(userVO);</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编写人员给出的理由是：一个简单的接口函数，这么写也能满足需求，没有必要去封装成一个服务函数。</p>
+<h3 id="2-2-一个特殊的案例"><a href="#2-2-一个特殊的案例" class="headerlink" title="2.2.一个特殊的案例"></a><strong>2.2.一个特殊的案例</strong></h3><p>案例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 测试控制器类 */</span></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/test&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestController</span> &#123;</span><br><span class="line">    <span class="comment">/** 系统名称 */</span></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;example.systemName&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String systemName;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** 访问函数 */</span></span><br><span class="line">    <span class="meta">@RequestMapping(path = &quot;/access&quot;, method = RequestMethod.GET)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">access</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> String.format(<span class="string">&quot;系统(%s)欢迎您访问！&quot;</span>, systemName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>访问结果如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl http:<span class="comment">//localhost:8080/test/access</span></span><br><span class="line">系统(<span class="literal">null</span>)欢迎您访问！</span><br></pre></td></tr></table></figure>
+
+<p>为什么参数systemName（系统名称）没有被注入值？《Spring Documentation》给出的解释是：</p>
+<blockquote>
+<p>Note that actual processing of the @Value annotation is performed by a BeanPostProcessor.</p>
+<p>BeanPostProcessor interfaces are scoped per-container. This is only relevant if you are using container hierarchies. If you define a BeanPostProcessor in one container, it will only do its work on the beans in that container. Beans that are defined in one container are not post-processed by a BeanPostProcessor in another container, even if both containers are part of the same hierarchy.</p>
+</blockquote>
+<p><strong>意思是说：</strong>@Value是通过BeanPostProcessor来处理的，而WebApplicationContex和ApplicationContext是单独处理的，所以WebApplicationContex 不能使用父容器的属性值。</p>
+<p>所以，Controller 不满足 Service 的需求，不要把业务代码写在 Controller 类中。</p>
+<h3 id="2-3-服务端三层架构"><a href="#2-3-服务端三层架构" class="headerlink" title="2.3.服务端三层架构"></a><strong>2.3.服务端三层架构</strong></h3><p>SpringMVC 服务端采用经典的三层架构，即表现层、业务层、持久层，分别采用@Controller、@Service、@Repository进行类注解。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811151111.png"></p>
+<p>表现层（Presentation）：又称控制层（Controller），负责接收客户端请求，并向客户端响应结果，通常采用HTTP协议。</p>
+<p>业务层（Business）：又称服务层（Service），负责业务相关逻辑处理，按照功能分为服务、作业等。</p>
+<p>持久层（Persistence）：又称仓库层（Repository），负责数据的持久化，用于业务层访问缓存和数据库。</p>
+<p>所以，把业务代码写入到Controller类中，是不符合SpringMVC服务端三层架构规范的。</p>
+<h2 id="3-把持久层代码写在-Service-中"><a href="#3-把持久层代码写在-Service-中" class="headerlink" title="3.把持久层代码写在 Service 中"></a><strong>3.把持久层代码写在 Service 中</strong></h2><hr>
+<p>把持久层代码写在 Service 中，从功能上来看并没有什么问题，这也是很多人欣然接受的原因。</p>
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="3-1-引起以下主要问题"><a href="#3-1-引起以下主要问题" class="headerlink" title="3.1.引起以下主要问题"></a><strong>3.1.引起以下主要问题</strong></h3><ul>
+<li>业务层和持久层混杂在一起，不符合SpringMVC服务端三层架构规范；</li>
+<li>在业务逻辑中组装语句、主键等，增加了业务逻辑的复杂度；</li>
+<li>在业务逻辑中直接使用第三方中间件，不便于第三方持久化中间件的替换；</li>
+<li>同一对象的持久层代码分散在各个业务逻辑中，背离了面对对象的编程思想；</li>
+<li>在写单元测试用例时，无法对持久层接口函数直接测试。</li>
+</ul>
+<h3 id="3-2-把数据库代码写在Service中"><a href="#3-2-把数据库代码写在Service中" class="headerlink" title="3.2.把数据库代码写在Service中"></a><strong>3.2.把数据库代码写在Service中</strong></h3><p>这里以数据库持久化中间件 Hibernate 的直接查询为例。</p>
+<h4 id="-1"><a href="#-1" class="headerlink" title=""></a></h4><h4 id="现象描述："><a href="#现象描述：" class="headerlink" title="现象描述："></a><strong>现象描述：</strong></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 会话工厂 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SessionFactory sessionFactory;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 根据工号获取用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> UserVO <span class="title function_">getUserByEmpId</span><span class="params">(String empId)</span> &#123;</span><br><span class="line">        <span class="comment">// 组装HQL语句</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">hql</span> <span class="operator">=</span> <span class="string">&quot;from t_user where emp_id = &#x27;&quot;</span> + empId + <span class="string">&quot;&#x27;&quot;</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 执行数据库查询</span></span><br><span class="line">        <span class="type">Query</span> <span class="variable">query</span> <span class="operator">=</span> sessionFactory.getCurrentSession().createQuery(hql);</span><br><span class="line">        List&lt;UserDO&gt; userList = query.list();</span><br><span class="line">        <span class="keyword">if</span> (CollectionUtils.isEmpty(userList)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 转化并返回用户</span></span><br><span class="line">        <span class="type">UserVO</span> <span class="variable">userVO</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserVO</span>();</span><br><span class="line">        BeanUtils.copyProperties(userList.get(<span class="number">0</span>), userVO);</span><br><span class="line">        <span class="keyword">return</span> userVO;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="建议方案："><a href="#建议方案：" class="headerlink" title="建议方案："></a><strong>建议方案：</strong></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户DAO类 */</span></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserDAO</span> &#123;</span><br><span class="line">     <span class="comment">/** 会话工厂 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> SessionFactory sessionFactory;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** 根据工号获取用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> UserDO <span class="title function_">getUserByEmpId</span><span class="params">(String empId)</span> &#123;</span><br><span class="line">        <span class="comment">// 组装HQL语句</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">hql</span> <span class="operator">=</span> <span class="string">&quot;from t_user where emp_id = &#x27;&quot;</span> + empId + <span class="string">&quot;&#x27;&quot;</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 执行数据库查询</span></span><br><span class="line">        <span class="type">Query</span> <span class="variable">query</span> <span class="operator">=</span> sessionFactory.getCurrentSession().createQuery(hql);</span><br><span class="line">        List&lt;UserDO&gt; userList = query.list();</span><br><span class="line">        <span class="keyword">if</span> (CollectionUtils.isEmpty(userList)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 返回用户信息</span></span><br><span class="line">        <span class="keyword">return</span> userList.get(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDAO userDAO;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 根据工号获取用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> UserVO <span class="title function_">getUserByEmpId</span><span class="params">(String empId)</span> &#123;</span><br><span class="line">        <span class="comment">// 根据工号查询用户</span></span><br><span class="line">        <span class="type">UserDO</span> <span class="variable">userDO</span> <span class="operator">=</span> userDAO.getUserByEmpId(empId);</span><br><span class="line">        <span class="keyword">if</span> (Objects.isNull(userDO)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 转化并返回用户</span></span><br><span class="line">        <span class="type">UserVO</span> <span class="variable">userVO</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserVO</span>();</span><br><span class="line">        BeanUtils.copyProperties(userDO, userVO);</span><br><span class="line">        <span class="keyword">return</span> userVO;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="关于插件："><a href="#关于插件：" class="headerlink" title="关于插件："></a><strong>关于插件：</strong></h4><p>阿里的 AliGenerator 是一款基于 MyBatis Generator 改造的 DAO 层代码自动生成工具。利用 AliGenerator 生成的代码，在执行复杂查询的时候，需要在业务代码中组装查询条件，使业务代码显得特别臃肿。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDAO userDAO;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 获取用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> UserVO <span class="title function_">getUser</span><span class="params">(String companyId, String empId)</span> &#123;</span><br><span class="line">        <span class="comment">// 查询数据库</span></span><br><span class="line">        <span class="type">UserParam</span> <span class="variable">userParam</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserParam</span>();</span><br><span class="line">        userParam.createCriteria().andCompanyIdEqualTo(companyId)</span><br><span class="line">            .andEmpIdEqualTo(empId)</span><br><span class="line">            .andStatusEqualTo(UserStatus.ENABLE.getValue());</span><br><span class="line">        List&lt;UserDO&gt; userList = userDAO.selectByParam(userParam);</span><br><span class="line">        <span class="keyword">if</span> (CollectionUtils.isEmpty(userList)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 转化并返回用户</span></span><br><span class="line">        <span class="type">UserVO</span> <span class="variable">userVO</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UserVO</span>();</span><br><span class="line">        BeanUtils.copyProperties(userList.get(<span class="number">0</span>), userVO);</span><br><span class="line">        <span class="keyword">return</span> userVO;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>个人不喜欢用 DAO 层代码生成插件，更喜欢用原汁原味的 MyBatis XML 映射，主要原因如下：</p>
+<ul>
+<li>会在项目中导入一些不符合规范的代码；</li>
+<li>只需要进行一个简单查询，也需要导入一整套复杂代码；</li>
+<li>进行复杂查询时，拼装条件的代码复杂且不直观，不如在XML中直接编写SQL语句；</li>
+<li>变更表格后需要重新生成代码并进行覆盖，可能会不小心删除自定义函数。</li>
+</ul>
+<p>当然，既然选择了使用 DAO 层代码生成插件，在享受便利的同时也应该接受插件的缺点。</p>
+<h3 id="3-3-把-Redis-代码写在-Service-中"><a href="#3-3-把-Redis-代码写在-Service-中" class="headerlink" title="3.3.把 Redis 代码写在 Service 中"></a><strong>3.3.把 Redis 代码写在 Service 中</strong></h3><h4 id="-2"><a href="#-2" class="headerlink" title=""></a></h4><h4 id="现象描述：-1"><a href="#现象描述：-1" class="headerlink" title="现象描述："></a><strong>现象描述：</strong></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDAO userDAO;</span><br><span class="line">    <span class="comment">/** Redis模板 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;String, String&gt; redisTemplate;</span><br><span class="line">    <span class="comment">/** 用户主键模式 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">USER_KEY_PATTERN</span> <span class="operator">=</span> <span class="string">&quot;hash::user::%s&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 保存用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">saveUser</span><span class="params">(UserVO user)</span> &#123;</span><br><span class="line">        <span class="comment">// 转化用户信息</span></span><br><span class="line">        <span class="type">UserDO</span> <span class="variable">userDO</span> <span class="operator">=</span> transUser(user);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 保存Redis用户</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">userKey</span> <span class="operator">=</span> MessageFormat.format(USER_KEY_PATTERN, userDO.getId());</span><br><span class="line">        Map&lt;String, String&gt; fieldMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;(<span class="number">8</span>);</span><br><span class="line">        fieldMap.put(UserDO.CONST_NAME, user.getName());</span><br><span class="line">        fieldMap.put(UserDO.CONST_SEX, String.valueOf(user.getSex()));</span><br><span class="line">        fieldMap.put(UserDO.CONST_AGE, String.valueOf(user.getAge()));</span><br><span class="line">        redisTemplate.opsForHash().putAll(userKey, fieldMap);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 保存数据库用户</span></span><br><span class="line">        userDAO.save(userDO);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="建议方案：-1"><a href="#建议方案：-1" class="headerlink" title="建议方案："></a><strong>建议方案：</strong></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户Redis类 */</span></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserRedis</span> &#123;</span><br><span class="line">    <span class="comment">/** Redis模板 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;String, String&gt; redisTemplate;</span><br><span class="line">    <span class="comment">/** 主键模式 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">KEY_PATTERN</span> <span class="operator">=</span> <span class="string">&quot;hash::user::%s&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** 保存用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> UserDO <span class="title function_">save</span><span class="params">(UserDO user)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> MessageFormat.format(KEY_PATTERN, userDO.getId());</span><br><span class="line">        Map&lt;String, String&gt; fieldMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;(<span class="number">8</span>);</span><br><span class="line">        fieldMap.put(UserDO.CONST_NAME, user.getName());</span><br><span class="line">        fieldMap.put(UserDO.CONST_SEX, String.valueOf(user.getSex()));</span><br><span class="line">        fieldMap.put(UserDO.CONST_AGE, String.valueOf(user.getAge()));</span><br><span class="line">        redisTemplate.opsForHash().putAll(key, fieldMap);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDAO userDAO;</span><br><span class="line">    <span class="comment">/** 用户Redis */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserRedis userRedis;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 保存用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">saveUser</span><span class="params">(UserVO user)</span> &#123;</span><br><span class="line">        <span class="comment">// 转化用户信息</span></span><br><span class="line">        <span class="type">UserDO</span> <span class="variable">userDO</span> <span class="operator">=</span> transUser(user);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 保存Redis用户</span></span><br><span class="line">        userRedis.save(userDO);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 保存数据库用户</span></span><br><span class="line">        userDAO.save(userDO);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>把一个 Redis 对象相关操作接口封装为一个 DAO 类，符合面对对象的编程思想，也符合 SpringMVC 服务端三层架构规范，更便于代码的管理和维护。</p>
+<p><strong>4.把数据库模型类暴露给接口</strong></p>
+<h3 id="4-1-现象描述"><a href="#4-1-现象描述" class="headerlink" title="4.1.现象描述"></a><strong>4.1.现象描述</strong></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户DAO类 */</span></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserDAO</span> &#123;</span><br><span class="line">    <span class="comment">/** 获取用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> UserDO <span class="title function_">getUser</span><span class="params">(Long userId)</span> &#123;...&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDAO userDAO;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 获取用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> UserDO <span class="title function_">getUser</span><span class="params">(Long userId)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> userDAO.getUser(userId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 用户控制器类 */</span></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户服务 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 获取用户函数 */</span></span><br><span class="line">    <span class="meta">@RequestMapping(path = &quot;/getUser&quot;, method = RequestMethod.GET)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;UserDO&gt; <span class="title function_">getUser</span><span class="params">(<span class="meta">@RequestParam(name = &quot;userId&quot;, required = true)</span> Long userId)</span> &#123;</span><br><span class="line">        <span class="type">UserDO</span> <span class="variable">user</span> <span class="operator">=</span> userService.getUser(userId);</span><br><span class="line">        <span class="keyword">return</span> Result.success(user);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码，看上去是满足 SpringMVC 服务端三层架构的，唯一的问题就是把数据库模型类 UserDO 直接暴露给了外部接口。</p>
+<h3 id="-3"><a href="#-3" class="headerlink" title=""></a></h3><h3 id="4-2-存在问题及解决方案"><a href="#4-2-存在问题及解决方案" class="headerlink" title="4.2.存在问题及解决方案"></a><strong>4.2.存在问题及解决方案</strong></h3><p><strong>存在问题：</strong></p>
+<ul>
+<li>间接暴露数据库表格设计，给竞争对手竞品分析带来方便；</li>
+<li>如果数据库查询不做字段限制，会导致接口数据庞大，浪费用户的宝贵流量；</li>
+<li>如果数据库查询不做字段限制，容易把敏感字段暴露给接口，导致出现数据的安全问题；</li>
+<li>如果数据库模型类不能满足接口需求，需要在数据库模型类中添加别的字段，导致数据库模型类跟数据库字段不匹配问题；</li>
+<li>如果没有维护好接口文档，通过阅读代码是无法分辨出数据库模型类中哪些字段是接口使用的，导致代码的可维护性变差。</li>
+</ul>
+<p><strong>解决方案：</strong></p>
+<ul>
+<li>从管理制度上要求数据库和接口的模型类完全独立；</li>
+<li>从项目结构上限制开发人员把数据库模型类暴露给接口。</li>
+</ul>
+<h3 id="-4"><a href="#-4" class="headerlink" title=""></a></h3><h3 id="4-3-项目搭建的三种方式"><a href="#4-3-项目搭建的三种方式" class="headerlink" title="4.3.项目搭建的三种方式"></a><strong>4.3.项目搭建的三种方式</strong></h3><p>下面，将介绍如何更科学地搭建 Java 项目，有效地限制开发人员把数据库模型类暴露给接口。</p>
+<h4 id="第1种：共用模型的项目搭建"><a href="#第1种：共用模型的项目搭建" class="headerlink" title="第1种：共用模型的项目搭建"></a><strong>第1种：</strong>共用模型的项目搭建</h4><p>共用模型的项目搭建，把所有模型类放在一个模型项目（example-model）中，其它项目（example-repository、example-service、example-website）都依赖该模型项目，关系图如下：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811152724.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811152742.png"></p>
+<p><strong>风险：</strong>表现层项目（example-webapp）可以调用业务层项目（example-service）中的任意服务函数，甚至于越过业务层直接调用持久层项目（example-repository）的DAO函数。</p>
+<h4 id="第2种：模型分离的项目搭建"><a href="#第2种：模型分离的项目搭建" class="headerlink" title="第2种：模型分离的项目搭建"></a><strong>第2种：</strong>模型分离的项目搭建</h4><p>模型分离的项目搭建，单独搭建API项目（example-api），抽象出对外接口及其模型VO类。业务层项目（example-service）实现了这些接口，并向表现层项目（example-webapp）提供服务。表现层项目（example-webapp）只调用API项目（example-api）定义的服务接口。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811152816.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811152829.png"></p>
+<p><strong>风险：</strong>表现层项目（example-webapp）仍然可以调用业务层项目（example-service）提供的内部服务函数和持久层项目（example-repository）的DAO函数。为了避免这种情况，只好管理制度上要求表现层项目（example-webapp）只能调用API项目（example-api）定义的服务接口函数。</p>
+<h4 id="-5"><a href="#-5" class="headerlink" title=""></a></h4><h4 id="第3种：服务化的项目搭建"><a href="#第3种：服务化的项目搭建" class="headerlink" title="第3种：服务化的项目搭建"></a><strong>第3种：</strong>服务化的项目搭建</h4><p>服务化的项目搭，就是把业务层项目（example-service）和持久层项目（example-repository）通过 Dubbo 项目（example-dubbo）打包成一个服务，向业务层项目（example-webapp）或其它业务项目（other-service）提供API项目（example-api）中定义的接口函数。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811152903.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190811152922.png"></p>
+<p><strong>说明：</strong>Dubbo 项目（example-dubbo）只发布 API 项目（example-api）中定义的服务接口，保证了数据库模型无法暴露。业务层项目（example-webapp）或其它业务项目（other-service）只依赖了 API 项目（example-api），只能调用该项目中定义的服务接口。</p>
+<h3 id="4-4-一条不太建议的建议"><a href="#4-4-一条不太建议的建议" class="headerlink" title="4.4.一条不太建议的建议"></a><strong>4.4.一条不太建议的建议</strong></h3><p>有人会问：接口模型和持久层模型分离，接口定义了一个查询数据模型VO类，持久层也需要定义一个查询数据模型DO类；接口定义了一个返回数据模型VO类，持久层也需要定义一个返回数据模型DO类……这样，对于项目早期快速迭代开发非常不利。能不能只让接口不暴露持久层数据模型，而能够让持久层使用接口的数据模型？</p>
+<p>如果从SpringMVC服务端三层架构来说，这是不允许的，因为它会影响三层架构的独立性。但是，如果从快速迭代开发来说，这是允许的，因为它并不会暴露数据库模型类。所以，这是一条不太建议的建议。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 用户DAO类 */</span></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserDAO</span> &#123;</span><br><span class="line">    <span class="comment">/** 统计用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> Long <span class="title function_">countByParameter</span><span class="params">(QueryUserParameterVO parameter)</span> &#123;...&#125;</span><br><span class="line">    <span class="comment">/** 查询用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;UserVO&gt; <span class="title function_">queryByParameter</span><span class="params">(QueryUserParameterVO parameter)</span> &#123;...&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 用户服务类 */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户DAO */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserDAO userDAO;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 查询用户函数 */</span></span><br><span class="line">    <span class="keyword">public</span> PageData&lt;UserVO&gt; <span class="title function_">queryUser</span><span class="params">(QueryUserParameterVO parameter)</span> &#123;</span><br><span class="line">        <span class="type">Long</span> <span class="variable">totalCount</span> <span class="operator">=</span> userDAO.countByParameter(parameter);</span><br><span class="line">        List&lt;UserVO&gt; userList = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (Objects.nonNull(totalCount) &amp;&amp; totalCount.compareTo(<span class="number">0L</span>) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            userList = userDAO.queryByParameter(parameter);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PageData</span>&lt;&gt;(totalCount, userList);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** 用户控制器类 */</span></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">    <span class="comment">/** 用户服务 */</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserService userService;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 查询用户函数(parameter中包括分页参数startIndex和pageSize) */</span></span><br><span class="line">    <span class="meta">@RequestMapping(path = &quot;/queryUser&quot;, method = RequestMethod.POST)</span></span><br><span class="line">    <span class="keyword">public</span> Result&lt;PageData&lt;UserVO&gt;&gt; <span class="title function_">queryUser</span><span class="params">(<span class="meta">@Valid</span> <span class="meta">@RequestBody</span> QueryUserParameterVO parameter)</span> &#123;</span><br><span class="line">        PageData&lt;UserVO&gt; pageData = userService.queryUser(parameter);</span><br><span class="line">        <span class="keyword">return</span> Result.success(pageData);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a><strong>后记</strong></h2><hr>
+<p>“仁者见仁、智者见智”，每个人都有自己的想法，而文章的内容也只是我的一家之言。</p>
+<p>谨以此文献给那些我工作过的创业公司，是您们曾经放手让我去整改乱象，让我从中受益颇深并得以技术成长。</p>
+<p><strong>本文作者：</strong></p>
+<p>陈昌毅，花名常意，高德地图技术专家，2018年加入阿里巴巴，一直从事地图数据采集的相关工作。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/08/11/Java%E4%BB%A3%E7%A0%81%E4%B9%B1%E8%B1%A1%EF%BC%81/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/08/11/SpringBoot-jpa%E5%A4%9A%E6%9D%A1%E4%BB%B6%E6%9F%A5%E8%AF%A2%EF%BC%88%E5%8F%82%E6%95%B0%E5%8F%AF%E8%83%BD%E4%B8%BA%E7%A9%BA%EF%BC%89%E8%AF%AD%E5%8F%A5/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            SpringBoot jpa多条件查询（参数可能为空）语句
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/08/11/%E5%A6%82%E4%BD%95%E6%88%90%E4%B8%BA%E8%AE%B2%E8%AF%9D%E6%9C%89%E8%B6%A3%E7%9A%84%E4%BA%BA/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">《如何成为讲话有趣的人》</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

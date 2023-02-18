@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>在工作中常用到的SQL |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-在工作中常用到的SQL"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  在工作中常用到的SQL
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/" class="article-date">
+  <time datetime="2019-07-29T16:12:35.000Z" itemprop="datePublished">2019-07-30</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>最近在公司做了几张报表，还记得刚开始要做报表的时候都快把SQL给忘光了（当时在广州休假了1个月多，在实习期间也没咋写过SQL），回到公司的第一个需求就是做报表。</p>
+<p>于是我很不要脸地跟带我的学长说：“SQL我好像忘光了，group 分组查询好像都忘得差不多了，我得复习一下”。</p>
+<p>这篇文章来记录一下我曾经<strong>忘掉</strong>的group查询、join查询等一些比较<strong>实用&#x2F;常用</strong>的SQL</p>
+<ul>
+<li>本文主打<strong>通俗易懂</strong>，不涵盖任何优化(适合新手观看)</li>
+</ul>
+<h2 id="一、回顾group-查询"><a href="#一、回顾group-查询" class="headerlink" title="一、回顾group 查询"></a>一、回顾group 查询</h2><p><code>group</code>查询就是分组查询，为什么要分组查询？因为我们想按某个维度进行统计。下面来看个图：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001326.png"></p>
+<p>比如说，我想知道：<code>每天Java3y这个公众号的点击量是多少。</code>按我们人工而言，思路很简单：把相同的天数以及公众号名称为Java3y的数据找出来，再将每个点击量相加，就得出了结果了。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001348.png"></p>
+<p>用上SQL我们可能会这样写：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> name,<span class="type">time</span>,<span class="built_in">sum</span>(pv) <span class="keyword">as</span> pv  </span><br><span class="line"><span class="keyword">from</span> xxx_table </span><br><span class="line"><span class="keyword">where</span> name <span class="operator">=</span> <span class="string">&#x27;Java3y&#x27;</span> <span class="keyword">group</span> <span class="keyword">by</span> name,<span class="type">time</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-1-group-查询可能存在的误解"><a href="#1-1-group-查询可能存在的误解" class="headerlink" title="1.1 group 查询可能存在的误解"></a>1.1 group 查询可能存在的误解</h3><p>记得有一天，有个群友在群上问了一个问题：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001431.png"></p>
+<p>其实他的需求很简单：检索出数据分组后时间最高的记录。但他是这样干的：</p>
+<ol>
+<li>把先按照时间 <code>order by</code></li>
+<li>对<code>order by</code>后的记录进行分组</li>
+</ol>
+<p>示例图：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001503.png"></p>
+<h3 id="1-2-造成这个误解的可能原因"><a href="#1-2-造成这个误解的可能原因" class="headerlink" title="1.2 造成这个误解的可能原因"></a>1.2 造成这个误解的可能原因</h3><p>有的工具可以支持这种的写法：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> xxx_table <span class="keyword">group</span> <span class="keyword">by</span> name</span><br></pre></td></tr></table></figure>
+
+<p>这种写法没有被禁止，并可以得出结果，比如得到的结果是：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Java4y    <span class="number">20</span>  <span class="number">7</span>月<span class="number">15</span>号</span><br><span class="line">Java3y    <span class="number">30</span>  <span class="number">7</span>月<span class="number">15</span>号</span><br></pre></td></tr></table></figure>
+
+<p>这种写法其实是不合理的，要知道的是：使用<code>group by</code>分组统计之后，我们的select 后面只能跟着group by 的字段，或者是聚合函数。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001543.png"></p>
+<p>因为，我们对数据进行了分组查询，<strong>数据的分布情况，我们是不关心的</strong>。</p>
+<p>记住：<strong>先分组，后统计</strong>(先把数据归类后，再对相同的数据进行统计)</p>
+<h3 id="1-3-group查询最常用的SQL"><a href="#1-3-group查询最常用的SQL" class="headerlink" title="1.3 group查询最常用的SQL"></a>1.3 group查询最常用的SQL</h3><p><strong>去重</strong>是我们经常会遇到的问题，打个比方说，由于各种原因（不管是业务上还是说是脏数据），现在我有两条重复的数据（除了ID，其余的字段都是相同的）：</p>
+<span id="more"></span>
+
+<p> <img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001621.png"></p>
+<p>我这边只希望留下某一条记录作为查询结果就好了，我们可以写下以下的SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> id <span class="keyword">in</span>(</span><br><span class="line">   <span class="keyword">select</span> <span class="built_in">min</span>(id) <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> name <span class="operator">=</span> <span class="string">&#x27;Java3y&#x27;</span> <span class="keyword">and</span> pv <span class="operator">=</span> <span class="number">20</span> <span class="keyword">and</span> <span class="type">time</span><span class="operator">=</span><span class="string">&#x27;7-25&#x27;</span> <span class="keyword">group</span> <span class="keyword">by</span> name,pv,<span class="type">time</span>;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>上面这条SQL是非常非常实用的，除了我说的去重以外，其实我们可以再”思考“一下：</p>
+<ul>
+<li>上面已经说了，使用<code>group by</code>分组统计之后，我们的select 后面只能跟着group by 的字段，或者是聚合函数。</li>
+<li>很多时候我们<code>group by</code>了以后，还想要查询结果中包含<code>group by</code>之外的字段(一般情况下，我们都不可能将group by 涵盖所有的字段)，我们就可以上面那样，将查询后的结果作为子查询，放在外部查询的where 子句后，这样外部查询是可以select 出其他字段的。</li>
+</ul>
+<p>(SQL写得比较少的朋友可能没什么感触啊，但我希望上面那种写法大家能够记住，以后一定会遇到<strong>类似</strong>的情况的)</p>
+<h2 id="二、回顾join查询"><a href="#二、回顾join查询" class="headerlink" title="二、回顾join查询"></a>二、回顾join查询</h2><p>join查询不知道大家在刚学的时候是怎么理解的，反正我当初好像就挺迷迷糊糊的。我觉得join查询可以简单理解成这样：<strong>我想要的查询结果，一张表搞不掂，那我就join另一张表</strong></p>
+<p>比如说，现在我有两张的表：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001709.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001721.png"></p>
+<p>现在我想知道在7月25号时：每个公众号的点击量、公众号名称、号主名称、公众号的创建日期</p>
+<ul>
+<li>显然，我们会发现<strong>一张表搞不掂</strong>啊，某些数据要依赖于另一张表才能把数据”完整”展示出来</li>
+</ul>
+<p>那join其实就是把两张表合起来的一个操作：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001756.png"></p>
+<p>两张表合并起来以后我们就会发现，这张“大表”就含有这两张表的所有字段啦，那我想要什么都有了！</p>
+<p>值得注意的是：在join的时候，会产生笛卡尔积（至于什么是笛卡尔积我这里就不说了，反正我们要记住的是<strong>join表时一定要写关联条件去除笛卡尔积</strong>）</p>
+<p>另外，<code>left join</code>和<code>right join</code>也是我们经常用到，如果我们单纯写<code>join</code>关键字，那会被当成是<code>inner join</code> 。下面我简单解释一下：</p>
+<ul>
+<li>上面说了，在join的时候一定要写<strong>关联条件</strong>，如果是<code>inner join</code>的话，只有符合关联条件的数据才会存在最大表中</li>
+<li>如果是<code>left join</code>的话，即便关联条件不符合，左边表的数据一定会存在大表中</li>
+<li>如果是<code>right join</code>的话，即便关联条件不符合，右边表的数据一定会存在大表中</li>
+</ul>
+<p>看下面的图：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190730001817.png"></p>
+<p>此时我们的两张表关联的条件是“公众号” ：如果是<code>inner join</code>，那么最后我们的表只有两条记录。如果是<code>left join</code> ，那么最后我们的表有三条数据。如果是<code>right join</code>，那么我们最后的表只有两条数据</p>
+<h2 id="三、回顾case-when"><a href="#三、回顾case-when" class="headerlink" title="三、回顾case when"></a>三、回顾case when</h2><p>SQL中的case when then else end用法其实跟我们程序语言中的<code>if-else</code>很是类似，在写SQL的时候也常常会用到。</p>
+<p>我用得比较多的语法如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CASE</span> <span class="keyword">WHEN</span> sex <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span> <span class="keyword">THEN</span> <span class="string">&#x27;男&#x27;</span></span><br><span class="line">         <span class="keyword">WHEN</span> sex <span class="operator">=</span> <span class="string">&#x27;2&#x27;</span> <span class="keyword">THEN</span> <span class="string">&#x27;女&#x27;</span></span><br><span class="line"><span class="keyword">ELSE</span> <span class="string">&#x27;其他&#x27;</span> <span class="keyword">END</span> </span><br></pre></td></tr></table></figure>
+
+<p>在when后面可以跟多个表达式，比如说：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CASE WHEN sex = &#x27;1&#x27; and name =&#x27;Java3y&#x27; THEN &#x27;男&#x27;</span><br><span class="line">         WHEN sex = &#x27;2&#x27; and name =&#x27;Java4y&#x27; THEN &#x27;女&#x27;</span><br><span class="line">ELSE &#x27;其他&#x27; END   </span><br></pre></td></tr></table></figure>
+
+<p>如果要为<code>case when</code>表达式取别名，在<code>end</code> 关键字后边直接加就好了</p>
+<p>更多用法详情参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/prefect/p/5746624.html">https://www.cnblogs.com/prefect/p/5746624.html</a></li>
+</ul>
+<h2 id="四、一些常用的函数"><a href="#四、一些常用的函数" class="headerlink" title="四、一些常用的函数"></a>四、一些常用的函数</h2><h3 id="4-1-hive和presto解析json"><a href="#4-1-hive和presto解析json" class="headerlink" title="4.1 hive和presto解析json"></a>4.1 hive和presto解析json</h3><p>我这边会有这种情况：将json数据存到MySQL上。我去网上搜了一下以及问了同事，为什么要将json存到MySQL的字段上时，他们的答复都差不多：</p>
+<ul>
+<li>在MySQL存json数据，这样方便扩展啊。如果那些字段不需要用到索引，改动比较频繁，你又不想改动表的结构，那可以存json。</li>
+<li>ps:在MySQL 5.7版本以后支持json类型</li>
+</ul>
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1004449">https://cloud.tencent.com/developer/article/1004449</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/324674084/answer/685522547">https://www.zhihu.com/question/324674084/answer/685522547</a></li>
+</ul>
+<p>我这边做报表一般来hive或presto上搞的，所以解析json的也是在那上面。</p>
+<p>hive解析json函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">get_json_object(param1,&#x27;$.param2&#x27;)</span><br><span class="line"></span><br><span class="line">-- 如果是数组</span><br><span class="line">get_json_object(xjson，&#x27;$.[0].param2&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>presto 对json的处理函数:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- 数组  (去除第index个json)</span><br><span class="line">json_array_get(xjson,index) </span><br><span class="line"></span><br><span class="line">-- 单个jsoin对象</span><br><span class="line">json_extract(xjson,&#x27;$.param2&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/drjava/p/10536922.html">https://www.cnblogs.com/drjava/p/10536922.html</a></li>
+</ul>
+<h3 id="4-2-时间函数"><a href="#4-2-时间函数" class="headerlink" title="4.2 时间函数"></a>4.2 时间函数</h3><p>昨天&#x2F;近7天&#x2F;本月按照这种指标来查询也是非常常见的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">昨天</span><br><span class="line"></span><br><span class="line">SELECT * FROM 表名 WHERE TO_DAYS( NOW( ) ) - TO_DAYS( 时间字段名) &lt;= 1</span><br><span class="line"></span><br><span class="line">7天</span><br><span class="line"></span><br><span class="line">SELECT * FROM 表名 where DATE_SUB(CURDATE(), INTERVAL 7 DAY) &lt;= date(时间字段名)</span><br><span class="line"></span><br><span class="line">近30天</span><br><span class="line"></span><br><span class="line">SELECT * FROM 表名 where DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= date(时间字段名)</span><br><span class="line"></span><br><span class="line">本月</span><br><span class="line"></span><br><span class="line">SELECT * FROM 表名 WHERE DATE_FORMAT( 时间字段名, &#x27;%Y%m&#x27; ) = DATE_FORMAT( CURDATE( ) , &#x27;%Y%m&#x27; )</span><br><span class="line"></span><br><span class="line">上一月</span><br><span class="line"></span><br><span class="line">SELECT * FROM 表名 WHERE PERIOD_DIFF( date_format( now( ) , &#x27;%Y%m&#x27; ) , date_format( 时间字段名, &#x27;%Y%m&#x27; ) ) =1</span><br></pre></td></tr></table></figure>
+
+<p>在presto中使用时间格式，需要明确写出关键字<code>timestamp</code>，比如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select supplier,count(id) </span><br><span class="line">from xxx_table </span><br><span class="line">where sendtime &gt;= timestamp &#x27;2019-06-01&#x27; </span><br></pre></td></tr></table></figure>
+
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/cool_easy/article/details/50880949">https://blog.csdn.net/cool_easy/article/details/50880949</a></li>
+</ul>
+<h3 id="4-3-其他常用的函数"><a href="#4-3-其他常用的函数" class="headerlink" title="4.3 其他常用的函数"></a>4.3 其他常用的函数</h3><p>这里我简单整理一下我最近用过函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">length  --计算字符串长度</span><br><span class="line">concat  --连接两个字符串</span><br><span class="line">substring -- 截取字符串</span><br><span class="line">count   -- 统计数量</span><br><span class="line">max   -- 最大</span><br><span class="line">min   -- 最小</span><br><span class="line">sum   -- 合计</span><br><span class="line">floor/ceil  --...数学函数</span><br></pre></td></tr></table></figure>
+
+<p>再来分享一下最近遇到的一个需求，现在有的数据如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">【Java3y简单】快乐学习</span><br><span class="line">【Java3y简单】快乐学习渣渣</span><br><span class="line">【Java3y通俗易懂】简单学</span><br><span class="line">【Java3y通俗易懂】简单学芭芭拉</span><br><span class="line">【Java3y平易近人】无聊学</span><br><span class="line">【Java3y初学者】枯燥学</span><br><span class="line">【Java3y初学者】枯燥学呱呱</span><br><span class="line">【Java3y大数据】欣慰学</span><br><span class="line">【Java3y学习】巴拉巴拉学</span><br><span class="line">【Java3y学习】巴拉巴拉学哈哈</span><br><span class="line">【Java3y好】雨女无瓜学</span><br></pre></td></tr></table></figure>
+
+<p>现在我统计出【】括号里边出现的频次，比如说：<code>Java3y通俗易懂</code>出现的频次是多少。当时一直都没想到好的思路，都快要搜“SQL 正则表达式 快速入门”了，请教了一下同事，同事很快就写出来了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select substring_index(left(title , INSTR(title , &#x27;】&#x27;) -1 ) , &#x27;【&#x27;,-1) </span><br><span class="line">FROM `xxx_table`</span><br></pre></td></tr></table></figure>
+
+<p><strong>哇~，awesome</strong></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/07/30/%E5%9C%A8%E5%AE%B6%E8%87%AA%E5%BE%8B%E6%80%A7%E9%83%BD%E8%83%BD%E6%9A%B4%E6%B6%A8200-%E7%9A%84%E5%B0%8F%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            在家自律性都能暴涨200%的小技巧分享
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">优秀的代码都是如何分层的？</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

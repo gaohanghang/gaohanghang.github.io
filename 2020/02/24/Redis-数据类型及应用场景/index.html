@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Redis 数据类型及应用场景 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Redis-数据类型及应用场景"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Redis 数据类型及应用场景
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2020/02/24/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" class="article-date">
+  <time datetime="2020-02-24T11:53:22.000Z" itemprop="datePublished">2020-02-24</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000012212663">https://segmentfault.com/a/1190000012212663</a></p>
+<p>作者：<a target="_blank" rel="noopener" href="https://segmentfault.com/u/waterandair">waterandair</a></p>
+</blockquote>
+<h3 id="一、-redis-特点"><a href="#一、-redis-特点" class="headerlink" title="一、 redis 特点"></a>一、 redis 特点</h3><ul>
+<li>所有数据存储在内存中，高速读写</li>
+<li>提供丰富多样的数据类型：string、 hash、 set、 sorted set、bitmap、hyperloglog</li>
+<li>提供了 AOF 和 RDB 两种数据的持久化保存方式，保证了 Redis 重启后数据不丢失</li>
+<li>Redis 的所有操作都是原子性的，还支持对几个操作合并后的原子性操作，支持事务</li>
+</ul>
+<p>　通常我们都把数据存到关系型数据库中，但为了提升应用的性能，我们应该把访频率高且不会经常变动的数据缓存到内存中。。Redis 没有像 MySQL 这类关系型数据库那样强大的查询功能，需要考虑如何把关系型数据库中的数据，合理的对应到缓存的 key-value 数据结构中。</p>
+<h3 id="二、-设计-Redis-Key"><a href="#二、-设计-Redis-Key" class="headerlink" title="二、 设计 Redis Key"></a>二、 设计 Redis Key</h3><h4 id="分段设计法"><a href="#分段设计法" class="headerlink" title="分段设计法"></a>分段设计法</h4><p>　　使用冒号把 key 中要表达的多种含义分开表示，步骤如下：</p>
+<ol>
+<li>把表名转化为 key 前缀</li>
+<li>主键名（或其他常用于搜索的字段）</li>
+<li>主键值</li>
+<li>要存储的字段。</li>
+</ol>
+<p>eg. 用户表（user）</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>email</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>zj</td>
+<td><a href="mailto:&#49;&#x35;&#54;&#x35;&#x37;&#55;&#56;&#x31;&#x32;&#x40;&#113;&#113;&#46;&#99;&#x6f;&#109;">&#49;&#x35;&#54;&#x35;&#x37;&#55;&#56;&#x31;&#x32;&#x40;&#113;&#113;&#46;&#99;&#x6f;&#109;</a></td>
+</tr>
+<tr>
+<td>2</td>
+<td>ai</td>
+<td><a href="mailto:&#49;&#x35;&#x36;&#x35;&#x37;&#x37;&#56;&#49;&#x33;&#64;&#x71;&#x71;&#46;&#x63;&#111;&#109;">&#49;&#x35;&#x36;&#x35;&#x37;&#x37;&#56;&#49;&#x33;&#64;&#x71;&#x71;&#46;&#x63;&#111;&#109;</a></td>
+</tr>
+</tbody></table>
+<p>这个简单的表可能经常会有这个的需求：&gt;根据用户 id 查询用户邮箱地址，可以选择把邮箱地址这个数据存到 redis 中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set user:id:1:email 156577812@qq.com;</span><br><span class="line">set user:id:2:email 156577812@qq.com;</span><br></pre></td></tr></table></figure>
+
+<h3 id="三、-String数据类型的应用场景"><a href="#三、-String数据类型的应用场景" class="headerlink" title="三、 String数据类型的应用场景"></a>三、 String数据类型的应用场景</h3><h4 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　string 类型是 Redis 中最基本的数据类型，最常用的数据类型，甚至被很多玩家当成 redis 唯一的数据类型去使用。string 类型在 redis 中是二进制安全(binary safe)的,这意味着 string 值关心二进制的字符串，不关心具体格式，你可以用它存储 json 格式或 JPEG 图片格式的字符串。
+　　</p>
+<h4 id="2-数据模型"><a href="#2-数据模型" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p>　　string 类型是基本的 Key-Value 结构，Key 是某个数据在 Redis 中的唯一标识，Value 是具体的数据。</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>‘name’</td>
+<td>‘redis’</td>
+</tr>
+<tr>
+<td>‘type’</td>
+<td>‘string’</td>
+</tr>
+</tbody></table>
+<h4 id="3-应用场景"><a href="#3-应用场景" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><h5 id="1-存储-MySQL-中某个字段的值"><a href="#1-存储-MySQL-中某个字段的值" class="headerlink" title="(1) 存储 MySQL 中某个字段的值"></a>(1) 存储 MySQL 中某个字段的值</h5><p>把 key 设计为 表名：主键名：主键值：字段名<br>eg.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set user:id:1:email 156577812@qq.com</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-存储对象"><a href="#2-存储对象" class="headerlink" title="(2) 存储对象"></a>(2) 存储对象</h5><p>string 类型支持任何格式的字符串，应用最多的就是存储 json 或其他对象格式化的字符串。(这种场景下推荐使用 hash 数据类型)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set user:id:1 &#x27;[&#123;&quot;id&quot;:1,&quot;name&quot;:&quot;zj&quot;,&quot;email&quot;:&quot;156577812@qq.com&quot;&#125;,&#123;&quot;id&quot;:1,&quot;name&quot;:&quot;zj&quot;,&quot;email&quot;:&quot;156577812@qq.com&quot;&#125;]&#x27;</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-生成自增-id"><a href="#3-生成自增-id" class="headerlink" title="(3) 生成自增 id"></a>(3) 生成自增 id</h5><p>当 redis 的 string 类型的值为整数形式时，redis 可以把它当做是整数一样进行自增（incr）自减（decr）操作。由于 redis 所有的操作都是原子性的，所以<code>不必担心多客户端连接时可能出现的事务</code>问题。</p>
+<h3 id="四、hash-数据类型的应用场景"><a href="#四、hash-数据类型的应用场景" class="headerlink" title="四、hash 数据类型的应用场景"></a>四、hash 数据类型的应用场景</h3><h4 id="1-简介-1"><a href="#1-简介-1" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　hash 类型很像一个关系型数据库的数据表，hash 的 Key 是一个唯一值，Value 部分是一个 hashmap 的结构。
+　　</p>
+<h4 id="2-数据模型-1"><a href="#2-数据模型-1" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p>　　假设有一张数据库表如下：</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>name</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>redis</td>
+<td>hash</td>
+</tr>
+</tbody></table>
+<p>　　如果要用 redis 的 hash 结构存储，数据模型如下：</p>
+<p><img src="https://segmentfault.com/img/bVVQ6K?w=403&h=191" alt="clipboard.png"></p>
+<p>　　hash数据类型在存储上述类型的数据时具有比 string 类型更灵活、更快的优势，具体的说，使用 string 类型存储，必然需要转换和解析 json 格式的字符串，即便不需要转换，在内存开销方面，还是 hash 占优势。
+　　</p>
+<h4 id="3-应用场景-1"><a href="#3-应用场景-1" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><p>hash 类型十分适合存储对象类数据，相对于在 string 中介绍的把对象转化为 json 字符串存储，hash 的结构可以任意添加或删除‘字段名’，更加高效灵活。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hmset user:1 name zj email 156577812@qq.com</span><br></pre></td></tr></table></figure>
+
+<h3 id="五、list-数据类型的应用场景"><a href="#五、list-数据类型的应用场景" class="headerlink" title="五、list 数据类型的应用场景"></a>五、list 数据类型的应用场景</h3><h4 id="1-简介-2"><a href="#1-简介-2" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　list 是按照插入顺序排序的字符串链表，可以在头部和尾部插入新的元素（双向链表实现，两端添加元素的时间复杂度为 O(1)）。插入元素时，如果 key 不存在，redis 会为该 key 创建一个新的链表，如果链表中所有的元素都被移除，该 key 也会从 redis 中移除。</p>
+<h4 id="2-数据模型-2"><a href="#2-数据模型-2" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p><img src="https://segmentfault.com/img/bVVRaU?w=483&h=159" alt="clipboard.png"></p>
+<p>　　常见操作时用 lpush 命令在 list 头部插入元素， 用 rpop 命令在 list 尾取出数据。
+　　</p>
+<h4 id="3-应用场景-2"><a href="#3-应用场景-2" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><h5 id="1-消息队列"><a href="#1-消息队列" class="headerlink" title="(1) 消息队列"></a>(1) 消息队列</h5><p>　　redis 的 list 数据类型对于大部分使用者来说，是实现队列服务的最经济，最简单的方式。
+　　</p>
+<h5 id="2-“最新内容”"><a href="#2-“最新内容”" class="headerlink" title="(2) “最新内容”"></a>(2) “最新内容”</h5><p>因为 list 结构的数据查询两端附近的数据性能非常好，所以适合一些需要获取最新数据的场景，比如新闻类应用的 “最近新闻”。
+　　</p>
+<h4 id="4-优化建议"><a href="#4-优化建议" class="headerlink" title="4.优化建议"></a>4.优化建议</h4><h5 id="1-list-是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。"><a href="#1-list-是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。" class="headerlink" title="(1) list 是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。"></a>(1) list 是链表结构，所有如果在头部和尾部插入数据，性能会非常高，不受链表长度的影响；但如果在链表中插入数据，性能就会越来越差。</h5><h3 id="六、set-数据类型的应用场景"><a href="#六、set-数据类型的应用场景" class="headerlink" title="六、set 数据类型的应用场景"></a>六、set 数据类型的应用场景</h3><h4 id="1-简介-3"><a href="#1-简介-3" class="headerlink" title="1. 简介"></a>1. 简介</h4><p>　　set 数据类型是一个集合（没有排序，不重复），可以对 set 类型的数据进行添加、删除、判断是否存在等操作（时间复杂度是 O(1) ）<br>　　set 集合不允许数据重复，如果添加的数据在 set 中已经存在，将只保留一份。<br>　　set 类型提供了多个 set 之间的聚合运算，如求交集、并集、补集，这些操作在 redis 内部完成，效率很高。</p>
+<h4 id="2-数据模型-3"><a href="#2-数据模型-3" class="headerlink" title="2. 数据模型"></a>2. 数据模型</h4><p><img src="https://segmentfault.com/img/bVVRdw?w=385&h=274" alt="clipboard.png"></p>
+<h4 id="3-应用场景-3"><a href="#3-应用场景-3" class="headerlink" title="3. 应用场景"></a>3. 应用场景</h4><p>　　set 类型的特点是——不重复且无序的一组数据，并且具有丰富的计算功能，在一些特定的场景中可以高效的解决一般关系型数据库不方便做的工作。</p>
+<h5 id="1-“共同好友列表”"><a href="#1-“共同好友列表”" class="headerlink" title="1. “共同好友列表”"></a>1. “共同好友列表”</h5><p>　　社交类应用中，获取两个人或多个人的共同好友，两个人或多个人共同关注的微博这样类似的功能，用 MySQL 的话操作很复杂，可以把每个人的好友 id 存到集合中，获取共同好友的操作就可以简单到一个取交集的命令就搞定。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">// 这里为了方便阅读，把 id 替换成姓名</span><br><span class="line">sadd user:wade james melo paul kobe</span><br><span class="line">sadd user:james wade melo paul kobe</span><br><span class="line">sadd user:paul wade james melo kobe</span><br><span class="line">sadd user:melo wade james paul kobe</span><br><span class="line"></span><br><span class="line">// 获取 wade 和 james 的共同好友</span><br><span class="line">sinter user:wade user:james</span><br><span class="line">/* 输出：</span><br><span class="line"> *      1) &quot;kobe&quot;</span><br><span class="line"> *      2) &quot;paul&quot;</span><br><span class="line"> *      3) &quot;melo&quot;</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line"> // 获取香蕉四兄弟的共同好友</span><br><span class="line"> sinter user:wade user:james user:paul user:melo</span><br><span class="line"> /* 输出：</span><br><span class="line"> *      1) &quot;kobe&quot;</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line"> /*</span><br><span class="line">     类似的需求还有很多 , 必须把每个标签下的文章 id 存到集合中，可以很容易的求出几个不同标签下的共同文章；</span><br><span class="line"> 把每个人的爱好存到集合中，可以很容易的求出几个人的共同爱好。 </span><br><span class="line"> */</span><br></pre></td></tr></table></figure>
+
+<h3 id="七、sorted-set-数据类型的应用场景"><a href="#七、sorted-set-数据类型的应用场景" class="headerlink" title="七、sorted set 数据类型的应用场景"></a>七、sorted set 数据类型的应用场景</h3><h4 id="1-简介-4"><a href="#1-简介-4" class="headerlink" title="1.简介"></a>1.简介</h4><p>　　在 set 的基础上给集合中每个元素关联了一个分数，往有序集合中插入数据时会自动根据这个分数排序。</p>
+<h4 id="2-应用场景"><a href="#2-应用场景" class="headerlink" title="2.应用场景"></a>2.应用场景</h4><p>　　在集合类型的场景上加入排序就是有序集合的应用场景了。比如根据好友的“亲密度”排序显示好友列表。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">// 用元素的分数（score）表示与好友的亲密度</span><br><span class="line">zadd user:kobe 80 james 90 wade  85 melo  90 paul</span><br><span class="line"></span><br><span class="line">// 根据“亲密度”给好友排序</span><br><span class="line">zrevrange user:kobe 0 -1</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 输出：</span><br><span class="line"> *      1) &quot;wade&quot;</span><br><span class="line"> *      2) &quot;paul&quot;</span><br><span class="line"> *      3) &quot;melo&quot;</span><br><span class="line"> *      4) &quot;james&quot;</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line">// 增加好友的亲密度</span><br><span class="line">zincrby user:kobe 15 james</span><br><span class="line"></span><br><span class="line">// 再次根据“亲密度”给好友排序</span><br><span class="line">zrevrange user:kobe 0 -1</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 输出：</span><br><span class="line"> *      1) &quot;james&quot;</span><br><span class="line"> *      2) &quot;wade&quot;</span><br><span class="line"> *      3) &quot;paul&quot;</span><br><span class="line"> *      2) &quot;melo&quot;</span><br></pre></td></tr></table></figure> 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2020/02/24/Redis-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/02/26/java8%E5%B8%B8%E7%94%A8%E4%BB%A3%E7%A0%81/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            java8 常用代码
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/02/22/JSON-Web-Token-%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">JSON Web Token 入门教程</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

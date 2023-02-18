@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>多个单列索引和联合索引的区别详解 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-多个单列索引和联合索引的区别详解"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  多个单列索引和联合索引的区别详解
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/25/%E5%A4%9A%E4%B8%AA%E5%8D%95%E5%88%97%E7%B4%A2%E5%BC%95%E5%92%8C%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/" class="article-date">
+  <time datetime="2019-12-25T04:20:45.000Z" itemprop="datePublished">2019-12-25</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://blog.csdn.net/abysscarry/article/details/80792876">https://blog.csdn.net/abysscarry/article/details/80792876</a></p>
+<p>作者：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Abysscarry" title="深寒丶">深寒丶</a></p>
+<p>对索引中的<strong>所有列</strong>执行搜索或仅对<strong>前几列</strong>执行搜索时，<strong>复合索引非常有用</strong>；<strong>仅对后面的任意列</strong>执行搜索时，<strong>复合索引则没有用处。</strong></p>
+<p>or索引失效：</p>
+<p>所谓的索引失效指的是：假如 or 连接的<strong>俩个查询条件字段中有一个没有索引</strong>的话,引擎会放弃索引而产生全表扫描。我们从 or 的基本含义出发应该能理解并认可这种说法，没啥问题。</p>
+</blockquote>
+<p><strong><em>背景：</em></strong></p>
+<p><em>为了提高数据库效率，建索引是家常便饭；那么当查询条件为 2 个及以上时，我们是创建<strong>多个单列索引</strong>还是创建<strong>一个联合索引</strong>好呢？他们之间的区别是什么？哪个效率高呢？我在这里详细测试分析下。</em></p>
+<h2 id="一、联合索引测试"><a href="#一、联合索引测试" class="headerlink" title="一、联合索引测试"></a>一、联合索引测试</h2><p><em>注：Mysql 版本为 5.7.20</em></p>
+<p><strong>创建测试表(表记录数为 63188)：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `t_mobilesms_11` (</span><br><span class="line">  `id` <span class="type">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  `userId` <span class="type">varchar</span>(<span class="number">255</span>) <span class="type">CHARACTER</span> <span class="keyword">SET</span> utf8 <span class="keyword">COLLATE</span> utf8_bin <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;&#x27;</span> COMMENT <span class="string">&#x27;用户id，创建任务时的userid&#x27;</span>,</span><br><span class="line">  `mobile` <span class="type">varchar</span>(<span class="number">24</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;&#x27;</span> COMMENT <span class="string">&#x27;手机号码&#x27;</span>,</span><br><span class="line">  `billMonth` <span class="type">varchar</span>(<span class="number">32</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;账单月&#x27;</span>,</span><br><span class="line">  `<span class="type">time</span>` <span class="type">varchar</span>(<span class="number">32</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;收/发短信时间&#x27;</span>,</span><br><span class="line">  `peerNumber` <span class="type">varchar</span>(<span class="number">64</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;对方号码&#x27;</span>,</span><br><span class="line">  `location` <span class="type">varchar</span>(<span class="number">64</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;通信地(自己的)&#x27;</span>,</span><br><span class="line">  `sendType` <span class="type">varchar</span>(<span class="number">16</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;SEND-发送; RECEIVE-收取&#x27;</span>,</span><br><span class="line">  `msgType` <span class="type">varchar</span>(<span class="number">8</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;SMS-短信; MSS-彩信&#x27;</span>,</span><br><span class="line">  `serviceName` <span class="type">varchar</span>(<span class="number">256</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;业务名称. e.g. 点对点(网内)&#x27;</span>,</span><br><span class="line">  `fee` <span class="type">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;通信费(单位分)&#x27;</span>,</span><br><span class="line">  `createTime` datetime <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line">  `lastModifyTime` datetime <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;最后修改时间&#x27;</span>,</span><br><span class="line">  <span class="keyword">PRIMARY</span> KEY (`id`),</span><br><span class="line">  KEY `联合索引` (`userId`,`mobile`,`billMonth`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB AUTO_INCREMENT<span class="operator">=</span><span class="number">71185</span> <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8 COMMENT<span class="operator">=</span><span class="string">&#x27;手机短信详情&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们为<code>userId</code>, <code>mobile</code>, <code>billMonth</code>三个字段添加上联合索引！</p>
+<p>我们选择 <code>explain</code> 查看执行计划来观察索引利用情况：</p>
+<h3 id="1-查询条件为-userid"><a href="#1-查询条件为-userid" class="headerlink" title="1.查询条件为 userid"></a><strong>1.查询条件为 <code>userid</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span> userid<span class="operator">=</span><span class="string">&#x27;2222&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/2018062415524243?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>可以通过<code>key</code>看到，联合索引<strong>有效</strong></p>
+<h3 id="2-查询条件为-mobile"><a href="#2-查询条件为-mobile" class="headerlink" title="2.查询条件为 mobile"></a><strong>2.查询条件为 <code>mobile</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span> mobile<span class="operator">=</span><span class="string">&#x27;13281899972&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624155746192?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>可以看到联合索引<strong>无效</strong></p>
+<h3 id="3-查询条件为-billMonth"><a href="#3-查询条件为-billMonth" class="headerlink" title="3.查询条件为 billMonth"></a><strong>3.查询条件为 <code>billMonth</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span> billMonth<span class="operator">=</span><span class="string">&#x27;2018-04&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624155853370?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>联合索引<strong>无效</strong></p>
+<h3 id="4-查询条件为-userid-and-mobile"><a href="#4-查询条件为-userid-and-mobile" class="headerlink" title="4.查询条件为 userid and mobile"></a><strong>4.查询条件为 <code>userid and mobile</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span> userid<span class="operator">=</span><span class="string">&#x27;2222&#x27;</span> <span class="keyword">AND</span> mobile<span class="operator">=</span><span class="string">&#x27;13281899972&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624160135826?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>联合索引<strong>有效</strong></p>
+<h3 id="5-查询条件为-mobile-and-userid"><a href="#5-查询条件为-mobile-and-userid" class="headerlink" title="5.查询条件为 mobile and userid"></a><strong>5.查询条件为 <code>mobile and userid</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span>  mobile<span class="operator">=</span><span class="string">&#x27;13281899972&#x27;</span> <span class="keyword">AND</span> userid<span class="operator">=</span><span class="string">&#x27;2222&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624160251906?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>在 4 的基础上调换了查询条件的顺序，发现联合索引依旧<strong>有效</strong></p>
+<h3 id="6-查询条件为-userid-or-mobile"><a href="#6-查询条件为-userid-or-mobile" class="headerlink" title="6.查询条件为 userid or mobile"></a><strong>6.查询条件为 <code>userid or mobile</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span> userid<span class="operator">=</span><span class="string">&#x27;2222&#x27;</span> <span class="keyword">OR</span> mobile<span class="operator">=</span><span class="string">&#x27;13281899972&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624161125355?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>把 <code>and</code> 换成 <code>or</code>，发现联合所索引<strong>无效</strong>！</p>
+<h3 id="7-查询条件为-userid-and-billMonth"><a href="#7-查询条件为-userid-and-billMonth" class="headerlink" title="7.查询条件为 userid and billMonth"></a><strong>7.查询条件为 <code>userid and billMonth</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span> userid<span class="operator">=</span><span class="string">&#x27;2222&#x27;</span> <span class="keyword">AND</span> billMonth<span class="operator">=</span><span class="string">&#x27;2018-04&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624161421218?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>这两个条件分别位于联合索引位置的<strong>第一和第三</strong>，测试联合索引依旧<strong>有效</strong>！</p>
+<h3 id="8-查询条件为-mobile-and-billMonth"><a href="#8-查询条件为-mobile-and-billMonth" class="headerlink" title="8.查询条件为 mobile and billMonth"></a><strong>8.查询条件为 <code>mobile and billMonth</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span> mobile<span class="operator">=</span><span class="string">&#x27;13281899972&#x27;</span> <span class="keyword">AND</span> billMonth<span class="operator">=</span><span class="string">&#x27;2018-04&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624161555999?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>这两个条件分别位于联合索引位置的<strong>第二和第三</strong>，发现联合索引<strong>无效</strong>！</p>
+<h3 id="9-查询条件为-userid-and-mobile-and-billMonth"><a href="#9-查询条件为-userid-and-mobile-and-billMonth" class="headerlink" title="9.查询条件为 userid and mobile and billMonth"></a><strong>9.查询条件为 <code>userid and mobile and billMonth</code></strong></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN <span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> `t_mobilesms_11` <span class="keyword">WHERE</span>  userid<span class="operator">=</span><span class="string">&#x27;2222&#x27;</span> <span class="keyword">AND</span> mobile<span class="operator">=</span><span class="string">&#x27;13281899972&#x27;</span> <span class="keyword">AND</span> billMonth<span class="operator">=</span><span class="string">&#x27;2018-04&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624162525113?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>所有条件一起查询，联合索引<strong>有效</strong>！（当然，这才是最正统的用法啊！）</p>
+<h2 id="二、单列索引测试"><a href="#二、单列索引测试" class="headerlink" title="二、单列索引测试"></a>二、单列索引测试</h2><p><em>创建三个单列索引：</em></p>
+<p><img src="https://img-blog.csdn.net/20180624163253812?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<h3 id="1-查询条件为-userid-and-mobile-and-billMonth"><a href="#1-查询条件为-userid-and-mobile-and-billMonth" class="headerlink" title="1.查询条件为 userid and mobile and billMonth"></a><strong>1.查询条件为 <code>userid and mobile and billMonth</code></strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN SELECT * FROM `t_mobilesms_11` WHERE  userid=&#x27;2222&#x27; AND mobile=&#x27;13281899972&#x27; AND billMonth=&#x27;2018-04&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624163500567?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>我们发现三个单列索引<strong>只有 <code>userid</code> 有效（位置为查询条件第一个）</strong>，其他两个都没有用上。</p>
+<p>那么为什么没有用上呢？按照我们的理解，三个字段都加索引了，无论怎么排列组合查询，应该都能利用到这三个索引才对！</p>
+<p>其实这里其实涉及到了 mysql 优化器的<strong>优化策略</strong>！当多条件联合查询时，优化器会评估用哪个条件的索引效率最高！它会选择最佳的索引去使用，也就是说，此处<code>userid 、mobile 、billMonth</code>这三个索引列都能用，只不过<strong>优化器判断只需要使用<code>userid</code>这一个索引就能完成本次查询</strong>，故最终 explain 展示的 key 为 userid。</p>
+<p>当然，如果优化器判断本次查询非要全使用三个索引才能效率最高，那么 explain 的 key 就会是<code>userid 、mobile 、billMonth</code>，都会生效！</p>
+<h3 id="2-查询条件为-mobile-and-billMonth"><a href="#2-查询条件为-mobile-and-billMonth" class="headerlink" title="2.查询条件为 mobile and billMonth"></a><strong>2.查询条件为 <code>mobile and billMonth</code></strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN SELECT * FROM `t_mobilesms_11` WHERE mobile=&#x27;13281899972&#x27; AND billMonth=&#x27;2018-04&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/20180624163836916?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>我们发现此处两个查询条件<strong>只有 <code>mobile</code> 生效（位置也为查询条件第一个）</strong></p>
+<h3 id="3-查询条件为-userid-or-mobile"><a href="#3-查询条件为-userid-or-mobile" class="headerlink" title="3.查询条件为 userid or mobile"></a><strong>3.查询条件为 <code>userid or mobile</code></strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN SELECT * FROM `t_mobilesms_11` WHERE  userid=&#x27;2222&#x27; OR mobile=&#x27;13281899972&#x27;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdn.net/2018062416412814?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0FieXNzY2Fycnk=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70"></p>
+<p>这次把 <code>and</code> 换成 <code>or</code>，发现两个查询条件都用上索引了！</p>
+<p>我们在网上可能常常看到有人说 or 会导致索引失效，其实这<strong>并不准确</strong>。而且我们首先需要<strong>判断用的是哪个数据库哪个版本，什么引擎？</strong></p>
+<p>比如我用的是 mysql5.7 版本，innodb 引擎，在<strong>这个环境下</strong>我们再去讨论索引的具体问题。</p>
+<h3 id="关于-or-查询的真相是："><a href="#关于-or-查询的真相是：" class="headerlink" title="关于 or 查询的真相是："></a><strong>关于 or 查询的真相是：</strong></h3><p>所谓的索引失效指的是：假如 or 连接的<strong>俩个查询条件字段中有一个没有索引</strong>的话,引擎会放弃索引而产生全表扫描。我们从 or 的基本含义出发应该能理解并认可这种说法，没啥问题。</p>
+<p>此刻需要注意<strong>type</strong>类型为<code>index_merge</code>。</p>
+<p>我查资料说 mysql 5.0 版本之前 使用 or<strong>只会用到一个索引</strong>（即使如上我给 userid 和 mobile 都建立的单列索引），但自从 5.0 版本开始引入了<strong>index_merge 索引合并优化</strong>！也就是说，我们现在可以利用上多个索引去优化 or 查询了。</p>
+<p><strong>index_merge 作用：</strong></p>
+<p>1、索引合并是把几个索引的范围扫描合并成一个索引。</p>
+<p>2、索引合并的时候，会对索引进行并集，交集或者先交集再并集操作，以便合并成一个索引。</p>
+<p>3、这些需要合并的索引只能是一个表的。不能对多表进行索引合并。</p>
+<p><strong>index_merge 应用场景：</strong></p>
+<p>1.对 OR 语句求并集，如查询<code>SELECT * FROM TB1 WHERE c1=&quot;xxx&quot; OR c2=&quot;&quot;xxx&quot;</code>时，如果 c1 和 c2 列上分别有索引，可以按照 c1 和 c2 条件进行查询，再将查询结果合并（union）操作，得到最终结果</p>
+<p>2.对 AND 语句求交集，如查询<code>SELECT * FROM TB1 WHERE c1=&quot;xxx&quot; AND c2=&quot;&quot;xxx&quot;</code>时，如果 c1 和 c2 列上分别有索引，可以按照 c1 和 c2 条件进行查询，再将查询结果取交集（intersect）操作，得到最终结果</p>
+<p>3.对 AND 和 OR 组合语句求结果</p>
+<h2 id="三、结论"><a href="#三、结论" class="headerlink" title="三、结论"></a>三、结论</h2><h3 id="通俗理解："><a href="#通俗理解：" class="headerlink" title="通俗理解："></a><strong>通俗理解：</strong></h3><p>利用索引中的附加列，您可以缩小搜索的范围，但使用<strong>一个具有两列的索引 不同于使用两个单独的索引</strong>。复合索引的结构与<strong>电话簿</strong>类似，人名由姓和名构成，电话簿首先按姓氏对进行排序，然后按名字对有相同姓氏的人进行排序。<strong>如果您知道姓，电话簿将非常有用；如果您知道姓和名，电话簿则更为有用，但如果您只知道名不姓，电话簿将没有用处</strong>。</p>
+<p>所以说创建复合索引时，应该仔细考虑<strong>列的顺序</strong>。对索引中的<strong>所有列</strong>执行搜索或仅对<strong>前几列</strong>执行搜索时，<strong>复合索引非常有用</strong>；<strong>仅对后面的任意列</strong>执行搜索时，<strong>复合索引则没有用处。</strong></p>
+<h3 id="重点："><a href="#重点：" class="headerlink" title="重点："></a><strong>重点：</strong></h3><p><strong>多个单列索引</strong>在<strong>多条件查询</strong>时优化器会选择<strong>最优索引策略</strong>，<strong>可能只用一个索引，也可能将多个索引全用上！</strong> 但多个单列索引底层会建立多个 B+索引树，比较占用空间，也会浪费一定搜索效率，故如果只有<strong>多条件联合查询时最好建联合索引！</strong></p>
+<h3 id="最左前缀原则："><a href="#最左前缀原则：" class="headerlink" title="最左前缀原则："></a><strong>最左前缀原则：</strong></h3><p>顾名思义是最左优先，以<strong>最左边的为起点</strong>任何连续的索引都能匹配上，<br>注：如果第一个字段是<strong>范围查询需要单独建一个索引</strong><br>注：在创建联合索引时，要根据业务需求，where 子句中<strong>使用最频繁的一列放在最左边</strong>。这样的话扩展性较好，比如 <code>userid</code> 经常需要作为查询条件，而 <code>mobile</code> 不常常用，则需要把 <code>userid</code> 放在联合索引的<strong>第一位置，即最左边</strong></p>
+<h3 id="同时存在联合索引和单列索引（字段有重复的），这个时候查询-mysql-会怎么用索引呢？"><a href="#同时存在联合索引和单列索引（字段有重复的），这个时候查询-mysql-会怎么用索引呢？" class="headerlink" title="同时存在联合索引和单列索引（字段有重复的），这个时候查询 mysql 会怎么用索引呢？"></a><strong>同时存在联合索引和单列索引（字段有重复的），这个时候查询 mysql 会怎么用索引呢？</strong></h3><p>这个涉及到 mysql 本身的<strong>查询优化器策略</strong>了，当一个表有多条索引可走时, Mysql 根据<strong>查询语句的成本</strong>来选择走哪条索引；</p>
+<p>有人说 where 查询是按照从左到右的顺序，所以筛选力度大的条件尽量放前面。网上百度过，很多都是这种说法，但是据我研究，<strong>mysql 执行优化器会对其进行优化</strong>，<strong>当不考虑索引时，where 条件顺序对效率没有影响</strong>，<strong>真正有影响的是是否用到了索引</strong>！</p>
+<h3 id="联合索引本质："><a href="#联合索引本质：" class="headerlink" title="联合索引本质："></a><strong>联合索引本质：</strong></h3><p>当创建**(a,b,c)联合索引<strong>时，相当于创建了</strong>(a)单列索引<strong>，</strong>(a,b)联合索引<strong>以及</strong>(a,b,c)联合索引**<br>想要索引生效的话,只能使用 a 和 a,b 和 a,b,c 三种组合；当然，我们上面测试过，<strong>a,c 组合也可以，但实际上只用到了 a 的索引，c 并没有用到！</strong><br>注：这个可以结合上边的 <em>通俗理解</em> 来思考！</p>
+<h3 id="其他知识点："><a href="#其他知识点：" class="headerlink" title="其他知识点："></a><strong>其他知识点：</strong></h3><p>1、需要加索引的字段，<strong>要在 where 条件中</strong></p>
+<p>2、<strong>数据量少的字段不需要加索引</strong>；因为<strong>建索引有一定开销</strong>，如果数据量小则没必要建索引（速度反而慢）</p>
+<p>3、避免在 where 子句中使用<strong>or</strong>来连接条件,因为如果<strong>俩个字段中有一个没有索引</strong>的话,引擎会放弃索引而产生全表扫描</p>
+<p>4、<strong>联合索引比对每个列分别建索引更有优势</strong>，因为索引建立得越多就越占磁盘空间，在更新数据的时候速度会更慢。另外建立多列索引时，顺序也是需要注意的，<strong>应该将严格的索引放在前面，这样筛选的力度会更大，效率更高</strong>。</p>
+<h3 id="最后的说明："><a href="#最后的说明：" class="headerlink" title="最后的说明："></a><strong>最后的说明：</strong></h3><p>网上关于索引优化等文章太多了，针对各个数据库各个版本各种引擎都<strong>可能存在不一样的说法</strong>！</p>
+<p>我们的 SQL 引擎自带的优化也越来越强大，说不定你的某个 SQL 优化认知，其 SQL 引擎在某次升级中早就自优化了。</p>
+<p>所以要么<strong>跟进官方文档</strong>，要么<strong>关注数据库大牛的最新文章</strong>，要么在<strong>现有数据库环境下自己去亲手测试！</strong></p>
+<p><em>数据库领域的水很深。。大家加油。。共勉 ~</em></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/12/25/%E5%A4%9A%E4%B8%AA%E5%8D%95%E5%88%97%E7%B4%A2%E5%BC%95%E5%92%8C%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E7%9A%84%E5%8C%BA%E5%88%AB%E8%AF%A6%E8%A7%A3/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%B4%A2%E5%BC%95/" rel="tag">索引</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/12/26/%E5%A6%82%E6%9E%9C%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E4%B8%AA%E6%96%B9%E6%B3%95%E5%8A%A0%E4%BA%86-synchronized%EF%BC%8C%E9%82%A3%E4%B9%88%E8%AF%A5%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%87%A0%E6%8A%8A%E9%94%81%EF%BC%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+             如果一个对象有多个方法加了 synchronized，那么该对象有几把锁？
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/12/19/Boss%E7%9B%B4%E8%81%98%E5%8F%91%E5%B8%83%E3%80%8A2020%E4%BA%BA%E6%89%8D%E8%B5%84%E6%9C%AC%E8%B6%8B%E5%8A%BF%E6%8A%A5%E5%91%8A%E3%80%8B%EF%BC%8C%E7%AA%81%E5%8F%98%E6%97%B6%E4%BB%A3%E8%BF%8E%E6%9D%A5%E5%85%AB%E5%A4%A7%E8%B6%8B%E5%8A%BF/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Boss直聘发布《2020人才资本趋势报告》，突变时代迎来八大趋势</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

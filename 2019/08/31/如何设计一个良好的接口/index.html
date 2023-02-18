@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>如何设计一个良好的接口 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-如何设计一个良好的接口"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  如何设计一个良好的接口
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/31/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E8%89%AF%E5%A5%BD%E7%9A%84%E6%8E%A5%E5%8F%A3/" class="article-date">
+  <time datetime="2019-08-30T16:47:57.000Z" itemprop="datePublished">2019-08-31</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190831005844.png"></p>
+<blockquote>
+<p>作者：Alan_beijing</p>
+<p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/wangjiming">www.cnblogs.com/wangjiming</a></p>
+</blockquote>
+<p>在设计接口时，有很多因素要考虑，如接口的业务定位，接口的安全性，接口的可扩展性、接口的稳定性、接口的跨域性、接口的协议规则、接口的路径规则、接口单一原则、接口过滤和接口组合等诸多因素，本篇文章将简要分析这些因素。</p>
+<h3 id="一-规范性建议"><a href="#一-规范性建议" class="headerlink" title="一 规范性建议"></a>一 规范性建议</h3><h4 id="1-职责原则"><a href="#1-职责原则" class="headerlink" title="1.职责原则"></a>1.职责原则</h4><p>在设计接口时，必须明确接口的职责，即接口类型，接口应解决什么业务问题等</p>
+<h4 id="2-单一性原则"><a href="#2-单一性原则" class="headerlink" title="2.单一性原则"></a>2.单一性原则</h4><p>在明确接口职责的条件下，尽量做到接口单一，即一个接口只做一件事，而非两件以上。很多非资深接口设计者，在设计接口时，总认为接口所做的事越多，越牛叉，这是非常严重的错误认识。</p>
+<h4 id="3-协议规范"><a href="#3-协议规范" class="headerlink" title="3.协议规范"></a>3.协议规范</h4><p>在设计接口时，应明确接口协议，是采用HTTP协议,HTTPS协议还是FTP协议，要根据具体情况来定。</p>
+<ul>
+<li>FTP协议(File Transfer Protocol，简称FTP)，是一套标准的文件传输协议，用于传输文件，如.txt，.csv等，一般文件传输，采用FTP协议</li>
+<li>HTTP协议，适用一般对安全性要求比较低或没要求的业务情景</li>
+<li>HTTPS&#x3D;HTTP+SSL,适用于对安全性要求较高的业务情景</li>
+</ul>
+<h4 id="4-路径规则"><a href="#4-路径规则" class="headerlink" title="4.路径规则"></a>4.路径规则</h4><p>由于api获取的是一种资源，所以网址中尽量为名词，而非动词</p>
+<blockquote>
+<p>&#x2F;api&#x2F;v1.0&#x2F;Pruduct&#x2F;2019<br>&#x2F;api&#x2F;v1.0&#x2F;Users&#x2F;2019</p>
+</blockquote>
+<h4 id="5-http请求方式"><a href="#5-http请求方式" class="headerlink" title="5.http请求方式"></a>5.http请求方式</h4><p>接口基本访问协议：get(获取)，post(新增)，put(修改)和delete(删除)</p>
+<ul>
+<li>get &#x2F;users：列出所有用户</li>
+<li>get &#x2F;users&#x2F;id：根据id获取用户</li>
+<li>post &#x2F;user：新增用户</li>
+<li>put &#x2F;user&#x2F;id：根据用户id更新用户</li>
+<li>delete &#x2F;user&#x2F;id：根据用户id删除用户</li>
+</ul>
+<h4 id="6-域名"><a href="#6-域名" class="headerlink" title="6.域名"></a>6.域名</h4><p>一般地，域名分为主域名和专有域名，主域名适合api长期不变或变化较少的业务，专有域名是解决具体的专有业务的</p>
+<h5 id="以百度举例："><a href="#以百度举例：" class="headerlink" title="以百度举例："></a>以百度举例：</h5><p>(1)主域名:<a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a></p>
+<p>(2)产品服务类</p>
+<ul>
+<li>百度文库：<a target="_blank" rel="noopener" href="https://wenku.baidu.com/">https://wenku.baidu.com/</a></li>
+<li>百度知道：<a target="_blank" rel="noopener" href="https://zhidao.baidu.com/">https://zhidao.baidu.com/</a></li>
+<li>百度资讯： <a target="_blank" rel="noopener" href="https://zhidao.baidu.com/">https://zhidao.baidu.com/</a></li>
+</ul>
+<p>(3)市场活动类</p>
+<ul>
+<li>百度公益：<a target="_blank" rel="noopener" href="http://gongyi.baidu.com/">http://gongyi.baidu.com</a></li>
+<li>百度logo：<a target="_blank" rel="noopener" href="http://logo.baidu.com/">http://logo.baidu.com/</a></li>
+<li>百度世界：<a target="_blank" rel="noopener" href="https://baiduworld.baidu.com/">https://baiduworld.baidu.com</a></li>
+</ul>
+<h4 id="7-跨域考虑"><a href="#7-跨域考虑" class="headerlink" title="7.跨域考虑"></a>7.跨域考虑</h4><p>在明确域名的情况下，一定要考虑接口是否跨域，以及跨域应采用的技术手段等。</p>
+<h4 id="8-api版本"><a href="#8-api版本" class="headerlink" title="8.api版本"></a>8.api版本</h4><p>对于接口的url，应加版本号<a target="_blank" rel="noopener" href="http://api.demo.com/v%7Bd%7D/%EF%BC%8C%E5%A6%82">http://api.demo.com/v{d}/，如</a> ，其中d表示版本号,如v1.0,v2.0</p>
+<p>例子：获取产品号为2019,版本号为v1.0的版本号的产品信息</p>
+<blockquote>
+<p>&#x2F;api&#x2F;v1.0&#x2F;Pruducts&#x2F;2019</p>
+</blockquote>
+<span id="more"></span>
+
+<h4 id="9-适度过滤信息"><a href="#9-适度过滤信息" class="headerlink" title="9.适度过滤信息"></a>9.适度过滤信息</h4><p>当记录数比较多时(如 SELECT * FROM TBName)，因适当添加一些条件对数据进行过滤，如TOP,分页,分组，排序和WHERE条件等</p>
+<h5 id="下面是一些常见的参数。"><a href="#下面是一些常见的参数。" class="headerlink" title="下面是一些常见的参数。"></a>下面是一些常见的参数。</h5><ul>
+<li>?limit&#x3D;100：返回100条数据</li>
+<li>?offset&#x3D;101：从第101条数据开始返回</li>
+<li>?page&#x3D;10：指第10页</li>
+<li>per_page&#x3D;100：每页100条数据</li>
+<li>?sortby&#x3D;name：排序字段</li>
+<li>?order&#x3D;desc：降序</li>
+<li>?group&#x3D;groupName:分组</li>
+<li>?producy_type&#x3D;1：筛选条件</li>
+</ul>
+<h4 id="10-返回数据格式"><a href="#10-返回数据格式" class="headerlink" title="10.返回数据格式"></a>10.返回数据格式</h4><p>返回数据格式，一般包括三个字段：</p>
+<p>(1)失败情况(状态码、错误码和错误描述)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">“status”:<span class="number">0</span>,<span class="comment">//状态码 0-表示失败，1-表示成功</span></span><br><span class="line"></span><br><span class="line">“error_code”:”<span class="number">2003</span>”,<span class="comment">//错误码，一般在设计时定义</span></span><br><span class="line"></span><br><span class="line">“error_des”:”身份验证失败”<span class="comment">//错误描述，一般在设计时定义</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>(2)成功情况(标识id,数据对象,状态码)</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line"></span><br><span class="line">     ”sid“<span class="punctuation">:</span>”sh20190111”<span class="punctuation">,</span><span class="comment">//token id</span></span><br><span class="line"></span><br><span class="line">     ”users“<span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line"></span><br><span class="line">                   ”id“<span class="punctuation">:</span>”al201901111341”<span class="punctuation">,</span><span class="comment">//用户id</span></span><br><span class="line"></span><br><span class="line">                  “name”<span class="punctuation">:</span>”Alan_beijing”<span class="punctuation">,</span><span class="comment">//用户名</span></span><br><span class="line"></span><br><span class="line">                   “addr”<span class="punctuation">:</span>”用户地址”</span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"></span><br><span class="line">     “status”<span class="punctuation">:</span><span class="number">1</span><span class="comment">//状态码 0-表示失败，1-表示成功</span></span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="11-安全性原则"><a href="#11-安全性原则" class="headerlink" title="11.安全性原则"></a>11.安全性原则</h4><p>接口暴露的考虑，接口并发量的考虑，接口防攻击的考虑，接口跨域的考虑等</p>
+<h4 id="12-可扩展性原则"><a href="#12-可扩展性原则" class="headerlink" title="12.可扩展性原则"></a>12.可扩展性原则</h4><p>在设计接口时，充分考虑接口的可扩展性。</p>
+<h4 id="13-定义api界限"><a href="#13-定义api界限" class="headerlink" title="13.定义api界限"></a>13.定义api界限</h4><p>任何api，从权限上，可归结为匿名api和非匿名api，前者不需要验证，后者需要验证</p>
+<h4 id="14-定义api返回码"><a href="#14-定义api返回码" class="headerlink" title="14.定义api返回码"></a>14.定义api返回码</h4><p>在api设计时，要定好api返回码，如</p>
+<ul>
+<li>1 –授权过期</li>
+<li>404–未找到资源</li>
+<li>500–内部服务器错误</li>
+<li>600–账号被锁</li>
+</ul>
+<h3 id="二-反规范性建议"><a href="#二-反规范性建议" class="headerlink" title="二 反规范性建议"></a>二 反规范性建议</h3><p>存在这样一种业务场景：某个接口需要返回多个api接口组合的结果 ，在类似的业务场景下，所设计的接口，具有一定的反规范性。</p>
+<h4 id="1-Request"><a href="#1-Request" class="headerlink" title="1.Request"></a>1.Request</h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">data<span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span>url<span class="punctuation">:</span>&#x27;api1&#x27;<span class="punctuation">,</span>type<span class="punctuation">:</span>&#x27;get&#x27;<span class="punctuation">,</span>data<span class="punctuation">:</span><span class="punctuation">&#123;</span>...<span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span>url<span class="punctuation">:</span>&#x27;api2&#x27;<span class="punctuation">,</span>type<span class="punctuation">:</span>&#x27;get&#x27;<span class="punctuation">,</span>data<span class="punctuation">:</span><span class="punctuation">&#123;</span>...<span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-Responce"><a href="#2-Responce" class="headerlink" title="2.Responce"></a>2.Responce</h4><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    status<span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">    msg<span class="punctuation">:</span>&#x27;&#x27;<span class="punctuation">,</span></span><br><span class="line">    data<span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span>status<span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span>msg<span class="punctuation">:</span>&#x27;&#x27;<span class="punctuation">,</span>data<span class="punctuation">:</span><span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span>status<span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span>msg<span class="punctuation">:</span>&#x27;&#x27;<span class="punctuation">,</span>data<span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="三-实例"><a href="#三-实例" class="headerlink" title="三 实例"></a>三 实例</h3><p>假设存在这样一个一个业务：一个ERP系统，需要提供两个接口，一个是用户访问接口(需要验证)，另一个是用户注册接口(不需要验证)。</p>
+<p>根据本篇文章一，二部分的建议，我们来设计满足该业务需求的接口</p>
+<h4 id="（一）定义统一参数"><a href="#（一）定义统一参数" class="headerlink" title="（一）定义统一参数"></a>（一）定义统一参数</h4><h5 id="1-定义统一输入参数"><a href="#1-定义统一输入参数" class="headerlink" title="1.定义统一输入参数"></a>1.定义统一输入参数</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java9-1550223790.png" alt="如何设计一个良好的接口"></p>
+<h5 id="2-定义统一输出参数"><a href="#2-定义统一输出参数" class="headerlink" title="2.定义统一输出参数"></a>2.定义统一输出参数</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java10-1550223790.png" alt="如何设计一个良好的接口"></p>
+<h5 id="3-定义统一错误码"><a href="#3-定义统一错误码" class="headerlink" title="3.定义统一错误码"></a>3.定义统一错误码</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java4-1550223791.png" alt="如何设计一个良好的接口"></p>
+<h4 id="（二）定义接口授权类别"><a href="#（二）定义接口授权类别" class="headerlink" title="（二）定义接口授权类别"></a>（二）定义接口授权类别</h4><p>如下为定义接口授权类别</p>
+<p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java10-1550223791.png" alt="如何设计一个良好的接口"></p>
+<h4 id="（三）用户接口"><a href="#（三）用户接口" class="headerlink" title="（三）用户接口"></a>（三）用户接口</h4><h5 id="1-用户注册"><a href="#1-用户注册" class="headerlink" title="1.用户注册"></a>1.用户注册</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java4-1550223791-1.png" alt="如何设计一个良好的接口"></p>
+<h5 id="2-Request"><a href="#2-Request" class="headerlink" title="2.Request"></a>2.Request</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java6-1550223791.png" alt="如何设计一个良好的接口"></p>
+<h5 id="3-Responce"><a href="#3-Responce" class="headerlink" title="3.Responce"></a>3.Responce</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java8-1550223791.png" alt="如何设计一个良好的接口"></p>
+<h5 id="4-code示例"><a href="#4-code示例" class="headerlink" title="4.code示例"></a>4.code示例</h5><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Request<span class="punctuation">:</span></span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;mobile&quot;</span><span class="punctuation">:</span><span class="number">13636595499</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;verify_code&quot;</span><span class="punctuation">:</span><span class="string">&quot;987654&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;pwd&quot;</span><span class="punctuation">:</span><span class="string">&quot;123456&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">Responce<span class="punctuation">:</span></span><br><span class="line">(<span class="number">1</span>)error</span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">   <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">   <span class="attr">&quot;error_code&quot;</span><span class="punctuation">:</span><span class="number">1001</span>，</span><br><span class="line">   <span class="attr">&quot;error_desc&quot;</span><span class="punctuation">:</span><span class="string">&quot;手机验证码已失效&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line">(<span class="number">2</span>)succed</span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">   <span class="attr">&quot;sid&quot;</span><span class="punctuation">:</span><span class="string">&quot;sh201901141529&quot;</span><span class="punctuation">,</span></span><br><span class="line">   <span class="attr">&quot;uid&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">   <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="number">1</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="（四）用户登录"><a href="#（四）用户登录" class="headerlink" title="（四）用户登录"></a>（四）用户登录</h4><h5 id="1-登录接口概述"><a href="#1-登录接口概述" class="headerlink" title="1.登录接口概述"></a>1.登录接口概述</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java7-1550223791.png" alt="如何设计一个良好的接口"></p>
+<h5 id="2-Request-1"><a href="#2-Request-1" class="headerlink" title="2.Request"></a>2.Request</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java3-1550223792.png" alt="如何设计一个良好的接口"></p>
+<h5 id="3-Responce-1"><a href="#3-Responce-1" class="headerlink" title="3.Responce"></a>3.Responce</h5><p><img src="https://www.javazhiyin.com/wp-content/uploads/2019/02/java8-1550223792.png" alt="如何设计一个良好的接口"></p>
+<h5 id="4-Code"><a href="#4-Code" class="headerlink" title="4.Code"></a>4.Code</h5><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Responce<span class="punctuation">:</span></span><br><span class="line"><span class="number">1.</span>error</span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">   <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">   <span class="attr">&quot;error_code&quot;</span><span class="punctuation">:</span><span class="number">1002</span><span class="punctuation">,</span></span><br><span class="line">   <span class="attr">&quot;error_desc&quot;</span><span class="punctuation">:</span><span class="string">&quot;密码错误&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="number">2.</span>succeed</span><br><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">   <span class="attr">&quot;sid&quot;</span><span class="punctuation">:</span><span class="string">&quot;sh201901141529&quot;</span><span class="punctuation">,</span></span><br><span class="line">   <span class="attr">&quot;user&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">         <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">     <span class="attr">&quot;username&quot;</span><span class="punctuation">:</span><span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">      age<span class="punctuation">:</span><span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">      gender<span class="punctuation">:</span><span class="number">0</span></span><br><span class="line">   <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">   <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="number">1</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure> 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/08/31/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E8%89%AF%E5%A5%BD%E7%9A%84%E6%8E%A5%E5%8F%A3/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/08/31/%E5%8F%88%E5%88%B0%E5%BC%80%E5%AD%A6%E6%97%B6%EF%BC%8C%E8%AF%B7%E7%9B%B8%E4%BF%A1%E6%97%B6%E9%97%B4%E7%9A%84%E5%8A%9B%E9%87%8F/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            请相信时间的力量
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/08/30/%E7%A4%BE%E4%BC%9A%E7%9A%84%E4%B8%A4%E5%A4%A7%E7%9F%9B%E7%9B%BE%EF%BC%8C%E6%96%87%E7%A7%91%E6%80%9D%E7%BB%B4%E5%92%8C%E7%90%86%E7%A7%91%E6%80%9D%E7%BB%B4/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">社会的两大矛盾，文科思维和理科思维(原创)</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

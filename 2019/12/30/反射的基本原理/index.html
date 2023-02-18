@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>反射的基本原理 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-反射的基本原理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  反射的基本原理
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/30/%E5%8F%8D%E5%B0%84%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2019-12-30T14:53:54.000Z" itemprop="datePublished">2019-12-30</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://juejin.im/post/5b2f8bd2f265da59b457cf47">https://juejin.im/post/5b2f8bd2f265da59b457cf47</a></p>
+<p>作者：YangAM</p>
+<p>小结：</p>
+<p>反射就是指程序在运行时能够动态的获取到一个类的类型信息的一种操作。</p>
+<p>获取一个 Class 对象的方法主要有以下三种。</p>
+<p><strong>类名.class</strong></p>
+<p><strong>getClass 方法</strong></p>
+<p><strong>forName 方法</strong></p>
+</blockquote>
+<p><img src="https://images2015.cnblogs.com/blog/1037972/201610/1037972-20161018144629217-1068318939.png" alt="img"></p>
+<p>图片来自 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/fengmingyue/p/5973260.html">https://www.cnblogs.com/fengmingyue/p/5973260.html</a></p>
+<p>『反射』就是指程序在运行时能够动态的获取到一个类的类型信息的一种操作。它是现代框架的灵魂，几尽所有的框架能够提供的一些自动化机制都是靠反射实现的，这也是为什么各类框架都不允许你覆盖掉默认的无参构造器的原因，因为框架需要以反射机制利用无参构造器创建实例。</p>
+<p>总的来说，『反射』是很值得大家花时间学习的，尽管大部分人都很少有机会去手写框架，但是这将有助于你对于各类框架的理解。不奢求你通过本篇文章的学习对于『反射』能够有多么深层次的理解，但至少保证你了解『反射』的基本原理及使用。</p>
+<h3 id="1-Class-类型信息"><a href="#1-Class-类型信息" class="headerlink" title="1. Class 类型信息"></a>1. Class 类型信息</h3><p>之间介绍过虚拟机的类加载机制，其中我们提到过，每一种类型都会在初次使用时被加载进虚拟机内存的『方法区』中，包含类中定义的属性字段，方法字节码等信息。</p>
+<p>Java 中使用类 java.lang.Class 来指向一个类型信息，通过这个 Class 对象，我们就可以得到该类的所有内部信息。而获取一个 Class 对象的方法主要有以下三种。</p>
+<p><strong>类名.class</strong></p>
+<p>这种方式就比较简单，只要使用类名点 class 即可得到方法区该类型的类型信息。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Object.class;</span><br><span class="line">Integer.class;</span><br><span class="line"><span class="type">int</span>.class;</span><br><span class="line">String.class;</span><br><span class="line"><span class="comment">//等等</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>getClass 方法</strong></p>
+<p>Object 类有这么一个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">native</span> Class&lt;?&gt; getClass();</span><br></pre></td></tr></table></figure>
+
+<p>这是一个本地方法，并且不允许子类重写，所以理论上所有类型的实例都具有同一个 getClass 方法。具体使用上也很简单：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Integer integer = new Integer(12);</span><br><span class="line">integer.getClass();</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+
+<p><strong>forName 方法</strong></p>
+<p>forName 算是获取 Class 类型的一个最常用的方法，它允许你传入一个全类名，该方法会返回方法区代表这个类型的 Class 对象，如果这个类还没有被加载进方法区，forName 会先进行类加载。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static Class&lt;?&gt; forName(String className) &#123;</span><br><span class="line">    Class&lt;?&gt; caller = Reflection.getCallerClass();</span><br><span class="line">    return forName0(className, true, ClassLoader.getClassLoader(caller), caller);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于方法区 Class 类型信息由类加载器和类全限定名唯一确定，所以想要去找这么一个 Class 就必须提供类加载器和类全限定名，这个 forName 方法默认使用调用者的类加载器。</p>
+<p>当然，Class 类中也有一个 forName 重载，允许你传入类加载器和类全限定名来匹配方法区类型信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static Class&lt;?&gt; forName(String name, boolean initialize,</span><br><span class="line">ClassLoader loader)&#123;</span><br><span class="line">    //.....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，通过这些方法你可以得到任意类的类型信息，该类的所有字段属性，方法表等信息都可以通过这个 Class 对象进行获取。</p>
+<h3 id="2-反射字段属性"><a href="#2-反射字段属性" class="headerlink" title="2. 反射字段属性"></a>2. 反射字段属性</h3><p>Class 中有关获取字段属性的方法主要以下几个：</p>
+<ul>
+<li>public Field[] getFields()：返回该类型的所有 public 修饰的属性，包括父类的</li>
+<li>public Field getField(String name)：根据字段名称返回相应的字段</li>
+<li>public Field[] getDeclaredFields()：返回本类型中申明的所有字段，包含非 public 修饰的但不包含父类中的</li>
+<li>public Field getDeclaredField(String name)：同理</li>
+</ul>
+<p>当然，一个 Field 实例包含某个类的一个属性的所有信息，包括字段名称，访问修饰符，字段类型。除此之外，Field 还提供了大量的操作该属性值的方法，通过传入一个类实例，就可以直接使用 Field 实例操作该实例的当前字段属性的值。</p>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//定义一个待反射类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">People</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;People&gt; cls = People.class;</span><br><span class="line"><span class="type">Field</span> <span class="variable">name</span> <span class="operator">=</span> cls.getField(<span class="string">&quot;name&quot;</span>);</span><br><span class="line"><span class="type">People</span> <span class="variable">people</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">People</span>();</span><br><span class="line">name.set(people,<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">System.out.println(people.name);</span><br></pre></td></tr></table></figure>
+
+<p>程序会输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hello</span><br></pre></td></tr></table></figure>
+
+<p>其实也很简单，set 方法会检索 People 对象是否具有一个 name 代表的字段，如果有将字符串 hello 赋值给该字段即可。</p>
+<p>整个 Field 类主要由两大部分组成，第一部分就是有关该字段属性的描述信息，例如名称，类型，外围类 Class 对象等，第二部分就是大量的 get 和 set 方法用于间接操作任意的外围类实例的当前属性值。</p>
+<h3 id="3-反射方法"><a href="#3-反射方法" class="headerlink" title="3. 反射方法"></a>3. 反射方法</h3><p>同样的，Class 类也提供了四种方法来获取其中的方法属性：</p>
+<ul>
+<li>public Method[] getMethods()：返回所有的 public 方法，包括父类中的</li>
+<li>public Method getMethod(String name, Class&lt;?&gt;… parameterTypes)：返回指定的方法</li>
+<li>public Method[] getDeclaredMethods()：返回本类申明的所有方法，包括非 public 修饰的，但不包括父类中的</li>
+<li>public Method getDeclaredMethod(String name, Class&lt;?&gt;… parameterTypes)：同理</li>
+</ul>
+<p>Method 抽象地代表了一个方法，同样有描述这个方法基本信息的字段和方法，例如方法名，方法的参数集合，方法的返回值类型，异常类型集合，方法的注解等。</p>
+<p>除此之外的还有一个 invoke 方法用于间接调用其他实例的该方法，例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">People</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sayHello</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello wrold &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;People&gt; cls = People.class;</span><br><span class="line"><span class="type">Method</span> <span class="variable">sayHello</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;sayHello&quot;</span>);</span><br><span class="line"><span class="type">People</span> <span class="variable">people</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">People</span>();</span><br><span class="line">sayHello.invoke(people);</span><br></pre></td></tr></table></figure>
+
+<p>程序输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hello wrold</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-反射构造器"><a href="#4-反射构造器" class="headerlink" title="4. 反射构造器"></a>4. 反射构造器</h3><p>对于 Constructor 来说，Class 类依然为它提供了四种获取实例的方法：</p>
+<ul>
+<li>public Constructor&lt;?&gt;[] getConstructors()：返回所有 public 修饰的构造器</li>
+<li>public Constructor&lt;?&gt;[] getDeclaredConstructors()：返回所有的构造器，无视访问修饰符</li>
+<li>public Constructor getConstructor(Class&lt;?&gt;… parameterTypes)：带指定参数的</li>
+<li>public Constructor getDeclaredConstructor(Class&lt;?&gt;… parameterTypes) ：同理</li>
+</ul>
+<p>Constructor 本质上也是一个方法，只是没有返回值而已，所以内部的基本内容和 Method 是类似的，只不过 Constructor 类中有一个 newInstance 方法用于创建一个该 Class 类型的实例对象出来。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//最简单的一个反射创建实例的过程</span></span><br><span class="line">Class&lt;People&gt; cls = People.class;</span><br><span class="line"><span class="type">Constructor</span> <span class="variable">c</span> <span class="operator">=</span> cls.getConstructor();</span><br><span class="line"><span class="type">People</span> <span class="variable">p</span> <span class="operator">=</span> (People) c.newInstance();</span><br></pre></td></tr></table></figure>
+
+<p>以上，我们简单的介绍了反射的基本使用情况，但都很基础，下面我们看看反射和一些稍微复杂的类型结合使用的情况，例如：数组，泛型，注解等。</p>
+<h3 id="5-反射的其他细节"><a href="#5-反射的其他细节" class="headerlink" title="5. 反射的其他细节"></a>5. 反射的其他细节</h3><h4 id="5-1-反射与数组"><a href="#5-1-反射与数组" class="headerlink" title="5.1 反射与数组"></a>5.1 <strong>反射与数组</strong></h4><p>我们都知道，数组是一种特殊的类型，它本质上由虚拟机在运行时动态生成，所以在反射这种类型的时候会稍有不同。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">native</span> Class&lt;?&gt; getComponentType();</span><br></pre></td></tr></table></figure>
+
+<p>Class 中有这么一个方法，该方法将返回数组 Class 实例元素的基本类型。只有当前的 Class 对象代表的是一个数组类型的时候，该方法才会返回数组的元素实际类型，其他的任何时候都会返回 null。</p>
+<p>当然，有一点需要注意下，代表数组的这个由虚拟机动态创建的类型，它直接继承的 Object 类，并且所有有关数组类的操作，比如为某个元素赋值或是获取数组长度的操作都直接对应一个单独的虚拟机数组操作指令。</p>
+<p>同样也因为数组类直接由虚拟机运行时动态创建，所以你不可能从一个数组类型的 Class 实例中得到构造方法，编译器根本没机会为类生成默认的构造器。于是你也不能以常规的方法通过 Constructor 来创建一个该类的实例对象。</p>
+<p>如果你非要尝试使用 Constructor 来创建一个新的实例的话，那么运行时程序将告诉你无法匹配一个构造器。像这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Class&lt;String[]&gt; cls = String[].class;</span><br><span class="line"><span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> cls.getConstructor();</span><br><span class="line">String[] strs = (String[]) constructor.newInstance();</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出：</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwgy1gaf6k587kej30kq04oaaz.jpg"></p>
+<p>告诉你，Class 实例中根本找不到一个无参的构造器。那么难道我们就没有办法来动态创建一个数组了吗？</p>
+<p>当然不是，Java 中有一个类 java.lang.reflect.Array 提供了一些静态的方法用于动态的创建和获取一个数组类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//创建一个一维数组，componentType 为数组元素类型，length 数组长度</span><br><span class="line">public static Object newInstance(Class&lt;?&gt; componentType, int length)</span><br><span class="line"></span><br><span class="line">//可变参数 dimensions，指定多个维度的单维度长度</span><br><span class="line">public static Object newInstance(Class&lt;?&gt; componentType, int... dimensions)</span><br></pre></td></tr></table></figure>
+
+<p>这是我认为 Array 类中最重要的两个方法，当然了 Array 类中还有一些其它方法用于获取指定数组的指定位置元素，这里不再赘述了。</p>
+<p>完全是因为数组这种类型并不是由常规的编译器编译生成，而是由虚拟机动态创建的，所以想要通过反射的方式实例化一个数组类型是得依赖 Array 这个类型的相关 newInstance 方法的。</p>
+<h4 id="5-2-反射与泛型"><a href="#5-2-反射与泛型" class="headerlink" title="5.2 反射与泛型"></a>5.2 <strong>反射与泛型</strong></h4><p>泛型是 Java 编译器范围内的概念，它能够在程序运行之前提供一定的安全检查，而反射是运行时发生的，也就是说如果你反射调用一个泛型方法，实际上就绕过了编译器的泛型检查了。我们看一段代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;Integer&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">list.add(<span class="number">23</span>);</span><br><span class="line"><span class="comment">//list.add(&quot;fads&quot;);编译不通过</span></span><br><span class="line"></span><br><span class="line">Class&lt;?&gt; cls = list.getClass();</span><br><span class="line"><span class="type">Method</span> <span class="variable">add</span> <span class="operator">=</span> cls.getMethod(<span class="string">&quot;add&quot;</span>,Object.class);</span><br><span class="line">add.invoke(list,<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">System.out.println(list.get(<span class="number">1</span>));</span><br></pre></td></tr></table></figure>
+
+<p>最终你会发现我们从整型容器中取出一个字符串，因为虚拟机只管在运行时从方法区找到 ArrayList 这个类的类型信息并解析出它的 add 方法，接着执行这个方法。</p>
+<p>它不像一般的方法调用，调用之前编译器会检测这个方法存在不存在，参数类型是否匹配等，所以没了编译器的这层安全检查，反射地调用方法更容易遇到问题。</p>
+<p>除此之外，之前我们说过的泛型在经过编译期之后会被类型擦除，但实际上代表该类型的 Class 类型信息中是保存有一些基本的泛型信息的，这一点我们可以通过反射得到。</p>
+<p>这里不再带大家一起去看了，Class ，Field 和 Method 中都是有相关方法可以获取类或者方法在定义的时候所使用到的泛型类名名称。注意这里说的，只是名称，类似 E、V 这样的东西。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/12/30/%E5%8F%8D%E5%B0%84%E7%9A%84%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2020/01/04/%E5%82%BB%E5%82%BB%E5%88%86%E4%B8%8D%E6%B8%85%E4%B9%8B-Cookie%E3%80%81Session%E3%80%81Token%E3%80%81JWT/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            傻傻分不清之 Cookie、Session、Token、JWT
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/12/30/Spring-IOC%E8%BF%87%E7%A8%8B%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Spring IOC过程源码分析</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

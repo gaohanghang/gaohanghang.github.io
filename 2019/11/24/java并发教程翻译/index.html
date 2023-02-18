@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>java并发教程翻译 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-java并发教程翻译"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  java并发教程翻译
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/24/java%E5%B9%B6%E5%8F%91%E6%95%99%E7%A8%8B%E7%BF%BB%E8%AF%91/" class="article-date">
+  <time datetime="2019-11-24T02:49:02.000Z" itemprop="datePublished">2019-11-24</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">14 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/index.html">http://tutorials.jenkov.com/java-concurrency/index.html</a></p>
+<p>参考文章：</p>
+<p><a target="_blank" rel="noopener" href="http://ifeve.com/java-concurrency-thread/">并发译文</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/JackLang/article/details/52294629">https://blog.csdn.net/JackLang/article/details/52294629</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.codeboot.net/tutorials/java-concurrency/index/">https://www.codeboot.net/tutorials/java-concurrency/index/</a></p>
+<p>该英文教程更新了，因此站在前人的肩膀上，斗胆进行舔砖加瓦。英文不是特别好，全靠 Google 翻译和前辈的博客 🤣</p>
+<p>译者：高行行</p>
+<p>该 java 并发教程汇总和修订地址：<a target="_blank" rel="noopener" href="https://www.yuque.com/gaohanghang/og37t5/kqzsra">https://www.yuque.com/gaohanghang/og37t5/kqzsra</a></p>
+</blockquote>
+<p>Java <em>并发</em> 是一个涵盖 Java 平台多线程，并发和并行的术语。其中包括 Java 并发工具、问题和解决方案。该 Java 并发教程涵盖了多线程的核心概念、并发构造·、并发问题、坏处以及与 Java 中多线程相关的好处。</p>
+<h1 id="1-Java-并发和多线程教程"><a href="#1-Java-并发和多线程教程" class="headerlink" title="1. Java 并发和多线程教程"></a>1. Java 并发和多线程教程</h1><blockquote>
+<p>小结：</p>
+<ol>
+<li><p>什么是多线程：一个程序同时执行多个任务</p>
+</li>
+<li><p>为什么要使用多线程：</p>
+<ul>
+<li>更好地利用单个 CPU。</li>
+<li>更好地利用多个 CPU 或 CPU 内核。</li>
+<li>通过响应性获得更好的用户体验。</li>
+<li>通过公平地共享计算机资源获得更好的用户体验。</li>
+</ul>
+</li>
+<li><p>多线程与多任务：多任务是指在同一刻运行多个程序的能力，多线程程序在较低的层次上扩展了多任务的概念：一个程序同时执行多个任务。通常， 每一个任务称为一个线程 （ thread ) , 它是线程控制的简称。–《java核心技术卷一》</p>
+</li>
+<li><p>多线程难点：控制线程访问共享资源</p>
+</li>
+</ol>
+</blockquote>
+<h2 id="1-1-什么是多线程？"><a href="#1-1-什么是多线程？" class="headerlink" title="1.1 什么是多线程？"></a>1.1 什么是多线程？</h2><p>多线程意味着你在同一应用程序中具有多个<em>执行线程</em>。一个线程就像执行应用程序的独立 CPU。因此，多线程应用程序就像具有多个 CPU 同时执行代码不同部分的应用程序。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004044.png" alt="在其中执行两个线程的应用程序"></p>
+<p>线程不等于 CPU。通常，单个 CPU 将在多个线程之间共享其执行时间，并在给定的时间量内在每个线程的执行之间进行切换。也可以让应用程序的线程由不同的 CPU 执行。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004101.png" alt="具有线程由不同线程执行的多个应用程序"></p>
+<h2 id="1-2-为什么要使用多线程？"><a href="#1-2-为什么要使用多线程？" class="headerlink" title="1.2 为什么要使用多线程？"></a>1.2 为什么要使用多线程？</h2><p>为什么要在应用程序中使用多线程有几个原因。使用多线程的一些最常见原因是：</p>
+<ul>
+<li>更好地利用单个 CPU。</li>
+<li>更好地利用多个 CPU 或 CPU 内核。</li>
+<li>通过响应性获得更好的用户体验。</li>
+<li>通过公平地共享计算机资源获得更好的用户体验。</li>
+</ul>
+<p>我将在以下各节中详细解释每个原因。</p>
+<h3 id="1-2-1-更好地利用单个-CPU"><a href="#1-2-1-更好地利用单个-CPU" class="headerlink" title="1.2.1 更好地利用单个 CPU"></a>1.2.1 更好地利用单个 CPU</h3><p>最常见的原因之一是能够更好地利用计算机中的资源。例如，如果一个线程正在等待通过网络请求的响应，则另一线程可以同时使用 CPU 来执行其他操作。此外，如果计算机具有多个 CPU，或者 CPU 具有多个执行核心，则多线程还可以帮助你的应用程序利用这些额外的 CPU 核心。</p>
+<h3 id="1-2-2-更好地利用多个-CPU-或-CPU-内核"><a href="#1-2-2-更好地利用多个-CPU-或-CPU-内核" class="headerlink" title="1.2.2 更好地利用多个 CPU 或 CPU 内核"></a>1.2.2 更好地利用多个 CPU 或 CPU 内核</h3><p>如果计算机包含多个 CPU 或 CPU 包含多个执行核心，则你需要为应用程序使用多个线程才能使用所有 CPU 或 CPU 核心。单个线程最多只能使用一个 CPU，如上所述，有时甚至不能完全利用单个 CPU。</p>
+<p>###1.2.3 通过响应性获得更好的用户体验</p>
+<p>使用多线程的另一个原因是为了提供更好的用户体验。例如，如果你单击 GUI 中的按钮，并导致通过网络发送请求，那么哪个线程执行此请求就很重要。如果使用的线程也正在更新 GUI，则在 GUI 线程等待请求响应时，用户可能会遇到 GUI“挂起”的情况。取而代之的是，这样的请求可以由后台线程执行，因此 GUI 线程可以自由地同时响应其他用户请求。</p>
+<h3 id="1-2-4-通过公平地共享计算机资源获得更好的用户体验"><a href="#1-2-4-通过公平地共享计算机资源获得更好的用户体验" class="headerlink" title="1.2.4 通过公平地共享计算机资源获得更好的用户体验"></a>1.2.4 通过公平地共享计算机资源获得更好的用户体验</h3><p>第四个原因是在用户之间更公平地共享计算机资源。例如，假设一台服务器接收来自客户端的请求，并且只有一个线程来执行这些请求。如果客户端发送的请求要花费很长时间才能处理，则所有其他客户端的请求都必须等待，直到一个请求完成。通过让每个客户端的请求由其自己的线程执行，则没有一个任务可以完全垄断 CPU。</p>
+<h2 id="1-3-多线程与多任务"><a href="#1-3-多线程与多任务" class="headerlink" title="1.3 多线程与多任务"></a>1.3 多线程与多任务</h2><p>过去，一台计算机只有一个 CPU，并且一次只能执行一个程序。大多数小型计算机的功能实际上不足以同时执行多个程序，因此没有尝试过。公平地讲，许多大型机系统能够一次执行多个程序的时间比个人计算机长得多。</p>
+<h3 id="1-3-1-多任务"><a href="#1-3-1-多任务" class="headerlink" title="1.3.1 多任务"></a>1.3.1 多任务</h3><p>后来出现了多任务处理，这意味着计算机可以同时执行多个程序（AKA 任务或进程）。但是，这并不是真正的“同时”。单个 CPU 在程序之间共享。操作系统将在运行的程序之间进行切换，并在切换之前执行每个程序一会儿。</p>
+<p>随着多任务处理，软件开发人员面临着新的挑战。程序不再假定拥有所有可用的 CPU 时间，也不拥有所有的内存或任何其他计算机资源。一个“好公民”程序应释放不再使用的所有资源，以便其他程序可以使用它们。</p>
+<h3 id="1-3-2-多线程"><a href="#1-3-2-多线程" class="headerlink" title="1.3.2 多线程"></a>1.3.2 多线程</h3><p>后来出现了多线程，这意味着你可以在同一程序中拥有多个执行线程。可以将执行线程视为执行程序的 CPU。当你有多个线程执行同一程序时，就像在同一程序中执行多个 CPU。</p>
+<h2 id="1-4-多线程很难"><a href="#1-4-多线程很难" class="headerlink" title="1.4 多线程很难"></a>1.4 多线程很难</h2><p>多线程是提高某些类型程序性能的好方法。但是，多线程处理比多任务处理更具挑战性。这些线程在同一程序中执行，因此同时在读取和写入相同的内存。这可能会导致在单线程程序中看不到的错误。在单个 CPU 机器上可能看不到其中一些错误，因为两个线程从未真正“同时”执行。但是，现代计算机配备了多核 CPU，甚至还配备了多个 CPU。这意味着可以由单独的内核或 CPU 同时执行单独的线程。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191213004203.png" alt="多CPU计算机上的多线程"></p>
+<p>如果一个线程在另一个线程写入内存时读取了一个内存，那么第一个线程最终将读取什么值？旧值？第二个线程写的值？还是两者之间混合的值？或者，如果两个线程正在同时写入同一内存位置，那么完成后将剩下什么值？由第一个线程写的值？第二个线程写的值？还是两个值的混合写入？</p>
+<p>没有适当的预防措施，任何这些结果都是可能的。该行为甚至是不可预测的。结果可能会不时改变。因此，作为开发人员，重要的是要知道如何采取正确的预防措施-意味着要学习如何控制线程访问共享资源（如内存，文件，数据库等）。这是本 Java 并发教程所要解决的主题之一。</p>
+<h2 id="1-5-Java-中的多线程和并发"><a href="#1-5-Java-中的多线程和并发" class="headerlink" title="1.5 Java 中的多线程和并发"></a>1.5 Java 中的多线程和并发</h2><p>Java 是最早让开发人员可以使用多线程的语言之一。Java 从一开始就具有多线程功能。因此，Java 开发人员经常会遇到上述问题。这就是我在 Java 并发上编写此线索的原因。谨此提醒自己，以及提醒可能从中受益的其他 Java 开发人员。</p>
+<p>本教程主要关注 Java 中的多线程，但是多线程中发生的某些问题类似于多任务和分布式系统中发生的问题。因此，对多任务和分布式系统的引用也可能出现在此线索中。所以叫法上称为“并发”，而不是“多线程”。</p>
+<h2 id="1-6-并发模型"><a href="#1-6-并发模型" class="headerlink" title="1.6 并发模型"></a>1.6 并发模型</h2><p>第一个 Java <em>并发模型</em>假定在同一应用程序中执行的多个线程也将共享对象。这种类型的并发模型通常称为“共享状态并发模型”。许多并发语言构造和实用程序都旨在支持此并发模型。</p>
+<p>但是，自从编写第一本 Java 并发书籍以来，甚至自 Java 5 并发实用工具发布以来，并发体系结构和设计领域已经发生了很多事情。</p>
+<p>共享状态并发模型导致许多并发问题，这些问题很难优雅地解决。因此，被称为“无共享”或“分离状态”的替代并发模型已经普及。在单独的状态并发模型中，线程不共享任何对象或数据。这避免了共享状态并发模型的许多并发访问问题。</p>
+<p>出现了新的异步“独立状态”平台和工具包，例如 Netty，Vert.x 和 Play &#x2F; Akka 和 Qbit。新的非阻塞并发算法已经发布，并且新的非阻塞工具（例如 LMax Disrupter）已添加到我们的工具箱中。Java 7 中的 Fork and Join 框架和 Java 8 中的 collection stream API 引入了新的函数式编程并行性。</p>
+<p>随着所有这些新的发展，现在是时候更新本 Java 并发教程了。因此，本教程再次<strong>进行中</strong>。只要有时间编写新教程，教程就会被发布。</p>
+<h2 id="1-7-Java-并发学习指南"><a href="#1-7-Java-并发学习指南" class="headerlink" title="1.7 Java 并发学习指南"></a>1.7 Java 并发学习指南</h2><p>如果你不熟悉 Java 并发，建议你遵循以下学习计划。你也可以在此页面左侧的菜单中找到所有主题的链接。</p>
+<p>通用并发和多线程理论：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/benefits.html" title="多线程的好处">多线程的好处</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/costs.html">多线程代价</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/concurrency-models.html" title="并发模型">并发模型</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/same-threading.html">相同线程</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/concurrency-vs-parallelism.html" title="并发与并行">并发与并行</a></li>
+</ul>
+<p>Java 并发基础知识：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/creating-and-starting-threads.html" title="创建和启动Java线程">创建和启动 Java 线程</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/race-conditions-and-critical-sections.html" title="竞态条件与临界区">竞态条件与临界区</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/thread-safety.html" title="线程安全和共享资源">线程安全和共享资源</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/thread-safety-and-immutability.html" title="线程安全和不变性">线程安全和不变性</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/java-memory-model.html" title="Java内存模型">Java 内存模型</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/synchronized.html" title="Java同步块">Java 同步块</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/volatile.html" title="Java volatile关键字">Java volatile关键字</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/threadlocal.html" title="Java ThreadLocal">Java ThreadLocal</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/thread-signaling.html" title="Java线程信令">Java 线程信令</a></li>
+</ul>
+<p>Java 并发的典型问题：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/deadlock.html" title="死锁">死锁</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/deadlock-prevention.html" title="防止死锁">防止死锁</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/starvation-and-fairness.html" title="饥饿与公平">饥饿与公平</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/nested-monitor-lockout.html">嵌套管程锁死</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/slipped-conditions.html" title="Slipped Conditions">Slipped Conditions</a></li>
+</ul>
+<p>Java 并发构造可帮助解决上述问题：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/locks.html" title="Java锁">Java 中的锁</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/read-write-locks.html" title="Java中的读/写锁">Java 中的读&#x2F;写锁</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/reentrance-lockout.html" title="重入锁死">重入锁死</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/semaphores.html">信号量</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/blocking-queues.html" title="阻塞队列">阻塞队列</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/thread-pools.html" title="线程池">线程池</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/compare-and-swap.html">CAS</a></li>
+</ul>
+<p>进一步的主题：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/anatomy-of-a-synchronizer.html" title="同步器的解剖">剖析同步器</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/non-blocking-algorithms.html" title="非阻塞算法">非阻塞算法</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/amdahls-law.html" title="阿姆达尔定律">阿姆达尔定律</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/references.html" title="参考文献">参考文献</a></li>
+</ul>
+<h1 id="2-多线程的好处"><a href="#2-多线程的好处" class="headerlink" title="2. 多线程的好处"></a>2. 多线程的好处</h1><ul>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/benefits.html#better-cpu-utilization">更好的CPU使用率</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/benefits.html#simpler-program-design">程序设计更简单</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/benefits.html#more-responsive-programs">更多响应程序</a></li>
+<li><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-concurrency/benefits.html#more-fair-distribution-of-cpu-resources">更公平地分配CPU资源</a></li>
+</ul>
+<p>多线程的最大好处是：</p>
+<ul>
+<li>更高的CPU利用率。</li>
+<li>在某些情况下，程序设计更简单。</li>
+<li>响应速度更快的程序。</li>
+<li>在不同任务之间更公平地分配CPU资源。</li>
+</ul>
+<h2 id="2-1-更好的CPU使用率"><a href="#2-1-更好的CPU使用率" class="headerlink" title="2.1 更好的CPU使用率"></a>2.1 更好的CPU使用率</h2><p>想象一个应用程序从本地文件系统读取和处理文件。假设从磁盘读取af文件需要5秒钟，而处理则需要2秒钟。然后处理两个文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">  5秒钟读取文件A</span><br><span class="line">  2秒处理文件A</span><br><span class="line">  5秒钟读取文件B</span><br><span class="line">  2秒处理文件B</span><br><span class="line">-----------------------</span><br><span class="line"> 总共14秒</span><br></pre></td></tr></table></figure>
+
+<p>从磁盘读取文件时，大部分的CPU时间都花在等待磁盘读取数据上。在这段时间内，CPU几乎处于空闲状态。它可能正在做其他事情。通过更改操作顺序，可以更好地利用CPU。查看以下顺序：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">  5秒钟读取文件A</span><br><span class="line">  5秒读取文件B + 2秒处理文件A</span><br><span class="line">  2秒处理文件B</span><br><span class="line">-----------------------</span><br><span class="line"> 总共12秒</span><br></pre></td></tr></table></figure>
+
+<p>CPU等待读取第一个文件。然后，它开始读取第二个文件。当计算机的IO组件读取第二个文件时，CPU处理第一个文件。请记住，在等待从磁盘读取文件时，CPU大部分处于空闲状态。</p>
+<p>通常，CPU在等待IO时可以做其他事情。不必是磁盘IO。它也可以是网络IO，也可以是来自计算机用户的输入。网络和磁盘IO通常比CPU和内存IO慢很多。</p>
+<h2 id="2-2-程序设计更简单"><a href="#2-2-程序设计更简单" class="headerlink" title="2.2 程序设计更简单"></a>2.2 程序设计更简单</h2><p>如果要在单线程应用程序中手动编写上述读取和处理的顺序，则必须跟踪每个文件的读取和处理状态。相反，您可以启动两个线程，每个线程仅读取和处理一个文件。这些等待线程将在等待磁盘读取其文件时被阻止。在等待时，其他线程可以使用CPU处理已读取的文件部分。结果是磁盘始终保持忙碌状态，将各种文件读入内存。这样可以更好地利用磁盘和CPU。编程也更容易，因为每个线程只需要跟踪一个文件即可。</p>
+<h2 id="2-3-更多响应程序"><a href="#2-3-更多响应程序" class="headerlink" title="2.3 更多响应程序"></a>2.3 更多响应程序</h2><p>将单线程应用程序转换为多线程应用程序的另一个共同目标是实现响应速度更快的应用程序。想象一个服务器应用程序在某个端口上侦听传入的请求。收到请求后，它将处理该请求，然后返回监听。服务器循环如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(服务器处于活动状态)&#123;</span><br><span class="line">  	监听请求</span><br><span class="line">   流程请求</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果请求需要很长时间才能处理，则在这段时间内没有新客户端可以向服务器发送请求。只有在服务器正在侦听时，才能接收请求。</p>
+<p>另一种设计是侦听线程将请求传递给工作线程，然后立即返回侦听。工作线程将处理该请求，并将回复发送给客户端。该设计概述如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(服务器处于活动状态) &#123; </span><br><span class="line">   监听对</span><br><span class="line">   工作线程的请求请求</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样，服务器线程将尽快恢复监听。因此，更多的客户端可以将请求发送到服务器。服务器变得更加敏感。</p>
+<p>桌面应用程序也是如此。如果单击启动长任务的按钮，并且执行任务的线程是更新窗口，按钮等的线程，则任务执行时应用程序将显示为无响应。而是可以将任务移交给工作线程。当工作线程忙于任务时，窗口线程可以自由响应其他用户请求。当工作线程完成时，它向窗口线程发出信号。然后，窗口线程可以使用任务结果更新应用程序窗口。具有工作线程设计的程序将对用户响应更快。</p>
+<h2 id="2-4-更公平地分配CPU资源"><a href="#2-4-更公平地分配CPU资源" class="headerlink" title="2.4 更公平地分配CPU资源"></a>2.4 更公平地分配CPU资源</h2><p>假设有一个服务器正在接收来自客户端的请求。然后想象一下，其中一个客户端发送了一个处理时间很长的请求，例如10秒。如果服务器使用单个线程处理了所有任务，则处理缓慢的请求之后的所有请求将被迫等待，直到处理完整个请求为止。</p>
+<p>通过在多个线程之间划分CPU时间并在线程之间进行切换，CPU可以在多个请求之间更公平地共享其执行时间。这样，即使其中一个请求较慢，也可以与较慢的请求同时执行处理速度更快的其他请求。当然，这意味着执行慢速请求的速度甚至会更慢，因为它不会仅将CPU分配给处理它。但是，其他请求将不得不等待更短的时间来处理，因为它们不必等待缓慢的任务完成才可以处理它们。如果只有慢请求要处理，则仍可以将CPU单独分配给慢任务。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/11/24/java%E5%B9%B6%E5%8F%91%E6%95%99%E7%A8%8B%E7%BF%BB%E8%AF%91/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/11/30/IntelliJ-IDEA-2019-3-%E5%8F%91%E5%B8%83%EF%BC%8C%E6%9B%B4%E5%A5%BD%E7%9A%84%E6%80%A7%E8%83%BD%E5%92%8C%E6%98%93%E7%94%A8%E6%80%A7/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            IntelliJ IDEA 2019.3 发布，更好的性能和易用性
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/11/24/%E6%80%9D%E8%80%83-11-%E4%B8%8D%E6%96%ADupdate/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">思考 11 不断update</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

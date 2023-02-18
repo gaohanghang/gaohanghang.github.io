@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>索引优化三大原则 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-索引优化三大原则"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  索引优化三大原则
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/12/%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E4%B8%89%E5%A4%A7%E5%8E%9F%E5%88%99/" class="article-date">
+  <time datetime="2019-07-12T00:16:02.000Z" itemprop="datePublished">2019-07-12</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原作者: <a target="_blank" rel="noopener" href="https://my.oschina.net/u/923324" title="南寒之星">南寒之星</a></p>
+<p>原文地址: <a target="_blank" rel="noopener" href="https://my.oschina.net/u/923324/blog/1634787" title="索引优化三大原则">索引优化三大原则</a></p>
+</blockquote>
+<h1 id="建索引的几大原则"><a href="#建索引的几大原则" class="headerlink" title="建索引的几大原则"></a>建索引的几大原则</h1><p>对于索引我总结三大原则：</p>
+<ul>
+<li>1、最左前缀原则；</li>
+<li>2、不冗余原则；</li>
+<li>3、最大选择性原则。</li>
+</ul>
+<p>基本掌握这三条，对于索引的优化理论上是没有问题了。</p>
+<h2 id="最左前缀原则"><a href="#最左前缀原则" class="headerlink" title="最左前缀原则"></a>最左前缀原则</h2><p>一般在 where 条件中两个及以上字段时，我们会建联合索引。 高效使用索引的首要条件是知道什么样的查询会使用到索引，这个问题和 B+Tree 中的“最左前缀原理”有关，下面通过例子说明最左前缀原理。 MySQL 中的索引可以以一定顺序引用多个列，这种索引叫做联合索引，一般的，一个联合索引是一个有序元组&lt;a1,a2,a3…an&gt;，其中各个元素均为数据表的一列，实际上要严格定义索引需要用到关系代数。另外，单列索引可以看成联合索引元素数为 1 的特例 最左前缀是一个很重要的原则。 mysql 会从左至右匹配，直到遇到范围查找(&gt; &lt; like between)就停止。 如： select * from table1 where a&#x3D;1 and b&#x3D;2 and c&lt;3 and d&#x3D;9 ; 建立的联合索引为：(a,b,c,d) 实际使用的索引为(a,b,c)。因为遇到了 c&lt;3 就停止了，d 列就没有用上。 前面讲过联合索引是有序元组， 则 mysql 实际建的索引为：(a) (a,b) (a,b,c) (a,b,c,d)。 举个例子：where b&#x3D;2 and c&#x3D;3 and d&#x3D;9 ；按照最左匹配原则，这个条件就没法走索引了，首先必须有 a。 &#x3D;,in 可以乱序，查询优化器会帮你优化成索引可以识别的形式。也就是说，where b&#x3D;2 and a&#x3D;1 and c&lt;3 使用的索引任然为(a,b,c)组合。 回到线上案例： 索引:idx_whid_distributionorderid(wh_id,distribution_order_id) 索引组合 (wh_id) ,(wh_id,distribution_order_id) 相当于建了一个 wh_id 的单列索引，也就是说当你要根据 wh_id 查询时，是不需要再新建索引了。</p>
+<h2 id="不冗余原则"><a href="#不冗余原则" class="headerlink" title="不冗余原则"></a>不冗余原则</h2><p>尽量扩展索引、不要新建索引 mysql 目前主要索引有：FULLTEXT,HASH,BTREE 好的索引可以提高我们的查询效率，不好的索引不但不会起作用，反而给 DB 带来负担，基于 BTREE 结构，插入、修改都会重新调整索引结构，存储成本增加，写效率降低，同时 DB 系统也要消耗资源去维护。 基于刚才的最左匹配原则，尽量在原有基础上扩展索引，不要新增索引。 能用单索引，不用联合索引；能用窄索引，不用宽索引；能复用索引，不新建索引。 回到线上案例： nc_tms_order、ct_order 看看分别有哪些索引</p>
+<p>看到这里我开始凌乱，好像什么字段都可以加索引。 为此专门针对 ct_order 表两个具有比较性的索引做了性能测试，ct_order_code，lc_order_code 区分度都是非常高的字段，前者是好于后者（联合 station_id 并没有起到太多优化作用）。 idx_ct_order_code(ct_order_code), idx_ct_order_lc_order_code(station_id,lc_order_code) 那么接下来我们说说那些字段适合建索引。</p>
+<span id="more"></span>
+
+<h2 id="最大选择性原则"><a href="#最大选择性原则" class="headerlink" title="最大选择性原则"></a>最大选择性原则</h2><p>选择区分度高列做索引 什么是区分度高的字段呢？ 一般两种情况不建议建索引： 1、一两千条甚至几百条，没必要建索引，让查询做全表扫描就好了。 因为不是你建了就一定会走索引，执行计划会选择一个最优的方式，msql 辅助索引的叶子节点并不直接存储实际数据，只是主建 ID，再通过主键索引二次查找。这么一来全表可能很有可能效率更高。 2、索引选择性较低的情况。 所谓选择性（Selectivity），是指不重复的索引值（也叫基数，Cardinality）与表记录数（#T）的比值。</p>
+<p>Index Selectivity &#x3D; Cardinality &#x2F; #T 显然选择性的取值范围为(0, 1]，选择性越高的索引价值越大，这是由 B+Tree 的性质决定的。 回到线上案例 wh_id 最好不用做索引字段，这个和性别男、女作为索引字段没区别： SELECT count(DISTINCT(wh_id))&#x2F;count(*) AS Selectivity FROM nc_tms_order_0340 nc_tms_order;</p>
+<p>0</p>
+<p>选择性不足 0.0001（精确值为 0.00000666），按 Selectivity 值越大价值越大原则，实在没有什么必要为其单独建索引。 再看下 distribution_order_id 单列索引。 SELECT count(DISTINCT(distribution_order_id))&#x2F;count(*) AS Selectivity FROM nc_tms_order_0340 nc_tms_order;</p>
+<p>0.0030</p>
+<p>Selectivity &#x3D; 0.0030 ，比之前有所优化，但其实不是特别理想。 联合索引 SELECT count(DISTINCT(concat(wh_id,distribution_order_id)))&#x2F;count(*) AS Selectivity FROM nc_tms_order_0340 nc_tms_order;</p>
+<p>0.0030</p>
+<p>Selectivity &#x3D; 0.0030 从值来看，这里建联合索引的价值并不是特别大。一个 distrubution_id 搞定。 那么我们在建一个索引或联合索引的时候拿不准的时候可以先计算下选择性值以及通过 explain 测试。 一般情况，status、is_deleted 列不建议建索引。 创建复合索引，需要注意把区分度最大的放到最前面。也就是值越大的放前面，当然需根据时间场景和 sql 通过执行计划进行优化。 前缀索引 有一种与索引选择性有关的索引优化策略叫做前缀索引，就是用列的前缀代替整个列作为索引 key，当前缀长度合适时，可以做到既使得前缀索引的选择性接近全列索引，同时因为索引 key 变短而减少了索引文件的大小和维护开销。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="索引列不能参与计算"><a href="#索引列不能参与计算" class="headerlink" title="索引列不能参与计算"></a>索引列不能参与计算</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">比如from_unixtime(create_time) = ’2017-11-11’就不能使用到索引，语句应该写成create_time = unix_timestamp(’2017-11-11’);</span><br></pre></td></tr></table></figure>
+
+<p>主键最好使用自增型，保证数据连续性（mysql innodb 主键默认采用 b+tree，索引和数据放在同一个 btree 中），不要使用 uuid、hash、md5 等 不要使用前匹配的 like 查询，会导致索引失效。可以使用后匹配 like，如”xxx%”。 在字符串列上创建索引，尽量使用前缀索引。前缀基数根据具体业务，在匹配度和存储量（索引的存储量）之前做一个平衡。 不要使用 not inlike，会导致索引失效。not in 可以用 not exists 替换。in 和 or 所在列最好有索引 说了这么多留 action 吧，大家回去看看 ct_order,nc_tms_order 看看如何优化吧。 其实数据库索引调优，光靠理论是不行的，需要结合实际情况。MySQL 机制复杂，如查询优化策略和各种引擎的实现差异等都会使情况变复杂。我们在了解这些原则和基础之上，要不断的实践和总结，从而真正达到高效使用 MySQL 索引的目的。 执行计划 explain 命令 explain 是 sql 优化神奇。 公司 IDB 的执行计划被包装过了，除了被动查慢 sql 调优上看到，一直没找主动做执行计划的地方，有知道的可以告诉我下。 以下均为工具介绍，可留做备查。 explain 用法 EXPLAIN tbl_name 或：EXPLAIN [EXTENDED] SELECT select_options 举例 mysql&gt; explain select * from event;</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">+</span>—<span class="operator">-</span><span class="operator">+</span>————<span class="operator">-</span><span class="operator">+</span>——<span class="operator">-</span><span class="operator">+</span>——<span class="operator">+</span>—————<span class="operator">+</span>——<span class="operator">+</span>———<span class="operator">+</span>——<span class="operator">+</span>——<span class="operator">+</span>——<span class="operator">-</span><span class="operator">+</span></span><br><span class="line"><span class="operator">|</span> id <span class="operator">|</span> select_type <span class="operator">|</span> <span class="keyword">table</span> <span class="operator">|</span> type <span class="operator">|</span> possible_keys <span class="operator">|</span> key <span class="operator">|</span> key_len <span class="operator">|</span> <span class="keyword">ref</span> <span class="operator">|</span> <span class="keyword">rows</span> <span class="operator">|</span> Extra <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span>—<span class="operator">-</span><span class="operator">+</span>————<span class="operator">-</span><span class="operator">+</span>——<span class="operator">-</span><span class="operator">+</span>——<span class="operator">+</span>—————<span class="operator">+</span>——<span class="operator">+</span>———<span class="operator">+</span>——<span class="operator">+</span>——<span class="operator">+</span>——<span class="operator">-</span><span class="operator">+</span></span><br><span class="line"><span class="operator">|</span> <span class="number">1</span> <span class="operator">|</span> SIMPLE <span class="operator">|</span> event <span class="operator">|</span> <span class="keyword">ALL</span> <span class="operator">|</span> <span class="keyword">NULL</span> <span class="operator">|</span> <span class="keyword">NULL</span> <span class="operator">|</span> <span class="keyword">NULL</span> <span class="operator">|</span> <span class="keyword">NULL</span> <span class="operator">|</span> <span class="number">13</span> <span class="operator">|</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span>—<span class="operator">-</span><span class="operator">+</span>————<span class="operator">-</span><span class="operator">+</span>——<span class="operator">-</span><span class="operator">+</span>——<span class="operator">+</span>—————<span class="operator">+</span>——<span class="operator">+</span>———<span class="operator">+</span>——<span class="operator">+</span>——<span class="operator">+</span>——<span class="operator">-</span><span class="operator">+</span></span><br></pre></td></tr></table></figure>
+
+<p>1 row in set (0.00 sec) 各个属性的含义 id：select 查询的序列号</p>
+<p>select_type：select 查询的类型，主要是区别普通查询和联合查询、子查询之类的复杂查询。</p>
+<p>table：输出的行所引用的表。</p>
+<p>type：联合查询所使用的类型。</p>
+<p>type 显示的是访问类型，是较为重要的一个指标，结果值从好到坏依次是： system &gt; const &gt; eq_ref &gt; ref &gt; fulltext &gt; ref_or_null &gt; index_merge &gt; unique_subquery &gt; index_subquery &gt; range &gt; index &gt; ALL 一般来说，得保证查询至少达到 range 级别，最好能达到 ref。 就 type 进行详细的介绍：all : 即全表扫描</p>
+<p>index : 按索引次序扫描，就 type 进行详细的介绍： System,const,eq_ref,ref,range,index,all</p>
+<p>all : 即全表扫描</p>
+<p>index : 按索引次序扫描，先读索引，再读实际的行，结果还是全表扫描，主要优点是避免了排序。因为索引是排好的。</p>
+<p>range:以范围的形式扫描。</p>
+<p>explain select * from a where a_id &gt; 1\G</p>
+<p>ref:非唯一索引访问(只有普通索引)</p>
+<p>create table a(a_id int not null, key(a_id)); insert into a values(1),(2),(3),(4),(5),(6),(7),(8),(9),(10); mysql&gt; explain select * from a where a_id&#x3D;1\G</p>
+<p>eq_ref:使用唯一索引查找(主键或唯一索引)</p>
+<p>const:常量查询</p>
+<p>当出现 using index 时，表示 sql 使用覆盖索引，性能较好，而当出现 using filesort、using temporary、using where 时，查询需要优化。 先读索引，再读实际的行，结果还是全表扫描，主要优点是避免了排序。因为索引是排好的。</p>
+<p>range:以范围的形式扫描。</p>
+<p>explain select * from a where a_id &gt; 1\G</p>
+<p>ref:非唯一索引访问(只有普通索引)</p>
+<p>create table a(a_id int not null, key(a_id)); insert into a values(1),(2),(3),(4),(5),(6),(7),(8),(9),(10); mysql&gt; explain select * from a where a_id&#x3D;1\G eq_ref:使用唯一索引查找(主键或唯一索引)</p>
+<p>const:常量查询</p>
+<p>当出现 using index 时，表示 sql 使用覆盖索引，性能较好，而当出现 using filesort、using temporary、using where 时，查询需要优化。</p>
+<p>possible_keys：指出 MySQL 能使用哪个索引在该表中找到行。如果是空的，没有相关的索引。这时要提高性能，可通过检验 WHERE 子句，看是否引用某些字段，或者检查字段不是适合索引。</p>
+<p>key：显示 MySQL 实际决定使用的键。如果没有索引被选择，键是 NULL。</p>
+<p>key_len：显示 MySQL 决定使用的键长度。如果键是 NULL，长度就是 NULL。文档提示特别注意这个值可以得出一个多重主键里 mysql 实际使用了哪一部分。</p>
+<p>ref：显示哪个字段或常数与 key 一起被使用。</p>
+<p>rows：这个数表示 mysql 要遍历多少数据才能找到，在 innodb 上是不准确的。</p>
+<p>Extra：如果是 Only index，这意味着信息只用索引树中的信息检索出的，这比扫描整个表要快。</p>
+<p>如果是 where used，就是使用上了 where 限制。 如果是 impossible where 表示用不着 where，一般就是没查出来啥。 如果此信息显示 Using filesort 或者 Using temporary 的话会很吃力，WHERE 和 ORDER BY 的索引经常无法兼顾，如果按照 WHERE 来确定索引，那么在 ORDER BY 时，就必然会引起 Using filesort，这就要看是先过滤再排序划算，还是先排序再过滤划算。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/07/12/%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E4%B8%89%E5%A4%A7%E5%8E%9F%E5%88%99/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/07/12/%E7%94%A8%E4%BA%86-Lambda-%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%8F%91%E7%8E%B0%E5%8F%AF%E4%BB%A5%E5%BF%98%E8%AE%B0%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%86/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            用了 Lambda 之后，发现可以忘记设计模式了
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/07/11/spring-data-jpa-query%E5%92%8Cpageabel/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">spring data jpa @query和pageabel</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

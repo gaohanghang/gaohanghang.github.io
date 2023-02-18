@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>RESTful API规范（详细版） |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-RESTful-API规范（详细版）"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  RESTful API规范（详细版）
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/04/RESTful-API%E8%A7%84%E8%8C%83%EF%BC%88%E8%AF%A6%E7%BB%86%E7%89%88%EF%BC%89/" class="article-date">
+  <time datetime="2019-11-04T12:26:34.000Z" itemprop="datePublished">2019-11-04</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">5 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者: RyuGou</p>
+<p>原文地址: <a target="_blank" rel="noopener" href="https://i6448038.github.io/2017/06/28/rest-%E6%8E%A5%E5%8F%A3%E8%A7%84%E8%8C%83/" title="RESTful API 规范（详细版）">RESTful API 规范（详细版）</a></p>
+<p>作者公众号: 互联网技术窝</p>
+<p>看的时候感觉写的非常不错 😆，看完自我介绍发现果然是个大佬</p>
+</blockquote>
+<h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h2><p><code>rest</code>是一种软件架构风格，如果你们的接口是<code>rest</code>接口，那么就可被认为你们的的接口是 restful 的，英文名词和形容词的区别。</p>
+<p><code>rest</code>接口是围绕“资源”展开的，利用 HTTP 的协议，其实 rest 本也可以和 HTTP 无关，但是现在大家普遍的使用<code>rest</code>都是依托于 HTTP 协议。HTTP 的 url 即资源。</p>
+<p><code>RFC 3986</code> 定义了通用的 URI 语法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">URI = scheme “://” authority “/” path [ “?” query ][ “#” fragment ]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>scheme: 指底层用的协议，如 http、https、ftp</li>
+<li>host: 服务器的 IP 地址或者域名</li>
+<li>port: 端口，http 中默认 80</li>
+<li>path: 访问资源的路径，就是咱们各种 web 框架中定义的 route 路由</li>
+<li>query: 为发送给服务器的参数</li>
+<li>fragment: 锚点，定位到页面的资源，锚点为资源 id</li>
+</ul>
+<h2 id="2-RESTful-API-设计"><a href="#2-RESTful-API-设计" class="headerlink" title="2. RESTful API 设计"></a>2. RESTful API 设计</h2><h3 id="2-1-资源路径"><a href="#2-1-资源路径" class="headerlink" title="2.1 资源路径"></a>2.1 资源路径</h3><p>对于 rest 资源的定义，即 URL 的定义，是最重要的；想要设计出优雅的、易读的 rest 接口，其实还是挺不容易的。</p>
+<h3 id="2-2-URL-中不能有动词"><a href="#2-2-URL-中不能有动词" class="headerlink" title="2.2 URL 中不能有动词"></a>2.2 URL 中不能有动词</h3><p>在 Restful 架构中，每个网址代表的是一种资源，所以网址中不能有动词，只能有名词，动词由 HTTP 的 get、post、put、delete 四种方法来表示。</p>
+<h3 id="2-3-URL-结尾不应该包含斜杠“-x2F-”"><a href="#2-3-URL-结尾不应该包含斜杠“-x2F-”" class="headerlink" title="2.3 URL 结尾不应该包含斜杠“&#x2F;”"></a>2.3 URL 结尾不应该包含斜杠“&#x2F;”</h3><p>这是作为 URL 路径中处理中最重要的规则之一，正斜杠（&#x2F;）不会增加语义值，且可能导致混淆。REST API 不允许一个尾部的斜杠，不应该将它们包含在提供给客户端的链接的结尾处。</p>
+<p>许多 Web 组件和框架将平等对待以下两个 URI：</p>
+<p><a target="_blank" rel="noopener" href="http://api.canvas.com/shapes/">http://api.canvas.com/shapes/</a></p>
+<p><a target="_blank" rel="noopener" href="http://api.canvas.com/shapes">http://api.canvas.com/shapes</a></p>
+<p>但是，实际上 URI 中的每个字符都会计入资源的唯一身份的识别中。</p>
+<p>两个不同的 URI 映射到两个不同的资源。如果 URI 不同，那么资源也是如此，反之亦然。因此，REST API 必须生成和传递精确的 URI，不能容忍任何的客户端尝试不精确的资源定位。</p>
+<p>有些 API 碰到这种情况，可能设计为让客户端重定向到相应没有尾斜杠的 URI（也有可能会返回 301 - 用来资源重定向）。</p>
+<h3 id="2-4-正斜杠分隔符”-x2F-“必须用来指示层级关系"><a href="#2-4-正斜杠分隔符”-x2F-“必须用来指示层级关系" class="headerlink" title="2.4 正斜杠分隔符”&#x2F;“必须用来指示层级关系"></a>2.4 正斜杠分隔符”&#x2F;“必须用来指示层级关系</h3><p>url 的路径中的正斜杠“&#x2F;“字符用于指示资源之间的层次关系。</p>
+<p>例如：</p>
+<p><a target="_blank" rel="noopener" href="http://api.user.com/schools/grades/classes/boys">http://api.user.com/schools/grades/classes/boys</a> - 学校中所有的男生</p>
+<p><a target="_blank" rel="noopener" href="http://api.college.com/students/3248234/courses">http://api.college.com/students/3248234/courses</a> - 检索 id 为 3248234 的学生学习的所有课程的清单。</p>
+<h3 id="2-5-应该使用连字符”-“来提高-URL-的可读性，而不是使用下划线”-”"><a href="#2-5-应该使用连字符”-“来提高-URL-的可读性，而不是使用下划线”-”" class="headerlink" title="2.5 应该使用连字符”-“来提高 URL 的可读性，而不是使用下划线”_”"></a>2.5 应该使用连字符”-“来提高 URL 的可读性，而不是使用下划线”_”</h3><p>为了使 URL 容易让人们理解，请使用连字符”-“字符来提高长路径中名称的可读性。</p>
+<p>一些文本查看器为了区分强调 URI，常常会在 URI 下加上下划线。这样下划线”_”字符可能被文本查看器中默认的下划线部分地遮蔽或完全隐藏。</p>
+<p>为避免这种混淆，请使用连字符”-“而不是下划线</p>
+<h3 id="2-6-URL-路径中首选小写字母"><a href="#2-6-URL-路径中首选小写字母" class="headerlink" title="2.6 URL 路径中首选小写字母"></a>2.6 URL 路径中首选小写字母</h3><p>RFC 3986 将 URI 定义为区分大小写，但 scheme 和 host components 除外。</p>
+<h3 id="2-7-URL-路径名词均为复数"><a href="#2-7-URL-路径名词均为复数" class="headerlink" title="2.7 URL 路径名词均为复数"></a>2.7 URL 路径名词均为复数</h3><p>为了保证 url 格式的一致性，建议使用复数形式。</p>
+<h2 id="3-RESTful-API-对资源的操作"><a href="#3-RESTful-API-对资源的操作" class="headerlink" title="3. RESTful API 对资源的操作"></a>3. RESTful API 对资源的操作</h2><p>对于 rest api 资源的操作，由 HTTP 动词表示</p>
+<h3 id="3-1-CURD-操作"><a href="#3-1-CURD-操作" class="headerlink" title="3.1 CURD 操作"></a>3.1 CURD 操作</h3><ul>
+<li>GET：获取资源</li>
+<li>POST：新建资源</li>
+<li>PUT：在服务器更新资源（向客户端提供改变后的所有资源）</li>
+<li>PATCH：在服务器更新资源（向客户端提供改变的属性）</li>
+<li>DELETE：删除资源</li>
+</ul>
+<p><code>PATCH</code>一般不用，用<code>PUT</code></p>
+<h3 id="3-2-资源过滤"><a href="#3-2-资源过滤" class="headerlink" title="3.2 资源过滤"></a>3.2 资源过滤</h3><p>在获取资源的时候，有可能需要获取某些“过滤”后的资源，例如指定前 10 行数据</p>
+<p><a target="_blank" rel="noopener" href="http://api.user.com/schools/grades/classes/boys?page=1&page-size=10">http://api.user.com/schools/grades/classes/boys?page=1&amp;page-size=10</a></p>
+<h3 id="3-3-返回状态码推荐标准-HTTP-状态码"><a href="#3-3-返回状态码推荐标准-HTTP-状态码" class="headerlink" title="3.3 返回状态码推荐标准 HTTP 状态码"></a>3.3 返回状态码推荐标准 HTTP 状态码</h3><p>有很多服务器将返回状态码一直设为 200，然后在返回 body 里面自定义一些状态码来表示服务器返回结果的状态码。由于 rest api 是直接使用的 HTTP 协议，所以它的状态码也要尽量使用 HTTP 协议的状态码。</p>
+<ul>
+<li>200 OK 服务器返回用户请求的数据，该操作是幂等的</li>
+<li>201 CREATED 新建或者修改数据成功</li>
+<li>204 NOT CONTENT 删除数据成功</li>
+<li>400 BAD REQUEST 用户发出的请求有问题，该操作是幂等的</li>
+<li>401 Unauthoried 表示用户没有认证，无法进行操作</li>
+<li>403 Forbidden 用户访问是被禁止的</li>
+<li>422 Unprocesable Entity 当创建一个对象时，发生一个验证错误</li>
+<li>500 INTERNAL SERVER ERROR 服务器内部错误，用户将无法判断发出的请求是否成功</li>
+<li>503 Service Unavailable 服务不可用状态，多半是因为服务器问题，例如 CPU 占用率大，等等</li>
+</ul>
+<h3 id="3-4-返回结果"><a href="#3-4-返回结果" class="headerlink" title="3.4 返回结果"></a>3.4 返回结果</h3><ul>
+<li>GET &#x2F;collections 返回资源列表</li>
+<li>GET &#x2F;collections&#x2F;:id 返回单独的资源</li>
+<li>POST &#x2F;collections 返回新生成的资源对象</li>
+<li>PUT &#x2F;collections&#x2F;:id 返回完整的资源对象</li>
+<li>PATCH &#x2F;collections&#x2F;:id 返回被修改的属性</li>
+<li>DELETE &#x2F;collections&#x2F;:id 返回一个空文档</li>
+</ul>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/11/04/RESTful-API%E8%A7%84%E8%8C%83%EF%BC%88%E8%AF%A6%E7%BB%86%E7%89%88%EF%BC%89/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/restful/" rel="tag">restful</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/11/05/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4-Java-%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E7%AC%AC%E4%BA%94%E7%AB%A0MySQL%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A7%A3%E8%AF%BB/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            《阿里巴巴 Java 开发手册》第五章MySQL数据库解读
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/11/03/%E3%80%8A%E5%88%BB%E6%84%8F%E7%BB%83%E4%B9%A0%E3%80%8B%E9%AB%98%E6%95%88%E5%AD%A6%E4%B9%A0%E7%9A%843F%E6%B3%95%E5%88%99/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">《刻意练习》高效学习的3F法则</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

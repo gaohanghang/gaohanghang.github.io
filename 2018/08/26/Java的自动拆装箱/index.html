@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Java的自动拆装箱 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java的自动拆装箱"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Java的自动拆装箱
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/08/26/Java%E7%9A%84%E8%87%AA%E5%8A%A8%E6%8B%86%E8%A3%85%E7%AE%B1/" class="article-date">
+  <time datetime="2018-08-26T13:10:22.000Z" itemprop="datePublished">2018-08-26</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">11 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文来自 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cc9312104876">Java的自动拆装箱</a></p>
+</blockquote>
+<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>​       在说到拆箱和装箱之前，需要了解Java中有八种基本的数据类型，分别是：byte、short、char、int、long、float、double和boolean。这八种基本类型在Java中都有对应的包装类型：Byte、Short、Character、Integer、Long、Float、Double以及Boolean。</p>
+<p> 有了基本类型为什么还需要包装类型呢？这是由Java本身的语言特性决定的，Java是一种面向对象的编程语言，在学习Java之初就被明确灌输了一个概念：OOP，即面向对象编程。一切皆对象。但是基本类型是不具备Java中对象的某些特征，对象内部可以封装一系列属性和行为，但是这些在基本数据类型中都无法满足，所以对应的包装类型就应运而生了。作者：still_loving链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cc9312104876%E4%BE%86%E6%BA%90%EF%BC%9A%E7%AE%80%E4%B9%A6%E7%AE%80%E4%B9%A6%E8%91%97%E4%BD%9C%E6%9D%83%E5%BD%92%E4%BD%9C%E8%80%85%E6%89%80%E6%9C%89%EF%BC%8C%E4%BB%BB%E4%BD%95%E5%BD%A2%E5%BC%8F%E7%9A%84%E8%BD%AC%E8%BD%BD%E9%83%BD%E8%AF%B7%E8%81%94%E7%B3%BB%E4%BD%9C%E8%80%85%E8%8E%B7%E5%BE%97%E6%8E%88%E6%9D%83%E5%B9%B6%E6%B3%A8%E6%98%8E%E5%87%BA%E5%A4%84%E3%80%82">https://www.jianshu.com/p/cc9312104876來源：简书简书著作权归作者所有，任何形式的转载都请联系作者获得授权并注明出处。</a></p>
+<p>   这里的装箱和拆箱的概念描述的其实就是Java中这八种基本数据类型和对应的包装类型之间的转换过程。我们把基本数据类型转换成对应的包装类型的过程叫做装箱。反之就是拆箱。在Java中的装箱和拆箱不是人为操作的，是程序在编译的时候编译器帮助我们完成这项任务的，因此说它是自动的。</p>
+<p>  需要明确的是自动拆装箱是在JDK1.5以后引入的，对于之前版本的Java，需要格外注意格式的转换。</p>
+<h1 id="为何需要自动装箱和拆箱？"><a href="#为何需要自动装箱和拆箱？" class="headerlink" title="为何需要自动装箱和拆箱？"></a>为何需要自动装箱和拆箱？</h1><h2 id="方便"><a href="#方便" class="headerlink" title="方便"></a>方便</h2><p>​       首先就是方便程序员的编码，我们在编码过程中，可以不需要考虑包装类和基本类型之间的转换操作，这一步由编译器自动替我们完成，开发人员可以有更多的精力集中与具体的业务逻辑。否则的话，一个简单的数字赋值给包装类就得写两句代码，即：首先生成包装类型对象，然后将对象转换成基本数据类型。而这种操作是代码中使用频率很高的操作，导致代码书写量增多。</p>
+<!-- more --->
+
+<h2 id="节约空间"><a href="#节约空间" class="headerlink" title="节约空间"></a>节约空间</h2><p>​       我们在查阅对应包装类的源代码时可以看到，大部分包装类型的valueOf方法都会有缓存的操作，即：将某段范围内的数据缓存起来，创建时如果在这段范围内，直接返回已经缓存的这些对象，这样保证在一定范围内的数据可以直接复用，而不必要重新生成。</p>
+<p>​       这么设计的目的因为：小数字的使用频率很高，将小数字缓存起来，让其仅有一个对象，可以起到节约存储空间的作用。这里其实采用的是一种叫做享元模式的设计模式。可以去具体了解以下这种设计模式，这里就不再过多赘述。</p>
+<h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><p>​       Java中是怎么实现这个自动装箱和拆箱的过程的呢？这里需要借助与一些反编译工具，例如javap命令或者其他一些反编译的工具，我这里使用的是idea的bytecode插件，如果需要，可以到<a target="_blank" rel="noopener" href="https://github.com/mrdear/asm-bytecode-intellij">这里</a>下载。在它的release中直接下载zip压缩包就行，然后作为插件安装在idea中就行，安装完成重启idea后，在需要反编译的java代码中右键，可以找到”Show Bytecode outline-dev”菜单选项，直接点击就可以看到反编译后的代码。</p>
+<h2 id="装箱"><a href="#装箱" class="headerlink" title="装箱"></a>装箱</h2><p>首先看下面两句代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">20</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>在进行反编译之后可以得到：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">i</span> <span class="operator">=</span> Integer.valueOf((<span class="type">int</span>)<span class="number">10</span>);</span><br><span class="line"><span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>  可以看到对于数值类型直接赋值给包装类型，有一个自动装箱的操作，而自动装箱的操作就是利用了Integer中的valueOf方法，这就是前面在节约空间那部分提到的valueOf方法。Integer的valueOf方法中具有缓存的功能，也就是说在数值为-128到127之间的数据，都是被构造成同一个对象，这就是上面提到的享元模式的设计思路：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title function_">valueOf</span><span class="params">(<span class="type">int</span> i)</span> &#123;</span><br><span class="line"> <span class="comment">//IntegerCache.low = -128， IntegerCache.high = 127</span></span><br><span class="line">   <span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)</span><br><span class="line">       <span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Integer</span>(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个概念在刷面试题的时候，都被强调烂了，基本常见的笔试题目就是比较几个integer对象之间&#x3D;&#x3D;操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line"><span class="type">Integer</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line"><span class="type">Integer</span> <span class="variable">c</span> <span class="operator">=</span> <span class="number">128</span>;</span><br><span class="line"><span class="type">Integer</span> <span class="variable">d</span> <span class="operator">=</span> <span class="number">128</span>;</span><br><span class="line">System.out.println(a == b); <span class="comment">//true</span></span><br><span class="line">System.out.println(c == d); <span class="comment">//false</span></span><br></pre></td></tr></table></figure>
+
+<p>​     注意：也可以使用new Integer(num)的方式创建Integer对象，但是在JDK1.9之后，这个构造方法被标记为Deprecated，也就是过时了，所以以后尽量不要使用这种方式创建对象。它的注释中建议使用valueOf进行构建对象。利用构造器构造出来的对象不会经过取缓存操作，所以对于new Integer(100)的操作，得到的Integer对象与a或b进行&#x3D;&#x3D;比较时，得到的会是false。</p>
+<p>​    其实其他七种包装类型的valueOf方法大多都是这个享元设计模式的逻辑，但是有两个除外：Float和Double。这个其实也很好理解：因为Integer这种类型的数据，-128到127之间的数据是有限个，总共就256个数字，但是对于Float和Double这种类型，它们之间的数据个数就无法计算了，所以它两个就没有采用这种缓存的方式。下面是其他包装类型中的valueOf方法的源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Short</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Short <span class="title function_">valueOf</span><span class="params">(<span class="type">short</span> s)</span> &#123;</span><br><span class="line"> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">offset</span> <span class="operator">=</span> <span class="number">128</span>;</span><br><span class="line"> <span class="type">int</span> <span class="variable">sAsInt</span> <span class="operator">=</span> s;</span><br><span class="line"> <span class="keyword">if</span> (sAsInt &gt;= -<span class="number">128</span> &amp;&amp; sAsInt &lt;= <span class="number">127</span>) &#123; <span class="comment">// must cache</span></span><br><span class="line"> <span class="keyword">return</span> ShortCache.cache[sAsInt + offset];</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Short</span>(s);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Byte</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Byte <span class="title function_">valueOf</span><span class="params">(<span class="type">byte</span> b)</span> &#123;</span><br><span class="line"> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">offset</span> <span class="operator">=</span> <span class="number">128</span>;</span><br><span class="line"> <span class="keyword">return</span> ByteCache.cache[(<span class="type">int</span>)b + offset];</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Character</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Character <span class="title function_">valueOf</span><span class="params">(<span class="type">char</span> c)</span> &#123;</span><br><span class="line"> <span class="keyword">if</span> (c &lt;= <span class="number">127</span>) &#123; <span class="comment">// must cache</span></span><br><span class="line"> <span class="keyword">return</span> CharacterCache.cache[(<span class="type">int</span>)c];</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Character</span>(c);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Long</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Long <span class="title function_">valueOf</span><span class="params">(<span class="type">long</span> l)</span> &#123;</span><br><span class="line"> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">offset</span> <span class="operator">=</span> <span class="number">128</span>;</span><br><span class="line"> <span class="keyword">if</span> (l &gt;= -<span class="number">128</span> &amp;&amp; l &lt;= <span class="number">127</span>) &#123; <span class="comment">// will cache</span></span><br><span class="line"> <span class="keyword">return</span> LongCache.cache[(<span class="type">int</span>)l + offset];</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Long</span>(l);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Boolean</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Boolean <span class="title function_">valueOf</span><span class="params">(<span class="type">boolean</span> b)</span> &#123;</span><br><span class="line"> <span class="comment">//public static final Boolean TRUE = new Boolean(true);</span></span><br><span class="line"> <span class="comment">//public static final Boolean FALSE = new Boolean(false);</span></span><br><span class="line"> <span class="keyword">return</span> (b ? TRUE : FALSE);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Float</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Float <span class="title function_">valueOf</span><span class="params">(<span class="type">float</span> f)</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Float</span>(f);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//Double</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Double <span class="title function_">valueOf</span><span class="params">(<span class="type">double</span> d)</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Double</span>(d);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>  通过上面的代码截图可以看到，对于Float和Double都是直接使用了构造器直接构造对应包装类型的对象。对于Boolean类型，就是固定的两个TRUE和FALSE两个常量，它们不会出现变化，这也属于一种缓存。</p>
+<p>  对于Byte类型，它是直接全部缓存了，这里使用了cache数组，它在Byte类中定义和初始化如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> Byte cache[] = <span class="keyword">new</span> <span class="title class_">Byte</span>[-(-<span class="number">128</span>) + <span class="number">127</span> + <span class="number">1</span>];</span><br><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line"> <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; cache.length; i++)</span><br><span class="line"> cache[i] = <span class="keyword">new</span> <span class="title class_">Byte</span>((<span class="type">byte</span>)(i - <span class="number">128</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​     所以cache数组中存储的就是-128到127范围的所有数。在构建时直接定位到具体的数组位置中去，并将该位置上的数值直接返回即可。</p>
+<p>​    其余数据类型基本逻辑都差不多了，都有一个缓存值范围，如果超过了，就利用构造器直接构造，否则直接返回缓存的对象。</p>
+<h2 id="拆箱"><a href="#拆箱" class="headerlink" title="拆箱"></a>拆箱</h2><p>上面介绍的valueOf方法是装箱操作的时候使用的，还有一个拆箱操作，看下面这个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">a</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">20</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> a + b;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码反编译之后就得到：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">a</span> <span class="operator">=</span> Integer.valueOf((<span class="type">int</span>)<span class="number">100</span>);</span><br><span class="line"><span class="type">int</span> <span class="variable">b</span> <span class="operator">=</span> <span class="number">20</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> a.intValue() + b;</span><br></pre></td></tr></table></figure>
+
+<p>​      可以看到第一步进行了自动装箱操作，在第三行中，基本数据类型和包装类型进行运算，需要将包装类型进行拆箱操作，用到了intValue方法。这个方法其实在源码中很简单，就是一句话，返回value。我们知道任何包装类型，内部都有一个基本数据类型的字段用于存储对应基本类型的值，这个字段就是value。</p>
+<p>​       相应的其他包装类型在进行拆箱的时候，都会调用对应的xxxValue方法，例如：byteValue、shortValue等等方法。其实内部逻辑都是一样，直接返回存储的value值。</p>
+<h1 id="自动装箱和拆箱的时机"><a href="#自动装箱和拆箱的时机" class="headerlink" title="自动装箱和拆箱的时机"></a>自动装箱和拆箱的时机</h1><h2 id="直接赋值"><a href="#直接赋值" class="headerlink" title="直接赋值"></a>直接赋值</h2><p>​       这个情况其实在前面介绍自动装箱的操作的时候，举例代码中就是这种情况，将一个字面量直接赋值给对应包装类型会触发自动装箱操作。</p>
+<h2 id="函数参数"><a href="#函数参数" class="headerlink" title="函数参数"></a>函数参数</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//自动拆箱</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getNum1</span><span class="params">(Integer num)</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> num;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//自动装箱</span></span><br><span class="line"><span class="keyword">public</span> Integer <span class="title function_">getNum2</span><span class="params">(<span class="type">int</span> num)</span> &#123;</span><br><span class="line"> <span class="keyword">return</span> num;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="集合操作"><a href="#集合操作" class="headerlink" title="集合操作"></a>集合操作</h2><p>​       在Java的集合中，泛型只能是包装类型，但是我们在存储数据的时候，一般都是直接存储对应的基本类型数据，这里就有一个自动装箱的过程。</p>
+<h2 id="运算符运算"><a href="#运算符运算" class="headerlink" title="运算符运算"></a>运算符运算</h2><p>​       上面在拆箱操作的时候利用的就是这个特性，当基本数据类型和对应的包装类型进行算术运算时，包装类型会首先进行自动拆箱，然后再与基本数据类型的数据进行运算。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">a</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">b</span> <span class="operator">=</span> a;<span class="comment">// int b = a.intValue();</span></span><br></pre></td></tr></table></figure>
+
+<p>  这种情况编译是可以通过的，但是在运行的时候会抛出空指针异常，这就是自动拆箱导致的这种错误。因为自动拆箱会调用intValue方法，但是此时a是null，所以会抛异常。平时在使用的时候，注意非空判断即可。</p>
+<h1 id="自动装拆箱带来的问题"><a href="#自动装拆箱带来的问题" class="headerlink" title="自动装拆箱带来的问题"></a>自动装拆箱带来的问题</h1><h2 id="x3D-x3D-比较"><a href="#x3D-x3D-比较" class="headerlink" title="&#x3D;&#x3D;比较"></a>&#x3D;&#x3D;比较</h2><p>​       首先就是前面提到的关于&#x3D;&#x3D;操作符的结果问题，因为自动装箱的机制，我们不能依赖于&#x3D;&#x3D;操作符，它在一定范围内数值相同为true，但是在更多的空间中，数值相同的包装类型对象比较的结果为false。如果需要比较，可以考虑使用equals比较或者将其转换成对应的基本类型再进行比较可以保证结果的一致性。</p>
+<h2 id="空指针"><a href="#空指针" class="headerlink" title="空指针"></a>空指针</h2><p>​       这是上面在说到运算符的时候提到的一种情况，因为有自动拆箱的机制，如果初始的包装类型对象为null，那么在自动拆箱的时候的就会报NullPointerException，在使用时需要格外注意，在使用之前进行非空判定，保证程序的正常运行。</p>
+<h2 id="内存浪费"><a href="#内存浪费" class="headerlink" title="内存浪费"></a>内存浪费</h2><p>这里有个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Integer</span> <span class="variable">sum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1000</span>; i&lt;<span class="number">5000</span>; i++)&#123;</span><br><span class="line"> sum+=i;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>​    上面代码中的 sum+&#x3D;i 这个操作其实就是拆箱再装箱的过程，拆箱过程是发生在相加的时候，sum本身是Integer，自动拆箱成int与 i 相加。将得到的结果赋值给sum的时候，又会进行自动装箱，所以上面的for循环体中一句话，在编译后会变为两句：</p>
+<p>​    所以在进行了5000次循环后，会出现大量的无用对象造成内容空间的浪费，同时加重了垃圾回收的工作量，所以在日常编码过程中需要格外注意，避免出现这种浪费现象。</p>
+<h2 id="方法重载问题"><a href="#方法重载问题" class="headerlink" title="方法重载问题"></a>方法重载问题</h2><p>​       最典型的就是ArrayList中出现的remove方法，它有remove(int index)和remove(Object obj)方法，如果此时恰巧ArrayList中存储的就是Integer元素，那么会不会出现混淆的情况呢？其实这个只需要做一个简单的测试就行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">(Integer num)</span> &#123;</span><br><span class="line"> System.out.println(<span class="string">&quot;Integer参数的方法被调用...&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">(<span class="type">int</span> num)</span> &#123;</span><br><span class="line"> System.out.println(<span class="string">&quot;int参数的方法被调用...&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"> <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line"> test(i); <span class="comment">//int参数的方法被调用...</span></span><br><span class="line"> <span class="type">Integer</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">4</span>;</span><br><span class="line"> test(j);<span class="comment">//Integer参数的方法被调用...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>  所以可以发现，当出现这种情况的时候，是不会发生自动装箱和拆箱操作的。可以正常区分。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2018/08/26/Java%E7%9A%84%E8%87%AA%E5%8A%A8%E6%8B%86%E8%A3%85%E7%AE%B1/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2018/09/08/Mac%20IDEA%20%E6%9C%80%E5%B8%B8%E7%94%A8%E5%BF%AB%E6%8D%B7%E9%94%AE/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Mac IDEA 最常用快捷键
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/08/26/Java%20%E5%88%A9%E7%94%A8%E6%9E%9A%E4%B8%BE%E5%AE%9E%E7%8E%B0%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Java 利用枚举实现单例模式</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

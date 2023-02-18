@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Comparable与Comparator的区别 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Comparable与Comparator的区别"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Comparable与Comparator的区别
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/04/26/Comparable%E4%B8%8EComparator%E7%9A%84%E5%8C%BA%E5%88%AB/" class="article-date">
+  <time datetime="2018-04-26T09:22:22.000Z" itemprop="datePublished">2018-04-26</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><strong>Comparable 是自然排序</strong></p>
+<p><strong>Comparator 是定制排序</strong></p>
+<blockquote>
+<p>相同点：</p>
+<ol>
+<li>都是用来实现集合中元素的比较、排序的</li>
+<li>都可以使用Collections.sort()方法来对对象集合进行排序</li>
+</ol>
+<p>不同点：</p>
+<ol>
+<li>Comparable位于java.lang包下，而Comparator则位于java.util包下</li>
+<li>Comparable 是在集合内部定义的方法实现的排序，Comparator 是在集合外部实现的排序</li>
+</ol>
+</blockquote>
+<p><strong>总结</strong></p>
+<p>使用Comparable接口来实现对象之间的比较时，可以使这个类型（设为A）实现Comparable接口，并可以使用Collections.sort()方法来对A类型的List进行排序，之后可以通过a1.comparaTo(a2)来比较两个对象；</p>
+<p>当使用Comparator接口来实现对象之间的比较时，只需要创建一个实现Comparator接口的比较器（设为AComparator），并将其传给Collections.sort()方法即可对A类型的List进行排序，之后也可以通过调用比较器AComparator.compare(a1, a2)来比较两个对象。</p>
+<p>可以说<strong>一个是自己完成比较，一个是外部程序实现比较的差别而已</strong>。</p>
+<p>用 Comparator 是策略模式（strategy design pattern），就是不改变对象自身，而用一个策略对象（strategy object）来改变它的行为。</p>
+<p>比如：你想对整数采用绝对值大小来排序，Integer 是不符合要求的，你不需要去修改 Integer 类（实际上你也不能这么做）去改变它的排序行为，这时候只要（也只有）使用一个实现了 Comparator 接口的对象来实现控制它的排序就行了。</p>
+<p> 两种方式，各有各的特点：使用Comparable方式比较时，我们将比较的规则写入了比较的类型中，其特点是<strong>高内聚</strong>。但如果哪天这个规则需要修改，那么我们必须修改这个类型的源代码。如果使用Comparator方式比较，那么我们不需要修改比较的类，其特点是<strong>易维护</strong>，但需要自定义一个比较器，后续比较规则的修改，仅仅是改这个比较器中的代码即可。</p>
+<h2 id="Comparable接口"><a href="#Comparable接口" class="headerlink" title="Comparable接口"></a>Comparable接口</h2><p>Comparable是java.lang包下的一个接口，该接口里只有一个compareTo()方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.lang;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Comparable</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compareTo</span><span class="params">(T o)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<p>Comparable翻译为“可比较的”，表明实现该接口的类都是可以比较的，即实现Comparable接口的类本身就已经支持自比较，例如： String、Integer 自己就可以完成比较大小操作，它们已经实现了Comparable接口。查看String类的源码可以看见是这样声明的（JDK1.7）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">String</span></span><br><span class="line">    <span class="keyword">implements</span> <span class="title class_">java</span>.io.Serializable, Comparable&lt;String&gt;, CharSequence</span><br></pre></td></tr></table></figure>
+
+<p>而Integer类的声明如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Integer</span> <span class="keyword">extends</span> <span class="title class_">Number</span> <span class="keyword">implements</span> <span class="title class_">Comparable</span>&lt;Integer&gt;</span><br></pre></td></tr></table></figure>
+
+<p>可见它们都实现了Comparable接口，它们的实例都可以通过调用自身的compareTo()方法来比较自己，例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">s1</span> <span class="operator">=</span> <span class="string">&quot;aa&quot;</span>;</span><br><span class="line"><span class="type">String</span> <span class="variable">s2</span> <span class="operator">=</span> <span class="string">&quot;ab&quot;</span>;</span><br><span class="line">System.out.println(s1.compareTo(s2)); <span class="comment">//返回是两字符串第一个不同的char的unicode编码的差</span></span><br><span class="line"><span class="type">Integer</span> <span class="variable">i1</span> <span class="operator">=</span> <span class="number">3</span>;</span><br><span class="line"><span class="type">Integer</span> <span class="variable">i2</span> <span class="operator">=</span> <span class="number">2</span>;</span><br><span class="line">System.out.println(i1.compareTo(i2)); <span class="comment">//前者大返回1，后者大返回-1，相等返回0</span></span><br></pre></td></tr></table></figure>
+
+<p>而String类中的compareTo方法时这样实现的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compareTo</span><span class="params">(String anotherString)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">len1</span> <span class="operator">=</span> value.length;</span><br><span class="line">    <span class="type">int</span> <span class="variable">len2</span> <span class="operator">=</span> anotherString.value.length;</span><br><span class="line">    <span class="type">int</span> <span class="variable">lim</span> <span class="operator">=</span> Math.min(len1, len2);</span><br><span class="line">    <span class="type">char</span> v1[] = value;</span><br><span class="line">    <span class="type">char</span> v2[] = anotherString.value;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (k &lt; lim) &#123;</span><br><span class="line">        <span class="type">char</span> <span class="variable">c1</span> <span class="operator">=</span> v1[k];</span><br><span class="line">        <span class="type">char</span> <span class="variable">c2</span> <span class="operator">=</span> v2[k];</span><br><span class="line">        <span class="keyword">if</span> (c1 != c2) &#123;</span><br><span class="line">            <span class="keyword">return</span> c1 - c2;<span class="comment">//返回第一个不同字母的unicode的差</span></span><br><span class="line">        &#125;</span><br><span class="line">        k++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> len1 - len2;<span class="comment">//如果两个字符串只有长度不同，则返回长度的差</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Integer类中的compareTo()方法的实现如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public int compareTo(Integer anotherInteger) &#123;</span><br><span class="line">    return compare(this.value, anotherInteger.value);</span><br><span class="line">&#125;</span><br><span class="line">public static int compare(int x, int y) &#123;</span><br><span class="line">    return (x &lt; y) ? -1 : ((x == y) ? 0 : 1); //前者大返回1，后者大返回-1，相等返回0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此，我们可以参照String类及Integer类对于Comparable接口的实现来实现自己的比较方式，然后调用compareTo方法即可知道他们的顺序。 下面是一个例子（按Person类的年龄排序）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ComparableTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        Person[] persons = <span class="keyword">new</span> <span class="title class_">Person</span>[]&#123;</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">20</span>, <span class="string">&quot;P1&quot;</span>),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">60</span>, <span class="string">&quot;P2&quot;</span>),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">50</span>, <span class="string">&quot;P3&quot;</span>),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">40</span>, <span class="string">&quot;P4&quot;</span>)</span><br><span class="line">        &#125;;</span><br><span class="line">        Arrays.sort(persons);</span><br><span class="line">        System.out.println();</span><br><span class="line">        <span class="comment">//下面代码的结果一样</span></span><br><span class="line">        <span class="comment">//List&lt;Person&gt; personList = Arrays.asList(persons);</span></span><br><span class="line">        <span class="comment">//Collections.sort(personList);</span></span><br><span class="line">        <span class="comment">//System.out.println(personList);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> <span class="keyword">implements</span> <span class="title class_">Comparable</span>&lt;Person&gt; &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Person</span><span class="params">(<span class="type">int</span> age, String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//实现Comparable接口的compareTo方法</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compareTo</span><span class="params">(Person o)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.age - o.age;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Person[name=&quot;</span> + name + <span class="string">&quot;, age=&quot;</span> + age + <span class="string">&quot;]&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Person[name=P1, age=<span class="number">20</span>], Person[name=P4, age=<span class="number">40</span>], Person[name=P3, age=<span class="number">50</span>], Person[name=P2, age=<span class="number">60</span>]]</span><br></pre></td></tr></table></figure>
+
+<p>由此可见，Person对象已经通过Arrays.sort()方法按照age排序。</p>
+<h2 id="实现Comparator接口"><a href="#实现Comparator接口" class="headerlink" title="实现Comparator接口"></a><strong>实现Comparator接口</strong></h2><p>Comparator是java.util包下的一个接口，该接口里有两个方法compare()和equals()：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Comparator</span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="type">int</span> <span class="title function_">compare</span><span class="params">(T o1, T o2)</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">equals</span><span class="params">(Object obj)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Comparator翻译为“比较器”，表明实现该接口的类都是一个比较器，一般在要比较的对象类型不支持自比较或者自比较函数不能满足要求时使用。使用此接口时，我们可以不在需要比较的类型（这里是Person类）中实现比较过程，而是把这个过程转移到了Comparator接口的compare方法中。于是，上面的例子需要修改为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.Collections;</span><br><span class="line"><span class="keyword">import</span> java.util.Comparator;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ComparableTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        Person[] persons = <span class="keyword">new</span> <span class="title class_">Person</span>[]&#123;</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">20</span>, <span class="string">&quot;P1&quot;</span>),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">60</span>, <span class="string">&quot;P2&quot;</span>),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">50</span>, <span class="string">&quot;P3&quot;</span>),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">40</span>, <span class="string">&quot;P4&quot;</span>)</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="comment">//Arrays.sort方法不支持使用Comparator比较器了，这里只能使用Collections.sort来排序</span></span><br><span class="line">        List&lt;Person&gt; personList = Arrays.asList(persons);</span><br><span class="line">        System.out.println(<span class="string">&quot;Before sort: \r\n&quot;</span> + personList);</span><br><span class="line">        <span class="comment">//这里，将一个比较器（Comparator）传递给sort方法作为参数，按照里面的比较逻辑对Person进行排序</span></span><br><span class="line">        Collections.sort(personList, <span class="keyword">new</span> <span class="title class_">PersonComparator</span>());</span><br><span class="line">        System.out.println(<span class="string">&quot;After sort: \r\n&quot;</span> + personList);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//被比较的类型不需要实现任何接口</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span> &#123; </span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Person</span><span class="params">(<span class="type">int</span> age, String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Person[name=&quot;</span> + name + <span class="string">&quot;, age=&quot;</span> + age + <span class="string">&quot;]&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//这是一个比较器，用于比较Person对象</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PersonComparator</span> <span class="keyword">implements</span> <span class="title class_">Comparator</span>&lt;Person&gt; &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">(Person o1, Person o2)</span> &#123;</span><br><span class="line">        <span class="comment">//两个Person对象的比较过程，当然，这里可以实现更多更复杂的比较过程</span></span><br><span class="line">        <span class="keyword">return</span> o1.getAge() - o2.getAge();   <span class="comment">//如果o1.age &gt; o2.age，方法返回正数，为正数正是表明哦o1 &gt; o2</span></span><br><span class="line">                                            <span class="comment">//如果o1.age = o2.age，方法返回0，返回0正是表明o1 == o1</span></span><br><span class="line">                                            <span class="comment">//如果o1.age &lt; o2.age，方法返回正数，为负数正是表明哦o1 &lt; o2</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 输出结果为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Before sort: </span><br><span class="line">[Person[name=P1, age=20], Person[name=P2, age=60], Person[name=P3, age=50], Person[name=P4, age=40]]</span><br><span class="line">After sort: </span><br><span class="line">[Person[name=P1, age=20], Person[name=P4, age=40], Person[name=P3, age=50], Person[name=P2, age=60]]</span><br></pre></td></tr></table></figure>
+
+<p>​ 由此可见，我们可以将一个自定义的比较器作为参数传递给Collections.sort()方法，下图是API中的Collections.sort()方法：</p>
+<p><img src="http://static.oschina.net/uploads/space/2014/0412/200740_FAHb_1434710.jpg" alt="img"></p>
+<p>Person对象已经按照比较器中的规则进行排序。如果在使用Collections.sort()方法时不提供这个Comparator（其实就是使用前文介绍的排序方式），那么就以自然顺序排序，如Collections.sort()方法的API所说：Sorts the specified list into ascending order, according to the natural ordering of its elements. All elements in the list must implement the**Comparable **interface. 这里的自然顺序就是实现Comparable接口设定的排序方式。</p>
+<p>细心的同学已经看到，Comparator接口中还有个equals()方法没有实现，可程序并没有报错，原因是实现该接口的类也是Object类的子类，而Object类已经实现了equals方法。</p>
+<blockquote>
+<p>参考链接 <a target="_blank" rel="noopener" href="https://my.oschina.net/itblog/blog/221468">Comparable与Comparator的区别</a>  </p>
+</blockquote>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2018/04/26/Comparable%E4%B8%8EComparator%E7%9A%84%E5%8C%BA%E5%88%AB/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2018/04/30/Java%E4%B8%AD%E9%81%8D%E5%8E%86Map%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Java中遍历Map的几种方式
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/03/16/%E6%B7%B1%E5%85%A5%E5%88%86%E6%9E%90Java%E4%B8%AD%E7%9A%84length%E5%92%8Clength()/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">深入分析Java中的length和length()</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

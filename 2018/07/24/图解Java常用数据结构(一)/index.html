@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>图解Java常用数据结构(一) |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-图解Java常用数据结构(一)"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  图解Java常用数据结构(一)
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/07/24/%E5%9B%BE%E8%A7%A3Java%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84(%E4%B8%80)/" class="article-date">
+  <time datetime="2018-07-24T06:36:22.000Z" itemprop="datePublished">2018-07-24</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">5 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文来自 微信公众号 Java团长</p>
+<p>原文：cnblogs.com&#x2F;xdecode&#x2F;p&#x2F;9321848.html</p>
+</blockquote>
+<p>最近在整理数据结构方面的知识, 系统化看了下Java中常用数据结构, 突发奇想用动画来绘制数据流转过程.</p>
+<p>主要基于jdk8, 可能会有些特性与jdk7之前不相同, 例如LinkedList LinkedHashMap中的双向列表不再是回环的.</p>
+<p>HashMap中的单链表是尾插, 而不是头插入等等, 后文不再赘叙这些差异, 本文目录结构如下:</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/B1ad7hcCdg.png" alt="mark"></p>
+<h3 id="LinkedList"><a href="#LinkedList" class="headerlink" title="LinkedList"></a><strong>LinkedList</strong></h3><p>经典的双链表结构, 适用于乱序插入, 删除. 指定序列操作则性能不如ArrayList, 这也是其数据结构决定的.</p>
+<p><strong>add(E) &#x2F; addLast(E)</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/k3f9EdA5hH.gif" alt="mark"></p>
+<p><strong>add(index, E)</strong></p>
+<span id="more"></span>
+
+<p>这边有个小的优化, 他会先判断index是靠近队头还是队尾, 来确定从哪个方向遍历链入.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>         <span class="keyword">if</span> (index &lt; (size &gt;&gt; <span class="number">1</span>)) &#123;</span><br><span class="line"><span class="number">2</span>             Node&lt;E&gt; x = first;</span><br><span class="line"><span class="number">3</span>             <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; index; i++)</span><br><span class="line"><span class="number">4</span>                 x = x.next;</span><br><span class="line"><span class="number">5</span>             <span class="keyword">return</span> x;</span><br><span class="line"><span class="number">6</span>         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="number">7</span>             Node&lt;E&gt; x = last;</span><br><span class="line"><span class="number">8</span>             <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> size - <span class="number">1</span>; i &gt; index; i--)</span><br><span class="line"><span class="number">9</span>                 x = x.prev;</span><br><span class="line"><span class="number">10</span>             <span class="keyword">return</span> x;</span><br><span class="line"><span class="number">11</span>         &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/ICl3bcDJI9.gif" alt="mark"></p>
+<p><strong>靠队尾</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/K79EF2gdGj.gif" alt="mark"></p>
+<p><strong>get(index)</strong></p>
+<p>也是会先判断index, 不过性能依然不好, 这也是为什么不推荐用for(int i &#x3D; 0; i &lt; lengh; i++)的方式遍历linkedlist, 而是使用iterator的方式遍历.</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/fHD3hhHC6J.gif" alt="mark"></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/5Gj9m66Kem.gif" alt="mark"></p>
+<p><strong>remove(E)</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/iFCbKh8mG1.gif" alt="mark"></p>
+<h3 id="ArrayList"><a href="#ArrayList" class="headerlink" title="ArrayList"></a><strong>ArrayList</strong></h3><p>底层就是一个数组, 因此按序查找快, 乱序插入, 删除因为涉及到后面元素移位所以性能慢.</p>
+<p><strong>add(index, E)</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/fIDjbEa73L.gif" alt="mark"></p>
+<p><strong>扩容</strong></p>
+<p>一般默认容量是10, 扩容后, 会length*1.5.</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/aD6gm30Gbg.gif" alt="mark"></p>
+<p><strong>remove(E)</strong></p>
+<p>循环遍历数组, 判断E是否equals当前元素, 删除性能不如LinkedList.</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/0Dej1f8AFI.gif" alt="mark"></p>
+<h3 id="Stack"><a href="#Stack" class="headerlink" title="Stack"></a><strong>Stack</strong></h3><p>经典的数据结构, 底层也是数组, 继承自Vector, 先进后出FILO, 默认new Stack()容量为10, 超出自动扩容.</p>
+<p><strong>push(E)</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/k3BcH3eD7e.gif" alt="mark"></p>
+<p><strong>pop()</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/gmD3jbgL03.png" alt="mark"></p>
+<h3 id="后缀表达式"><a href="#后缀表达式" class="headerlink" title="后缀表达式"></a><strong>后缀表达式</strong></h3><p>Stack的一个典型应用就是计算表达式如 9 + (3 - 1) * 3 + 10 &#x2F; 2, 计算机将中缀表达式转为后缀表达式, 再对后缀表达式进行计算.</p>
+<p><strong>中缀转后缀</strong></p>
+<ul>
+<li>数字直接输出</li>
+<li>栈为空时，遇到运算符，直接入栈</li>
+<li>遇到左括号, 将其入栈</li>
+<li>遇到右括号, 执行出栈操作，并将出栈的元素输出，直到弹出栈的是左括号，左括号不输出。</li>
+<li>遇到运算符(加减乘除)：弹出所有优先级大于或者等于该运算符的栈顶元素，然后将该运算符入栈</li>
+<li>最终将栈中的元素依次出栈，输出。</li>
+</ul>
+<p><strong>计算后缀表达</strong></p>
+<ul>
+<li>遇到数字时，将数字压入堆栈</li>
+<li>遇到运算符时，弹出栈顶的两个数，用运算符对它们做相应的计算, 并将结果入栈</li>
+<li>重复上述过程直到表达式最右端</li>
+<li>运算得出的值即为表达式的结果</li>
+</ul>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/c7Dik2H6aJ.gif" alt="mark"></p>
+<h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a><strong>队列</strong></h3><p>与Stack的区别在于, Stack的删除与添加都在队尾进行, 而Queue删除在队头, 添加在队尾.</p>
+<p><strong>ArrayBlockingQueue</strong></p>
+<p>生产消费者中常用的阻塞有界队列, FIFO.</p>
+<p><strong>put(E)</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/3L3AEBiI3E.gif" alt="mark"></p>
+<p><strong>put(E) 队列满了</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>         <span class="keyword">final</span> <span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="built_in">this</span>.lock;</span><br><span class="line"><span class="number">2</span>         lock.lockInterruptibly();</span><br><span class="line"><span class="number">3</span>         <span class="keyword">try</span> &#123;</span><br><span class="line"><span class="number">4</span>             <span class="keyword">while</span> (count == items.length)</span><br><span class="line"><span class="number">5</span>                 notFull.await();</span><br><span class="line"><span class="number">6</span>             enqueue(e);</span><br><span class="line"><span class="number">7</span>         &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line"><span class="number">8</span>             lock.unlock();</span><br><span class="line"><span class="number">9</span>         &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/FI6jFGGl28.gif" alt="mark"></p>
+<p><strong>take()</strong></p>
+<p>当元素被取出后, 并没有对数组后面的元素位移, 而是更新takeIndex来指向下一个元素.</p>
+<p>takeIndex是一个环形的增长, 当移动到队列尾部时, 会指向0, 再次循环.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>     <span class="keyword">private</span> E <span class="title function_">dequeue</span><span class="params">()</span> &#123;</span><br><span class="line"><span class="number">2</span>         <span class="comment">// assert lock.getHoldCount() == 1;</span></span><br><span class="line"><span class="number">3</span>         <span class="comment">// assert items[takeIndex] != null;</span></span><br><span class="line"><span class="number">4</span>         <span class="keyword">final</span> Object[] items = <span class="built_in">this</span>.items;</span><br><span class="line"><span class="number">5</span>         <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line"><span class="number">6</span>         <span class="type">E</span> <span class="variable">x</span> <span class="operator">=</span> (E) items[takeIndex];</span><br><span class="line"><span class="number">7</span>         items[takeIndex] = <span class="literal">null</span>;</span><br><span class="line"><span class="number">8</span>         <span class="keyword">if</span> (++takeIndex == items.length)</span><br><span class="line"><span class="number">9</span>             takeIndex = <span class="number">0</span>;</span><br><span class="line"><span class="number">10</span>         count--;</span><br><span class="line"><span class="number">11</span>         <span class="keyword">if</span> (itrs != <span class="literal">null</span>)</span><br><span class="line"><span class="number">12</span>             itrs.elementDequeued();</span><br><span class="line"><span class="number">13</span>         notFull.signal();</span><br><span class="line"><span class="number">14</span>         <span class="keyword">return</span> x;</span><br><span class="line"><span class="number">15</span>     &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/bd3LjL64mD.gif" alt="mark"></p>
+<h3 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a><strong>HashMap</strong></h3><p>最常用的哈希表, 面试的童鞋必备知识了, 内部通过数组 + 单链表的方式实现. jdk8中引入了红黑树对长度 &gt; 8的链表进行优化, 我们另外篇幅再讲.</p>
+<p><strong>put(K, V)</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/L9D0JIfLh5.gif" alt="mark"></p>
+<p><strong>put(K, V) 相同hash值</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/iI5igJhcH7.gif" alt="mark"></p>
+<p><strong>resize 动态扩容</strong></p>
+<p>当map中元素超出设定的阈值后, 会进行resize (length * 2)操作, 扩容过程中对元素一通操作, 并放置到新的位置.</p>
+<p>具体操作如下:</p>
+<ul>
+<li>在jdk7中对所有元素直接rehash, 并放到新的位置.</li>
+<li>在jdk8中判断元素原hash值新增的bit位是0还是1, 0则索引不变, 1则索引变成”原索引 + oldTable.length”.</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>     <span class="comment">//定义两条链</span></span><br><span class="line"><span class="number">2</span>     <span class="comment">//原来的hash值新增的bit为0的链，头部和尾部</span></span><br><span class="line"><span class="number">3</span>     Node&lt;K,V&gt; loHead = <span class="literal">null</span>, loTail = <span class="literal">null</span>;</span><br><span class="line"><span class="number">4</span>     <span class="comment">//原来的hash值新增的bit为1的链，头部和尾部</span></span><br><span class="line"><span class="number">5</span>     Node&lt;K,V&gt; hiHead = <span class="literal">null</span>, hiTail = <span class="literal">null</span>;</span><br><span class="line"><span class="number">6</span>     Node&lt;K,V&gt; next;</span><br><span class="line"><span class="number">7</span>     <span class="comment">//循环遍历出链条链</span></span><br><span class="line"><span class="number">8</span>     <span class="keyword">do</span> &#123;</span><br><span class="line"><span class="number">9</span>         next = e.next;</span><br><span class="line"><span class="number">10</span>         <span class="keyword">if</span> ((e.hash &amp; oldCap) == <span class="number">0</span>) &#123;</span><br><span class="line"><span class="number">11</span>             <span class="keyword">if</span> (loTail == <span class="literal">null</span>)</span><br><span class="line"><span class="number">12</span>                 loHead = e;</span><br><span class="line"><span class="number">13</span>             <span class="keyword">else</span></span><br><span class="line"><span class="number">14</span>                 loTail.next = e;</span><br><span class="line"><span class="number">15</span>             loTail = e;</span><br><span class="line"><span class="number">16</span>         &#125;</span><br><span class="line"><span class="number">17</span>         <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="number">18</span>             <span class="keyword">if</span> (hiTail == <span class="literal">null</span>)</span><br><span class="line"><span class="number">19</span>                 hiHead = e;</span><br><span class="line"><span class="number">20</span>             <span class="keyword">else</span></span><br><span class="line"><span class="number">21</span>                 hiTail.next = e;</span><br><span class="line"><span class="number">22</span>             hiTail = e;</span><br><span class="line"><span class="number">23</span>         &#125;</span><br><span class="line"><span class="number">24</span>     &#125; <span class="keyword">while</span> ((e = next) != <span class="literal">null</span>);</span><br><span class="line"><span class="number">25</span>     <span class="comment">//扩容前后位置不变的链</span></span><br><span class="line"><span class="number">26</span>     <span class="keyword">if</span> (loTail != <span class="literal">null</span>) &#123;</span><br><span class="line"><span class="number">27</span>         loTail.next = <span class="literal">null</span>;</span><br><span class="line"><span class="number">28</span>         newTab[j] = loHead;</span><br><span class="line"><span class="number">29</span>     &#125;</span><br><span class="line"><span class="number">30</span>     <span class="comment">//扩容后位置加上原数组长度的链</span></span><br><span class="line"><span class="number">31</span>     <span class="keyword">if</span> (hiTail != <span class="literal">null</span>) &#123;</span><br><span class="line"><span class="number">32</span>         hiTail.next = <span class="literal">null</span>;</span><br><span class="line"><span class="number">33</span>         newTab[j + oldCap] = hiHead;</span><br><span class="line"><span class="number">34</span>     &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/429FhDFIKl.gif" alt="mark"></p>
+<h3 id="LinkedHashMap"><a href="#LinkedHashMap" class="headerlink" title="LinkedHashMap"></a><strong>LinkedHashMap</strong></h3><p>继承自HashMap, 底层额外维护了一个双向链表来维持数据有序. 可以通过设置accessOrder来实现FIFO(插入有序)或者LRU(访问有序)缓存.</p>
+<p><strong>put(K, V)</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/Laa7AL5h33.gif" alt="mark"></p>
+<p><strong>get(K)</strong></p>
+<p>accessOrder为false的时候, 直接返回元素就行了, 不需要调整位置. </p>
+<p>accessOrder为true的时候, 需要将最近访问的元素, 放置到队尾.</p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/91BFHec8B0.gif" alt="mark"></p>
+<p><strong>removeEldestEntry 删除最老的元素</strong></p>
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180724/1I3d8gb7lf.gif" alt="mark"></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2018/07/24/%E5%9B%BE%E8%A7%A3Java%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84(%E4%B8%80)/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2018/07/28/JSON.stringify()%E5%92%8CJSON.parse()%E7%9A%84%E7%94%A8%E6%B3%95/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            JSON.stringify()和JSON.parse()的用法
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/07/24/SPRING%20%E9%9D%A2%E8%AF%95%E9%A2%98/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">SPRING 面试题</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

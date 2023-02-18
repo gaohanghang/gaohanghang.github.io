@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>《 阿里巴巴 Java开发手册》读后感 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-《阿里巴巴 Java开发手册》读后感 "
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  《 阿里巴巴 Java开发手册》读后感
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/12/02/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%20Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F%20/" class="article-date">
+  <time datetime="2018-12-02T05:23:00.000Z" itemprop="datePublished">2018-12-02</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原创： 公众号 Java3y <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/0NI_Ljk0efF1wCkIWjTV_A">《阿里巴巴 Java开发手册》读后感</a></p>
+</blockquote>
+<p>PDF官方地址：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/p3c">https://github.com/alibaba/p3c</a></li>
+</ul>
+<h1 id="一、Java相关"><a href="#一、Java相关" class="headerlink" title="一、Java相关"></a>一、Java相关</h1><ol>
+<li><p>POJO是DO&#x2F;DTO&#x2F;BO&#x2F;VO的统称，禁止命名为xxxPOJO</p>
+</li>
+<li><p>获取多个对象的方法中list作为前缀</p>
+</li>
+<li><p>获取统计值的方法用count作为前缀</p>
+</li>
+<li><p>POJO类中的布尔类型(Boolean)的变量都不要加is前缀，否则部分框架解析会引起序列化错误</p>
+</li>
+<li><ul>
+<li>如果你的变量名带is的话，比如isActive，框架解析的时候可能就当成active了。</li>
+</ul>
+</li>
+<li><p>如果是形容能力的接口名称，取对应的形容词为接口名(通常是-able的形式)</p>
+</li>
+<li><p>不允许任何魔法值(<strong>未经预先定义的常量</strong>)直接出现在代码中</p>
+</li>
+<li><p>Object的euqals方法容易抛出空指针异常，应使用常量或者有值的对象来调用equals。推荐使用<code>java.util.Object#equals</code>工具类</p>
+</li>
+<li><p>所有POJO<strong>类的属性</strong>全部使用<strong>包装数据类型</strong>，RPC的返回值和参数必须使用<strong>包装</strong>数据类型，所有的<strong>局部变量</strong>都使用<strong>基本数据</strong>类型。定义VO&#x2F;DTO&#x2F;DO等POJO类时，不要设定任何属性的默认值</p>
+</li>
+<li><ul>
+<li>如果你的类属性使用int这样的基本数据类型，默认值是0。一般情况下该变量没有赋值，一般想表达的是不存在(null)，而不是0。</li>
+</ul>
+</li>
+<li><p>构造方法禁止加入任何的业务逻辑，如果初始化逻辑可以放在init方法中。set&#x2F;get方法也不要增加业务逻辑。</p>
+</li>
+<li><ul>
+<li>如果set&#x2F;get方法放入业务逻辑，有时候排查问题就变得很麻烦了</li>
+</ul>
+</li>
+<li><p>工具类Arrays.asList()把数组转成List时，不能使用其修改集合的相关方法。比如说add、clear、remove</p>
+</li>
+<li><p>在JDK7以及以上版本中，Comparator要<strong>满足三个条件</strong>，不然调用<code>Arrays.sort()或者Collections.sort()</code>会报异常。</p>
+</li>
+<li><ul>
+<li>x，y 的比较结果和 y，x 的比较结果相反</li>
+<li>传递性：x&gt;y并且y&gt;z，那么x一定大于z</li>
+<li>对称性：x&#x3D;y,则 x,z 比较结果和y，z比较结果相同</li>
+</ul>
+</li>
+<li><p>使用entrySet遍历Map类集合K&#x2F;V，而不是用keySet方式遍历</p>
+</li>
+<li><ul>
+<li>keySet遍历了两次，一次是转成Iterator对象，一次是从hashMap中取出key所对应的value，如果JDK8可以使用Map.foreach方法</li>
+</ul>
+</li>
+<li><p>线程资源必须<strong>由线程池提供</strong>，不允许在应用中自行显示创建线程。线程池<strong>不允许用Executors创建</strong>，通过ThreadPoolExecutor的方式创建，这样的处理方式能够让编写代码的工程师更加明确线程池的运行规则，规避资源耗尽的风险。</p>
+</li>
+<li><p>SimpleDateFormat是<strong>线程不安全的类</strong>，一般不要定义为static变量，如果定义为static，必须加锁，或者使用DateUtils工具类</p>
+</li>
+<li><ul>
+<li>如果是JDK8应用，可以使用Instant(针对<strong>时间统计</strong>等场景)代替Date，LocalDateTime代替Calendar，DateTimeFormatter代替SimpleDateFormat</li>
+</ul>
+</li>
+<li><p>避免Random实例被多线程使用，虽然共享该实例是线程安全的，但会因竞争同一seed导致性能下降</p>
+</li>
+<li><ul>
+<li>在JDK7之后，可以<strong>直接使用API ThreadLocalRandom</strong>，而在JDK7 之前，需要编码保证每个线程持有一个实例。</li>
+</ul>
+</li>
+<li><p><strong>类、类属性、类方法的注释必须使用 Javadoc 规范</strong>，使用 <code>/**内容*/</code> 格式，不得使用 <code>//xxx</code> 方式</p>
+</li>
+<li><p>所有的<strong>抽象方法</strong>（包括接口中的方法）必须要用 Javadoc 注释，除了返回值、参数、异常说明外，还必须指出该方法做什么事情，实现什么功能。<strong>所有的类都必须添加创建者和创建日期</strong>。</p>
+</li>
+<li><p>对于暂时被注释掉，后续可能恢复使用的代码片断，在注释代码的上方，使用三个斜杠<code>///</code>来说明注释代码的理由</p>
+</li>
+<li><p>保证单元测试的<strong>独立性</strong>。为了保证单元测试稳定可靠且便于维护，单元测试之间<strong>不能互相调用</strong>，也<strong>不能依赖执行的先后顺序</strong>。</p>
+</li>
+<li><p>高并发服务器建议调小TCP协议的time_await超时时间，调大最大事件句柄数(fd)，</p>
+</li>
+</ol>
+<h2 id="1-1值得说明的点"><a href="#1-1值得说明的点" class="headerlink" title="1.1值得说明的点"></a>1.1值得说明的点</h2><p>一、不允许任何魔法值(<strong>未经预先定义的常量</strong>)直接出现在代码中</p>
+<p>例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Negative example:</span><br><span class="line"><span class="comment">//Magic values, except for predefined, are forbidden in coding.</span></span><br><span class="line"><span class="keyword">if</span> (key.equals(<span class="string">&quot;关注公众号：Java3y&quot;</span>)) &#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Positive example:</span><br><span class="line"><span class="type">String</span> <span class="variable">KEY_PRE</span> <span class="operator">=</span> <span class="string">&quot;关注公众号：Java3y&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (KEY_PRE.equals(key)) &#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ps:我猜是把先常量定义出来，后续引用&#x2F;修改的时候就很方便了。</p>
+<span id="more"></span>
+
+<p>二、<strong>Object的euqals方法容易抛出空指针异常，应使用常量或者有值的对象来调用equals</strong>。推荐使用<code>java.util.Object#equals</code>工具类</p>
+<p>java.util.Object#equals的源码(已经判断null的情况了)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public static boolean equals(Object a, Object b) &#123;</span><br><span class="line">    return (a == b) || (a != null &amp;&amp; a.equals(b));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三、工具类Arrays.asList()把数组转成List时，不能使用其修改集合的相关方法。</p>
+<p>因为返回的ArrayList是一个<strong>内部类</strong>，并没有实现集合的修改方法。<strong>后台的数据仍是数组</strong>，这里体现的是适配器模式。</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNbRwly1fxsaa4dhbqj30a60ajab0.jpg" alt="ArrayList在这里是内部类"></p>
+<p>四、在JDK7以及以上版本中，Comparator要<strong>满足自反性，传递性，对称性</strong>，不然调用<code>Arrays.sort()或者Collections.sort()</code>会报异常。</p>
+<blockquote>
+<p>The implementor must ensure that sgn(compare(x, y)) &#x3D;&#x3D; -sgn(compare(y, x)) for all x and y. (This implies that compare(x, y) must throw an exception if and only if compare(y, x) throws an exception.)</p>
+<p>The implementor must also ensure that the relation is transitive: ((compare(x, y)&gt;0) &amp;&amp; (compare(y, z)&gt;0)) implies compare(x, z)&gt;0.</p>
+<p>Finally, the implementor must ensure that compare(x, y)&#x3D;&#x3D;0 implies that sgn(compare(x, z))&#x3D;&#x3D;sgn(compare(y, z)) for all z.</p>
+</blockquote>
+<ul>
+<li>1） x，y 的比较结果和 y，x 的比较结果相反。</li>
+<li>2） 传递性：x&gt;y,y&gt;z,则 x&gt;z。</li>
+<li>3） 对称性：x&#x3D;y,则 x,z 比较结果和 y，z 比较结果相同。</li>
+</ul>
+<p>反例：下例中<strong>没有处理相等</strong>的情况，实际使用中可能会出现异常：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Comparator</span>&lt;Student&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">(Student o1, Student o2)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> o1.getId() &gt; o2.getId() ? <span class="number">1</span> : -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用entrySet遍历Map类集合K&#x2F;V，而不是用keySet方式遍历</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">       HashMap&lt;String, String&gt; hashMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">       hashMap.put(<span class="string">&quot;关注公众号:&quot;</span>, <span class="string">&quot;Java3y&quot;</span>);</span><br><span class="line">       hashMap.put(<span class="string">&quot;坚持原创&quot;</span>, <span class="string">&quot;Java3y&quot;</span>);</span><br><span class="line">       hashMap.put(<span class="string">&quot;点赞&quot;</span>, <span class="string">&quot;关注，转发，分享&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">       <span class="comment">// 得到keySet，遍历keySet得到所有的key</span></span><br><span class="line">       Set&lt;String&gt; strings = hashMap.keySet();</span><br><span class="line">       Iterator&lt;String&gt; iterator = strings.iterator();</span><br><span class="line">       <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line"></span><br><span class="line">           <span class="comment">// HashMap的每个key</span></span><br><span class="line">           <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> iterator.next();</span><br><span class="line"></span><br><span class="line">           <span class="comment">// 通过key可以获得对应的value，如果有看过HashMap的同学知道get方法的时间复杂度是O(1)</span></span><br><span class="line">           System.out.println(<span class="string">&quot;key = &quot;</span> + key + <span class="string">&quot;, value = &quot;</span> + hashMap.get(key));</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>再来看一下源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 得到keySet，如果不存在，则创建</span></span><br><span class="line"><span class="keyword">public</span> Set&lt;K&gt; <span class="title function_">keySet</span><span class="params">()</span> &#123;</span><br><span class="line">    Set&lt;K&gt; ks = keySet;</span><br><span class="line">    <span class="keyword">if</span> (ks == <span class="literal">null</span>) &#123;</span><br><span class="line">        ks = <span class="keyword">new</span> <span class="title class_">KeySet</span>();</span><br><span class="line">        keySet = ks;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ks;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2.初始化ks (实际上就是Set集合[HashMap的内部类]，在初始化时需要顺便初始化iterator)</span></span><br><span class="line">ks = <span class="keyword">new</span> <span class="title class_">AbstractSet</span>&lt;K&gt;() &#123;</span><br><span class="line">    <span class="keyword">public</span> Iterator&lt;K&gt; <span class="title function_">iterator</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Iterator</span>&lt;K&gt;() &#123;</span><br><span class="line">            <span class="keyword">private</span> Iterator&lt;Entry&lt;K,V&gt;&gt; i = entrySet().iterator();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">hasNext</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> i.hasNext();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">public</span> K <span class="title function_">next</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> i.next().getKey();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">remove</span><span class="params">()</span> &#123;</span><br><span class="line">                i.remove();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>再来看一下entrySet，<strong>可以直接拿到key和value，不用再使用get方法来得到value，所以比keySet更加推荐使用</strong>！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">      HashMap&lt;String, String&gt; hashMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">      hashMap.put(<span class="string">&quot;关注公众号:&quot;</span>, <span class="string">&quot;Java3y&quot;</span>);</span><br><span class="line">      hashMap.put(<span class="string">&quot;坚持原创&quot;</span>, <span class="string">&quot;Java3y&quot;</span>);</span><br><span class="line">      hashMap.put(<span class="string">&quot;点赞&quot;</span>, <span class="string">&quot;关注，转发，分享&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">      <span class="comment">// 得到entrySet，遍历entrySet得到结果</span></span><br><span class="line">      Set&lt;Map.Entry&lt;String, String&gt;&gt; entrySet = hashMap.entrySet();</span><br><span class="line">      Iterator&lt;Map.Entry&lt;String, String&gt;&gt; iterator = entrySet.iterator();</span><br><span class="line">      <span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">          Map.Entry&lt;String, String&gt; entry = iterator.next();</span><br><span class="line">          System.out.println(<span class="string">&quot;key = &quot;</span> + entry.getKey() + <span class="string">&quot;, value = &quot;</span> + entry.getValue());</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果是JDK8的话，推荐直接使用<code>Map.forEach()</code>就好了，我们也来看看用法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">    HashMap&lt;String, String&gt; hashMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    hashMap.put(<span class="string">&quot;关注公众号:&quot;</span>, <span class="string">&quot;Java3y&quot;</span>);</span><br><span class="line">    hashMap.put(<span class="string">&quot;坚持原创&quot;</span>, <span class="string">&quot;Java3y&quot;</span>);</span><br><span class="line">    hashMap.put(<span class="string">&quot;点赞&quot;</span>, <span class="string">&quot;关注，转发，分享&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// forEach用法</span></span><br><span class="line">    hashMap.forEach((key, value) -&gt; System.out.println(<span class="string">&quot;key = &quot;</span> + key + <span class="string">&quot;, value = &quot;</span> + value));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实在源码里边我们可以发现，forEach实际上就是封装了entrySet，提供forEach给我们可以<strong>更加方便</strong>地遍历Map集合</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// forEach源码</span></span><br><span class="line"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title function_">forEach</span><span class="params">(BiConsumer&lt;? <span class="built_in">super</span> K, ? <span class="built_in">super</span> V&gt; action)</span> &#123;</span><br><span class="line">    Objects.requireNonNull(action);</span><br><span class="line">    <span class="keyword">for</span> (Map.Entry&lt;K, V&gt; entry : entrySet()) &#123;</span><br><span class="line">        K k;</span><br><span class="line">        V v;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            k = entry.getKey();</span><br><span class="line">            v = entry.getValue();</span><br><span class="line">        &#125; <span class="keyword">catch</span>(IllegalStateException ise) &#123;</span><br><span class="line">            <span class="comment">// this usually means the entry is no longer in the map.</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConcurrentModificationException</span>(ise);</span><br><span class="line">        &#125;</span><br><span class="line">        action.accept(k, v);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>五、SimpleDateFormat是<strong>线程不安全的类</strong>，一般不要定义为static变量，如果定义为static，必须加锁，或者使用DateUtils工具类。</p>
+<p>有以下的例子可以正确使用SimpleDateFormat：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 在方法内部使用，没有线程安全问题</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">FORMAT</span> <span class="operator">=</span> <span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>;</span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">getFormat</span><span class="params">(Date date)</span>&#123;</span><br><span class="line">    <span class="type">SimpleDateFormat</span> <span class="variable">dateFormat</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(FORMAT);</span><br><span class="line">    <span class="keyword">return</span> dateFormat.format(date);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 每次使用的时候加锁      </span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">SimpleDateFormat</span> <span class="variable">SIMPLE_DATE_FORMAT</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getFormat</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (SIMPLE_DATE_FORMAT)&#123;</span><br><span class="line">    SIMPLE_DATE_FORMAT.format(<span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">    ….;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 使用ThreadLocal，每个线程都有自己的SimpleDateFormat对象，互不干扰</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;DateFormat&gt; DATE_FORMATTER = <span class="keyword">new</span> <span class="title class_">ThreadLocal</span>&lt;DateFormat&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> DateFormat <span class="title function_">initialValue</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy-MM-dd&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 使用DateTimeFormatter(This class is immutable and thread-safe.)</span></span><br><span class="line"></span><br><span class="line">    <span class="type">DateTimeFormatter</span> <span class="variable">timeFormatter</span> <span class="operator">=</span> DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line">    System.out.println(timeFormatter.format(LocalDateTime.now()));</span><br></pre></td></tr></table></figure> 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2018/12/02/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%20Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E8%AF%BB%E5%90%8E%E6%84%9F%20/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2018/12/12/hello-gridea/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Hello Gridea
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/11/19/java%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B9%8BHotSpot%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">java虚拟机之HotSpot垃圾收集器</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

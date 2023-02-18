@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>面向面试题学习(2) 2019-6-3 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-面向面试题学习-2-2019-6-3"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  面向面试题学习(2) 2019-6-3
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/03/%E9%9D%A2%E5%90%91%E9%9D%A2%E8%AF%95%E9%A2%98%E5%AD%A6%E4%B9%A0-2-2019-6-3/" class="article-date">
+  <time datetime="2019-06-03T13:51:10.000Z" itemprop="datePublished">2019-06-03</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">15 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190603215304.png"></p>
+<ol>
+<li>大数相加</li>
+<li>反转链表</li>
+<li>生产者消费者模式</li>
+<li>阻塞队列</li>
+<li>死锁的SQL</li>
+<li>group by having</li>
+<li>网络tcp https</li>
+<li>数据库索引优化</li>
+<li>设计模式</li>
+</ol>
+<h2 id="1-大数相加"><a href="#1-大数相加" class="headerlink" title="1. 大数相加"></a>1. 大数相加</h2><h3 id="方法一：模拟进位"><a href="#方法一：模拟进位" class="headerlink" title="方法一：模拟进位"></a>方法一：模拟进位</h3><p><strong>算法</strong></p>
+<p>每次处理最后两个字符数字，进行模拟进位</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">addStrings</span><span class="params">(String num1, String num2)</span> &#123;</span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        <span class="type">int</span> <span class="variable">carry</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">// 进位</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> num1.length() - <span class="number">1</span>, j = num2.length() - <span class="number">1</span>; i &gt;= <span class="number">0</span> || j &gt;= <span class="number">0</span> || carry == <span class="number">1</span>; i--, j--)&#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">x</span> <span class="operator">=</span> i &lt; <span class="number">0</span> ? <span class="number">0</span> : num1.charAt(i) - <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">            <span class="type">int</span> <span class="variable">y</span> <span class="operator">=</span> j &lt; <span class="number">0</span> ? <span class="number">0</span> : num2.charAt(j) - <span class="string">&#x27;0&#x27;</span>;</span><br><span class="line">            sb.append((x + y + carry) % <span class="number">10</span>);</span><br><span class="line">            carry = (x + y + carry) / <span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sb.reverse().toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-反转链表"><a href="#2-反转链表" class="headerlink" title="2. 反转链表"></a>2. 反转链表</h2><blockquote>
+<p>leetcode官方题解 <a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/reverse-linked-list/solution/fan-zhuan-lian-biao-by-leetcode/">https://leetcode-cn.com/problems/reverse-linked-list/solution/fan-zhuan-lian-biao-by-leetcode/</a></p>
+</blockquote>
+<h4 id="方法一：迭代"><a href="#方法一：迭代" class="headerlink" title="方法一：迭代"></a>方法一：迭代</h4><p>假设存在链表 <code>1 → 2 → 3 → Ø</code>，我们想要把它改成 <code>Ø ← 1 ← 2 ← 3</code>。</p>
+<p>在遍历列表时，将当前节点的 <code>next</code> 指针改为指向前一个元素。由于节点没有引用其上一个节点，因此必须事先存储其前一个元素。在更改引用之前，还需要另一个指针来存储下一个节点。不要忘记在最后返回新的头引用！</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">reverseList</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">prev</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">curr</span> <span class="operator">=</span> head;</span><br><span class="line">    <span class="keyword">while</span> (curr != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="type">ListNode</span> <span class="variable">nextTemp</span> <span class="operator">=</span> curr.next;</span><br><span class="line">        curr.next = prev;</span><br><span class="line">        prev = curr;</span><br><span class="line">        curr = nextTemp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> prev;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>时间复杂度：O(n)，假设 n 是列表的长度，时间复杂度是 O(n)。</li>
+<li>空间复杂度：O(1)。</li>
+</ul>
+<span id="more"></span>
+
+<h4 id="方法二：递归"><a href="#方法二：递归" class="headerlink" title="方法二：递归"></a>方法二：递归</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">reverseList</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (head == <span class="literal">null</span> || head.next == <span class="literal">null</span>) <span class="keyword">return</span> head;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">p</span> <span class="operator">=</span> reverseList(head.next);</span><br><span class="line">    head.next.next = head;</span><br><span class="line">    head.next = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-生产者消费者模式"><a href="#3-生产者消费者模式" class="headerlink" title="3. 生产者消费者模式"></a>3. 生产者消费者模式</h2><p><strong>什么是生产者&#x2F;消费者模型</strong></p>
+<p>一种重要的模型，基于等待&#x2F;通知机制。生产者&#x2F;消费者模型描述的是有一块缓冲区作为仓库，生产者可将产品放入仓库，消费者可以从仓库中取出产品，生产者&#x2F;消费者模型关注的是以下几个点：</p>
+<ul>
+<li>生产者生产的时候消费者不能消费</li>
+<li>消费者消费的时候生产者不能生产</li>
+<li>缓冲区空时消费者不能消费</li>
+<li>缓冲区满时生产者不能生产</li>
+</ul>
+<p>生产者&#x2F;模型作为一种重要的模型，它的优点在于：</p>
+<ul>
+<li>解耦。因为多了一个缓冲区，所以生产者和消费者并不直接相互调用，这一点很容易想到，这样生产者和消费者的代码发生变化，都不会对对方产生影响，这样其实就把生产者和消费者之间的强耦合解开，变为了生产者和缓冲区&#x2F;消费者和缓冲区之间的弱耦合</li>
+<li><strong>通过平衡生产者和消费者的处理能力来提高整体处理数据的速度</strong>，这是生产者&#x2F;消费者模型最重要的一个优点。如果消费者直接从生产者这里拿数据，如果生产者生产的速度很慢，但消费者消费的速度很快，那消费者就得占用CPU的时间片白白等在那边。有了生产者&#x2F;消费者模型，生产者和消费者就是两个独立的并发体，生产者把生产出来的数据往缓冲区一丢就好了，不必管消费者；消费者也是，从缓冲区去拿数据就好了，也不必管生产者，缓冲区满了就不生产，缓冲区空了就不消费，使生产者&#x2F;消费者的处理能力达到一个动态的平衡</li>
+</ul>
+<h2 id="4-阻塞队列"><a href="#4-阻塞队列" class="headerlink" title="4. 阻塞队列"></a>4. 阻塞队列</h2><p><a target="_blank" rel="noopener" href="https://juejin.im/post/5aa8dcd1f265da237e096af6">https://juejin.im/post/5aa8dcd1f265da237e096af6</a></p>
+<h2 id="5-死锁的SQL"><a href="#5-死锁的SQL" class="headerlink" title="5 死锁的SQL"></a>5 死锁的SQL</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zejin2008/p/5262751.html">Mysql并发时经典常见的死锁原因及解决方法</a></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/buster2014/article/details/51035768">mysql使用kill命令解决死锁问题,杀死某条正在执行的sql语句</a></p>
+</blockquote>
+<p>在使用mysql运行某些语句时，会因数据量太大而导致死锁，没有反映。这个时候，就需要kill掉某个正在消耗资源的query语句即可，　KILL命令的语法格式如下：</p>
+<p>mysql解除死锁</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> processlist</span><br><span class="line">kill <span class="number">8358</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>MYSQL出现WAITING FOR TABLE METADATA LOCK的原因和解决方案:</strong></p>
+<p>使用管理员权限登录mysql数据库查看未提交的事务：select * from information_schema.innodb_trx </p>
+<p>或者select * from information_schema.innodb_trx\G;【纵向查看】</p>
+<p>其中字段解释如下：</p>
+<ul>
+<li>trx_state: 事务状态，一般为RUNNING</li>
+<li>trx_started: 事务执行的起始时间，若时间较长，则要分析该事务是否合理</li>
+<li>trx_mysql_thread_id: MySQL的线程ID，用于kill</li>
+<li>trx_query: 事务中的sql</li>
+</ul>
+<p>kill 掉线程ID，问题解决。</p>
+<h2 id="6-group-by-having"><a href="#6-group-by-having" class="headerlink" title="6. group by having"></a>6. group by having</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">having是分组（group by）后的筛选条件，分组后的数据组内再筛选</span><br><span class="line">where则是在分组前筛选</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-网络tcp-https"><a href="#7-网络tcp-https" class="headerlink" title="7. 网络tcp https"></a>7. 网络tcp https</h2><h3 id="TCP、UDP、HTTP与HTTPS的异同"><a href="#TCP、UDP、HTTP与HTTPS的异同" class="headerlink" title="TCP、UDP、HTTP与HTTPS的异同"></a>TCP、UDP、HTTP与HTTPS的异同</h3><p>TCP、UDP、HTTP与HTTPS都是通信协议，在这里首先先介绍一下什么是通信协议。</p>
+<h4 id="什么是通信协议？"><a href="#什么是通信协议？" class="headerlink" title="什么是通信协议？"></a>什么是通信协议？</h4><p>通信协议（communications protocol）是指双方实体完成通信或服务所必须遵循的规则和约定。通过通信信道和设备互连起来的多个不同地理位置的<a target="_blank" rel="noopener" href="http://baike.baidu.com/view/49233.htm">数据通信</a>系统，要使其能协同工作实现信息交换和资源共享，它们之间必须具有共同的语言。交流什么、怎样交流及何时交流，都必须遵循某种互相都能接受的规则。这个规则就是通信协议。</p>
+<h4 id="什么是TCP？"><a href="#什么是TCP？" class="headerlink" title="什么是TCP？"></a>什么是TCP？</h4><p>TCP是Transmission Control Protocol的缩写，也就是传输控制协议。它是一种面向连接的、可靠的、基于字节流的[传输层]通信协议。主要解决数据如何在网络中如何传输的，是一种长连接。建立一个TCP连接需要有三次握手，而终止一个TCP连接需要有4次握手，这是由TCP的半关闭（half-close）造成的。TCP包头的最小长度为20字节。</p>
+<h6 id="建立连接的三次握手"><a href="#建立连接的三次握手" class="headerlink" title="建立连接的三次握手"></a>建立连接的三次握手</h6><p>第一次握手：客户端发送syn包(syn&#x3D;j)到服务器，并进入SYN_SEND状态，等待服务器确认;<br> 第二次握手：服务器收到syn包，必须确认客户的SYN(ack&#x3D;j+1)，同时自己也发送一个SYN包(syn&#x3D;k)，即SYN+ACK包，此时服务器进入SYN_RECV状态;<br> 第三次握手：客户端收到服务器的SYN+ACK包，向服务器发送确认包ACK(ack&#x3D;k+1)，此包发送完毕，客户端和服务器进入ESTABLISHED状态，完成三次握手。<br> 握手过程中传送的包里不包含数据，三次握手完毕后，客户端与服务器才正式开始传送数据。<br> TCP一旦连接起来，在客户端和服务端任何一方主动关闭连接之前，TCP连接都将被一直保持下去。<br> 断开连接时，服务器和客户端都可以主动发起断开TCP连接的请求。<br> 简单来说，第一次握手就是客户端向服务器问我可以发送数据吗；第二次握手就是服务器回答说可以；第三次握手就是客户端向服务器说那我要开始发送数据了，此时客户端和服务器都准备好传输数据了，三次握手就完成了。</p>
+<h6 id="断开连接的四次握手"><a href="#断开连接的四次握手" class="headerlink" title="断开连接的四次握手"></a>断开连接的四次握手</h6><p>(1) 某个应用进程首先调用close，称该端执行“主动关闭”（active close）。该端的TCP于是发送一个FIN分节，表示数据发送完毕。<br> (2) 接收到这个FIN的对端执行 “被动关闭”（passive close），这个FIN由TCP确认。<br> 注意：FIN的接收也作为一个文件结束符（end-of-file）传递给接收端应用进程，放在已排队等候该应用进程接收的任何其他数据之后，因为，FIN的接收意味着接收端应用进程在相应连接上再无额外数据可接收。<br> (3) 一段时间后，接收到这个文件结束符的应用进程将调用close关闭它的套接字。这导致它的TCP也发送一个FIN。<br> (4) 接收这个最终FIN的原发送端TCP（即执行主动关闭的那一端）确认这个FIN。<br> 既然每个方向都需要一个FIN和一个ACK，因此通常需要4个分节。</p>
+<h4 id="什么是UDP？"><a href="#什么是UDP？" class="headerlink" title="什么是UDP？"></a>什么是UDP？</h4><p>UDP是User Datagram Protocol的缩写，也就是用户数据报协议。它与TCP相对应，是一种面向无连接的、不可靠的数据报传输协议，即不与对方建立连接，就直接就把数据包发送过去，因此缺乏可靠性。由于缺乏可靠性，UDP应用一般必须允许一定量的丢包、出错和复制。<br> UDP简单总结起来就是下面的几点：<br> （1） UDP是一个非连接的协议，传输数据之前源端和终端不建立连接，当它想传送时就简单地去抓取来自应用程序的数据，并尽可能快地把它扔到网络上。在发送端，UDP传送数据的速度仅仅是受应用程序生成数据的速度、计算机的能力和传输带宽的限制；在接收端，UDP把每个消息段放在队列中，应用程序每次从队列中读一个消息段。<br> （2） 由于传输数据不建立连接，因此也就不需要维护连接状态，包括收发状态等，因此一台服务机可同时向多个客户机传输相同的消息。<br> （3） UDP信息包的标题很短，只有8个字节，相对于TCP的20个字节信息包的额外开销很小。<br> （4） 吞吐量不受拥挤控制算法的调节，只受应用软件生成数据的速率、传输带宽、源端和终端主机性能的限制。<br> （5）UDP使用尽最大努力交付，即不保证可靠交付，因此主机不需要维持复杂的链接状态表（这里面有许多参数）。<br> （6）UDP是面向报文的。发送方的UDP对应用程序交下来的报文，在添加首部后就向下交付给IP层。既不拆分，也不合并，而是保留这些报文的边界，因此，应用程序需要选择合适的报文大小。<br> 我们经常使用“ping”命令来测试两台主机之间TCP&#x2F;IP通信是否正常，其实“ping”命令的原理就是向对方主机发送UDP数据包，然后对方主机确认收到数据包，如果数据包是否到达的消息及时反馈回来，那么网络就是通的。</p>
+<h4 id="TCP与UDP的区别"><a href="#TCP与UDP的区别" class="headerlink" title="TCP与UDP的区别"></a>TCP与UDP的区别</h4><p>（1）TCP是需要连接的传输协议（长连接），UDP是不需要连接的传输协议；<br> （2）TCP对系统资源要求较多，UDP要求较少；<br> （3）TCP的程序结构较复杂，UDP程序结构较简单；<br> （4）TCP是流模式，UDP是数据报模式 ；<br> （5）TCP保证数据正确性，UDP可能丢包，TCP保证数据顺序，UDP不保证。</p>
+<h4 id="什么是HTTP？"><a href="#什么是HTTP？" class="headerlink" title="什么是HTTP？"></a>什么是HTTP？</h4><p>HTTP是HyperText Transfer Protocol的缩写，也就是超文本传输协议。HTTP是Web联网的基础，也是手机联网常用的协议之一，HTTP协议是建立在TCP协议之上的一种应用。HTTP连接最显著的特点是客户端发送的每次请求都需要服务器回送响应，在请求结束后，会主动释放连接。从建立连接到关闭连接的过程称为“一次连接”。<br> HTTP协议的主要特点可概括如下：<br> 1.支持客户&#x2F;服务器模式。<br> 2.简单快速：客户向服务器请求服务时，只需传送请求方法和路径。请求方法常用的有GET、HEAD、POST。每种方法规定了客户与服务器联系的类型不同。由于HTTP协议简单，使得HTTP服务器的程序规模小，因而通信速度很快。<br> 3.灵活：HTTP允许传输任意类型的数据对象。正在传输的类型由Content-Type加以标记。<br> 4.无连接：无连接的含义是限制每次连接只处理一个请求。服务器处理完客户的请求，并收到客户的应答后，即断开连接。采用这种方式可以节省传输时间。<br> 5.无状态：HTTP协议是无状态协议。无状态是指协议对于事务处理没有记忆能力。缺少状态意味着如果后续处理需要前面的信息，则它必须重传，这样可能导致每次连接传送的数据量增大。另一方面，在服务器不需要先前信息时它的应答就较快。</p>
+<h6 id="HTTP协议之Get和Post"><a href="#HTTP协议之Get和Post" class="headerlink" title="HTTP协议之Get和Post"></a>HTTP协议之Get和Post</h6><p>Http协议定义了很多与服务器交互的方法，最基本的有4种，分别是GET,POST,PUT,DELETE. 一个URL地址用于描述一个网络上的资源，而HTTP中的GET, POST, PUT, DELETE就对应着对这个资源的查，改，增，删4个操作。 我们最常见的就是GET和POST了。GET一般用于获取&#x2F;查询资源信息，而POST一般用于更新资源信息.</p>
+<h6 id="GET和POST的区别"><a href="#GET和POST的区别" class="headerlink" title="GET和POST的区别"></a>GET和POST的区别</h6><ol>
+<li>GET提交的数据会放在URL之后，以问号（？）分割URL和传输数据，参数之间以符号&amp;相连，如EditPosts.aspx?name&#x3D;test1&amp;id&#x3D;123456.  POST方法是把提交的数据放在HTTP包的Body中。</li>
+<li>GET提交的数据大小有限制（因为浏览器对URL的长度有限制），而POST方法提交的数据没有限制。</li>
+<li>GET方式需要使用Request.QueryString来取得变量的值，而POST方式通过Request.Form来获取变量的值，也就是说Get是通过地址栏来传值，而Post是通过提交表单来传值。</li>
+<li>GET方式提交数据，会带来安全问题，比如一个登录页面，通过GET方式提交数据时，用户名和密码将出现在URL上，如果页面可以被缓存或者其他人可以访问这台机器，就可以从历史记录获得该用户的账号和密码，相比之下POST更安全。</li>
+</ol>
+<h4 id="什么是HTTPS？"><a href="#什么是HTTPS？" class="headerlink" title="什么是HTTPS？"></a>什么是HTTPS？</h4><p>HTTP是Secure Hypertext Transfer Protocol的缩写，也就是安全超文本传输协议。它是一个安全通信通道，它基于HTTP开发，用于在客户计算机和服务器之间交换信息。它使用安全套接字层(SSL)进行信息交换，简单来说它是HTTP的安全版。</p>
+<h4 id="HTTP与HTTPS的区别"><a href="#HTTP与HTTPS的区别" class="headerlink" title="HTTP与HTTPS的区别"></a>HTTP与HTTPS的区别</h4><p>一、HTTPS协议需要到CA申请证书，一般免费证书很少，需要交费。<br> 二、HTTP是超文本传输协议信息是明文传输，HTTPS则是具有安全性的ssl加密传输协议。<br> 三、HTTP和HTTPS使用的是完全不同的连接方式，用的端口也不一样，前者是80，后者是443。<br> 四、HTTP的连接很简单，是无状态的；HTTPS协议是由SSL+HTTP协议构建的可进行加密传输、身份认证的网络协议，比HTTP协议安全。<br> 五、在OSI 网络模型中，HTTP和HTTPS都工作于应用层。</p>
+<h4 id="Socket"><a href="#Socket" class="headerlink" title="Socket"></a>Socket</h4><p>Socket是为了实现通信过程而建立成来的通信管道，其真实的代表是客户端和服务器端的一个通信进程，双方进程通过Socket进行通信，而通信的规则采用指定的协议。Socket只是一种连接模式，不是协议，TCP、UDP，简单的说（虽然不准确）是两个最基本的协议,很多其它协议都是基于这两个协议如，HTTP就是基于TCP的，.用Socket可以创建TCP连接，也可以创建UDP连接，这意味着，用Socket可以创建任何协议的连接，因为其它协议都是基于此的。<br> 实际上，传输层的TCP是基于网络层的IP协议的，而应用层的HTTP协议又是基于传输层的TCP协议的，而Socket本身不算是协议，就像上面所说，它只是提供了一个针对TCP或者UDP编程的接口。</p>
+<h4 id="TCP-x2F-IP"><a href="#TCP-x2F-IP" class="headerlink" title="TCP&#x2F;IP"></a>TCP&#x2F;IP</h4><p>TCP&#x2F;IP是一个协议组，分为网络层、传输层、应用层。<br> 在网络层有IP协议、ICMP协议、ARP协议、RARP协议和BOOTP协议。<br> 在传输层有TCP协议和UDP协议。<br> 在应用层有FTP、HTTP、TELNET、SMTP、DNS等协议。</p>
+<p>作者：神SKY</p>
+<p>链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f4005c1c728f">https://www.jianshu.com/p/f4005c1c728f</a></p>
+<h2 id="8-数据库索引优化"><a href="#8-数据库索引优化" class="headerlink" title="8. 数据库索引优化"></a>8. 数据库索引优化</h2><p><a href="%5Bhttp://database.51cto.com/art/201809/583239.htm%5D(http://database.51cto.com/art/201809/583239.htm)">阿里P8架构师谈：MySQL慢查询优化、索引优化、以及表等优化总结</a></p>
+<p>美团技术团队： </p>
+<p><a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/06/30/mysql-index.html">MySQL索引原理及慢查询优化</a></p>
+<h2 id="9-设计模式"><a href="#9-设计模式" class="headerlink" title="9. 设计模式"></a>9. 设计模式</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/moudaen/article/details/19473731">设计模式常见面试题</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/ljh0302/article/details/81562415">常见设计模式笔试面试题</a></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/06/03/%E9%9D%A2%E5%90%91%E9%9D%A2%E8%AF%95%E9%A2%98%E5%AD%A6%E4%B9%A0-2-2019-6-3/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E5%90%91%E9%9D%A2%E8%AF%95%E9%A2%98%E5%AD%A6%E4%B9%A0/" rel="tag">面向面试题学习</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/06/04/%E4%BD%BF%E7%94%A8Swagger2Markup%E5%AE%9E%E7%8E%B0%E5%AF%BC%E5%87%BAAPI%E6%96%87%E6%A1%A3/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            使用Swagger2Markup实现导出API文档
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/06/03/Spring-Boot%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%BA%94%E7%A7%8D%E9%83%A8%E7%BD%B2%E6%96%B9%E5%BC%8F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Spring Boot应用程序五种部署方式（翻译）</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

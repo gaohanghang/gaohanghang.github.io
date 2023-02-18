@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>Java线程池了解一下 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Java线程池了解一下"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Java线程池了解一下
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/11/13/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BA%86%E8%A7%A3%E4%B8%80%E4%B8%8B/" class="article-date">
+  <time datetime="2019-11-12T16:56:00.000Z" itemprop="datePublished">2019-11-13</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">17 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：你在我家门口</p>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://juejin.im/post/5c5259ca51882524a76727db">https://juejin.im/post/5c5259ca51882524a76727db</a></p>
+</blockquote>
+<h2 id="1-前言"><a href="#1-前言" class="headerlink" title="1. 前言"></a>1. 前言</h2><p>马上就要过年了，还在岗位上坚守“swimming”的小伙伴们顶住。博主给大家带来一篇线程池的基本使用解解闷。</p>
+<h2 id="2-为什么需要使用线程池"><a href="#2-为什么需要使用线程池" class="headerlink" title="2. 为什么需要使用线程池"></a>2. 为什么需要使用线程池</h2><p>1、减少线程创建与切换的开销</p>
+<ul>
+<li>在没有使用线程池的时候，来了一个任务，就创建一个线程，我们知道系统创建和销毁工作线程的开销很大，而且频繁的创建线程也就意味着需要进行频繁的线程切换，这都是一笔很大的开销。</li>
+</ul>
+<p>2、控制线程的数量</p>
+<ul>
+<li>使用线程池我们可以有效地控制线程的数量，当系统中存在大量并发线程时，会导致系统性能剧烈下降。</li>
+</ul>
+<h2 id="3-线程池做了什么"><a href="#3-线程池做了什么" class="headerlink" title="3. 线程池做了什么"></a>3. 线程池做了什么</h2><p>重复利用有限的线程</p>
+<ul>
+<li>线程池中会预先创建一些空闲的线程，他们不断的从工作队列中取出任务，然后执行，执行完之后，会继续执行工作队列中的下一个任务，减少了创建和销毁线程的次数，每个线程都可以一直被重用，变了创建和销毁的开销。</li>
+</ul>
+<h2 id="4-线程池的使用"><a href="#4-线程池的使用" class="headerlink" title="4. 线程池的使用"></a>4. 线程池的使用</h2><p>其实常用Java线程池本质上都是由<code>ThreadPoolExecutor</code>或者<code>ForkJoinPool</code>生成的，只是其根据构造函数传入不同的实参来实例化相应线程池而已。</p>
+<h3 id="4-1-Executors"><a href="#4-1-Executors" class="headerlink" title="4.1 Executors"></a>4.1 Executors</h3><p><code>Executors</code>是一个线程池工厂类，该工厂类包含如下集合静态工厂方法来创建线程池：</p>
+<ul>
+<li><code>newFixedThreadPool()</code>：创建一个可重用的、具有固定线程数的线程池</li>
+<li><code>newSingleThreadExecutor()</code>：创建只有一个线程的线程池</li>
+<li><code>newCachedThreadPool()</code>：创建一个具有缓存功能的线程池</li>
+<li><code>newWorkStealingPool()</code>：创建持有足够线程的线程池来支持给定的并行级别的线程池</li>
+<li><code>newScheduledThreadPool()</code>：创建具有指定线程数的线程池，它可以在指定延迟后执行任务线程</li>
+</ul>
+<h3 id="4-2-ExecutorService接口"><a href="#4-2-ExecutorService接口" class="headerlink" title="4.2 ExecutorService接口"></a>4.2 ExecutorService接口</h3><p>对设计模式有了解过的同学都会知道，我们尽量面向接口编程，这样对程序的灵活性是非常友好的。Java线程池也采用了面向接口编程的思想，可以看到<code>ThreadPoolExecutor</code>和<code>ForkJoinPool</code>所有都是<code>ExecutorService</code>接口的实现类。在<code>ExecutorService</code>接口中定义了一些常用的方法，然后再各种线程池中都可以使用<code>ExecutorService</code>接口中定义的方法，常用的方法有如下几个：</p>
+<ul>
+<li>向线程池提交线程<ul>
+<li><code>Future submit()</code>：将一个Runnable对象交给指定的线程池，线程池将在有空闲线程时执行Runnable对象代表的任务，该方法既能接收Runnable对象也能接收Callable对象，这就意味着sumbit()方法可以有返回值。</li>
+<li><code>void execute(Runnable command)</code>：只能接收Runnable对象，意味着该方法没有返回值。</li>
+</ul>
+</li>
+<li>关闭线程池<ul>
+<li><code>void shutdown()</code>：阻止新来的任务提交，对已经提交了的任务不会产生任何影响。(等待所有的线程执行完毕才关闭)</li>
+<li><code>List shutdownNow()</code>： 阻止新来的任务提交，同时会中断当前正在运行的线程，另外它还将workQueue中的任务给移除，并将这些任务添加到列表中进行返回。（立马关闭）</li>
+</ul>
+</li>
+<li>检查线程池的状态<ul>
+<li><code>boolean isShutdown()</code>：调用shutdown()或shutdownNow()方法后返回为true。</li>
+<li><code>boolean isTerminated()</code>：当调用shutdown()方法后，并且所有提交的任务完成后返回为true;当调用shutdownNow()方法后，成功停止后返回为true。</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-3-常见线程池使用示例"><a href="#4-3-常见线程池使用示例" class="headerlink" title="4.3 常见线程池使用示例"></a>4.3 常见线程池使用示例</h3><h4 id="4-3-1-newFixedThreadPool"><a href="#4-3-1-newFixedThreadPool" class="headerlink" title="4.3.1 newFixedThreadPool"></a>4.3.1 newFixedThreadPool</h4><blockquote>
+<p>线程池中的线程数目是固定的，不管你来了多少的任务。</p>
+</blockquote>
+<p><strong>示例代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyFixThreadPool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="comment">// 创建一个线程数固定为5的线程池</span></span><br><span class="line">        <span class="type">ExecutorService</span> <span class="variable">service</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;初始线程池状态：&quot;</span> + service);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">6</span>; i++) &#123;</span><br><span class="line">            service.execute(() -&gt; &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    TimeUnit.MILLISECONDS.sleep(<span class="number">1000</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread().getName());</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;线程提交完毕之后线程池状态：&quot;</span> + service);</span><br><span class="line"></span><br><span class="line">        service.shutdown();<span class="comment">//会等待所有的线程执行完毕才关闭，shutdownNow：立马关闭</span></span><br><span class="line">        System.out.println(<span class="string">&quot;是否全部线程已经执行完毕：&quot;</span> + service.isTerminated());<span class="comment">//所有的任务执行完了，就会返回true</span></span><br><span class="line">        System.out.println(<span class="string">&quot;是否已经执行shutdown()&quot;</span> + service.isShutdown());</span><br><span class="line">        System.out.println(<span class="string">&quot;执行完shutdown()之后线程池的状态：&quot;</span> + service);</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(<span class="number">5</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;5秒钟过后，是否全部线程已经执行完毕：&quot;</span> + service.isTerminated());</span><br><span class="line">        System.out.println(<span class="string">&quot;5秒钟过后，是否已经执行shutdown()&quot;</span> + service.isShutdown());</span><br><span class="line">        System.out.println(<span class="string">&quot;5秒钟过后，线程池状态：&quot;</span> + service);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行结果：</strong></p>
+<blockquote>
+<p>初始线程池状态：[Running, pool size &#x3D; 0, active threads &#x3D; 0, queued tasks &#x3D; 0, completed tasks &#x3D; 0]<br>线程提交完毕之后线程池状态：[Running, pool size &#x3D; 5, active threads &#x3D; 5, queued tasks &#x3D; 1, completed tasks &#x3D; 0]<br>是否全部线程已经执行完毕：false<br>是否已经执行shutdown()：true<br>执行完shutdown()之后线程池的状态：[Shutting down, pool size &#x3D; 5, active threads &#x3D; 5, queued tasks &#x3D; 1, completed tasks &#x3D; 0]<br>pool-1-thread-2<br>pool-1-thread-1<br>pool-1-thread-4<br>pool-1-thread-5<br>pool-1-thread-3<br>pool-1-thread-2<br>5秒钟过后，是否全部线程已经执行完毕：true<br>5秒钟过后，是否已经执行shutdown()：true<br>5秒钟过后，线程池状态：[Terminated, pool size &#x3D; 0, active threads &#x3D; 0, queued tasks &#x3D; 0, completed tasks &#x3D; 6]</p>
+</blockquote>
+<p><strong>程序分析</strong></p>
+<ul>
+<li>当我们创建好一个FixedThreadPool之后，该线程池就处于<code>Running</code>状态了，但是<code>pool size</code>(线程池线程的数量)、<code>active threads</code>(当前活跃线程) <code>queued tasks</code>(当前排队线程)、<code>completed tasks</code>(已完成的任务数)都是0</li>
+<li>当我们把6个任务都提交给线程池之后，<ul>
+<li><code>pool size = 5</code>：因为我们创建的是一个固定线程数为5的线程池（注意：如果这个时候我们只提交了3个任务，那么<code>pool size = 3</code>，说明线程池也是通过懒加载的方式去创建线程）。</li>
+<li><code>active threads = 5</code>：虽然我们向线程池提交了6个任务，但是线程池的固定大小为5，所以活跃线程只有5个</li>
+<li><code>queued tasks = 1</code>：虽然我们向线程池提交了6个任务，但是线程池的固定大小为5，只能有5个活跃线程同时工作，所以有一个任务在等待</li>
+</ul>
+</li>
+<li>我们第一次执行<code>shutdown()</code>的时候，由于任务还没有全部执行完毕，所以<code>isTerminated()</code>返回<code>false</code>，<code>shutdown()</code>返回true，而线程池的状态会由<code>Running</code>变为<code>Shutting down</code></li>
+<li>从任务的运行结果我们可以看出，名为<code>pool-1-thread-2</code>执行了两次任务，证明线程池中的线程确实是重复利用的。</li>
+<li>5秒钟后,<code>isTerminated()</code>返回<code>true</code>，<code>shutdown()</code>返回<code>true</code>，证明所有的任务都执行完了，线程池也关闭了，我们再次检查线程池的状态<code>[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 6]</code>，状态已经处于<code>Terminated</code>了，然后已完成的任务显示为6</li>
+</ul>
+<h4 id="4-3-2-newSingleThreadExecutor"><a href="#4-3-2-newSingleThreadExecutor" class="headerlink" title="4.3.2 newSingleThreadExecutor"></a>4.3.2 newSingleThreadExecutor</h4><blockquote>
+<p>从头到尾整个线程池都只有一个线程在工作。</p>
+</blockquote>
+<p><strong>实例代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SingleThreadPool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ExecutorService</span> <span class="variable">service</span> <span class="operator">=</span> Executors.newSingleThreadExecutor();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i;</span><br><span class="line">            service.execute(() -&gt; &#123;</span><br><span class="line">                System.out.println(j + <span class="string">&quot; &quot;</span> + Thread.currentThread().getName());</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行结果</strong></p>
+<blockquote>
+<p>0 pool-1-thread-1 1 pool-1-thread-1 2 pool-1-thread-1 3 pool-1-thread-1 4 pool-1-thread-1</p>
+</blockquote>
+<p><strong>程序分析</strong> 可以看到只有<code>pool-1-thread-1</code>一个线程在工作。</p>
+<h4 id="4-3-3-newCachedThreadPool"><a href="#4-3-3-newCachedThreadPool" class="headerlink" title="4.3.3 newCachedThreadPool"></a>4.3.3 newCachedThreadPool</h4><blockquote>
+<p>来多少任务，就创建多少线程（前提是没有空闲的线程在等待执行任务，否则还是会复用之前旧（缓存）的线程），直接你电脑能支撑的线程数的极限为止。</p>
+</blockquote>
+<p><strong>实例代码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class CachePool &#123;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">        ExecutorService service = Executors.newCachedThreadPool();</span><br><span class="line">        System.out.println(&quot;初始线程池状态：&quot; + service);</span><br><span class="line"></span><br><span class="line">        for (int i = 0; i &lt; 12; i++) &#123;</span><br><span class="line">            service.execute(() -&gt; &#123;</span><br><span class="line">                try &#123;</span><br><span class="line">                    TimeUnit.MILLISECONDS.sleep(500);</span><br><span class="line">                &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread().getName());</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(&quot;线程提交完毕之后线程池状态：&quot; + service);</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(50);</span><br><span class="line">        System.out.println(&quot;50秒后线程池状态：&quot; + service);</span><br><span class="line"></span><br><span class="line">        TimeUnit.SECONDS.sleep(30);</span><br><span class="line">        System.out.println(&quot;80秒后线程池状态：&quot; + service);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行结果</strong></p>
+<blockquote>
+<p>初始线程池状态：[Running, pool size &#x3D; 0, active threads &#x3D; 0, queued tasks &#x3D; 0, completed tasks &#x3D; 0]<br>线程提交完毕之后线程池状态：[Running, pool size &#x3D; 12, active threads &#x3D; 12, queued tasks &#x3D; 0, completed tasks &#x3D; 0]<br>pool-1-thread-3<br>pool-1-thread-4<br>pool-1-thread-1<br>pool-1-thread-2<br>pool-1-thread-5<br>pool-1-thread-8<br>pool-1-thread-9<br>pool-1-thread-12<br>pool-1-thread-7<br>pool-1-thread-6<br>pool-1-thread-11<br>pool-1-thread-10<br>50秒后线程池状态：[Running, pool size &#x3D; 12, active threads &#x3D; 0, queued tasks &#x3D; 0, completed tasks &#x3D; 12]<br>80秒后线程池状态：[Running, pool size &#x3D; 0, active threads &#x3D; 0, queued tasks &#x3D; 0, completed tasks &#x3D; 12]</p>
+</blockquote>
+<p><strong>程序分析</strong></p>
+<ul>
+<li>因为我们每个线程任务至少需要500毫秒的执行时间，所以当我们往线程池中提交12个任务的过程中，基本上没有空闲的线程供我们重复使用，所以线程池会创建12个线程。</li>
+<li>缓存中的线程默认是60秒没有活跃就会被销毁掉，可以看到在50秒钟的时候回，所有的任务已经完成了，但是线程池线程的数量还是12。</li>
+<li>80秒过后，可以看到线程池中的线程已经全部被销毁了。</li>
+</ul>
+<h4 id="4-3-4-newScheduledThreadPool"><a href="#4-3-4-newScheduledThreadPool" class="headerlink" title="4.3.4 newScheduledThreadPool"></a>4.3.4 newScheduledThreadPool</h4><blockquote>
+<p>可以在指定延迟后或周期性地执行线程任务的线程池。</p>
+</blockquote>
+<p><strong>ScheduledThreadPoolExecutor</strong></p>
+<ul>
+<li><code>newScheduledThreadPool()</code>方法返回的其实是一个<code>ScheduledThreadPoolExecutor</code>对象，<code>ScheduledThreadPoolExecutor</code>定义如下：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public class ScheduledThreadPoolExecutor</span><br><span class="line">        extends ThreadPoolExecutor</span><br><span class="line">        implements ScheduledExecutorService &#123;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以看到，它还是继承了 ThreadPoolExecutor 并实现了 ScheduledExecutorService接口，而 ScheduledExecutorService 也是继承了 ExecutorService 接口，所以我们也可以像使用之前的线程池对象一样使用，只不过是该对象会额外多了一些方法用于控制延迟与周期：<ul>
+<li><code>public  ScheduledFuture schedule(Callable callable,long delay, TimeUnit unit)</code>：指定callable任务将在delay延迟后执行</li>
+<li><code>public ScheduledFuture scheduleAtFixedRate(Runnable command,long initialDelay,long period,TimeUnit unit)</code>：指定的command任务将在delay延迟后执行，而且已设定频率重复执行。（一开始并不会执行）</li>
+<li><code>public ScheduledFuture scheduleWithFixedDelay(Runnable command,ong initialDelay,long delay,TimeUnit unit)</code>：创建并执行一个在给定初始延迟后首期启用的定期操作，随后在每一个执行终止和下一次执行开始之间都存在给定的延迟。</li>
+</ul>
+</li>
+</ul>
+<p><strong>示例代码</strong></p>
+<p>下面代码每500毫秒打印一次当前线程名称以及一个随机数字。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyScheduledPool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ScheduledExecutorService</span> <span class="variable">service</span> <span class="operator">=</span> Executors.newScheduledThreadPool(<span class="number">4</span>);</span><br><span class="line">        service.scheduleAtFixedRate(() -&gt; &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + <span class="keyword">new</span> <span class="title class_">Random</span>().nextInt(<span class="number">1000</span>));</span><br><span class="line">        &#125;, <span class="number">0</span>, <span class="number">500</span>, TimeUnit.MILLISECONDS);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-3-5-newWorkStealingPool"><a href="#4-3-5-newWorkStealingPool" class="headerlink" title="4.3.5 newWorkStealingPool"></a>4.3.5 newWorkStealingPool</h4><blockquote>
+<p>每个线程维护着自己的队列，执行完自己的任务之后，会去主动执行其他线程队列中的任务。</p>
+</blockquote>
+<p><strong>示例代码</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyWorkStealingPool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ExecutorService</span> <span class="variable">service</span> <span class="operator">=</span> Executors.newWorkStealingPool(<span class="number">4</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;cpu核心：&quot;</span> + Runtime.getRuntime().availableProcessors());</span><br><span class="line"></span><br><span class="line">        service.execute(<span class="keyword">new</span> <span class="title class_">R</span>(<span class="number">1000</span>));</span><br><span class="line">        service.execute(<span class="keyword">new</span> <span class="title class_">R</span>(<span class="number">2000</span>));</span><br><span class="line">        service.execute(<span class="keyword">new</span> <span class="title class_">R</span>(<span class="number">2000</span>));</span><br><span class="line">        service.execute(<span class="keyword">new</span> <span class="title class_">R</span>(<span class="number">2000</span>));</span><br><span class="line">        service.execute(<span class="keyword">new</span> <span class="title class_">R</span>(<span class="number">2000</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//由于产生的是精灵线程（守护线程、后台线程），主线程不阻塞的话，看不到输出</span></span><br><span class="line">        System.in.read();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">R</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> time;</span><br><span class="line"></span><br><span class="line">        R(<span class="type">int</span> time) &#123;</span><br><span class="line">            <span class="built_in">this</span>.time = time;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                TimeUnit.MILLISECONDS.sleep(time);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(time + <span class="string">&quot; &quot;</span> + Thread.currentThread().getName());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行结果</strong></p>
+<blockquote>
+<p>cpu核心：4 1000 ForkJoinPool-1-worker-1 2000 ForkJoinPool-1-worker-0 2000 ForkJoinPool-1-worker-3 2000 ForkJoinPool-1-worker-2 2000 ForkJoinPool-1-worker-1</p>
+</blockquote>
+<p><strong>程序分析</strong> <code>ForkJoinPool-1-worker-1</code>任务的执行时间是1秒，它会最先执行完毕，然后它会去主动执行其他线程队列中的任务。</p>
+<h4 id="4-3-6-ForkJoinPool"><a href="#4-3-6-ForkJoinPool" class="headerlink" title="4.3.6 ForkJoinPool"></a>4.3.6 ForkJoinPool</h4><ul>
+<li><code>ForkJoinPool</code>可以将一个任务拆分成多个“小任务”并行计算，再把多个“小任务”的结果合并成总的计算结果。<code>ForkJoinPool</code>提供了如下几个方法用于创建<code>ForkJoinPool</code>实例对象：<ul>
+<li><code>ForkJoinPool(int parallelism)</code>：创建一个包含parallelism个并行线程的<code>ForkJoinPool</code>，parallelism的默认值为<code>Runtime.getRuntime().availableProcessors()</code>方法的返回值</li>
+<li><code>ForkJoinPool commonPool()</code>：该方法返回一个通用池，通用池的运行状态不会受<code>shutdown()</code>或<code>shutdownNow()</code>方法的影响。</li>
+</ul>
+</li>
+<li>创建了<code>ForkJoinPool</code>示例之后，就可以调用<code>ForkJoinPool</code>的<code>submit(ForkJoinTask task)</code>或<code>invoke(ForkJoinTask task)</code>方法来执行指定任务了。其中<code>ForkJoinTask</code>（实现了Future接口）代表一个可以并行、合并的任务。<code>ForkJoinTask</code>是一个抽象类，他还有两个抽象子类：<code>RecursiveAction</code>和<code>RecursiveTask</code>。其中<code>RecursiveTask</code>代表有返回值的任务，而<code>RecursiveAction</code>代表没有返回值的任务。</li>
+</ul>
+<p><strong>示例代码</strong></p>
+<p>下面代码演示了使用<code>ForkJoinPool</code>对1000000个随机整数进行求和。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyForkJoinPool</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="type">int</span>[] nums = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">1000000</span>];</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">MAX_NUM</span> <span class="operator">=</span> <span class="number">50000</span>;</span><br><span class="line">    <span class="keyword">static</span> <span class="type">Random</span> <span class="variable">random</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            nums[i] = random.nextInt(<span class="number">1000</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(Arrays.stream(nums).sum());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//    static class AddTask extends RecursiveAction &#123;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//        int start, end;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//        AddTask(int start, int end) &#123;</span></span><br><span class="line"><span class="comment">//            this.start = start;</span></span><br><span class="line"><span class="comment">//            this.end = end;</span></span><br><span class="line"><span class="comment">//        &#125;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//        @Override</span></span><br><span class="line"><span class="comment">//        protected void compute() &#123;</span></span><br><span class="line"><span class="comment">//            if (end - start &lt;= MAX_NUM) &#123;</span></span><br><span class="line"><span class="comment">//                long sum = 0L;</span></span><br><span class="line"><span class="comment">//                for (int i = 0; i &lt; end; i++) sum += nums[i];</span></span><br><span class="line"><span class="comment">//                System.out.println(&quot;from:&quot; + start + &quot; to:&quot; + end + &quot; = &quot; + sum);</span></span><br><span class="line"><span class="comment">//            &#125; else &#123;</span></span><br><span class="line"><span class="comment">//                int middle = start + (end - start) / 2;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//                AddTask subTask1 = new AddTask(start, middle);</span></span><br><span class="line"><span class="comment">//                AddTask subTask2 = new AddTask(middle, end);</span></span><br><span class="line"><span class="comment">//                subTask1.fork();</span></span><br><span class="line"><span class="comment">//                subTask2.fork();</span></span><br><span class="line"><span class="comment">//            &#125;</span></span><br><span class="line"><span class="comment">//        &#125;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">AddTask</span> <span class="keyword">extends</span> <span class="title class_">RecursiveTask</span>&lt;Long&gt; &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> start, end;</span><br><span class="line"></span><br><span class="line">        AddTask(<span class="type">int</span> start, <span class="type">int</span> end) &#123;</span><br><span class="line">            <span class="built_in">this</span>.start = start;</span><br><span class="line">            <span class="built_in">this</span>.end = end;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">protected</span> Long <span class="title function_">compute</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="comment">// 当end与start之间的差大于MAX_NUM，将大任务分解成两个“小任务”</span></span><br><span class="line">            <span class="keyword">if</span> (end - start &lt;= MAX_NUM) &#123;</span><br><span class="line">                <span class="type">long</span> <span class="variable">sum</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start; i &lt; end; i++) sum += nums[i];</span><br><span class="line">                <span class="keyword">return</span> sum;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">middle</span> <span class="operator">=</span> start + (end - start) / <span class="number">2</span>;</span><br><span class="line"></span><br><span class="line">                <span class="type">AddTask</span> <span class="variable">subTask1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AddTask</span>(start, middle);</span><br><span class="line">                <span class="type">AddTask</span> <span class="variable">subTask2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AddTask</span>(middle, end);</span><br><span class="line">                <span class="comment">// 并行执行两个“小任务”</span></span><br><span class="line">                subTask1.fork();</span><br><span class="line">                subTask2.fork();</span><br><span class="line">                <span class="comment">// 把两个“小任务”累加的结果合并起来</span></span><br><span class="line">                <span class="keyword">return</span> subTask1.join() + subTask2.join();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ForkJoinPool</span> <span class="variable">forkJoinPool</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ForkJoinPool</span>();</span><br><span class="line">        <span class="type">AddTask</span> <span class="variable">task</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AddTask</span>(<span class="number">0</span>, nums.length);</span><br><span class="line">        forkJoinPool.execute(task);</span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> <span class="variable">result</span> <span class="operator">=</span> task.join();</span><br><span class="line">        System.out.println(result);</span><br><span class="line"></span><br><span class="line">        forkJoinPool.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-额外补充"><a href="#5-额外补充" class="headerlink" title="5. 额外补充"></a>5. 额外补充</h2><blockquote>
+<p>上面我们说到过：其实常用Java线程池都是由<code>ThreadPoolExecutor</code>或者<code>ForkJoinPool</code>两个类生成的，只是其根据构造函数传入不同的实参来生成相应线程池而已。那我们现在一起来看看Executors中几个创建线程池对象的静态方法相关的源码：</p>
+</blockquote>
+<p><strong>ThreadPoolExecutor构造函数原型</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize,</span></span><br><span class="line"><span class="params">                              <span class="type">int</span> maximumPoolSize,</span></span><br><span class="line"><span class="params">                              <span class="type">long</span> keepAliveTime,</span></span><br><span class="line"><span class="params">                              TimeUnit unit,</span></span><br><span class="line"><span class="params">                              BlockingQueue&lt;Runnable&gt; workQueue)</span> &#123;</span><br></pre></td></tr></table></figure>
+
+<p><strong>参数说明</strong></p>
+<ul>
+<li><code>corePoolSize</code>：核心运行的poolSize，也就是当超过这个范围的时候，就需要将新的Runnable放入到等待队列workQueue中了。</li>
+<li><code>maximumPoolSize</code>：线程池维护线程的最大数量，当大于了这个值就会将任务由一个丢弃处理机制来处理（当然也存在永远不丢弃任务的线程池，具体得看策略）。</li>
+<li><code>keepAliveTime</code>：线程空闲时的存活时间（当线程数大于corePoolSize时该参数才有效）[<code>java doc</code>中的是这样写的 ：when the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating.]</li>
+<li><code>unit</code>：keepAliveTime的单位。</li>
+<li><code>workQueue</code>：用来保存等待被执行的任务的阻塞队列，且任务必须实现Runable接口。</li>
+</ul>
+<p><strong>执行任务的过程</strong></p>
+<ol>
+<li>poolSize (当前实际需要使用的线程数) &lt; corePoolSize，提交 Runnable 任务，会立马执行。</li>
+<li>当提交的任务数超过了 corePoolSize ，会将当前的 Runnable 提交到一个 BlockingQueue 中。</li>
+<li>有界队列满了之后，如果 poolSize &lt; maximumPoolSize 时，会尝试new一个Thread进行急救处理，立马执行对应的Runnable任务。</li>
+<li>如果第三步也无法处理了，就会走到第四步执行reject操作。</li>
+</ol>
+<p><strong>newFixedThreadPool</strong></p>
+<blockquote>
+<p>poolSize 和 maximumPoolSize 相等，使用无界队列存储，无论来多少任务，队列都能塞的下，所以线程池中的线程数总是 poolSize。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title function_">newFixedThreadPool</span><span class="params">(<span class="type">int</span> nThreads)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(nThreads, nThreads,</span><br><span class="line">                                  <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                  <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;Runnable&gt;());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>newSingleThreadExecutor</strong></p>
+<blockquote>
+<p>poolSize 和 maximumPoolSize 都为1，使用无界队列存储，无论来多少任务，队列都能塞的下，所以线程池中的线程数总是 1。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title function_">newSingleThreadExecutor</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">FinalizableDelegatedExecutorService</span></span><br><span class="line">        (<span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(<span class="number">1</span>, <span class="number">1</span>,</span><br><span class="line">                                <span class="number">0L</span>, TimeUnit.MILLISECONDS,</span><br><span class="line">                                <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;Runnable&gt;()));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>newCachedThreadPool</strong></p>
+<blockquote>
+<p>poolSize 为 0，来一个任务直接扔到队列中，使用SynchronousQueue存储（没有容量的队列），所以来来一个任务就得新建一个线程，maximumPoolSize 为 Integer.MAX_VALUE，可以看成是允许创建无限的线程。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title function_">newCachedThreadPool</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(<span class="number">0</span>, Integer.MAX_VALUE,</span><br><span class="line">                                  <span class="number">60L</span>, TimeUnit.SECONDS,</span><br><span class="line">                                  <span class="keyword">new</span> <span class="title class_">SynchronousQueue</span>&lt;Runnable&gt;());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>newScheduledThreadPool</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">ThreadPoolExecutor</span><span class="params">(<span class="type">int</span> corePoolSize,</span></span><br><span class="line"><span class="params">                          <span class="type">int</span> maximumPoolSize,</span></span><br><span class="line"><span class="params">                          <span class="type">long</span> keepAliveTime,</span></span><br><span class="line"><span class="params">                          TimeUnit unit,</span></span><br><span class="line"><span class="params">                          BlockingQueue&lt;Runnable&gt; workQueue)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,</span><br><span class="line">         Executors.defaultThreadFactory(), defaultHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>newWorkStealingPool</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title function_">newWorkStealingPool</span><span class="params">(<span class="type">int</span> parallelism)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ForkJoinPool</span></span><br><span class="line">        (parallelism,</span><br><span class="line">         ForkJoinPool.defaultForkJoinWorkerThreadFactory,</span><br><span class="line">         <span class="literal">null</span>, <span class="literal">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure> 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/11/13/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0%E4%BA%86%E8%A7%A3%E4%B8%80%E4%B8%8B/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"></ul>
+
+    </footer>
+  </div>
+
+   
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

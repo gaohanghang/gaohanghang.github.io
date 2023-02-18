@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>插件破解和实现本地/远程热部署教程 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="jrebel-插件破解和实现本地-远程热部署教程"
+  class="article article-type-jrebel"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  插件破解和实现本地/远程热部署教程
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/06/21/%E6%8F%92%E4%BB%B6%E7%A0%B4%E8%A7%A3%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0-%E8%BF%9C%E7%A8%8B%E7%83%AD%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/" class="article-date">
+  <time datetime="2019-06-21T09:05:09.000Z" itemprop="datePublished">2019-06-21</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">8 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址 <a target="_blank" rel="noopener" href="https://juejin.im/post/5c0fc3736fb9a049d51957a1">微服务开发神器–JRebel 插件破解和实现本地&#x2F;远程热部署教程(IntelliJ IDEA版)</a></p>
+</blockquote>
+<blockquote>
+<p>为什么要用热部署？如果你公司使用微服务开发，你使用了一段时间的jenkins集成开发部署，你会发现即使有了这一套集成开发环境，假如我让你改个变量…你就需要跑一次jenkins,麻烦倒不麻烦，主要是花费太长的时间，所以开发阶段用远程服务热部署会更加方便和前端的对接，这也是这篇文章着重说的一点。</p>
+</blockquote>
+<blockquote>
+<p>IntelliJ IDEA的JRebel插件包括JRebel代理并帮助您自动生成JRebel配置。它通过单击为应用程序和服务器启用JRebel，并改进了IDE中的调试支持。</p>
+</blockquote>
+<p>这篇文章用英文来写(滑稽),希望你能看懂(滑稽)。</p>
+<p>ok, let&#96;s go</p>
+<p>it can support many IDE tools that below:</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93b492642c8?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<h3 id="1-Installation"><a href="#1-Installation" class="headerlink" title="1. Installation"></a>1. Installation</h3><h5 id="1-1-Open-the-IntelliJ-IDEA-Settings"><a href="#1-1-Open-the-IntelliJ-IDEA-Settings" class="headerlink" title="1.1 Open the IntelliJ IDEA Settings"></a>1.1 Open the IntelliJ IDEA Settings</h5><h5 id="1-2-Select-Plugins-from-the-sections-menu"><a href="#1-2-Select-Plugins-from-the-sections-menu" class="headerlink" title="1.2. Select Plugins from the sections menu."></a>1.2. Select Plugins from the sections menu.</h5><h5 id="1-3-Press-Browse-plugin-repositories…-and-locate-the-JRebel-plugin"><a href="#1-3-Press-Browse-plugin-repositories…-and-locate-the-JRebel-plugin" class="headerlink" title="1.3. Press Browse plugin repositories… and locate the JRebel plugin."></a>1.3. Press Browse plugin repositories… and locate the JRebel plugin.</h5><blockquote>
+<p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93b49afb935?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+</blockquote>
+<h5 id="1-4-restart-IntelliJ-IDEA"><a href="#1-4-restart-IntelliJ-IDEA" class="headerlink" title="1.4. restart IntelliJ IDEA"></a>1.4. restart IntelliJ IDEA</h5><h3 id="2-Activation"><a href="#2-Activation" class="headerlink" title="2. Activation"></a>2. Activation</h3><blockquote>
+<p>An excellent plugin is offen not free, and this is no exception.But i cant to teach you to buy it, of course that is the best way to get it, i will tall you how to crack this plugin.</p>
+</blockquote>
+<h5 id="2-1-open-the-JRebel-control-panel"><a href="#2-1-open-the-JRebel-control-panel" class="headerlink" title="2.1 open the JRebel control panel"></a>2.1 open the JRebel control panel</h5><p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93b49bab15e?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>you just need to fill in the infomation in these two boxes.</p>
+<p>Filled in the first box is <code>http://139.199.89.239:1008/d6bbb34d-84c4-4214-907e-26fc52f8e1b8</code> Filled in the second box is <code>your email</code></p>
+<p><strong>Node:</strong> If the first box prompt expire, you can change to a uuid after the url.</p>
+<p>OK, it is done when you click OK.</p>
+<h5 id="2-2-Change-working-model"><a href="#2-2-Change-working-model" class="headerlink" title="2.2 Change working model"></a>2.2 Change working model</h5><blockquote>
+<p>if you just complete the first step, you also need to set this setting. Because in the case of <code>working online</code>, Exception will be detected at any time,(Will be detected as pirated).So follow me down:</p>
+<p>![img](data:image&#x2F;svg+xml;utf8,<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1095" height="754"></svg>)</p>
+</blockquote>
+<p>After that, you will see it becomes like this:</p>
+<p>![img](data:image&#x2F;svg+xml;utf8,<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="1101" height="632"></svg>)</p>
+<p>OK, this is a success.</p>
+<span id="more"></span>
+
+<h3 id="3-How-to-use-on-local"><a href="#3-How-to-use-on-local" class="headerlink" title="3. How to use on local"></a>3. How to use on local</h3><blockquote>
+<p>The only required configuration file is <a href="https://link.juejin.im/?target=http://manuals.zeroturnaround.com/jrebel/standalone/config.html%23rebel-xml">rebel.xml</a>. This is used by JRebel to map the running application to the workspace. The good news is that IDE plugin can automate this configuration for you.</p>
+</blockquote>
+<p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93b4a8f3816?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p>The meaning of the check mark is: Enable JRebel and generator the<code>rebel.xml</code></p>
+<h5 id="What-96-s-in-this-file"><a href="#What-96-s-in-this-file" class="headerlink" title="What&#96;s in this file?"></a>What&#96;s in this file?</h5><blockquote>
+<p>This file is automatically generated, Generally not need to manually modify .</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line"></span><br><span class="line">&lt;!--</span><br><span class="line">  This is the JRebel configuration file. It maps the running application to your IDE workspace, enabling JRebel reloading for this project.</span><br><span class="line">  Refer to https://manuals.zeroturnaround.com/jrebel/standalone/config.html for more information.</span><br><span class="line">--&gt;</span><br><span class="line">&lt;application generated-by=&quot;intellij&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">			 xmlns=&quot;http://www.zeroturnaround.com&quot; xsi:schemaLocation=&quot;http://www.zeroturnaround.com http://update.zeroturnaround.com/jrebel/rebel-2_1.xsd</span><br><span class="line">http://www.zeroturnaround.com</span><br><span class="line">http://www.zeroturnaround.com &quot;&gt;</span><br><span class="line"></span><br><span class="line">	&lt;classpath&gt;</span><br><span class="line">		&lt;dir name=&quot;/home/fantj/xxx/xxxx-xxx/xxx-xxxx/target/classes&quot;&gt;</span><br><span class="line">		&lt;/dir&gt;</span><br><span class="line">	&lt;/classpath&gt;</span><br><span class="line"></span><br><span class="line">&lt;/application&gt;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+
+<h5 id="Server-startup"><a href="#Server-startup" class="headerlink" title="Server startup"></a>Server startup</h5><blockquote>
+<p>The JRebel plugin for IntelliJ IDEA includes dedicated launch buttons. These buttons are located on the main toolbar and on the navigation toolbar by default. You can also find these commands via the Run menu.</p>
+</blockquote>
+<p>![img](data:image&#x2F;svg+xml;utf8,<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="514" height="281"></svg>)</p>
+<p>The first button launches the container with JRebel. The second button launches the container with JRebel in debug mode.</p>
+<p>By launching the process from one of these buttons, the JRebel plugin will automatically add the appropriate command line parameters.</p>
+<p><strong>Node</strong>: You must have to use <code>Run with JRebel</code> or <code>Debug with JRebel</code> to start server, Because only then will it work, If you use <code>Run main</code>or <code>Debug main</code>, sorry, you won&#96;t be able to experience it !</p>
+<h3 id="4-How-to-use-in-remote-servers"><a href="#4-How-to-use-in-remote-servers" class="headerlink" title="4. How to use in remote servers"></a>4. How to use in remote servers</h3><blockquote>
+<p>This chapter lists the steps required to set up <strong>JRebel remote server support</strong> for <strong>IntelliJ IDEA</strong>. You need a working, activated JRebel installation in your IDE. Please follow the instructions on how to <a href="https://link.juejin.im/?target=http://zeroturnaround.com/software/jrebel/quickstart/intellij/">install and configure JRebel for IntelliJ IDEA</a>. If you have already set up JRebel, move on to step 1.</p>
+</blockquote>
+<h4 id="1-Enable-JRebel-remote-server-support-on-the-server"><a href="#1-Enable-JRebel-remote-server-support-on-the-server" class="headerlink" title="1. Enable JRebel remote server support on the server"></a>1. Enable JRebel remote server support on the server</h4><p>Running JRebel on a remote server requires the JRebel agent and a special launch parameter. Follow these steps to do this.</p>
+<ol>
+<li>Open Settings &gt; JRebel &gt; Startup.</li>
+<li>Select Run on a remote server.</li>
+<li>Use the drop-down menus to specify your remote server configuration.</li>
+<li>Follow the instructions displayed.</li>
+</ol>
+<h5 id="1-1-if-remote-server-is-tomcat"><a href="#1-1-if-remote-server-is-tomcat" class="headerlink" title="1.1 if remote server is tomcat"></a>1.1 if remote server is tomcat</h5><p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93b86ffa4a6?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="if remote server is tomcat"></p>
+<h5 id="1-2-If-remote-server-is-springboot-2-x"><a href="#1-2-If-remote-server-is-springboot-2-x" class="headerlink" title="1.2 If remote server is springboot 2.x"></a>1.2 If remote server is springboot 2.x</h5><p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93b8b87b6d6?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="If remote server is springboot2.x"></p>
+<h5 id="2-Server-Config"><a href="#2-Server-Config" class="headerlink" title="2. Server Config"></a>2. Server Config</h5><h6 id="2-1-download-and-install-jrebel-server"><a href="#2-1-download-and-install-jrebel-server" class="headerlink" title="2.1 download and install jrebel server"></a>2.1 download and install jrebel server</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@FantJ jrebel]# curl -O http://dl.zeroturnaround.com/jrebel-stable-nosetup.zip</span><br><span class="line">  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current</span><br><span class="line">                                 Dload  Upload   Total   Spent    Left  Speed</span><br><span class="line">100 21.2M  100 21.2M    0     0  2584k      0  0:00:08  0:00:08 --:--:-- 4778k</span><br><span class="line">[root@FantJ jrebel]# unzip jrebel-stable-nosetup.zip </span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+
+<h6 id="2-2-start-up"><a href="#2-2-start-up" class="headerlink" title="2.2 start up"></a>2.2 start up</h6><p>because I am using the remote service of <code>springboot 2.x</code>, so I execute this statement :<code>java &quot;-agentpath:[JRebel root folder]/lib/libjrebel64.so&quot; -Drebel.remoting_plugin=true -jar myapp-boot.jar</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">[root@FantJ test-jenkins]# java &quot;-agentpath:/home/fantj/jrebel/jrebel/lib/libjrebel64.so&quot; -Drebel.remoting_plugin=true -jar web.jar </span><br><span class="line">2018-12-04 20:16:52 JRebel:  Starting logging to file: /root/.jrebel/jrebel.log</span><br><span class="line">2018-12-04 20:16:52 JRebel:  </span><br><span class="line">2018-12-04 20:16:52 JRebel:  #############################################################</span><br><span class="line">2018-12-04 20:16:52 JRebel:  </span><br><span class="line">2018-12-04 20:16:52 JRebel:  JRebel Agent 2018.2.3 (201811261141)</span><br><span class="line">2018-12-04 20:16:52 JRebel:  (c) Copyright ZeroTurnaround AS, Estonia, Tartu.</span><br><span class="line">2018-12-04 20:16:52 JRebel:  </span><br><span class="line">2018-12-04 20:16:52 JRebel:  Over the last 1 days JRebel prevented</span><br><span class="line">2018-12-04 20:16:52 JRebel:  at least 0 redeploys/restarts saving you about 0 hours.</span><br><span class="line">2018-12-04 20:16:52 JRebel:  </span><br><span class="line">2018-12-04 20:16:52 JRebel:  JRebel started in remote server mode.</span><br><span class="line">2018-12-04 20:16:52 JRebel:  </span><br><span class="line">2018-12-04 20:16:52 JRebel:  </span><br><span class="line">2018-12-04 20:16:52 JRebel:  #############################################################</span><br><span class="line">2018-12-04 20:16:52 JRebel:  </span><br><span class="line">2018-12-04 20:17:10,110 [main]  INFO com.alibaba.dubbo.common.logger.LoggerFactory:59 - using logger: com.alibaba.dubbo.common.logger.log4j.Log4jLoggerAdapter</span><br><span class="line">2018-12-04 20:17:10,198 [main]  INFO c.a.b.d.c.event.WelcomeLogoApplicationListener:53 - </span><br><span class="line"></span><br><span class="line">  ████████▄  ███    █▄  ▀█████████▄  ▀█████████▄   ▄██████▄  </span><br><span class="line">  ███   ▀███ ███    ███   ███    ███   ███    ███ ███    ███ </span><br><span class="line">  ███    ███ ███    ███   ███    ███   ███    ███ ███    ███ </span><br><span class="line">  ███    ███ ███    ███  ▄███▄▄▄██▀   ▄███▄▄▄██▀  ███    ███ </span><br><span class="line">  ███    ███ ███    ███ ▀▀███▀▀▀██▄  ▀▀███▀▀▀██▄  ███    ███ </span><br><span class="line">  ███    ███ ███    ███   ███    ██▄   ███    ██▄ ███    ███ </span><br><span class="line">  ███   ▄███ ███    ███   ███    ███   ███    ███ ███    ███ </span><br><span class="line">  ████████▀  ████████▀  ▄█████████▀  ▄█████████▀   ▀██████▀  </span><br><span class="line">                                                             </span><br><span class="line"></span><br><span class="line"> :: Dubbo Spring Boot (v0.1.0) : https://github.com/dubbo/dubbo-spring-boot-project</span><br><span class="line"> :: Dubbo (v2.0.1) : https://github.com/alibaba/dubbo</span><br><span class="line"> :: Google group : http://groups.google.com/group/dubbo</span><br><span class="line">......</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+
+<p>if you want it run in the background.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nohup java &quot;-agentpath:/home/fantj/jrebel/jrebel/lib/libjrebel64.so&quot; -Drebel.remoting_plugin=true -jar web.jar &gt; nohup.out &amp;</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+
+<p>you always can view its logs:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tail -f nohup.out</span><br><span class="line">复制代码</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-create-a-connect"><a href="#3-create-a-connect" class="headerlink" title="3. create a connect"></a>3. create a connect</h4><p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93ba52d8d60?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<p><strong>Node</strong>: You may also notice that is not safe, because there is not need any certification. Official provides a method: <code>java -jar jrebel.jar -set-remote-password &lt;NewPassword&gt;</code>, You should set it up , I will not make a demo here.</p>
+<p>Press OK to store the new remote server.</p>
+<h4 id="4-Configure-modules-for-remote-server-support"><a href="#4-Configure-modules-for-remote-server-support" class="headerlink" title="4. Configure modules for remote server support"></a>4. Configure modules for remote server support</h4><blockquote>
+<ol>
+<li>Open View &gt; Tool Windows &gt; JRebel. The JRebel Modules view is opened in IntelliJ IDEA:</li>
+</ol>
+</blockquote>
+<blockquote>
+<ol>
+<li>Select the checkbox for your desired modules.</li>
+</ol>
+</blockquote>
+<p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93bb2fe612a?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<blockquote>
+<ol>
+<li><p>Build and redeploy your application containing the rebel-remote.xml configuration file to the remote server.</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93bb575b7bd?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+</li>
+</ol>
+</blockquote>
+<p><img src="https://user-gold-cdn.xitu.io/2018/12/11/1679d93bb59b13ff?imageView2/0/w/1280/h/960/format/webp/ignore-error/1" alt="img"></p>
+<blockquote>
+<ol>
+<li>You&#96;re done, congratulations!</li>
+</ol>
+</blockquote>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/06/21/%E6%8F%92%E4%BB%B6%E7%A0%B4%E8%A7%A3%E5%92%8C%E5%AE%9E%E7%8E%B0%E6%9C%AC%E5%9C%B0-%E8%BF%9C%E7%A8%8B%E7%83%AD%E9%83%A8%E7%BD%B2%E6%95%99%E7%A8%8B/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/idea/" rel="tag">idea</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/06/21/springboot-%E4%BD%BF%E7%94%A8log4jdbc%E6%89%93%E5%8D%B0mybatis%E7%9A%84sql%E5%92%8CJpa%E7%9A%84sql%E8%AF%AD%E5%8F%A5%E8%BF%90%E8%A1%8C%E6%83%85%E5%86%B5/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            springboot 使用log4jdbc打印mybatis的sql和Jpa的sql语句运行情况
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/06/20/git-tag-%E5%8F%91%E5%B8%83%E9%A1%B9%E7%9B%AE%E6%89%93tag/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">git tag 发布项目打tag</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

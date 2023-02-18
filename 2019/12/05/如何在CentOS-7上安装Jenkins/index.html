@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>如何在CentOS 7上安装Jenkins |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-如何在CentOS-7上安装Jenkins"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  如何在CentOS 7上安装Jenkins
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/05/%E5%A6%82%E4%BD%95%E5%9C%A8CentOS-7%E4%B8%8A%E5%AE%89%E8%A3%85Jenkins/" class="article-date">
+  <time datetime="2019-12-05T12:24:35.000Z" itemprop="datePublished">2019-12-05</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">4 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/576791/1575547881839-05eeeffb-2a77-4c1e-a064-b104340a19bf.jpeg#align=left&display=inline&height=318&originHeight=318&originWidth=600&size=0&status=done&style=none&width=600"></p>
+<blockquote>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://linuxize.com/post/how-to-install-jenkins-on-centos-7/">https://linuxize.com/post/how-to-install-jenkins-on-centos-7/</a></p>
+<p>翻译：高行行</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://jenkins.io/" title="Jenkins">Jenkins</a>是一个基于 Java 的开源自动化服务器，它提供了一种简单的方法来建立持续集成和持续交付（CI &#x2F; CD）管道。</p>
+<p>持续集成（CI）是 DevOps 的一种实践，团队成员定期将其代码更改提交到版本控制存储库，然后运行自动构建和测试。持续交付（CD）是一系列实践，其中代码更改会自动生成，测试并部署到生产中。</p>
+<p>本教程将引导你完成使用官方 Jenkins 存储库在 CentOS 7 系统上安装 Jenkins 的步骤。</p>
+<h2 id="1-先决条件"><a href="#1-先决条件" class="headerlink" title="1. 先决条件"></a>1. 先决条件</h2><p>在继续本教程之前，请确保你以<a target="_blank" rel="noopener" href="https://linuxize.com/post/create-a-sudo-user-on-centos/" title="具有sudo特权">具有 sudo 特权</a>的用户身份登录。</p>
+<h2 id="2-安装-Jenkins"><a href="#2-安装-Jenkins" class="headerlink" title="2. 安装 Jenkins"></a>2. 安装 Jenkins</h2><p>要在你的 CentOS 系统上安装 Jenkins，请执行以下步骤：</p>
+<ol>
+<li><p>Jenkins 是 Java 应用程序，因此第一步是安装 Java。运行以下命令以安装 OpenJDK 8 软件包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install java-1.8.0-openjdk-devel</span><br></pre></td></tr></table></figure>
+
+<p>当前版本的 Jenkins 尚不支持 Java 10（和 Java 11）。如果你的计算机上安装了多个 Java 版本，请<a target="_blank" rel="noopener" href="https://linuxize.com/post/install-java-on-centos-7/#set-the-default-version" title="确保Java 8是默认Java版本">确保 Java 8 是默认 Java 版本</a>。</p>
+</li>
+<li><p>下一步是启用 Jenkins 存储库。为此，请使用以下<a target="_blank" rel="noopener" href="https://linuxize.com/post/curl-command-examples/" title="`curl`"><code>curl</code></a>命令导入 GPG 密钥：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl --silent --location http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo | sudo <span class="built_in">tee</span> /etc/yum.repos.d/jenkins.repo</span><br></pre></td></tr></table></figure>
+
+<p>并使用以下命令将存储库添加到你的系统中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启用存储库后，通过输入以下命令安装最新的 Jenkins 稳定版本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install jenkins</span><br></pre></td></tr></table></figure>
+
+<p>安装过程完成后，使用以下命令启动 Jenkins 服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl start jenkins</span><br></pre></td></tr></table></figure>
+
+<p>要检查它是否成功启动，请运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl status jenkins</span><br></pre></td></tr></table></figure>
+
+<p>你应该看到类似以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Output</span><br><span class="line">● jenkins.service - LSB: Jenkins Automation Server</span><br><span class="line">Loaded: loaded (/etc/rc.d/init.d/jenkins; bad; vendor preset: disabled)</span><br><span class="line">Active: active (running) since Thu 2018-09-20 14:58:21 UTC; 15s ago</span><br><span class="line">    Docs: man:systemd-sysv-generator(8)</span><br><span class="line">Process: 2367 ExecStart=/etc/rc.d/init.d/jenkins start (code=exited, status=0/SUCCESS)</span><br><span class="line">CGroup: /system.slice/jenkins.service</span><br></pre></td></tr></table></figure>
+
+<p>最后，启用 Jenkins 服务以在系统引导时启动。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl <span class="built_in">enable</span> jenkins</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Output</span><br><span class="line">jenkins.service is not a native service, redirecting to /sbin/chkconfig.</span><br><span class="line">Executing /sbin/chkconfig jenkins on</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="3-调整防火墙"><a href="#3-调整防火墙" class="headerlink" title="3. 调整防火墙"></a>3. 调整防火墙</h2><p>如果要在<a target="_blank" rel="noopener" href="https://linuxize.com/post/how-to-setup-a-firewall-with-firewalld-on-centos-7/" title="受防火墙保护">受防火墙保护</a>的远程 CentOS 服务器上安装 Jenkins，则需要开放<code>8080</code> 端口。</p>
+<p>使用以下命令打开必要的端口：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo firewall-cmd --permanent --zone=public --add-port=8080/tcp</span><br><span class="line">sudo firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-设置-Jenkins"><a href="#4-设置-Jenkins" class="headerlink" title="4. 设置 Jenkins"></a>4. 设置 Jenkins</h2><p>要设置新的 Jenkins 安装，请打开浏览器，然后输入你的域或 IP 地址，然后输入端口 <code>8080</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://your_ip_or_domain:8080</span><br></pre></td></tr></table></figure>
+
+<p>将会出现类似以下的屏幕，提示你输入在安装过程中创建的管理员密码：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/576791/1575547881866-1493e9b5-0f9a-496f-b8ff-2a1c33261bb9.jpeg#align=left&display=inline&height=467&originHeight=467&originWidth=600&size=0&status=done&style=none&width=600"></p>
+<p>使用以下命令在终端上打印密码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">cat</span> /var/lib/jenkins/secrets/initialAdminPassword</span><br></pre></td></tr></table></figure>
+
+<p>你应该看到一个 32 个字符长的字母数字密码，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2115173b548f4e99a203ee99a8732a32</span><br></pre></td></tr></table></figure>
+
+<p>从终端复制密码，将其粘贴到“管理员密码”字段中，然后单击<code>Continue</code>。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/576791/1575547881890-b36a3d19-95a9-4fcb-8297-0539a79aec4e.jpeg#align=left&display=inline&height=467&originHeight=467&originWidth=600&size=0&status=done&style=none&width=600"></p>
+<p>在下一个屏幕上，系统将询问你是否要安装建议的插件或选择特定的插件。单击该<code>Install suggested plugins</code>框，安装过程将立即开始。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/576791/1575547881886-6b12101b-769c-49c6-92ee-36f54a8655ff.jpeg#align=left&display=inline&height=467&originHeight=467&originWidth=600&size=0&status=done&style=none&width=600"></p>
+<p>安装完成后，将提示你设置第一个管理用户。填写所有必需的信息，然后单击确定<code>Save and Continue</code>。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/576791/1575547883429-7eaba1f7-7531-495d-8180-6f5454112cde.jpeg#align=left&display=inline&height=467&originHeight=467&originWidth=600&size=0&status=done&style=none&width=600"></p>
+<p>在下一页上，将要求你设置 Jenkins 实例的 URL。URL 字段将填充自动生成的 URL。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/576791/1575547882383-179157b2-c647-44df-b533-d5de7f34ccf2.jpeg#align=left&display=inline&height=467&originHeight=467&originWidth=600&size=0&status=done&style=none&width=600"></p>
+<p>要完成设置，请单击<code>Save and Finish</code>按钮确认 URL 。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/576791/1575547882237-fc767c98-8e3a-4365-9ac2-c2d71318a72d.jpeg#align=left&display=inline&height=467&originHeight=467&originWidth=600&size=0&status=done&style=none&width=600"></p>
+<p>最后，单击<code>Start using Jenkins</code>按钮，你将被重定向到你在上个步骤创建的管理员用户身份登录的 Jenkins 仪表板。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2019/jpeg/576791/1575547884645-91fc6d5e-6f2c-41b8-920b-d78f0b76db14.jpeg#align=left&display=inline&height=352&originHeight=352&originWidth=600&size=0&status=done&style=none&width=600"></p>
+<p>如果你到了这一步，则说明你已经在 CentOS 系统上成功安装了 Jenkins。</p>
+<h2 id="5-最后"><a href="#5-最后" class="headerlink" title="5. 最后"></a>5. 最后</h2><p>在本教程中，你学习了如何在基于 CentOS &#x2F; RHEL 的系统上安装并完成 Jenkins 的初始配置。现在，你可以访问<a target="_blank" rel="noopener" href="https://jenkins.io/doc/" title="Jenkins">Jenkins</a>官方<a target="_blank" rel="noopener" href="https://jenkins.io/doc/" title="文档">文档</a>页面，并开始探索 Jenkins 的工作流程和插件模块。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/12/05/%E5%A6%82%E4%BD%95%E5%9C%A8CentOS-7%E4%B8%8A%E5%AE%89%E8%A3%85Jenkins/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BF%BB%E8%AF%91/" rel="tag">翻译</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/12/06/%E6%80%9D%E8%80%83-14-%E5%B0%8F%E7%BB%93%E7%9A%84%E4%BD%9C%E7%94%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            思考 14 小结的作用
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/12/04/java-%E5%B9%B6%E5%8F%91/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">java 并发</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

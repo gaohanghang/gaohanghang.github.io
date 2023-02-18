@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>微服务中如何使用RestTemplate优雅调用API（拦截器、异常处理、消息转换） |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-微服务中如何使用RestTemplate优雅调用API"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  微服务中如何使用RestTemplate优雅调用API（拦截器、异常处理、消息转换）
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/12/02/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B8%AD%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8RestTemplate%E4%BC%98%E9%9B%85%E8%B0%83%E7%94%A8API/" class="article-date">
+  <time datetime="2019-12-02T06:11:17.000Z" itemprop="datePublished">2019-12-02</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">13 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/DoW_wlVu3_aWx-bTnSuOWg">https://mp.weixin.qq.com/s/DoW_wlVu3_aWx-bTnSuOWg</a></p>
+<p>小结：</p>
+<ol>
+<li><p>自定义 interceptor 拦截器：可以用于记录 resttemplate 请求和响应的信息，以及统一 head 的设置。</p>
+</li>
+<li><p>自定义异常处理：添加自定义错误处理的最简单策略是将调用包装在 try&#x2F;catch 代码块中。然后，我们根据需要处理捕获的异常。但是，随着远程 API 或调用数量的增加，这种简单的策略无法很好地扩展。通过自定义异常处理可以为所有远程调用实现可重用的错误处理程序，效率会更高。– <a target="_blank" rel="noopener" href="https://www.baeldung.com/spring-rest-template-error-handling">https://www.baeldung.com/spring-rest-template-error-handling</a></p>
+</li>
+<li><p>自定义 message 转化器</p>
+</li>
+</ol>
+</blockquote>
+<p>在微服务中，rest 服务互相调用是很普遍的，我们该如何优雅地调用? 其实在 Spring 框架使用 RestTemplate 类可以优雅地进行 rest 服务互相调用，它简化了与 http 服务的通信方式，统一了 RESTful 的标准，封装了 http 连接，操作使用简便，还可以自定义 RestTemplate 所需的模式。其中：</p>
+<ul>
+<li><strong>RestTemplate 默认使用<code>HttpMessageConverter</code>实例将 HTTP 消息转换成 POJO 或者从 POJO 转换成 HTTP 消息。默认情况下会注册主 mime 类型的转换器，但也可以通过 setMessageConverters 注册自定义转换器。</strong></li>
+<li><strong>RestTemplate 使用了默认的 <code>DefaultResponseErrorHandler</code>，对 40X Bad Request 或 50X internal 异常 error 等错误信息捕捉。</strong></li>
+<li><strong>RestTemplate 还可以使用拦截器 interceptor，进行对请求链接跟踪，以及统一 head 的设置。</strong></li>
+</ul>
+<p>其中，RestTemplate 还定义了很多的 REST 资源交互的方法，其中的大多数都对应于 HTTP 的方法，如下：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>解析</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>delete()</td>
+<td>在特定的 URL 上对资源执行 HTTP DELETE 操作</td>
+</tr>
+<tr>
+<td>exchange()</td>
+<td>在 URL 上执行特定的 HTTP 方法，返回包含对象的 ResponseEntity</td>
+</tr>
+<tr>
+<td>execute()</td>
+<td>在 URL 上执行特定的 HTTP 方法，返回一个从响应体映射得到的对象</td>
+</tr>
+<tr>
+<td>getForEntity()</td>
+<td>发送一个 HTTP GET 请求，返回的 ResponseEntity 包含了响应体所映射成的对象</td>
+</tr>
+<tr>
+<td>getForObject()</td>
+<td>发送一个 HTTP GET 请求，返回的请求体将映射为一个对象</td>
+</tr>
+<tr>
+<td>postForEntity()</td>
+<td>POST 数据到一个 URL，返回包含一个对象的 ResponseEntity</td>
+</tr>
+<tr>
+<td>postForObject()</td>
+<td>POST 数据到一个 URL，返回根据响应体匹配形成的对象</td>
+</tr>
+<tr>
+<td>headForHeaders()</td>
+<td>发送 HTTP HEAD 请求，返回包含特定资源 URL 的 HTTP 头</td>
+</tr>
+<tr>
+<td>optionsForAllow()</td>
+<td>发送 HTTP OPTIONS 请求，返回对特定 URL 的 Allow 头信息</td>
+</tr>
+<tr>
+<td>postForLocation()</td>
+<td>POST 数据到一个 URL，返回新创建资源的 URL</td>
+</tr>
+<tr>
+<td>put()</td>
+<td>PUT 资源到特定的 URL</td>
+</tr>
+</tbody></table>
+<h2 id="1-springboot-集成-RestTemplate"><a href="#1-springboot-集成-RestTemplate" class="headerlink" title="1. springboot 集成 RestTemplate"></a>1. springboot 集成 RestTemplate</h2><p>在项目中可以通过增加自定义的异常处理、<code>MessageConverter</code>以及拦截器<code>interceptor</code>对 RestTemplate 进行优雅地使用，详情请查看接下来的内容。</p>
+<h3 id="1-1-导入依赖：（RestTemplate-集成在-Web-Start-中）"><a href="#1-1-导入依赖：（RestTemplate-集成在-Web-Start-中）" class="headerlink" title="1.1 导入依赖：（RestTemplate 集成在 Web Start 中）"></a>1.1 导入依赖：（RestTemplate 集成在 Web Start 中）</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.0.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.18.10<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2-RestTemplat-配置："><a href="#1-2-RestTemplat-配置：" class="headerlink" title="1.2 RestTemplat 配置："></a>1.2 RestTemplat 配置：</h3><ul>
+<li><strong>使用<code>ClientHttpRequestFactory</code>属性配置 RestTemplat 参数，比如 ConnectTimeout，ReadTimeout;</strong></li>
+<li><strong>增加自定义的<code>interceptor</code>拦截器和异常处理;</strong></li>
+<li><strong>追加<code>message</code>转换器;</strong></li>
+<li><strong>配置自定义的异常处理.</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RestTemplateConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;resttemplate.connection.timeout&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> restTemplateConnectionTimeout;</span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;resttemplate.read.timeout&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> restTemplateReadTimeout;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="comment">//@LoadBalanced</span></span><br><span class="line">    <span class="keyword">public</span> RestTemplate <span class="title function_">restTemplate</span><span class="params">( ClientHttpRequestFactory simleClientHttpRequestFactory)</span> &#123;</span><br><span class="line">        <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line">        <span class="comment">//配置自定义的message转换器</span></span><br><span class="line">        List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters = restTemplate.getMessageConverters();</span><br><span class="line">        messageConverters.add(<span class="keyword">new</span> <span class="title class_">CustomMappingJackson2HttpMessageConverter</span>());</span><br><span class="line">        restTemplate.setMessageConverters(messageConverters);</span><br><span class="line">        <span class="comment">//配置自定义的interceptor拦截器</span></span><br><span class="line">        List&lt;ClientHttpRequestInterceptor&gt; interceptors=<span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;ClientHttpRequestInterceptor&gt;();</span><br><span class="line">        interceptors.add(<span class="keyword">new</span> <span class="title class_">HeadClientHttpRequestInterceptor</span>());</span><br><span class="line">        interceptors.add(<span class="keyword">new</span> <span class="title class_">TrackLogClientHttpRequestInterceptor</span>());</span><br><span class="line">        restTemplate.setInterceptors(interceptors);</span><br><span class="line">        <span class="comment">//配置自定义的异常处理</span></span><br><span class="line">        restTemplate.setErrorHandler(<span class="keyword">new</span> <span class="title class_">CustomResponseErrorHandler</span>());</span><br><span class="line">        restTemplate.setRequestFactory(simleClientHttpRequestFactory);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> restTemplate;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> ClientHttpRequestFactory <span class="title function_">simleClientHttpRequestFactory</span><span class="params">()</span>&#123;</span><br><span class="line">        SimpleClientHttpRequestFactory reqFactory= <span class="keyword">new</span> <span class="title class_">SimpleClientHttpRequestFactory</span>();</span><br><span class="line">        reqFactory.setConnectTimeout(restTemplateConnectionTimeout);</span><br><span class="line">        reqFactory.setReadTimeout(restTemplateReadTimeout);</span><br><span class="line">        <span class="keyword">return</span> reqFactory;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-组件-自定义异常处理、interceptor-拦截器、message-转化器"><a href="#1-3-组件-自定义异常处理、interceptor-拦截器、message-转化器" class="headerlink" title="1.3 组件(自定义异常处理、interceptor 拦截器、message 转化器)"></a>1.3 组件(自定义异常处理、interceptor 拦截器、message 转化器)</h3><p><strong>自定义<code>interceptor</code>拦截器，实现<code>ClientHttpRequestInterceptor</code>接口</strong></p>
+<ul>
+<li><strong>自定义<code>TrackLogClientHttpRequestInterceptor</code>，记录<code>resttemplate</code>的<code>request</code>和<code>response</code>信息，可进行追踪分析；</strong></li>
+<li><strong>自定义<code>HeadClientHttpRequestInterceptor</code>，设置请求头的参数。API 发送各种请求，很多请求都需要用到相似或者相同的 Http Header。如果在每次请求之前都把<code>Header</code>填入<code>HttpEntity/RequestEntity</code>，这样的代码会显得十分冗余，可以在拦截器统一设置。</strong></li>
+</ul>
+<h4 id="1-3-1-自定义-interceptor-拦截器"><a href="#1-3-1-自定义-interceptor-拦截器" class="headerlink" title="1.3.1 自定义 interceptor 拦截器"></a>1.3.1 自定义 interceptor 拦截器</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span>: ccww</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span>: 2019/10/25 22:48，记录resttemplate访问信息</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span>:   记录resttemplate访问信息</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TrackLogClientHttpRequestInterceptor</span> <span class="keyword">implements</span> <span class="title class_">ClientHttpRequestInterceptor</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> ClientHttpResponse <span class="title function_">intercept</span><span class="params">(HttpRequest request, <span class="type">byte</span>[] body, ClientHttpRequestExecution execution)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        trackRequest(request,body);</span><br><span class="line">        <span class="type">ClientHttpResponse</span> <span class="variable">httpResponse</span> <span class="operator">=</span> execution.execute(request, body);</span><br><span class="line">        trackResponse(httpResponse);</span><br><span class="line">        <span class="keyword">return</span> httpResponse;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">trackResponse</span><span class="params">(ClientHttpResponse httpResponse)</span><span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        log.info(<span class="string">&quot;============================response begin==========================================&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;Status code  : &#123;&#125;&quot;</span>, httpResponse.getStatusCode());</span><br><span class="line">        log.info(<span class="string">&quot;Status text  : &#123;&#125;&quot;</span>, httpResponse.getStatusText());</span><br><span class="line">        log.info(<span class="string">&quot;Headers      : &#123;&#125;&quot;</span>, httpResponse.getHeaders());</span><br><span class="line">        log.info(<span class="string">&quot;=======================response end=================================================&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">trackRequest</span><span class="params">(HttpRequest request, <span class="type">byte</span>[] body)</span><span class="keyword">throws</span> UnsupportedEncodingException &#123;</span><br><span class="line">        log.info(<span class="string">&quot;======= request begin ========&quot;</span>);</span><br><span class="line">        log.info(<span class="string">&quot;uri : &#123;&#125;&quot;</span>, request.getURI());</span><br><span class="line">        log.info(<span class="string">&quot;method : &#123;&#125;&quot;</span>, request.getMethod());</span><br><span class="line">        log.info(<span class="string">&quot;headers : &#123;&#125;&quot;</span>, request.getHeaders());</span><br><span class="line">        log.info(<span class="string">&quot;request body : &#123;&#125;&quot;</span>, <span class="keyword">new</span> <span class="title class_">String</span>(body, <span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line">        log.info(<span class="string">&quot;======= request end ========&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>HeadClientHttpRequestInterceptor：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HeadClientHttpRequestInterceptor</span> <span class="keyword">implements</span> <span class="title class_">ClientHttpRequestInterceptor</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> ClientHttpResponse <span class="title function_">intercept</span><span class="params">(HttpRequest httpRequest, <span class="type">byte</span>[] bytes, ClientHttpRequestExecution clientHttpRequestExecution)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">       log.info(<span class="string">&quot;#####head handle########&quot;</span>);</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headers</span> <span class="operator">=</span> httpRequest.getHeaders();</span><br><span class="line">        headers.add(<span class="string">&quot;Accept&quot;</span>, <span class="string">&quot;application/json&quot;</span>);</span><br><span class="line">        headers.add(<span class="string">&quot;Accept-Encoding&quot;</span>, <span class="string">&quot;gzip&quot;</span>);</span><br><span class="line">        headers.add(<span class="string">&quot;Content-Encoding&quot;</span>, <span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">        headers.add(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json; charset=UTF-8&quot;</span>);</span><br><span class="line">        <span class="type">ClientHttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> clientHttpRequestExecution.execute(httpRequest, bytes);</span><br><span class="line">        <span class="type">HttpHeaders</span> <span class="variable">headersResponse</span> <span class="operator">=</span> response.getHeaders();</span><br><span class="line">        headersResponse.add(<span class="string">&quot;Accept&quot;</span>, <span class="string">&quot;application/json&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span>  response;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-2-自定义异常处理"><a href="#1-3-2-自定义异常处理" class="headerlink" title="1.3.2 自定义异常处理"></a>1.3.2 自定义异常处理</h4><p><strong>自定义异常处理，可继承<code>DefaultResponseErrorHandler</code>或者实现<code>ResponseErrorHandler</code>接口：</strong></p>
+<ul>
+<li><strong>实现自定义<code>ErrorHandler</code>的思路是根据响应消息体进行相应的异常处理策略，对于其他异常情况由父类<code>DefaultResponseErrorHandler</code>来进行处理。</strong></li>
+<li><strong>自定义<code>CustomResponseErrorHandler</code>进行 30x 异常处理</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span>: Ccww</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span>: 2019/10/28 17:00</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span>:  30X的异常处理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomResponseErrorHandler</span> <span class="keyword">extends</span> <span class="title class_">DefaultResponseErrorHandler</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">hasError</span><span class="params">(ClientHttpResponse response)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">HttpStatus</span> <span class="variable">statusCode</span> <span class="operator">=</span> response.getStatusCode();</span><br><span class="line">        <span class="keyword">if</span>(statusCode.is3xxRedirection())&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.hasError(response);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleError</span><span class="params">(ClientHttpResponse response)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">HttpStatus</span> <span class="variable">statusCode</span> <span class="operator">=</span> response.getStatusCode();</span><br><span class="line">        <span class="keyword">if</span>(statusCode.is3xxRedirection())&#123;</span><br><span class="line">            log.info(<span class="string">&quot;########30X错误，需要重定向！##########&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">super</span>.handleError(response);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-3-3-自定义-message-转化器"><a href="#1-3-3-自定义-message-转化器" class="headerlink" title="1.3.3 自定义 message 转化器"></a>1.3.3 自定义 message 转化器</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span>: Ccww</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span>: 2019/10/29 21:15</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span>: 将Content-Type:&quot;text/html&quot;转换为Map类型格式</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomMappingJackson2HttpMessageConverter</span> <span class="keyword">extends</span> <span class="title class_">MappingJackson2HttpMessageConverter</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">CustomMappingJackson2HttpMessageConverter</span><span class="params">()</span> &#123;</span><br><span class="line">        List&lt;MediaType&gt; mediaTypes = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;MediaType&gt;();</span><br><span class="line">        mediaTypes.add(MediaType.TEXT_PLAIN);</span><br><span class="line">        mediaTypes.add(MediaType.TEXT_HTML);  <span class="comment">//加入text/html类型的支持</span></span><br><span class="line">        setSupportedMediaTypes(mediaTypes);<span class="comment">// tag6</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-RestTemplate-源码解析"><a href="#2-RestTemplate-源码解析" class="headerlink" title="2. RestTemplate 源码解析"></a>2. RestTemplate 源码解析</h2><h3 id="2-1-默认调用链路"><a href="#2-1-默认调用链路" class="headerlink" title="2.1 默认调用链路"></a>2.1 默认调用链路</h3><p><strong><code>restTemplate</code>进行 API 调用时，默认调用链：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">###########<span class="number">1.</span>使用createRequest创建请求########</span><br><span class="line">resttemplate-&gt;execute()-&gt;doExecute()</span><br><span class="line">HttpAccessor-&gt;createRequest()</span><br><span class="line"><span class="comment">//获取拦截器Interceptor，InterceptingClientHttpRequestFactory，SimpleClientHttpRequestFactory</span></span><br><span class="line">InterceptingHttpAccessor-&gt;getRequestFactory()</span><br><span class="line"><span class="comment">//获取默认的SimpleBufferingClientHttpRequest</span></span><br><span class="line">SimpleClientHttpRequestFactory-&gt;createRequest()</span><br><span class="line"></span><br><span class="line">#######<span class="number">2.</span>获取响应response进行处理###########</span><br><span class="line">AbstractClientHttpRequest-&gt;execute()-&gt;executeInternal()</span><br><span class="line">AbstractBufferingClientHttpRequest-&gt;executeInternal()</span><br><span class="line"></span><br><span class="line">###########<span class="number">3.</span>异常处理#####################</span><br><span class="line">resttemplate-&gt;handleResponse()</span><br><span class="line"></span><br><span class="line">##########<span class="number">4.</span>响应消息体封装为java对象#######</span><br><span class="line">HttpMessageConverterExtractor-&gt;extractData()</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-restTemplate-gt-doExecute"><a href="#2-2-restTemplate-gt-doExecute" class="headerlink" title="2.2 restTemplate-&gt;doExecute()"></a>2.2 restTemplate-&gt;doExecute()</h3><p>在默认调用链中，**<code>restTemplate</code>** 进行 API 调用都会调用 <strong><code>doExecute</code></strong> 方法，此方法主要可以进行如下步骤：</p>
+<p>1）<strong>使用<code>createRequest</code>创建请求，获取响应</strong></p>
+<p>2）<strong>判断响应是否异常，处理异常</strong></p>
+<p>3）<strong>将响应消息体封装为 java 对象</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">protected</span> &lt;T&gt; T <span class="title function_">doExecute</span><span class="params">(URI url, <span class="meta">@Nullable</span> HttpMethod method, <span class="meta">@Nullable</span> RequestCallback requestCallback,</span></span><br><span class="line"><span class="params">		<span class="meta">@Nullable</span> ResponseExtractor&lt;T&gt; responseExtractor)</span> <span class="keyword">throws</span> RestClientException &#123;</span><br><span class="line"></span><br><span class="line">	Assert.notNull(url, <span class="string">&quot;URI is required&quot;</span>);</span><br><span class="line">	Assert.notNull(method, <span class="string">&quot;HttpMethod is required&quot;</span>);</span><br><span class="line">	<span class="type">ClientHttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">		<span class="comment">//使用createRequest创建请求</span></span><br><span class="line">		<span class="type">ClientHttpRequest</span> <span class="variable">request</span> <span class="operator">=</span> createRequest(url, method);</span><br><span class="line">		<span class="keyword">if</span> (requestCallback != <span class="literal">null</span>) &#123;</span><br><span class="line">			requestCallback.doWithRequest(request);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//获取响应response进行处理</span></span><br><span class="line">		response = request.execute();</span><br><span class="line">		<span class="comment">//异常处理</span></span><br><span class="line">		handleResponse(url, method, response);</span><br><span class="line">		<span class="comment">//响应消息体封装为java对象</span></span><br><span class="line">		<span class="keyword">return</span> (responseExtractor != <span class="literal">null</span> ? responseExtractor.extractData(response) : <span class="literal">null</span>);</span><br><span class="line">	&#125;<span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">		<span class="type">String</span> <span class="variable">resource</span> <span class="operator">=</span> url.toString();</span><br><span class="line">		<span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> url.getRawQuery();</span><br><span class="line">		resource = (query != <span class="literal">null</span> ? resource.substring(<span class="number">0</span>, resource.indexOf(<span class="string">&#x27;?&#x27;</span>)) : resource);</span><br><span class="line">		<span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ResourceAccessException</span>(<span class="string">&quot;I/O error on &quot;</span> + method.name() +</span><br><span class="line">				<span class="string">&quot; request for \&quot;&quot;</span> + resource + <span class="string">&quot;\&quot;: &quot;</span> + ex.getMessage(), ex);</span><br><span class="line">	&#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> (response != <span class="literal">null</span>) &#123;</span><br><span class="line">			response.close();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-InterceptingHttpAccessor-gt-getRequestFactory"><a href="#2-3-InterceptingHttpAccessor-gt-getRequestFactory" class="headerlink" title="2.3 InterceptingHttpAccessor-&gt;getRequestFactory()"></a>2.3 InterceptingHttpAccessor-&gt;getRequestFactory()</h3><p>在默认调用链中，<code>InterceptingHttpAccessor的getRequestFactory()</code>方法中，如果没有设置<code>interceptor</code>拦截器，就返回默认的<code>SimpleClientHttpRequestFactory</code>，反之，返回<code>InterceptingClientHttpRequestFactory</code>的<code>requestFactory</code>，可以通过<code>resttemplate.setInterceptors</code>设置自定义拦截器<code>interceptor</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Return the request factory that this accessor uses for obtaining client request handles.</span></span><br><span class="line"><span class="keyword">public</span> ClientHttpRequestFactory <span class="title function_">getRequestFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">//获取拦截器interceptor(自定义的)</span></span><br><span class="line">		List&lt;ClientHttpRequestInterceptor&gt; interceptors = getInterceptors();</span><br><span class="line">		<span class="keyword">if</span> (!CollectionUtils.isEmpty(interceptors)) &#123;</span><br><span class="line">			<span class="type">ClientHttpRequestFactory</span> <span class="variable">factory</span> <span class="operator">=</span> <span class="built_in">this</span>.interceptingRequestFactory;</span><br><span class="line">			<span class="keyword">if</span> (factory == <span class="literal">null</span>) &#123;</span><br><span class="line">				factory = <span class="keyword">new</span> <span class="title class_">InterceptingClientHttpRequestFactory</span>(<span class="built_in">super</span>.getRequestFactory(), interceptors);</span><br><span class="line">				<span class="built_in">this</span>.interceptingRequestFactory = factory;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span> factory;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="built_in">super</span>.getRequestFactory();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后再调用<code>SimpleClientHttpRequestFactory的createRequest</code>创建连接：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> ClientHttpRequest <span class="title function_">createRequest</span><span class="params">(URI uri, HttpMethod httpMethod)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">	<span class="type">HttpURLConnection</span> <span class="variable">connection</span> <span class="operator">=</span> openConnection(uri.toURL(), <span class="built_in">this</span>.proxy);</span><br><span class="line">	prepareConnection(connection, httpMethod.name());</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">this</span>.bufferRequestBody) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SimpleBufferingClientHttpRequest</span>(connection, <span class="built_in">this</span>.outputStreaming);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SimpleStreamingClientHttpRequest</span>(connection, <span class="built_in">this</span>.chunkSize, <span class="built_in">this</span>.outputStreaming);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-resttemplate-gt-handleResponse"><a href="#2-4-resttemplate-gt-handleResponse" class="headerlink" title="2.4 resttemplate-&gt;handleResponse()"></a>2.4 resttemplate-&gt;handleResponse()</h3><p>在默认调用链中，<code>resttemplate的handleResponse</code>，响应处理，包括异常处理，而且异常处理可以通过调用<code>setErrorHandler</code>方法设置自定义的<code>ErrorHandler</code>，实现对请求响应异常的判别和处理。自定义的<code>ErrorHandler</code>需实现<code>ResponseErrorHandler</code>接口，同时<code>Spring boot</code>也提供了默认实现<code>DefaultResponseErrorHandler</code>，因此也可以通过继承该类来实现自己的<code>ErrorHandler</code>。</p>
+<p><code>DefaultResponseErrorHandler</code>默认对 40X <code>Bad Request</code>或 50X <code>internal</code>异常<code>error</code>等错误信息捕捉。如果想捕捉服务本身抛出的异常信息，需要通过自行实现<code>RestTemplate</code>的<code>ErrorHandler</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ResponseErrorHandler</span> <span class="variable">errorHandler</span> <span class="operator">=</span> getErrorHandler();</span><br><span class="line">               <span class="comment">//判断响应是否有异常</span></span><br><span class="line">	<span class="type">boolean</span> <span class="variable">hasError</span> <span class="operator">=</span> errorHandler.hasError(response);</span><br><span class="line">	<span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="type">int</span> <span class="variable">code</span> <span class="operator">=</span> response.getRawStatusCode();</span><br><span class="line">			<span class="type">HttpStatus</span> <span class="variable">status</span> <span class="operator">=</span> HttpStatus.resolve(code);</span><br><span class="line">			logger.debug(<span class="string">&quot;Response &quot;</span> + (status != <span class="literal">null</span> ? status : code));</span><br><span class="line">		&#125;<span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">			<span class="comment">// ignore</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//有异常进行异常处理</span></span><br><span class="line">	<span class="keyword">if</span> (hasError) &#123;</span><br><span class="line">		errorHandler.handleError(url, method, response);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-HttpMessageConverterExtractor-gt-extractData"><a href="#2-5-HttpMessageConverterExtractor-gt-extractData" class="headerlink" title="2.5 HttpMessageConverterExtractor-&gt;extractData()"></a>2.5 HttpMessageConverterExtractor-&gt;extractData()</h3><p>在默认调用链中， <code>HttpMessageConverterExtractor</code>的<code>extractData</code>中进行响应消息体封装为<code>java</code>对象，就需要使用<code>message</code>转换器，可以通过追加的方式增加自定义的<code>messageConverter</code>：先获取现有的<code>messageConverter</code>，再将自定义的<code>messageConverter</code>添加进去。</p>
+<p>根据<code>restTemplate</code>的<code>setMessageConverters</code>的源码可得，使用追加的方式可防止原有的<code>messageConverter</code>丢失，源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setMessageConverters</span><span class="params">(List&lt;HttpMessageConverter&lt;?&gt;&gt; messageConverters)</span> &#123;</span><br><span class="line">        <span class="comment">//检验</span></span><br><span class="line">		validateConverters(messageConverters);</span><br><span class="line">		<span class="comment">// Take getMessageConverters() List as-is when passed in here</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="built_in">this</span>.messageConverters != messageConverters) &#123;</span><br><span class="line">		    <span class="comment">//先清除原有的messageConverter</span></span><br><span class="line">			<span class="built_in">this</span>.messageConverters.clear();</span><br><span class="line">			<span class="comment">//后加载重新定义的messageConverter</span></span><br><span class="line">			<span class="built_in">this</span>.messageConverters.addAll(messageConverters);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>HttpMessageConverterExtractor的extractData</code>源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">MessageBodyClientHttpResponseWrapper</span> <span class="variable">responseWrapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MessageBodyClientHttpResponseWrapper</span>(response);</span><br><span class="line">	<span class="keyword">if</span> (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//获取到response的ContentType类型</span></span><br><span class="line">	<span class="type">MediaType</span> <span class="variable">contentType</span> <span class="operator">=</span> getContentType(responseWrapper);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">	    <span class="comment">//依次循环messageConverter进行判断是否符合转换条件，进行转换java对象</span></span><br><span class="line">		<span class="keyword">for</span> (HttpMessageConverter&lt;?&gt; messageConverter : <span class="built_in">this</span>.messageConverters) &#123;</span><br><span class="line">		<span class="comment">//会根据设置的返回类型responseType和contentType参数进行匹配，选择合适的MessageConverter</span></span><br><span class="line">			<span class="keyword">if</span> (messageConverter <span class="keyword">instanceof</span> GenericHttpMessageConverter) &#123;</span><br><span class="line">				GenericHttpMessageConverter&lt;?&gt; genericMessageConverter =</span><br><span class="line">						(GenericHttpMessageConverter&lt;?&gt;) messageConverter;</span><br><span class="line">				<span class="keyword">if</span> (genericMessageConverter.canRead(<span class="built_in">this</span>.responseType, <span class="literal">null</span>, contentType)) &#123;</span><br><span class="line">					<span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">						<span class="type">ResolvableType</span> <span class="variable">resolvableType</span> <span class="operator">=</span> ResolvableType.forType(<span class="built_in">this</span>.responseType);</span><br><span class="line">						logger.debug(<span class="string">&quot;Reading to [&quot;</span> + resolvableType + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">return</span> (T) genericMessageConverter.read(<span class="built_in">this</span>.responseType, <span class="literal">null</span>, responseWrapper);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (<span class="built_in">this</span>.responseClass != <span class="literal">null</span>) &#123;</span><br><span class="line">				<span class="keyword">if</span> (messageConverter.canRead(<span class="built_in">this</span>.responseClass, contentType)) &#123;</span><br><span class="line">					<span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">						<span class="type">String</span> <span class="variable">className</span> <span class="operator">=</span> <span class="built_in">this</span>.responseClass.getName();</span><br><span class="line">						logger.debug(<span class="string">&quot;Reading to [&quot;</span> + className + <span class="string">&quot;] as \&quot;&quot;</span> + contentType + <span class="string">&quot;\&quot;&quot;</span>);</span><br><span class="line">					&#125;</span><br><span class="line">					<span class="keyword">return</span> (T) messageConverter.read((Class) <span class="built_in">this</span>.responseClass, responseWrapper);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	.....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-6-contentType-与-messageConverter-之间的关系"><a href="#2-6-contentType-与-messageConverter-之间的关系" class="headerlink" title="2.6 contentType 与 messageConverter 之间的关系"></a>2.6 contentType 与 messageConverter 之间的关系</h3><p>在<code>HttpMessageConverterExtractor</code>的<code>extractData</code>方法中看出，会根据<code>contentType</code>与<code>responseClass</code>选择<code>messageConverter</code>是否可读、消息转换。关系如下：</p>
+<table>
+<thead>
+<tr>
+<th>类名</th>
+<th>支持的 JavaType</th>
+<th>支持的 MediaType</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ByteArrayHttpMessageConverter</td>
+<td>byte[]</td>
+<td>application&#x2F;octet-stream, <em>&#x2F;</em></td>
+</tr>
+<tr>
+<td>StringHttpMessageConverter</td>
+<td>String</td>
+<td>text&#x2F;plain, <em>&#x2F;</em></td>
+</tr>
+<tr>
+<td>ResourceHttpMessageConverter</td>
+<td>Resource</td>
+<td><em>&#x2F;</em></td>
+</tr>
+<tr>
+<td>SourceHttpMessageConverter</td>
+<td>Source</td>
+<td>application&#x2F;xml, text&#x2F;xml, application&#x2F;*+xml</td>
+</tr>
+<tr>
+<td>AllEncompassingFormHttpMessageConverter</td>
+<td>Map&lt;K, List&lt;?&gt;&gt;</td>
+<td>application&#x2F;x-www-form-urlencoded, multipart&#x2F;form-data</td>
+</tr>
+<tr>
+<td>MappingJackson2HttpMessageConverter</td>
+<td>Object</td>
+<td>application&#x2F;json, application&#x2F;*+json</td>
+</tr>
+<tr>
+<td>Jaxb2RootElementHttpMessageConverter</td>
+<td>Object</td>
+<td>application&#x2F;xml, text&#x2F;xml, application&#x2F;*+xml</td>
+</tr>
+<tr>
+<td>JavaSerializationConverter</td>
+<td>Serializable</td>
+<td>x-java-serialization;charset&#x3D;UTF-8</td>
+</tr>
+<tr>
+<td>FastJsonHttpMessageConverter</td>
+<td>Object</td>
+<td><em>&#x2F;</em></td>
+</tr>
+</tbody></table>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/12/02/%E5%BE%AE%E6%9C%8D%E5%8A%A1%E4%B8%AD%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8RestTemplate%E4%BC%98%E9%9B%85%E8%B0%83%E7%94%A8API/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/spring-boot/" rel="tag">spring boot</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/12/04/java-%E5%B9%B6%E5%8F%91/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            java 并发
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/12/01/ARTS-10/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">ARTS-10</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

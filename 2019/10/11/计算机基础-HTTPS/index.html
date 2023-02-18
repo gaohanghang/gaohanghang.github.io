@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>计算机基础 HTTPS |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-计算机基础-HTTPS"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  计算机基础 HTTPS
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/10/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-HTTPS/" class="article-date">
+  <time datetime="2019-10-11T06:40:43.000Z" itemprop="datePublished">2019-10-11</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">7 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1335821">https请求过程</a></p>
+</blockquote>
+<h2 id="1-HTTPS请求过程"><a href="#1-HTTPS请求过程" class="headerlink" title="1. HTTPS请求过程"></a>1. HTTPS请求过程</h2><p>我们都知道HTTPS能够加密信息，以免敏感信息被第三方获取。所以很多银行网站或电子邮箱等等安全级别较高的服务都会采用HTTPS协议。</p>
+<h3 id="HTTPS简介"><a href="#HTTPS简介" class="headerlink" title="HTTPS简介"></a>HTTPS简介</h3><p>HTTPS其实是有两部分组成：HTTP + SSL &#x2F; TLS，也就是在HTTP上又加了一层处理加密信息的模块。服务端和客户端的信息传输都会通过TLS进行加密，所以传输的数据都是加密后的数据。具体是如何进行加密，解密，验证的，且看下图。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191011162606.png"></p>
+<h3 id="1-客户端发起HTTPS请求"><a href="#1-客户端发起HTTPS请求" class="headerlink" title="1. 客户端发起HTTPS请求"></a>1. 客户端发起HTTPS请求</h3><p>这个没什么好说的，就是用户在浏览器里输入一个https网址，然后连接到server的443端口。</p>
+<h3 id="2-服务端的配置"><a href="#2-服务端的配置" class="headerlink" title="2. 服务端的配置"></a>2. 服务端的配置</h3><p>采用HTTPS协议的服务器必须要有一套数字证书，可以自己制作，也可以向组织申请。区别就是自己颁发的证书需要客户端验证通过，才可以继续访问，而使用受信任的公司申请的证书则不会弹出提示页面(startssl就是个不错的选择，有1年的免费服务)。这套证书其实就是一对公钥和私钥。如果对公钥和私钥不太理解，可以想象成一把钥匙和一个锁头，只是全世界只有你一个人有这把钥匙，你可以把锁头给别人，别人可以用这个锁把重要的东西锁起来，然后发给你，因为只有你一个人有这把钥匙，所以只有你才能看到被这把锁锁起来的东西。</p>
+<h3 id="3-传送证书"><a href="#3-传送证书" class="headerlink" title="3. 传送证书"></a>3. 传送证书</h3><p>这个证书其实就是公钥，只是包含了很多信息，如证书的颁发机构，过期时间等等。</p>
+<h3 id="4-客户端解析证书"><a href="#4-客户端解析证书" class="headerlink" title="4. 客户端解析证书"></a>4. 客户端解析证书</h3><p>这部分工作是有客户端的TLS来完成的，首先会验证公钥是否有效，比如颁发机构，过期时间等等，如果发现异常，则会弹出一个警告框，提示证书存在问题。如果证书没有问题，那么就生成一个随即值。然后用证书对该随机值进行加密。就好像上面说的，把随机值用锁头锁起来，这样除非有钥匙，不然看不到被锁住的内容。</p>
+<h3 id="5-传送加密信息"><a href="#5-传送加密信息" class="headerlink" title="5. 传送加密信息"></a>5. 传送加密信息</h3><p>这部分传送的是用证书加密后的随机值，目的就是让服务端得到这个随机值，以后客户端和服务端的通信就可以通过这个随机值来进行加密解密了。</p>
+<h3 id="6-服务段解密信息"><a href="#6-服务段解密信息" class="headerlink" title="6. 服务段解密信息"></a>6. 服务段解密信息</h3><p>服务端用私钥解密后，得到了客户端传过来的随机值(私钥)，然后把内容通过该值进行对称加密。所谓对称加密就是，将信息和私钥通过某种算法混合在一起，这样除非知道私钥，不然无法获取内容，而正好客户端和服务端都知道这个私钥，所以只要加密算法够彪悍，私钥够复杂，数据就够安全。</p>
+<h3 id="7-传输加密后的信息"><a href="#7-传输加密后的信息" class="headerlink" title="7. 传输加密后的信息"></a>7. 传输加密后的信息</h3><p>这部分信息是服务段用私钥加密后的信息，可以在客户端被还原</p>
+<h3 id="8-客户端解密信息"><a href="#8-客户端解密信息" class="headerlink" title="8. 客户端解密信息"></a>8. 客户端解密信息</h3><p>客户端用之前生成的私钥解密服务段传过来的信息，于是获取了解密后的内容。整个过程第三方即使监听到了数据，也束手无策。</p>
+<h2 id="2-HTTPS"><a href="#2-HTTPS" class="headerlink" title="2. HTTPS"></a>2. HTTPS</h2><blockquote>
+<p>原文来自《码出高效：Java 开发手册》</p>
+</blockquote>
+<blockquote>
+<p>总结</p>
+<p>HTTPS:  HTTP over SSL，简单的理解就是在之前的 HTTP 传输上增加了 SSL 协议的加密能力。</p>
+<p>其实就是建立公钥加密数据，私钥解密数据的过程</p>
+<p>服务端的公钥加密数据，客户端的私钥解密数据</p>
+<p>访问一个 HTTPS 的网站的大致流程如下：</p>
+<p>（1）浏览器向服务端发送请求，请求中包括浏览器支持的协议，并附带一个随机数。</p>
+<p>（2）服务器收到请求后，选择某种非对称加密算法，把数字证书签名公钥、身份信息发送给浏览器，同时也附带一个随机数。</p>
+<p>（3）浏览器收到后，验证证书的真实性，用服务器的公钥发送握手信息给服务器。</p>
+<p>（4）服务器解密后，使用之前的随机数计算出一个对称加密的秘钥，以此作为加密信息并发送。</p>
+<p>（5）后续所有的信息发送都是以对称加密方式进行的。</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/image-20191011164755755.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191011144627.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191011144752.png"></p>
+<span id="more"></span>
+
+
+
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191011145230.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191011145438.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191011145554.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191011150737.png"></p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img/20191011150835.png"></p>
+<ol>
+<li>Client Hello: Client支持的SSL版本，加密算法，秘钥交换算法，MAC算法等</li>
+<li>Server Hello: Server确定采用的加密规则，分配会话ID</li>
+<li>Certificate：Server发送证书信息</li>
+<li>Server Key Exchange、Certificate Request 、Server Hello Done</li>
+<li><ol>
+<li>Certificate 2. Client Key Exchange 3. Certificate verify  4. Change Cipher Spec 5. Encryptcd Handshakc Message</li>
+</ol>
+</li>
+</ol>
+<ul>
+<li><p>第一，客户端发送了一个Client Hello协议的请求：在 Client Hello 中最重要的信息是 Clipher Suites 字段，这里客户端会告诉服务端自己支持哪些加密的套件。比如在这次 SSL 连接中，客户端支持的加密套件协议如图 1-29 所示。</p>
+</li>
+<li><p>第二，服务端在收到客户端发来的 Clien Hello 的请求后，会返回一系列的协议数据，并以一个没有数据内容的 Server Hello Done 作为结束。这些协议数据有的是单独发送，有的则是合并发送，这里分别解释几个比较重要的协议，如图 1-30 所示。</p>
+<p>（1） Server Hello 协议。主要告知客户端后续协议中要使用的 TLS 协议版本， 这个版本主要和客户端与服务端支持的最高版本有关。比如本次确认后续的 TLS 协议版本是 TLSvl.2 ，并为本次连接分配个会话 ID ( Session ID ）。此外，还会确认后续采用的加密套件（ Cipher Suite ）， 这里确认使用的加密套件为 TLS_ECDHE RSA WITH AES 128 GCM SHA256。该加密套件的基本含义为 ， 使用非对称协加密 （ RSA ） 进行对称协议加密 （ AES ）密钥的加密，并使用对称加密协议 （ AES ) 进行信息的加密。</p>
+<p>（2）Certificate (证书) 协议。主要传输服务端的证书内容。</p>
+<p>（3）Service Key Exchange (服务端秘钥交换)。如果在 Certificate 协议中未给出客户端足够的信息，则会在 Server Key Exchange 进行补充，如图 1-31 所示。比如在本次连接中 Certificate 未给出证书的公钥（Public Key），这个公钥的信息将会通过 Server Key Exchange 发送给客户端</p>
+<p>（4 ）Certificate Request (证书请求)。 这个协议是一个可选项 ，当服务端需要对客户端进行证书验证的时候 ，才会向客户端发送一个证书请求 （ Certificate Request ） 。</p>
+<p>（5 ）最后以 Server Hello Done 作为结束信息 ， 告知客户端整个 Server Hello 过程结束。</p>
+</li>
+<li><p>第三 ，客户端在收到服务端的握手信息后 ，根据服务端的请求 ，也会发送一系列的协议。</p>
+<p>（1）Certificate (证书)。它是可选项。因为上文中服务端发送了 Certificate Request 需要对客户端进行证书验证，所以客户端要发送自己的证书信息。</p>
+<p>（2）Client Key Exchange (客户端秘钥加密)。它与上文中 Server Key Exchange 类似，是对客户端 Certificate 信息的补充，在本次请求中同样是补充了客户端证书的公钥信息，如图 1-32 所示。</p>
+<p>（3）Certification Verity (认证证明)。对服务端发送的证书信息进行确认。</p>
+<p>（4）Change Cipher Spec (更改加密规范)。该协议不同于其他握手协议（Handshake Protocol），而是作为一个独立协议告知服务器，客户端已经接收之前服务端确认的加密套件，并会在后续通信中使用该加密套件进行加密。</p>
+<p>（5）Encrypted handshake Message。用于客户端给服务端加密套件加密一段Finish的数据，用以验证这条建立起来的加密通道的正确性。</p>
+</li>
+<li><p>第四，服务端在接收客户端的确认信息及验证信息后，会对客户端发送的数据进行确认，这里也分为几个协议进行回复。</p>
+<p>（1）Change Cipher Spec (更改加密规范)。通过使用私钥对客户端发送的数据解密，并告知后续将使用协商好的加密套件进行加密传输。</p>
+<p>（2）Encrypted handshake Message。与客户端的操作相同，发送一段 Finish 的加密数据验证加密通道的正确性。</p>
+</li>
+</ul>
+<p>最后，如果客户端和服务端都确认加密解密无误后，各自按照之前约定的 Session Secret 对 Application Data 进行加密传输。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/10/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80-HTTPS/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/10/12/%E8%B5%B0%E8%BF%9BJVM-%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            走进JVM Java内存布局
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/10/10/%E7%90%86%E8%A7%A3Callable-%E5%92%8C-Spring-DeferredResult%EF%BC%88%E7%BF%BB%E8%AF%91%EF%BC%89/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">理解Callable 和 Spring DeferredResult</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

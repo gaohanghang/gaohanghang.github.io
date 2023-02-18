@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>线上环境部署概览 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-线上环境部署概览"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  线上环境部署概览
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/08/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E6%A6%82%E8%A7%88/" class="article-date">
+  <time datetime="2019-07-08T12:30:07.000Z" itemprop="datePublished">2019-07-08</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">15 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：等你归去来</p>
+<p>cnblogs.com&#x2F;yougewe&#x2F;p&#x2F;10327217.html</p>
+</blockquote>
+<p>谈到线上环境，一般开发同学，不太容易接触到。即使接触到，也只是其中的冰山一角！</p>
+<p>所以，其实说起线上环境的部署，咱们好像都有点懂，但是又都不一定完全懂！网上的知识无穷无尽，但往往都是各司一职，对于普通同学，很难窥其全貌！</p>
+<p>所以，我今天就来说说，一些普通的线上环境的部署步骤，和一些脚本小技巧吧。只希望通过这篇文章，能够让大家有一个运维的全局观！</p>
+<blockquote>
+<p>我将会分几条线来整理咱们的运维思路！</p>
+</blockquote>
+<h3 id="一、从理论上讲，我们应该怎么做？"><a href="#一、从理论上讲，我们应该怎么做？" class="headerlink" title="一、从理论上讲，我们应该怎么做？"></a>一、从理论上讲，我们应该怎么做？</h3><p><strong>1.针对的是什么样的用户群体，体量大概会有多少？</strong></p>
+<p>这是一个部署规划的前题。为啥呢？</p>
+<p>一、如果你针对的是后台管理员，人数也不多，那么你可能只需要一个服务器就可以了，前后端也都可以部署在同一台服务器上；如果稍微考虑下单点故障问题，则顶多两台服务器搞定！</p>
+<p>二、如果针对的是前端普通用户，那么，往往就会考虑多机部署，前后端分离，单点问题，负载均衡了；至于具体要部署多少台，则要根据你的用户情况来定了，当然，前期一般没必要部署很多台服务器！更多的考虑是横向扩展的能力。只要能支持横向扩展，则短期内，往往不用担心性能和架构问题！</p>
+<p><strong>2.为支持预估的用户量，大概需要多少的带宽？</strong><br>　　<br>有访问就会有流量产生，而预估的用户量，则是一个带宽资源需求的一个决断依据！</p>
+<p>一般针对前期用户不太确定的场景，可以先买个 10M 左右的共享带宽，基本能够应付；经过一段时间的观察后，再进行带宽的变更也可以；</p>
+<p>当然，考虑带宽，自然也会存在一个公网IP的问题，因为流量是从IP进来的。而在IP之前，则是域名的访问。域名问题则又涉及到DNS，不必细说！</p>
+<p>公网IP可以是直接指向机器的，也可以是指向负载均衡器的。如果想要支持横向扩展，则IP的指向一定是一个负载均衡器。因为只有这样，当遇到流量突增，或者做活动的时候，才能更快速的进行扩容！</p>
+<p><strong>3.数据库规划如何？</strong></p>
+<p>数据在当下时代，算是重中之重了。机器没了可以再买，代码没了可以再写，但是数据没了就完蛋了！</p>
+<p>数据库一般要遵从几个基本原则: 一、带宽要大；二、运算速度要快；三、要能承受足够大的运算空间；（即：带宽足够大&#x2F;cpu核数够多&#x2F;内存容量够大&#x2F;最大并发连接数&#x2F;…）</p>
+<p>所以，一般不要在数据库上省钱，能多点就多点！</p>
+<p>另外，也不要什么样的数据都往数据库（关系型数据库）存，搞清楚各类型数据库的强项与弱项，做出明智的选择。否则会带来很多不必要的麻烦！</p>
+<p><strong>4.应用要基于操作系统来部署还是基于容器来部署？</strong></p>
+<p>这是个决策性的问题！基于操作系统的部署，是一种比较传统和常见的部署方式。优点是，很多系统工具都是完善的，只要你大概知道要部署什么，部署下来一般不会有太多问题，因为这是个完整的系统。</p>
+<p>但是，由于系统与系统之间可能不能完全一致，有各种各样的差异，所以，你在这个机器上运行成功的东西，在另外的机器上则不一定能成功。因此，基于系统的部署将会使我们的问题排查难度大大增加，而且移值性会很差。比如你在机器A上安装了10个软件，你可能配置了n个选项，但是，当你在安装B机器的时候，你并不能很好的利用原有的配置，你还得从头一个个地来！</p>
+<blockquote>
+<p>因此，有另一个部署方案，基于容器的部署（我这里是基于docker容器的部署）。docker就类似于一个个的虚拟机，但是它更加轻量级，当一个docker部署好后，你可以任意复制到其他机器上运行，看起来很诱人吧。</p>
+</blockquote>
+<p>不过，docker只是入门级容器，对于大量集群容器的管理，还是显得力不从心，当然你很容易找到另一个方案: Kubernetes (K8s); 你只要花上少许的时间了解下，你就可以应用了！</p>
+<p>当然了，使用容器的方案，有没有什么缺点呢？应该是有的，比如本来可以基于系统的监控方案，因为接入容器后，监控指标则不一定适用了，当然现成的方案还是有的，不过得另外再花点时间研究了。再比如：如果容器出了问题，是否能排查出来，这也是另一个问题！</p>
+<p><strong>5.都有些什么样的基础设施或者中间件？</strong></p>
+<p>想要运行应用程序，自然是先考虑运行环境的。比如：应用需要 nginx 来做http服务器，用 tomcat 来做java web应用服务器，用redis来做缓存中间件，用zk来做应用协调中间件，用rabbitmq来做消息中间件，等等！</p>
+<p>因此，要在代码跑起来之前，先要把这些环境给准备好咯。</p>
+<blockquote>
+<p>准备这些中间件或基础设施之前，也要问下当下的形势，是否有高性能高可用应用需求？比如：是否需要集群部署，或者单机部署？往往集群部署又会依赖其他的中间件！也更复杂！</p>
+</blockquote>
+<p>当然，这些都不是事。事儿是在出问题之后，能够有意识，能够猜测到问题发生的点！</p>
+<p><strong>6.应用代码应该怎样部署？</strong></p>
+<p>当基础环境就绪后，就应该让主角上场了。应用代码怎么部署？</p>
+<p>最简单的: 通过ftp上传代码到服务器上后，一个个部署！这种方案是最原始的，也是在没有办法搞更好的方案的时候使用的，不应长期使用；</p>
+<p>稍微好点的: 使用集成工具(如jenkins)进行打包，然后上传一个私有yum镜像服务器（yum 源）。然后在线进行yum 安装；这种方式，借助了集成工具，几个好处:</p>
+<ul>
+<li>可以检测代码合法性如：单元测试、代码规范（可能需要插件）；</li>
+<li>对任何的改动有简单留档，可以备查的同时，也为代码的回滚提供了可能；</li>
+<li>减少了手动上传导致的包破坏的可能性；</li>
+<li>适合大规模应用；</li>
+</ul>
+<p>再成熟点的: 再往后面，手动 yum 安装也已经太累了，所以急需一个部署平台，实现自动化部署；（这里的自动化部署可能就是基于CI集成部署的一种升级版）。总之，大大减小了人工参与程序，提升了效率，同时也保证了质量！当然，这种部署平台已经经过了严格的测试，出错的可能性也比较小了！</p>
+<p><strong>7.服务器的安全性？</strong></p>
+<p>不考虑服务器的安全性的应用，无异于自暴自弃。黑客无处不在，不过幸好现在系统也是越来越完善，只要稍加控制，即不那么容易被攻破了。但是如果放弃安全防护，则随便来一个菜鸟程序员就把你搞死了，那时的损失就大了。</p>
+<p>网络安全是个很专业的领域，我不敢造次去谈它。不过我们可以简单的做下防护: 如防火墙、授权操作、病毒库等等。当然，如果使用xx云服务，则轻松方便多了，在后台点点设置几下搞定！</p>
+<p><strong>8.服务的可监控性？</strong></p>
+<p>无监控，不上线！</p>
+<p>这是一个警示，如果线上服务没有监控，则所有线上的东西，都成了盲区，这对程序员GG们来说，简直太糟糕了，虽然他们很自信！</p>
+<blockquote>
+<p>监控分两个方面：一是系统级别的监控；二是应用级别的监控；(一般忽略其他监控: 如网络)</p>
+</blockquote>
+<p>系统级别的监控一般可以安装第三方的软件来解决: 如 zabbix, grafana …</p>
+<p>而应用级别的监控，则需要自己拥有一套监控代码了，而这对初期项目，则往往比较吃力。当然，如果引入一些开源的解决方案也是可以的，比如 ELK, 做到分布式日志中心的作用的同时，也可以根据日志做相应的应用报错监控！然而这又涉及另外的机器费用和人力成本问题，也显得不那么简单了。</p>
+<p>而如果使用xx云服务，则往往都会自带服务器监控的，可以很方便地查看到服务器情况，站在高层次预估应用是否存在潜藏的问题！</p>
+<p>如上，就是一些个人觉得的在部署一整套线上环境的时候，需要考虑的事项！从理论上讲解了下个人见解，不对之处，请赐教！</p>
+<span id="more"></span>
+
+<h3 id="二、接下来，我将给到一些实际的操作捷径或提示？-linux"><a href="#二、接下来，我将给到一些实际的操作捷径或提示？-linux" class="headerlink" title="二、接下来，我将给到一些实际的操作捷径或提示？(linux)"></a>二、接下来，我将给到一些实际的操作捷径或提示？(linux)</h3><p><strong>1.免密登录服务器？</strong></p>
+<p>在n服务器之间跳转，如果每次都要求输入密码，那确实太烦了。尤其在密码一般还很不容易记住的情况下！</p>
+<p>所以，可以将一台服务器作为跳板机，在这台服务器上，可以免密地登录到允许的n台子服务器；</p>
+<p>操作步骤有二：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1. 先使用 ssh-keygen 生成本机的key</span></span><br><span class="line">ssh-keygen -t rsa            # 如果已生成不要重复生成</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2. 使用 ssh-copy-id 将本机的 key 发送到需要免密登录的服务器，首次copy时会要求输入密码，后续则免密了</span></span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@172.1.2.111</span><br></pre></td></tr></table></figure>
+
+<p><strong>2.服务器之间文件（夹）拷贝？</strong></p>
+<p>拷贝文件的目的有很多，比如：代码同步，文件同步，资源同步，甚至是会话同步….</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1. 使用scp 拷贝文件</span></span><br><span class="line">scp /home/ol-web.war root@xxx.com:/www/tomcat/wepapps/    # 从本机拷贝到远程</span><br><span class="line">scp /home/ol-web.war root@xxx.com:/www/tomcat/wepapps/    # 从远程拷贝到本机</span><br><span class="line">scp -r /www/nginx/html/ root@$1.2.3.2:/www/nginx/html/    # 从本机拷贝文件夹到远程</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2. 使用 rsync 同步文件，（可能需要安装 rsync 服务）</span></span><br><span class="line">rsync -av --delete /www/nginx/html/ root@$1.2.3.1:/www/nginx/html/        # 同步所有属性，本地删除的文件也同步远程删除</span><br></pre></td></tr></table></figure>
+
+<p>其中，scp一般是系统自带的命令，而rsync则需要自行安装服务。</p>
+<p>scp复制你可以认为是增量复制，所以远程文件往往会越来越大，垃圾文件越来越多。</p>
+<p>而rsync则是保持两端完全一致，可能会符合应用场景！但是，别忘了把rsync服务加入到开机启动项中！</p>
+<p><strong>3.快捷使用 ssh 等等命令，使用 tab 键进行信息补全？</strong></p>
+<p>当使用 ssh &#x2F; scp 等等命令操作的时候，其操作对象往往 1.2.3.x 这样的ip显示，如果不能友好点，那确实太累了！我们可以如下操作，以实现 ssh 也能更好的记忆：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在文件 /root/.bashrc 中，添加脚本如下，使自动补全添加 ssh</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">auto complete ...</span></span><br><span class="line">complete -W &quot;$(echo $(grep -v &#x27;^$|#&#x27; .ssh/config | sort -u | sed &#x27;s/^ssh //&#x27;))&quot; ssh</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在文件 /root/.ssh/config 中，添加需要自动补全的服务器，</span></span><br><span class="line">Host 172.2.3.5 server-api-01</span><br><span class="line">Host 172.2.3.6 server-api-02</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">以上服务器名字需要在 /etc/hosts 文件中添加相应解析</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">而登录 server时，只需， ssh server-api-01 即可</span></span><br></pre></td></tr></table></figure>
+
+<p>如上补全工作，无需在所有服务器上进行操作，只需在相应的跳板机上提供功能即可！</p>
+<p><strong>4.简要 saltstack 搭建指南？</strong></p>
+<p>salt 是个方便易用的集群管理工具，比如你可以用于批量重启服务，全局搜索日志等等；</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1. 安装, 仅需到相应机器上安装即可</span></span><br><span class="line">    yum install salt-master salt-minion</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2. 配置 /etc/salt/master /etc/salt/minion, 最简单的，只需修改 minion 配置，指向 master 的ip即可；</span></span><br><span class="line">    #指定master，冒号后有一个空格, minion</span><br><span class="line">    master: 172.1.2.22</span><br><span class="line">    id: server-api-01</span><br><span class="line">    user: root</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3. 启动所有节点, status, restart</span></span><br><span class="line">    systemctl start salt-master        # 162机器可用</span><br><span class="line">    systemctl start salt-minion</span><br><span class="line">    /etc/init.d/salt-master start    # 155机器可用</span><br><span class="line">    /etc/init.d/salt-minion start</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4. 将所有salt-minion 添加到 master 集群管理</span></span><br><span class="line">    salt-key -A        </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">5. 登录跳板机 api_01, 运行salt 操作，执行集群管理工作</span></span><br><span class="line">    salt server-api-02 cmd.run &#x27;lsof -i:80&#x27;</span><br><span class="line">    salt &#x27;*&#x27; test.ping</span><br></pre></td></tr></table></figure>
+
+<p><strong>5.简要集群复制shell脚本？</strong></p>
+<p>有时，你可能需要将你的应用发布到n台服务中，你可以直接改如下shell,也可以依赖于salt这样的高级工具进行发布！shell 参考如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">find out my ip to exclude...</span></span><br><span class="line">MY_MERCHINE_IP=`ifconfig eth0 |awk -F &quot;[: ]+&quot; &#x27;/inet addr/&#123;print $4&#125;&#x27;`;</span><br><span class="line">MERCHINE_IP_LIST=&quot;172.1.2.7 172.1.3.4&quot;;</span><br><span class="line">for m_ip in $MERCHINE_IP_LIST;</span><br><span class="line">do</span><br><span class="line">        if [[ $m_ip != $MY_MERCHINE_IP ]]; then</span><br><span class="line">                echo &quot;- Installing apps to mechine@$&#123;m_ip&#125; ...&quot;;</span><br><span class="line">                # install api apps</span><br><span class="line">                scp /www/test/hello-1.0.0-SNAPSHOT.jar root@$&#123;m_ip&#125;:/www/test/</span><br><span class="line">                rsync -av --delete /www/html/ root@$&#123;m_ip&#125;:/www/html/</span><br><span class="line">                echo &quot;- Install apps to merchine@$&#123;m_ip&#125; done.&quot;;</span><br><span class="line">        fi;</span><br><span class="line">done;</span><br></pre></td></tr></table></figure>
+
+<p><strong>6.简要docker搭建指南？</strong></p>
+<p>docker 作为一个容器化的基石，一出世就被追棒。包括现在的 k8s ，也是基于docker的。docker 可以让你在一处搭建，处处运行，从而避免每次新买机器就要搞很久的尴尬局面；其搭建也是很简单的（简单应用）：</p>
+<blockquote>
+<p>为方便任意发挥，我们可以基于centos这种系统级别的镜像进行创建自己的image;</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">docker 安装:</span></span><br><span class="line">    yum install docker</span><br><span class="line">    service docker start</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">拉取 centos6 的 docker 镜像</span></span><br><span class="line">    docker pull centos:6</span><br><span class="line">    docker images</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">构建一个 image, 创建空目录，编辑 Dockerfile</span></span><br><span class="line">    vim Dockerfile         # 内容可变</span><br><span class="line">        FROM centos:6</span><br><span class="line">        MAINTAINER oom &lt;w@163.com&gt;</span><br><span class="line">        # move all configuration files into container</span><br><span class="line"></span><br><span class="line">        # RUN yum install -y lsof</span><br><span class="line">        # EXPOSE 80</span><br><span class="line">        # CMD [&quot;sh&quot;,&quot;-c&quot;,&quot;service httpd start;bash&quot;]</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建镜像</span></span><br><span class="line">    docker build -t tmp_image:1.0 .      </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建并运行容器</span></span><br><span class="line">    docker run -h tmp_container -itd --name tmp_container -v /opt/docker/webapps:/www/webapp tmp_image:1.0    </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">进入容器，相当于进入 centos 操作系统</span></span><br><span class="line">    docker exec -it tmp_container bash</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存容器修改到images</span></span><br><span class="line">　　docker commit -m &#x27;web final.&#x27; 49d79fc19eaa tmp_image:1.2</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">备份容器修改后的docker镜像</span> </span><br><span class="line">　　docker save &gt; /opt/images/images_final/tmp_image.final.tar tmp_image:1.2</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">恢复你的备份镜像，即全网发布</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">可以在任何装 docker 的地方加载保存的镜像</span></span><br><span class="line">　　docker load -i /opt/images/images_final/tmp_image.final.tar</span><br></pre></td></tr></table></figure>
+
+<p><strong>7.定制你的登录欢迎语？</strong></p>
+<p>由于可能存在线上环境与测试环境共存的情况，一不小心的切换错误，就可能导致不可挽回的损失。所以，如果我们能在登录的时候，做一个简单的提示，那么就会少一点出错的可能性。所以，订制你的登录欢迎语吧！</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">修改登录欢迎语 vim /etc/motd</span></span><br><span class="line">*****************************************************************</span><br><span class="line">!!! WARNING:  欢迎来到线上机器: service-api-01 ，请谨慎操作哦 !!!</span><br><span class="line">*****************************************************************</span><br></pre></td></tr></table></figure>
+
+<p>这样，用户登录后，就会清楚的知道自己是在操作生产环境了！</p>
+<p><strong>8.更方便的查看nginx的访问日志？</strong></p>
+<p>对于后端的日志而言，往往都是主动打印到某个固定位置，从而开发人员可以直接使用 tail -f xxx.log 进行日志的查看！</p>
+<p>然而对于前端的代码而言，则往往没有相应的开发日志，唯一可以借助的就是 http 服务器的日志来排查问题了！</p>
+<p>所以，比如使用 nginx 作为 http 服务器，那么就应该把尽可能多的有用日志打印出来。那么，如何快速查看 nginx 日志，则是有必要的！比如我们可以这样：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">vim /usr/bin/log_nginx_host , 使用 log_nginx_host 直接查看所有 nginx 日志</span></span><br><span class="line">tail -f /var/log/nginx/access.log /var/log/nginx/error.log</span><br></pre></td></tr></table></figure>
+
+<p>如上，将会把访问日志与错误日志一起打印出来，从而快速定位问题！</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/07/08/%E7%BA%BF%E4%B8%8A%E7%8E%AF%E5%A2%83%E9%83%A8%E7%BD%B2%E6%A6%82%E8%A7%88/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/07/10/%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1%E8%A7%84%E8%8C%83%E4%B9%8B%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            数据库设计规范之命名规范
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/07/07/%E5%8F%98%E6%88%90%E4%B8%80%E4%B8%AA%E5%8E%89%E5%AE%B3%E7%9A%84%E4%BA%BA%EF%BC%8C%E6%9C%80%E6%A0%B8%E5%BF%83%E7%9A%84%E4%B8%80%E7%82%B9%EF%BC%9A%E7%9B%B8%E4%BF%A1%E5%A4%8D%E5%88%A9%E6%95%88%E5%BA%94/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">变成一个厉害的人，最核心的一点：相信复利效应</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

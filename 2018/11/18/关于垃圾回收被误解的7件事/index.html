@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>关于垃圾回收被误解的7件事 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-关于垃圾回收被误解的7件事"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  关于垃圾回收被误解的7件事
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/11/18/%E5%85%B3%E4%BA%8E%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E8%A2%AB%E8%AF%AF%E8%A7%A3%E7%9A%847%E4%BB%B6%E4%BA%8B/" class="article-date">
+  <time datetime="2018-11-18T13:50:22.000Z" itemprop="datePublished">2018-11-18</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h5 id="对Java垃圾回收最大的误解是什么？它实际又是什么样的呢？"><a href="#对Java垃圾回收最大的误解是什么？它实际又是什么样的呢？" class="headerlink" title="对Java垃圾回收最大的误解是什么？它实际又是什么样的呢？"></a>对Java垃圾回收最大的误解是什么？它实际又是什么样的呢？</h5><p>当 我还是小孩的时候，父母常说如果你不好好学习，就只能去扫大街了。但他们不知道的是，清理垃圾实际上是很棒的一件事。可能这也是即使在Java的世界中， 同样有很多开发者对GC算法产生误解的原因——包括它们怎样工作、GC是如何影响程序运行和你能对它做些什么。因此我们找到了Java性能调优专家<a target="_blank" rel="noopener" href="https://twitter.com/lifeyx">Haim Yadid</a>，并把名为<a target="_blank" rel="noopener" href="http://blog.takipi.com/java-performance-tuning-how-to-get-the-most-out-of-your-garbage-collector/?utm_source=blog&utm_medium=in-post&utm_content=gcmisconceptions&utm_campaign=java">Java performance tuning guide</a>的文章发表在Takipi的博客上。</p>
+<p>最新博文：关于垃圾回收被误解的7件事<br><a target="_blank" rel="noopener" href="http://t.co/3QJLJuKCRq">http://t.co/3QJLJuKCRq</a><a target="_blank" rel="noopener" href="http://www.importnew.com/pic.twitter.com/aqQEF0zTkK">pic.twitter.com&#x2F;aqQEF0zTkK</a><br>— Takipi (@takipid) April 6, 2015</p>
+<p>带着对性能调优指南浓厚的兴趣，我们决定在这篇后续的博文中收集一些关于垃圾回收的流行观点，并且指出为什么它们完全是错误的。</p>
+<p>来看看前7名：</p>
+<h3 id="1-只有一个垃圾回收器"><a href="#1-只有一个垃圾回收器" class="headerlink" title="1. 只有一个垃圾回收器"></a>1. 只有一个垃圾回收器</h3><p>不，并且4也是错误的答案。HotSpot JVM一共有4个垃圾回收器：<a target="_blank" rel="noopener" href="http://blog.takipi.com/garbage-collectors-serial-vs-parallel-vs-cms-vs-the-g1-and-whats-new-in-java-8/?utm_source=blog&utm_medium=in-post&utm_content=gcmisconceptions&utm_campaign=java">Serial, Parallel &#x2F; Throughput. CMS, and the new kid on the block G1</a>。别急，另外还有一些非标准的垃圾回收器和更大胆的实现，比如<a target="_blank" rel="noopener" href="http://openjdk.java.net/jeps/189">Shenandoah</a>或 者其他JVM使用的回收器（C4——Azul开发的无停顿回收器）。HotSpot默认使用Parallel &#x2F; Throughput回收器，但它常常不是你运行程序的最佳选择。比如CMS和G1会使GC停顿（GC pause）发生的频率降低，但是对于每次停顿所花费的时间，很可能比Parallel回收器更长。另一方面来说，在使用相同大小堆内存的情况下，Parallel回收器能带来更高的吞吐量。</p>
+<p><strong>结论：</strong>根据你的需求（可接受的GC停顿频率和持续时间）选择合适的垃圾回收器。</p>
+<h3 id="2-并行（Parallel）-＝-并发（Concurrent）"><a href="#2-并行（Parallel）-＝-并发（Concurrent）" class="headerlink" title="2. 并行（Parallel） ＝ 并发（Concurrent）"></a>2. 并行（Parallel） ＝ 并发（Concurrent）</h3><p>一个GC周期（Garbage Collection cycle）可以以STW（Stop-The-World）的形式出现，这会发生一次GC停顿，也可以并发地执行从而无需暂停应用程序。更进一步来 讲，GC算法本身可以是串行的（单线程），也可以是并行的（多线程）。因此当我们提到并发的GC时，并不代表它是并行完成的，相反当提到串行GC时，也并 不意味着就一定会出现GC停顿。在GC的世界中，并发和并行是两个完全不同的概念。并发针对的是GC周期，而并行针对GC算法自身。</p>
+<p><strong>结论：</strong>垃圾回收的过程实际上有两步，启动GC周期和GC自身运行，这是不同的两件事。</p>
+<span id="more"></span>
+
+<h3 id="3-G1能解决所有问题"><a href="#3-G1能解决所有问题" class="headerlink" title="3. G1能解决所有问题"></a>3. G1能解决所有问题</h3><p>经过一系列修正和改 进，Java 7中引入了G1回收器，它是JVM垃圾回收器中最新的组件。G1最大的优势就是解决了CMS中常见的内存碎片问题：GC周期会从老年代（Old Generation）中释放内存块，结果内存变得像瑞士奶酪那样千疮百孔，直到JVM对其无从下手了，才不得不停下来处理这些碎片。但是故事没这么简 单，某些情况下其他回收器可能比G1有更好的表现，这完全取决于你的需求。</p>
+<p><strong>结论：</strong>没有一个奇迹般的回收器能解决所有GC问题，你应该通过具体实验来选择合适的回收器。</p>
+<h3 id="4-平均事务时间是最需要被关注的指标"><a href="#4-平均事务时间是最需要被关注的指标" class="headerlink" title="4. 平均事务时间是最需要被关注的指标"></a>4. 平均事务时间是最需要被关注的指标</h3><p>如 果你仅仅监控服务器的平均事务时间，那么很可能错过一些异常值。这些异常的情况可能对用户来说是毁灭性的，而人们没有意识到它的重要性。比如一个事务在正常情况下耗时100ms，但受到GC停顿的影响，花了1分钟才完成。除了用户没人会注意到这个问题，因为你只观察了平均事务时间。试想有1%或者更多的用 户经历了这个场景，如果只关注平均值，它就太容易被忽略了。想了解更多和延迟相关的问题和怎样正确处理，可以在<a target="_blank" rel="noopener" href="http://latencytipoftheday.blogspot.com/">这里</a>阅读<a target="_blank" rel="noopener" href="https://twitter.com/giltene">Gil Tene</a>的博客。</p>
+<p><strong>结论：</strong>留心那些异常值，你可以知道系统最后那1%的状况。（<a target="_blank" rel="noopener" href="http://cdn.zmescience.com/wp-content/uploads/2014/04/Who-Is-The-1.jpg">可不是这个1%</a>）</p>
+<h3 id="5-降低新对象的分配率可以改善GC的运行状况"><a href="#5-降低新对象的分配率可以改善GC的运行状况" class="headerlink" title="5. 降低新对象的分配率可以改善GC的运行状况"></a>5. 降低新对象的分配率可以改善GC的运行状况</h3><p>我们可以 粗略地把系统中的对象分为三种：长命（long-lived）对象，对它们我们一般做不了什么；中等寿命（mid-lived）对象，最大的问题可能出现在这；短命（short-lived）对象，它们的释放和回收通常都很快，在下个GC周期来临时就会消失。专注于中等寿命对象的分配率可以带来有益的结 果，这对短命和长命的对象却不是那么有效。另外，控制中等寿命对象往往是一项困难的工作。</p>
+<p><strong>结论：</strong>给服务器带来压力的并不单纯是对象的分配率，在运行过程中这些对象的种类才是一切麻烦的根源。</p>
+<h3 id="6-调优可以解决所有事"><a href="#6-调优可以解决所有事" class="headerlink" title="6. 调优可以解决所有事"></a>6. 调优可以解决所有事</h3><p>如果你的程序需要保存大量被频繁修改的状态，对JVM堆内存进行调优就无法带来很好的收益。较长的GC停顿是不可避免的。一个解决办 法是对架构进行改善，保证一个对响应时间有决定性影响或者造成瓶颈的过程中，不包含大量状态。大量状态和响应能力是难以良好共存的，因此将它们分开处理才 是上上之选。</p>
+<p><strong>结论：</strong>不是所有的问题都可以通过调整JVM参数解决，有时你只需要回顾自己的绘图板。（译注：重新审视程序的设计）</p>
+<h3 id="7-GC日志会导致巨大的系统开销"><a href="#7-GC日志会导致巨大的系统开销" class="headerlink" title="7. GC日志会导致巨大的系统开销"></a>7. GC日志会导致巨大的系统开销</h3><p>简单来说，这是错的，尤 其在默认的日志配置下。日志数据是极为有价值的，Java 7中还引入了钩子来控制它们的大小，保证硬盘空间不被用尽。如果不收集GC日志，那么你会失去这几乎是唯一的，知晓JVM垃圾回收器在生产环境中工作状态 的方法。一般可接受的GC开销以5%作为上限，如果你能知道系统为GC停顿付出的代价，也能对最小化这个代价采取行动，这种程度的开销是不值一提的。</p>
+<p><strong>结论：</strong>在能力范围内，尽可能多地获取系统在生产环境中的运行数据，你会发现那是一个全新的世界。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>希望上面的结论能帮助你们更好地把握Java垃圾回收器的工作。在你们的程序中出现过类似问题吗？你们周围还有没有其他对GC常见的误解？请在下面的评论区留言。</p>
+<p>原文链接： </p>
+<p>javacodegeeks</p>
+<p> 翻译： </p>
+<p>ImportNew.com </p>
+<p>- </p>
+<p>蒋 生武</p>
+<p>译文链接： </p>
+<p><a target="_blank" rel="noopener" href="http://www.importnew.com/15796.html">http://www.importnew.com/15796.html</a></p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2018/11/18/%E5%85%B3%E4%BA%8E%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E8%A2%AB%E8%AF%AF%E8%A7%A3%E7%9A%847%E4%BB%B6%E4%BA%8B/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2018/11/19/java%E8%99%9A%E6%8B%9F%E6%9C%BA%E4%B9%8BHotSpot%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            java虚拟机之HotSpot垃圾收集器
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/11/18/%E6%BC%AB%E7%94%BB%EF%BC%9A%E4%BB%80%E4%B9%88%E6%98%AF%E5%8D%8F%E7%A8%8B%EF%BC%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">漫画：什么是协程？</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

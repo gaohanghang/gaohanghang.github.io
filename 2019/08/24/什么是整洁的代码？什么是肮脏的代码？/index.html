@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>什么是整洁的代码？什么是肮脏的代码？ |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-什么是整洁的代码？什么是肮脏的代码？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  什么是整洁的代码？什么是肮脏的代码？
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/24/%E4%BB%80%E4%B9%88%E6%98%AF%E6%95%B4%E6%B4%81%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F%E4%BB%80%E4%B9%88%E6%98%AF%E8%82%AE%E8%84%8F%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F/" class="article-date">
+  <time datetime="2019-08-24T10:21:38.000Z" itemprop="datePublished">2019-08-24</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.7k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">9 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190824192038.png"></p>
+<blockquote>
+<p>原文地址: <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/PDOZR8YirIo_cis-8S0wgQ">https://mp.weixin.qq.com/s/PDOZR8YirIo_cis-8S0wgQ</a></p>
+</blockquote>
+<ul>
+<li>命名的艺术</li>
+<li>注释</li>
+<li>函数</li>
+<li>测试</li>
+</ul>
+<hr>
+<p>写出整洁的代码，是每个程序员的追求。《clean code》指出，要想写出好的代码，首先得知道什么是肮脏代码、什么是整洁代码；然后通过大量的刻意练习，才能真正写出整洁的代码。</p>
+<p>WTF&#x2F;min是衡量代码质量的唯一标准，Uncle Bob在书中称糟糕的代码为沼泽（wading），这只突出了我们是糟糕代码的受害者。国内有一个更适合的词汇：屎山，虽然不是很文雅但是更加客观，程序员既是受害者也是加害者。</p>
+<p>对于什么是整洁的代码，书中给出了大师们的总结：</p>
+<ul>
+<li>Bjarne Stroustrup：优雅且高效；直截了当；减少依赖；只做好一件事</li>
+<li>Grady booch：简单直接</li>
+<li>Dave thomas：可读，可维护，单元测试</li>
+<li>Ron Jeffries：不要重复、单一职责，表达力（Expressiveness）</li>
+</ul>
+<p>其中，我最喜欢的是<strong>表达力</strong>（Expressiveness）这个描述，这个词似乎道出了好代码的真谛：用简单直接的方式描绘出代码的功能，不多也不少。</p>
+<p>本文记录阅读《clean code》之后个人“深有同感”或者“醍醐灌顶”的一些观点。</p>
+<h1 id="命名的艺术"><a href="#命名的艺术" class="headerlink" title="命名的艺术"></a>命名的艺术</h1><p>坦白的说，命名是一件困难的事情，要想出一个恰到好处的命名需要一番功夫，尤其我们的母语还不是编程语言所通用的英语。不过这一切都是值得了，好的命名让你的代码更直观，更有表达力。</p>
+<p>好的命名应该有下面的特征：</p>
+<p><strong>名副其实</strong></p>
+<p>好的变量名告诉你：是什么东西，为什么存在，该怎么使用</p>
+<p>如果需要通过注释来解释变量，那么就先得不那么名副其实了。</p>
+<p>下面是书中的一个示例代码，展示了命名对代码质量的提升</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># bad code</span><br><span class="line">def getItem(theList):</span><br><span class="line">   ret = []</span><br><span class="line">   for x in theList:</span><br><span class="line">      if x[0] == 4:</span><br><span class="line">         ret.append(x)</span><br><span class="line">   return ret</span><br><span class="line"></span><br><span class="line"># good code</span><br><span class="line">def getFlaggedCell(gameBoard):</span><br><span class="line">   &#x27;&#x27;&#x27;扫雷游戏，flagged： 翻转&#x27;&#x27;&#x27;</span><br><span class="line">   flaggedCells = []</span><br><span class="line">   for cell in gameBoard:</span><br><span class="line">      if cell.IsFlagged():</span><br><span class="line">         flaggedCells.append(cell)</span><br><span class="line">   return flaggedCells</span><br></pre></td></tr></table></figure>
+
+<p><strong>避免误导</strong></p>
+<ul>
+<li>不要挂羊头卖狗肉</li>
+<li>不要覆盖惯用缩略语</li>
+</ul>
+<p>这里不得不吐槽前两天才看到的一份代码，居然使用了 l 作为变量名；而且，<code>user</code>居然是一个list（单复数都没学好！！）</p>
+<p><strong>有意义的区分</strong></p>
+<p>代码是写给机器执行，也是给人阅读的，所以概念一定要有区分度。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># bad</span><br><span class="line">def copy(a_list, b_list):</span><br><span class="line">    pass</span><br><span class="line"></span><br><span class="line"># good</span><br><span class="line">def copy(source, destination):</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用读的出来的单词</strong></p>
+<blockquote>
+<p>如果名称读不出来，那么讨论的时候就会像个傻鸟</p>
+</blockquote>
+<p><strong>使用方便搜索的命名</strong></p>
+<blockquote>
+<p>名字长短应与其作用域大小相对应</p>
+</blockquote>
+<p><strong>避免思维映射</strong></p>
+<p>比如在代码中写一个temp，那么读者就得每次看到这个单词的时候翻译成其真正的意义</p>
+<h1 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h1><p>有<strong>表达力</strong>的代码是无需注释的。</p>
+<blockquote>
+<p>The proper use of comments is to compensate for our failure to express ourself in code.</p>
+</blockquote>
+<p>注释的适当作用在于弥补我们用代码表达意图时遇到的失败，这听起来让人沮丧，但事实确实如此。<code>The truth is in the code</code>, 注释只是二手信息，二者的不同步或者不等价是注释的最大问题。</p>
+<p>书中给出了一个非常形象的例子来展示：用代码来阐述，而非注释</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bad</span><br><span class="line">// check to see if the employee is eligible for full benefit</span><br><span class="line">if ((employee.flags &amp; HOURLY_FLAG) &amp;&amp; (employee.age &gt; 65))</span><br><span class="line"></span><br><span class="line">good</span><br><span class="line">if (employee.isEligibleForFullBenefits())</span><br></pre></td></tr></table></figure>
+
+<p>因此，当想要添加注释的时候，可以想想是否可以通过修改命名，或者修改函数（代码）的抽象层级来展示代码的意图。</p>
+<p>当然，也不能因噎废食，书中指出了以下一些情况属于好的注释</p>
+<ol>
+<li>法务信息</li>
+<li>对意图的注释，为什么要这么做</li>
+<li>警示</li>
+<li>TODO注释</li>
+<li>放大看似不合理之物的重要性</li>
+</ol>
+<p>其中个人最赞同的是第2点和第5点，<code>做什么</code>很容易通过命名表达，但<code>为什么要这么做</code>则并不直观，特别涉及到专业知识、算法的时候。另外，有些第一感觉“不那么优雅”的代码，也许有其特殊愿意，那么这样的代码就应该加上注释，说明为什么要这样，比如为了提升关键路径的性能，可能会牺牲部分代码的可读性。</p>
+<p>最坏的注释就是过时或者错误的注释，这对于代码的维护者（也许就是几个月后的自己）是巨大的伤害，可惜除了code review，并没有简单易行的方法来保证代码与注释的同步。</p>
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><p><strong>函数的单一职责</strong></p>
+<p>一个函数应该只做一件事，这件事应该能通过函数名就能清晰的展示。判断方法很简单：看看函数是否还能再拆出一个函数。</p>
+<p>函数要么做什么<code>do_sth</code>, 要么查询什么<code>query_sth</code>。最恶心的就是函数名表示只会<code>query_sth</code>, 但事实上却会<code>do_sth</code>, 这使得函数产生了副作用。比如书中的例子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class UserValidator &#123;</span><br><span class="line">    private Cryptographer cryptographer;</span><br><span class="line">    public boolean checkPassword(String userName, String password) &#123;</span><br><span class="line">        User user = UserGateway.findByName(userName);</span><br><span class="line">        if (user != User.NULL) &#123;</span><br><span class="line">            String codedPhrase = user.getPhraseEncodedByPassword();</span><br><span class="line">            String phrase = cryptographer.decrypt(codedPhrase, password);</span><br><span class="line">            if (&quot;Valid Password&quot;.equals(phrase)) &#123;</span><br><span class="line">                Session.initialize();</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>函数的抽象层级</strong></p>
+<p>每个函数一个抽象层次，函数中的语句都要在同一个抽象层级，不同的抽象层级不能放在一起。比如我们想把大象放进冰箱，应该是这个样子的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def pushElephantIntoRefrige():</span><br><span class="line">    openRefrige()</span><br><span class="line">    pushElephant()</span><br><span class="line">    closeRefrige()</span><br></pre></td></tr></table></figure>
+
+<p>函数里面的三句代码在同一个层级（高度）描述了要完成<code>把大象放进冰箱</code>这件事顺序相关的三个步骤。显然，<code>pushElephant</code>这个步骤又可能包含很多子步骤，但是在<code>pushElephantIntoRefrige</code>这个层级，是无需知道太多细节的。</p>
+<p>当我们想通过阅读代码的方式来了解一个新的项目时，一般都是采取<strong>广度优先</strong>的策略，自上而下的阅读代码，先了解整体结构，然后再深入感兴趣的细节。如果没有对实现细节进行良好的抽象（并凝练出一个名副其实的函数），那么阅读者就容易迷失在细节的汪洋里。</p>
+<p>某种程度看来，这个跟金字塔原理也很像</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190824200230.png"></p>
+<p>每一个层级都是为了论证其上一层级的观点，同时也需要下一层级的支持；同一层级之间的多个论点又需要以某种逻辑关系排序。<code>pushElephantIntoRefrige</code>就是中心论点，需要多个子步骤的支持，同时这些子步骤之间也有逻辑先后顺序。</p>
+<p><strong>函数参数</strong></p>
+<p>函数的参数越多，组合出的输入情况就愈多，需要的测试用例也就越多，也就越容易出问题。</p>
+<p>输出参数相比返回值难以理解，这点深有同感，输出参数实在是很不直观。从函数调用者的角度，一眼就能看出返回值，而很难识别输出参数。输出参数通常逼迫调用者去检查函数签名，这个实在不友好。</p>
+<p>向函数传入Boolean（书中称之为 Flag Argument）通常不是好主意。尤其是传入True or False后的行为并不是一件事情的两面，而是两件不同的事情时。这很明显违背了函数的单一职责约束，解决办法很简单，那就是用两个函数。</p>
+<p><strong>Dont repear yourself</strong></p>
+<p>在函数这个层级，是最容易、最直观实现复用的，很多IDE也难帮助我们讲一段代码重构出一个函数。</p>
+<p>不过在实践中，也会出现这样一种情况：一段代码在多个方法中都有使用，但是又不完全一样，如果抽象成一个通用函数，那么就需要加参数、加if else区别。这样就有点尴尬，貌似可以重构，但又不是很完美。</p>
+<p>造成上述问题的某种情况是因为，这段代码也违背了单一职责原则，做了不只一件事情，这才导致不好复用，解决办法是进行方法的细分，才能更好复用。也可以考虑template method来处理差异的部分。</p>
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>非常惭愧的是，在我经历的项目中，测试（尤其是单元测试）一直都没有得到足够的重视，也没有试行过<code>TDD</code>。正因为缺失，才更感良好测试的珍贵。</p>
+<p>我们常说，好的代码需要有可读性、可维护性、可扩展性，好的代码、架构需要不停的重构、迭代，但自动化测试是保证这一切的基础，没有高覆盖率的、自动化的单元测试、回归测试，谁都不敢去修改代码，只能任其腐烂。</p>
+<p>即使针对核心模块写了单元测试，一般也很随意，认为这只是测试代码，配不上生产代码的地位，以为只要能跑通就行了。这就导致测试代码的可读性、可维护性非常差，然后导致测试代码很难跟随生产代码一起更新、演化，最后导致测试代码失效。所以说，脏测试 - 等同于 - 没测试。</p>
+<p>因此，测试代码的三要素：可读性，可读性，可读性。</p>
+<p>对于测试的原则、准则如下：</p>
+<ul>
+<li>You are not allowed to write any production code unless it is to make a failing unit test pass. 没有测试之前不要写任何功能代码</li>
+<li>You are not allowed to write any more of a unit test than is sufficient to fail; and compilation failures are failures. 只编写恰好能够体现一个失败情况的测试代码</li>
+<li>You are not allowed to write any more production code than is sufficient to pass the one failing unit test. 只编写恰好能通过测试的功能代码</li>
+</ul>
+<p>测试的<code>FIRST</code>准则：</p>
+<ol>
+<li>快速（Fast）测试应该够快，尽量自动化。</li>
+<li>独立（Independent） 测试应该应该独立。不要相互依赖</li>
+<li>可重复（Repeatable） 测试应该在任何环境上都能重复通过。</li>
+<li>自我验证（Self-Validating） 测试应该有bool输出。不要通过查看日志这种低效率方式来判断测试是否通过</li>
+<li>及时（Timely） 测试应该及时编写，在其对应的生产代码之前编写</li>
+</ol>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/08/24/%E4%BB%80%E4%B9%88%E6%98%AF%E6%95%B4%E6%B4%81%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F%E4%BB%80%E4%B9%88%E6%98%AF%E8%82%AE%E8%84%8F%E7%9A%84%E4%BB%A3%E7%A0%81%EF%BC%9F/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%81%93%E7%90%86/" rel="tag">道理</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/08/24/%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8%E8%B4%B9%E6%9B%BC%E5%AD%A6%E4%B9%A0%E6%B3%95%E6%8F%90%E9%AB%98%E6%95%88%E7%8E%87%EF%BC%9F%EF%BC%88T%E5%90%9B/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            如何利用费曼学习法提高效率？（T君)
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/08/24/%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1-Java-%E5%BC%82%E5%B8%B8%E6%9B%B4%E4%BC%98%E9%9B%85%EF%BC%8C%E8%B5%B6%E7%B4%A7%E5%AD%A6%EF%BC%81/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">这样设计 Java 异常更优雅，赶紧学！</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

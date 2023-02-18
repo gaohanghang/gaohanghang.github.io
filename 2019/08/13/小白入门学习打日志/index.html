@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>小白入门学习打日志 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-小白入门学习打日志"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  小白入门学习打日志
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/08/13/%E5%B0%8F%E7%99%BD%E5%85%A5%E9%97%A8%E5%AD%A6%E4%B9%A0%E6%89%93%E6%97%A5%E5%BF%97/" class="article-date">
+  <time datetime="2019-08-13T12:03:08.000Z" itemprop="datePublished">2019-08-13</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/jl9Rpr1JFJymWyJj5QK3yA">小白入门学习打日志</a></p>
+</blockquote>
+<p><strong>前言</strong></p>
+<blockquote>
+<p>只有光头才能变强。</p>
+<p>文本已收录至我的GitHub仓库，欢迎Star：<a target="_blank" rel="noopener" href="https://github.com/ZhongFuCheng3y/3y">https://github.com/ZhongFuCheng3y/3y</a></p>
+</blockquote>
+<p>记得之前写过一篇：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247484402&idx=1&sn=786686c4d2abd958c535065de044701d&chksm=ebd742f3dca0cbe5f6f401e38391369f28287858125d52a1a169523dc4f9600e20335446a629&token=620000779&lang=zh_CN&scene=21#wechat_redirect">《阿里巴巴 Java开发手册》读后感</a>，之前自学时由于没怎么接触过打“日志”，所以《手册》中的“日志规约”我就先放一边去了。</p>
+<p>而之前写了一篇：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247485368&idx=1&sn=59742409160a103eddaa6ca187a77256&chksm=ebd746b9dca0cfaffd61b35a810d806f7eea67c5a0dec820ae65be093d81abf49ac19ab1248b&token=2078489135&lang=zh_CN&scene=21#wechat_redirect">在公司做的项目和自己在学校做的有什么区别？</a>中就有提到：公司的项目不会有<code>e.printStackTrace();</code>这种代码的存在。因为这打印出来的错误信息<strong>没有日期、等级</strong>等等，分析起来不方便。</p>
+<p>在工作中去服务器上查日志又是一个非常非常常见的操作，所以当初我又写了一篇 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247485440&idx=1&sn=85b40c173d66b62b3e870dd0e095c72c&chksm=ebd74901dca0c01727ed2cff30acc5d39948eda5bf4252f1d96526f951591f69edcfccbbad29&token=2078489135&lang=zh_CN&scene=21#wechat_redirect">工作中常用到的Linux命令</a>，里边就谈到了查日志时常用的Linux命令。</p>
+<p>想着，既然接触日志也有一段时间了，不妨在回看《手册》，看看有什么要注意的地方，于是就有了这篇笔记。</p>
+<h2 id="一、Java打日志的基础"><a href="#一、Java打日志的基础" class="headerlink" title="一、Java打日志的基础"></a>一、Java打日志的基础</h2><p>以前自己自学的时候，排查问题只会写下面的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">   <span class="comment">// doSomething</span></span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line">----------</span><br><span class="line"><span class="comment">// 查看某个数据的值时：</span></span><br><span class="line">System.out.println(xxxx);</span><br></pre></td></tr></table></figure>
+
+<p>去到公司就发现上面的代码全不见了，剩下的是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LOGGER.info(<span class="string">&quot;begin to run Java3y:&#123;&#125;&quot;</span>, id);</span><br><span class="line">----</span><br><span class="line">LOGGER.error(<span class="string">&quot;excepiton occurs when run Java3y &#123;&#125;, exception&#123;&#125;&quot;</span>, id, e.toString());</span><br></pre></td></tr></table></figure>
+
+<p>如果使用<code>e.printStackTrace();</code>的话，打印在控制的信息分析不方便：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190813202202.png" alt="打印在控制的信息分析不方便"></p>
+<p>而我们将信息分<strong>等级和时间</strong>记录在服务器的磁盘上，有问题了就可以根据对应的信息去查找相关的日志(这样排查起来是十分方便的)：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190813202315.png" alt="服务器上的日志信息"></p>
+<p>我们再来看一下一般的日志长什么样的：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190813202419.png"></p>
+<p>例如：现在有人来反馈某某某用户好像收不到短信，给出<strong>发送时间和用户ID</strong>，我们就可以在日志上找出该用户在我们系统的发送状态（例如图上的：state:81，我们就认为是发送成功状态)</p>
+<blockquote>
+<p>谨慎地记录日志。生产环境禁止输出 debug 日志；有选择地输出 info 日志；如果使</p>
+<p>用 warn 来记录刚上线时的业务行为信息，<strong>一定要注意日志输出量的问题，避免把服务器磁盘</strong></p>
+<p><strong>撑爆</strong>，并记得及时删除这些观察日志。</p>
+<p>大量地输出无效日志，不利于系统性能提升，也不利于快速定位错误点。记录日志时请思考：<strong>这些</strong></p>
+<p><strong>日志真的有人看吗？看到这条日志你能做什么？能不能给问题排查带来好处？</strong></p>
+</blockquote>
+<h3 id="1-1什么叫做-打点-？"><a href="#1-1什么叫做-打点-？" class="headerlink" title="1.1什么叫做 打点 ？"></a>1.1什么叫做 打点 ？</h3><p>打日志最常见的就是用来打印出<strong>程序执行时的相关信息</strong>，用于快速定位问题和排查问题。我一开始也是这么理解的，但是其实还可以延伸一下。</p>
+<span id="more"></span>
+
+<p>我现在搞的那个系统，我们还使用日志在系统的执行链路上<strong>打点</strong>。比如说，我现在要推送一条通知消息，通知消息其实就是下面这种：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190813202535.png"></p>
+<ul>
+<li>首先别人调用我的RPC提供的接口（或者我自己调用自己的接口），发现这是一个通知消息。于是我组装成对应的Task，异步放到消息队列中</li>
+<li>另一个系统从消息队列中取出Task，对这个Task进行业务的处理（比如说是否夜间屏蔽，是否强制发送等等），然后调用HTTP接口把这个Task交给下游</li>
+<li>下游做的事其实也很多，<strong>整块链路很长</strong>（比如要调用SDK的库，Android和IOS又做不同的处理）</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190813202617.png"></p>
+<p>而我们又希望在推送完了之后能统计出一些<strong>指标</strong>（曝光量，点击率，转化率）等等。于是乎，就需要在一些关键的位置上打一个日志（专业点叫做<strong>打点</strong>）</p>
+<p>在整块链路都打通了以后，将这些<strong>点位</strong>（日志）收集起来，放到实时流式处理平台(storm&#x2F;flink)上清洗&#x2F;过滤。如果是实时需要用到的放到Redis，离线的放在Hive。</p>
+<h2 id="二、手册规范"><a href="#二、手册规范" class="headerlink" title="二、手册规范"></a>二、手册规范</h2><h3 id="2-1-使用门面模式的日志框架"><a href="#2-1-使用门面模式的日志框架" class="headerlink" title="2.1 使用门面模式的日志框架"></a>2.1 使用门面模式的日志框架</h3><blockquote>
+<p>【强制】应用中不可直接使用日志系统（Log4j、Logback）中的 API，而应依赖使用日志框架</p>
+<p>SLF4J 中的 API，使用<strong>门面模式的日志框架</strong>，有利于维护和各个类的<strong>日志处理方式统一</strong>。</p>
+</blockquote>
+<p>门面模式我之前也写过一篇笔记：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247484556&idx=1&sn=920d00416ef76669b59937c771526345&chksm=ebd7458ddca0cc9bdda893fa034da354d97cfd0e96bdaa6ccfc2a94a0ba85a564415efa3c6ba&token=1712662964&lang=zh_CN&scene=21#wechat_redirect">三分钟学会门面模式！</a></p>
+<p>其实说白了就是希望<strong>抽象出一层API，能够在切换具体日志框架的时候不需要大面积更改</strong>。</p>
+<p>这个我们可以按学JDBC的时候去理解：</p>
+<blockquote>
+<p>无论我是接入MySQL、Oracle还是SQL Server，但我的接口永远都是那一套，切换数据库时不需要更改我的Java API</p>
+</blockquote>
+<p>看了一下公司的项目，采用的是<code>SLF4J+Logback</code></p>
+<h3 id="2-2-调用RPC接口使用Throwable类拦截"><a href="#2-2-调用RPC接口使用Throwable类拦截" class="headerlink" title="2.2 调用RPC接口使用Throwable类拦截"></a>2.2 调用RPC接口使用Throwable类拦截</h3><blockquote>
+<p>【强制】在调用 RPC、二方包、或动态生成类的相关方法时，捕捉异常必须使用 Throwable</p>
+<p>类来进行拦截。</p>
+</blockquote>
+<p>之前在排查问题的时候，有个问题死活排不出来，DeBug的时候一直没进catch模块。后来我学长就说：“要不你改成Throwable试试？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">try &#123;</span><br><span class="line"></span><br><span class="line">&#125; catch (Throwable e) &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我就很疑问，说：“为啥要改成Throwable呢？我们用Exception不就可以捕获所有的异常了么，Exception是Throwable的一个子类，但Exception已经是包含所有的Java异常了呀”</p>
+<p>众所周知，Throwable有两个子类：</p>
+<ul>
+<li>Error（一般我们都会把这个忽略掉…一般情况下出现了Error程序都运行不起来)</li>
+<li>Exception</li>
+</ul>
+<blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The  Throwable class is the superclass of all errors and exceptions in the Java language</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>在《手册》上也有对上面的规则进行说明：</p>
+<blockquote>
+<p>说明：通过反射机制来调用方法，如果找不到方法，抛出 NoSuchMethodException。什么情况会抛出</p>
+<p>NoSuchMethodError 呢？<strong>二方包在类冲突时，仲裁机制可能导致引入非预期的版本使类的方法签名不匹</strong></p>
+<p><strong>配，或者在字节码修改框架（比如：ASM）动态创建或修改类时，修改了相应的方法签名</strong>。这些情况，即</p>
+<p>使代码编译期是正确的，但在代码运行期时，会抛出 <strong>NoSuchMethodError</strong>。</p>
+</blockquote>
+<p>大概的意思就是说：调用 RPC、二方包、或动态生成类的相关方法时，可能直接抛出的是Error，而catch Exception是无法捕获得到的。</p>
+<p>想看例子的同学可以看看这篇文章：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/57950399">https://zhuanlan.zhihu.com/p/57950399</a></li>
+</ul>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>这篇文章好像有点短…</p>
+<p>参考资料（阿里巴巴开发手册下载地址）：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/p3c">https://github.com/alibaba/p3c</a></li>
+</ul>
+<p>查阅资料时发现的好文：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/chenhongliang/p/5312517.html">https://www.cnblogs.com/chenhongliang/p/5312517.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/crazyacking/p/5456347.html">https://www.cnblogs.com/crazyacking/p/5456347.html</a></li>
+</ul>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/08/13/%E5%B0%8F%E7%99%BD%E5%85%A5%E9%97%A8%E5%AD%A6%E4%B9%A0%E6%89%93%E6%97%A5%E5%BF%97/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/08/14/%E7%A8%8B%E5%BA%8F%E5%91%98%E5%A6%82%E4%BD%95%E8%87%AA%E6%88%91%E5%AD%A6%E4%B9%A0%EF%BC%9F%E9%98%BF%E9%87%8C%E8%B5%84%E6%B7%B1%E6%8A%80%E6%9C%AF%E4%B8%93%E5%AE%B6%E8%BF%99%E6%A0%B7%E5%81%9A/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            程序员如何自我学习？阿里资深技术专家这样做
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/08/12/Spring-data-jpa-query%E4%BD%BF%E7%94%A8%E5%8E%9F%E7%94%9FSQl%EF%BC%8C%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E5%9D%91/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Spring data jpa@query使用原生SQl，需要注意的坑</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>优秀的代码都是如何分层的？ |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-优秀的代码都是如何分层的？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  优秀的代码都是如何分层的？
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/" class="article-date">
+  <time datetime="2019-07-29T14:27:04.000Z" itemprop="datePublished">2019-07-29</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.8k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>原文地址: <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/YrTU-ZRYo7h2MN0GC6HdSQ">https://mp.weixin.qq.com/s/YrTU-ZRYo7h2MN0GC6HdSQ</a></p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222736.png"></p>
+<h2 id="1、背景"><a href="#1、背景" class="headerlink" title="1、背景"></a><strong>1、背景</strong></h2><p>说起应用分层，大部分人都会认为这个不是很简单嘛 就controller，service, mapper三层。看起来简单，很多人其实并没有把他们职责划分开，在很多代码中,controller做的逻辑比service还多,service往往当成透传了，这其实是很多人开发代码都没有注意到的地方，反正功能也能用，至于放哪无所谓呗。这样往往造成后面代码无法复用，层级关系混乱，对后续代码的维护非常麻烦。</p>
+<p>的确在这些人眼中分层只是一个形式，前辈们的代码这么写的，其他项目代码这么写的，那么我也这么跟着写。但是在真正的团队开发中每个人的习惯都不同，写出来的代码必然带着自己的标签，有的人习惯controller写大量的业务逻辑，有的人习惯在service中之间调用远程服务，这样就导致了每个人的开发代码风格完全不同，后续其他人修改的时候，一看，我靠这个人写的代码和我平常的习惯完全不同，修改的时候到底是按着自己以前的习惯改，还是跟着前辈们走，这又是个艰难的选择，选择一旦有偏差，你的后辈又维护你的代码的时候，恐怕就要骂人了。</p>
+<p>所以一个好的应用分层需要具备以下几点: </p>
+<ul>
+<li>方便后续代码进行维护扩展；</li>
+<li>分层的效果需要让整个团队都接受；</li>
+<li>各个层职责边界清晰。</li>
+</ul>
+<h2 id="2、如何进行分层"><a href="#2、如何进行分层" class="headerlink" title="2、如何进行分层"></a>2、如何进行分层</h2><h3 id="2-1、阿里规范"><a href="#2-1、阿里规范" class="headerlink" title="2.1、阿里规范"></a>2.1、阿里规范</h3><p>在阿里的编码规范中约束的分层如下:</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222826.png"></p>
+<p><strong>开放接口层</strong>：可直接封装 Service 方法暴露成 RPC 接口;通过 Web 封装成 http 接口;进行 网关安全控制、流量控制等。</p>
+<p><strong>终端显示层</strong>：各个端的模板渲染并执行显示的层。当前主要是 velocity 渲染，JS 渲染， JSP 渲染，移动端展示等。</p>
+<p><strong>Web 层</strong>：主要是对访问控制进行转发，各类基本参数校验，或者不复用的业务简单处理等。</p>
+<p><strong>Service 层</strong>：相对具体的业务逻辑服务层。</p>
+<p><strong>Manager 层</strong>：通用业务处理层，它有如下特征:1. 对第三方平台封装的层，预处理返回结果及转化异常信息;2. 对Service层通用能力的下沉，如缓存方案、中间件通用处理;3. 与DAO层交互，对多个DAO的组合复用。</p>
+<p><strong>DAO 层</strong>：数据访问层，与底层 MySQL、Oracle、Hbase 进行数据交互。</p>
+<p>阿里巴巴规约中的分层比较清晰简单明了，但是描述得还是过于简单了，以及service层和manager层有很多同学还是有点分不清楚之间的关系，就导致了很多项目中根本没有Manager层的存在。下面介绍一下具体业务中应该如何实现分层。</p>
+<h3 id="2-2、优化分层"><a href="#2-2、优化分层" class="headerlink" title="2.2、优化分层"></a>2.2、优化分层</h3><p>从我们的业务开发中总结了一个较为的理想模型,这里要先说明一下由于我们的rpc框架选用的是thrift可能会比其他的一些rpc框架例如dubbo会多出一层,作用和controller层类似 </p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222858.png"></p>
+<p>最上层controller和TService是我们阿里分层规范里面的第一层：<strong>轻业务逻辑，参数校验，异常兜底</strong>。通常这种接口可以轻易更换接口类型，所以业务逻辑必须要轻，甚至不做具体逻辑。</p>
+<span id="more"></span>
+
+<p><strong>Service</strong>：业务层，复用性较低，这里推荐每一个controller方法都得对应一个service,不要把业务编排放在controller中去做，为什么呢？如果我们把业务编排放在controller层去做的话，如果以后我们要接入thrift,我们这里又需要把业务编排在做一次，这样会导致我们每接入一个入口层这个代码都得重新复制一份如下图所示: </p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222923.png"></p>
+<p>这样大量的重复工作必定会导致我们开发效率下降，所以我们需要把业务编排逻辑都得放进service中去做: </p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729222945.png"></p>
+<p><strong>Mannager</strong>：可复用逻辑层。这里的Mannager可以是单个服务的，比如我们的cache,mq等等，当然也可以是复合的，当你需要调用多个Mannager的时候，这个可以合为一个Mannager，比如逻辑上的连表查询等。如果是httpMannager或rpcMannager需要在这一层做一些数据转换</p>
+<p><strong>DAO</strong>：数据库访问层。主要负责“操作数据库的某张表，映射到某个java对象”，dao应该只允许自己的Service访问，其他Service要访问我的数据必须通过对应的Service。</p>
+<h2 id="3、分层领域模型的转换"><a href="#3、分层领域模型的转换" class="headerlink" title="3、分层领域模型的转换"></a>3、分层领域模型的转换</h2><p>在阿里巴巴编码规约中列举了下面几个领域模型规约: </p>
+<ul>
+<li>DO（Data Object）：与数据库表结构一一对应，通过DAO层向上传输数据源对象。 </li>
+<li>DTO（Data Transfer Object）：数据传输对象，Service或Manager向外传输的对象。 </li>
+<li>BO（Business Object）：业务对象。由Service层输出的封装业务逻辑的对象。 </li>
+<li>AO（Application Object）：应用对象。在Web层与Service层之间抽象的复用对象模型，极为贴近展示层，复用度不高。 </li>
+<li>VO（View Object）：显示层对象，通常是Web向模板渲染引擎层传输的对象。 </li>
+<li>Query：数据查询对象，各层接收上层的查询请求。注意超过2个参数的查询封装，禁止使用Map类来传输。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729223055.png"></p>
+<p>每一个层基本都自己对应的领域模型，这样就导致了有些人过于追求每一层都是用自己的领域模型，这样就导致了一个对象可能会出现3次甚至4次转换在一次请求中，当返回的时候同样也会出现3-4次转换，这样有可能一次完整的请求-返回会出现很多次对象转换。如果在开发中真的按照这么来，恐怕就别写其他的了，一天就光写这个重复无用的逻辑算了吧。</p>
+<p><strong>所以我们得采取一个折中的方案:</strong> </p>
+<p>1、允许Service&#x2F;Manager可以操作数据领域模型，对于这个层级来说，本来自己做的工作也是做的是业务逻辑处理和数据组装。 </p>
+<p>2、Controller&#x2F;TService层的领域模型不允许传入DAO层，这样就不符合职责划分了。 </p>
+<p>3、同理，不允许DAO层的数据传入到Controller&#x2F;TService。</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190729223159.png"></p>
+<h2 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h2><p>总的来说业务分层对于代码规范是比较重要，决定着以后的代码是否可复用，是否职责清晰，边界清晰。</p>
+<p>当然这种分层其实见仁见智, 团队中的所有人的分层习惯也不同，所以很难权衡出一个标准的准则，总的来说只要满足职责逻辑清晰，后续维护容易，就是好的分层。</p>
+<p>最后，如果你的团队有更好的分层，或者上面所描述的有什么错误的地方还请留言指正一下。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/07/29/%E4%BC%98%E7%A7%80%E7%9A%84%E4%BB%A3%E7%A0%81%E9%83%BD%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E5%B1%82%E7%9A%84%EF%BC%9F/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/07/30/%E5%9C%A8%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%88%B0%E7%9A%84SQL/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            在工作中常用到的SQL
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/07/29/e-printStackTrace-%E4%BC%9A%E5%AF%BC%E8%87%B4%E9%94%81%E6%AD%BB%EF%BC%9F%E8%BF%99%E4%BB%85%E4%BB%85%E6%98%AF%E6%89%93%E5%8D%B0%EF%BC%8C%E6%80%8E%E4%B9%88%E5%8F%AF%E8%83%BD%EF%BC%9F/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">e.printStackTrace()会导致锁死？这仅仅是打印，怎么可能？</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

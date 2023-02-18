@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>天天用Synchronized，底层原理是个啥? |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-天天用Synchronized，底层原理是个啥"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  天天用Synchronized，底层原理是个啥?
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/" class="article-date">
+  <time datetime="2019-07-02T11:56:26.000Z" itemprop="datePublished">2019-07-02</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">11 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：liuxiaopeng</p>
+<p>原文地址:：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/paddix/p/5367116.html">https://www.cnblogs.com/paddix/p/5367116.html</a></p>
+</blockquote>
+<p><strong>Synchronized 的基本使用</strong></p>
+<p>Synchronized 的作用主要有三个：</p>
+<ul>
+<li>确保线程互斥的访问同步代码</li>
+<li>保证共享变量的修改能够及时可见</li>
+<li>有效解决重排序问题</li>
+</ul>
+<p>从语法上讲，Synchronized 总共有三种用法：</p>
+<ul>
+<li>修饰普通方法</li>
+<li>修饰静态方法</li>
+<li>修饰代码块</li>
+</ul>
+<p>接下来我就通过几个例子程序来说明一下这三种使用方式（为了便于比较，三段代码除了 Synchronized 的使用方式不同以外，其他基本保持一致）。</p>
+<p><strong>没有同步的情况</strong></p>
+<p>代码段 1：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.paddx.test.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedTest</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method1</span><span class="params">()</span>&#123;</span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="string">&quot;Method 1 start&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Method 1 execute&quot;</span>);</span><br><span class="line">      Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">       e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 1 end&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method2</span><span class="params">()</span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 2 start&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Method 2 execute&quot;</span>);</span><br><span class="line">      Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 2 end&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">SynchronizedTest</span> <span class="variable">test</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SynchronizedTest</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        test.method1();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        test.method2();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下，线程 1 和线程 2 同时进入执行状态，线程 2 执行速度比线程 1 快，所以线程 2 先执行完成。推荐阅读：<a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247487589&idx=2&sn=bc7398739f7153e5cf9a9f0241b0cb5b&chksm=eb539553dc241c45b28c0ccf217359c17ccce4ae34e3c13f4c7a2555f108247ea3d54902a88c&scene=21#wechat_redirect">多线程 start 和 run 方法到底有什么区别？</a></p>
+<p>这个过程中线程 1 和线程 2 是同时执行的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Method <span class="number">1</span> start</span><br><span class="line">Method <span class="number">1</span> execute</span><br><span class="line">Method <span class="number">2</span> start</span><br><span class="line">Method <span class="number">2</span> execute</span><br><span class="line">Method <span class="number">2</span> end</span><br><span class="line">Method <span class="number">1</span> end</span><br></pre></td></tr></table></figure>
+
+<p><strong>对普通方法同步</strong></p>
+<p>代码段 2：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.paddx.test.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedTest</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">method1</span><span class="params">()</span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 1 start&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Method 1 execute&quot;</span>);</span><br><span class="line">      Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 1 end&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">method2</span><span class="params">()</span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 2 start&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Method 2 execute&quot;</span>);</span><br><span class="line">      Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 2 end&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">SynchronizedTest</span> <span class="variable">test</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SynchronizedTest</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        test.method1();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        test.method2();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下，跟代码段 1 比较，可以很明显的看出，线程 2 需要等待线程 1 的 Method1 执行完成才能开始执行 Method2 方法。</p>
+<span id="more"></span>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Method 1 start</span><br><span class="line">Method 1 execute</span><br><span class="line">Method 1 end</span><br><span class="line">Method 2 start</span><br><span class="line">Method 2 execute</span><br><span class="line">Method 2 end</span><br></pre></td></tr></table></figure>
+
+<p><strong>静态方法（类）同步</strong></p>
+<p>代码段 3：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.paddx.test.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedTest</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">method1</span><span class="params">()</span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 1 start&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Method 1 execute&quot;</span>);</span><br><span class="line">      Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 1 end&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">method2</span><span class="params">()</span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 2 start&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Method 2 execute&quot;</span>);</span><br><span class="line">      Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 2 end&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">SynchronizedTest</span> <span class="variable">test</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SynchronizedTest</span>();</span><br><span class="line">    <span class="keyword">final</span> <span class="type">SynchronizedTest</span> <span class="variable">test2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SynchronizedTest</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        test.method1();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        test2.method2();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下，对静态方法的同步本质上是对类的同步（静态方法本质上是属于类的方法，而不是对象上的方法）。</p>
+<p>所以即使 Test 和 Test2 属于不同的对象，但是它们都属于 SynchronizedTest 类的实例。</p>
+<p>所以也只能顺序的执行 Method1 和 Method2，不能并发执行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Method 1 start</span><br><span class="line">Method 1 execute</span><br><span class="line">Method 1 end</span><br><span class="line">Method 2 start</span><br><span class="line">Method 2 execute</span><br><span class="line">Method 2 end</span><br></pre></td></tr></table></figure>
+
+<p><strong>代码块同步</strong></p>
+<p>代码段 4：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.paddx.test.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedTest</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method1</span><span class="params">()</span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 1 start&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Method 1 execute&quot;</span>);</span><br><span class="line">        Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 1 end&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method2</span><span class="params">()</span>&#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 2 start&quot;</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Method 2 execute&quot;</span>);</span><br><span class="line">        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">      e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;Method 2 end&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="type">SynchronizedTest</span> <span class="variable">test</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SynchronizedTest</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        test.method1();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        test.method2();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;).start();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下，虽然线程 1 和线程 2 都进入了对应的方法开始执行，但是线程 2 在进入同步块之前，需要等待线程 1 中同步块执行完成。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Method 1 start</span><br><span class="line">Method 1 execute</span><br><span class="line">Method 2 start</span><br><span class="line">Method 1 end</span><br><span class="line">Method 2 execute</span><br><span class="line">Method 2 end</span><br></pre></td></tr></table></figure>
+
+<p><strong>Synchronized 原理</strong></p>
+<p>如果对上面的执行结果还有疑问，也先不用急，我们先来了解 Synchronized 的原理。推荐阅读：<a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247487913&idx=2&sn=318f4cbbde0669bd8c62af3501d2c915&chksm=eb53949fdc241d89be6b54cb3db4e7367a3ac4894c2911ac3fa236708dfb0360355660fb0ca4&scene=21#wechat_redirect">面试常考：Synchronized 有几种用法？</a></p>
+<p>再回头上面的问题就一目了然了。我们先通过反编译下面的代码来看看 Synchronized 是如何实现对代码块进行同步的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Method 1 start&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反编译结果：</p>
+<p><img src="https://images2015.cnblogs.com/blog/820406/201604/820406-20160414215316020-1963237484.png"></p>
+<p>关于这两条指令的作用，我们直接参考 JVM 规范中描述：</p>
+<blockquote>
+<p><strong>monitorenter ：</strong>Each object is associated with a monitor. A monitor is locked if and only if it has an owner. The thread that executes monitorenter attempts to gain ownership of the monitor associated with objectref, as follows:</p>
+<p>• If the entry count of the monitor associated with objectref is zero, the thread enters the monitor and sets its entry count to one. The thread is then the owner of the monitor.</p>
+<p>• If the thread already owns the monitor associated with objectref, it reenters the monitor, incrementing its entry count.</p>
+<p>• If another thread already owns the monitor associated with objectref, the thread blocks until the monitor’s entry count is zero, then tries again to gain ownership.</p>
+</blockquote>
+<p>这段话的大概意思为：每个对象有一个监视器锁（Monitor），当 Monitor 被占用时就会处于锁定状态。</p>
+<p>线程执行 Monitorenter 指令时尝试获取 Monitor 的所有权，过程如下：</p>
+<ul>
+<li>如果 Monitor 的进入数为 0，则该线程进入 Monitor，然后将进入数设置为 1，该线程即为 Monitor 的所有者。</li>
+<li>如果线程已经占有该 Monitor，只是重新进入，则进入 Monitor 的进入数加 1。</li>
+<li>如果其他线程已经占用了 Monitor，则该线程进入阻塞状态，直到 Monitor 的进入数为 0，再重新尝试获取 Monitor 的所有权。</li>
+</ul>
+<blockquote>
+<p><strong>monitorexit：</strong>The thread that executes monitorexit must be the owner of the monitor associated with the instance referenced by objectref.</p>
+<p>The thread decrements the entry count of the monitor associated with objectref. If as a result the value of the entry count is zero, the thread exits the monitor and is no longer its owner. </p>
+<p>Other threads that are blocking to enter the monitor are allowed to attempt to do so.</p>
+</blockquote>
+<p><strong>这段话的大概意思为：</strong>执行 Monitorexit 的线程必须是 Objectref 所对应的 Monitor 的所有者。</p>
+<p>指令执行时，Monitor 的进入数减 1，如果减 1 后进入数为 0，那线程退出 Monitor，不再是这个 Monitor 的所有者。</p>
+<p>其他被这个 Monitor 阻塞的线程可以尝试去获取这个 Monitor 的所有权。</p>
+<p>通过这两段描述，我们应该能很清楚的看出 Synchronized 的实现原理。</p>
+<p>Synchronized 的语义底层是通过一个 Monitor 的对象来完成，其实 Wait&#x2F;Notify 等方法也依赖于 Monitor 对象。推荐阅读：<a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247489924&idx=2&sn=683e9e81553c7b03e93f17a0dc907eba&chksm=eb539cb2dc2415a448dedbb3d91ff958361a146263ea20acb2d32984b559fe8dba73d59514cc&scene=21#wechat_redirect">Synchronized 与 ReentrantLock 的区别！</a></p>
+<p>这就是为什么只有在同步的块或者方法中才能调用 Wait&#x2F;Notify 等方法，否则会抛出 java.lang.IllegalMonitorStateException 的异常。</p>
+<p>我们再来看一下同步方法的反编译结果，源代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.paddx.test.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedMethod</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">method</span><span class="params">()</span> &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;Hello World!&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反编译结果：</p>
+<p><img src="https://images2015.cnblogs.com/blog/820406/201604/820406-20160418202553429-1642545018.png"></p>
+<p>从反编译的结果来看，方法的同步并没有通过指令 Monitorenter 和 Monitorexit 来完成（理论上其实也可以通过这两条指令来实现）。不过相对于普通方法，其常量池中多了 ACC_SYNCHRONIZED 标示符。</p>
+<p>JVM 就是根据该标示符来实现方法的同步的：当方法调用时，调用指令将会检查方法的 ACC_SYNCHRONIZED 访问标志是否被设置。</p>
+<p>如果设置了，执行线程将先获取 Monitor，获取成功之后才能执行方法体，方法执行完后再释放 Monitor。在方法执行期间，其他任何线程都无法再获得同一个 Monitor 对象。</p>
+<p>其实本质上没有区别，只是方法的同步是一种隐式的方式来实现，无需通过字节码来完成。</p>
+<p><strong>运行结果解释</strong></p>
+<p>有了对 Synchronized 原理的认识，再来看上面的程序就可以迎刃而解了。</p>
+<p><strong>①代码段 2 结果</strong></p>
+<p>虽然 Method1 和 Method2 是不同的方法，但是这两个方法都进行了同步，并且是通过同一个对象去调用的。</p>
+<p>所以调用之前都需要先去竞争同一个对象上的锁（Monitor），也就只能互斥的获取到锁，因此，Method1 和 Method2 只能顺序的执行。</p>
+<p><strong>②代码段 3 结果</strong></p>
+<p>虽然 Test 和 Test2 属于不同对象，但是 Test 和 Test2 属于同一个类的不同实例。</p>
+<p>由于 Method1 和 Method2 都属于静态同步方法，所以调用的时候需要获取同一个类上 Monitor（每个类只对应一个 Class 对象），所以也只能顺序的执行。</p>
+<p><strong>③代码段 4 结果</strong></p>
+<p>对于代码块的同步，实质上需要获取 Synchronized 关键字后面括号中对象的 Monitor。</p>
+<p>由于这段代码中括号的内容都是 This，而 Method1 和 Method2 又是通过同一的对象去调用的，所以进入同步块之前需要去竞争同一个对象上的锁，因此只能顺序执行同步块。</p>
+<p><strong>总结</strong></p>
+<p>Synchronized 是 Java 并发编程中最常用的用于保证线程安全的方式，其使用相对也比较简单。</p>
+<p>但是如果能够深入了解其原理，对监视器锁等底层知识有所了解，一方面可以帮助我们正确的使用 Synchronized 关键字。</p>
+<p>另一方面也能够帮助我们更好的理解并发编程机制，有助于我们在不同的情况下选择更优的并发策略来完成任务。对平时遇到的各种并发问题，也能够从容的应对。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/07/02/%E5%A4%A9%E5%A4%A9%E7%94%A8Synchronized%EF%BC%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E6%98%AF%E4%B8%AA%E5%95%A5/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/java/" rel="tag">java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/07/03/restful-%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E7%A4%BA%E4%BE%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            restful 接口设计示例
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/07/02/%E3%80%8AJava%E9%AB%98%E7%BA%A7%E5%BC%80%E5%8F%91%E5%B7%A5%E7%A8%8B%E5%B8%88%E3%80%8B%E7%9B%B4%E6%92%AD%E8%AF%BE%E2%85%A6/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">《Java高级开发工程师》直播课Ⅶ</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

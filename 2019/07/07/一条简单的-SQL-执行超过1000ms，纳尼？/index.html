@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>一条简单的 SQL 执行超过1000ms，纳尼？ |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-一条简单的-SQL-执行超过1000ms，纳尼？"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  一条简单的 SQL 执行超过1000ms，纳尼？
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2019/07/07/%E4%B8%80%E6%9D%A1%E7%AE%80%E5%8D%95%E7%9A%84-SQL-%E6%89%A7%E8%A1%8C%E8%B6%85%E8%BF%871000ms%EF%BC%8C%E7%BA%B3%E5%B0%BC%EF%BC%9F/" class="article-date">
+  <time datetime="2019-07-07T05:36:37.000Z" itemprop="datePublished">2019-07-07</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">5 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <blockquote>
+<p>作者：VipAugus</p>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5ce906a3e51d455a2f2201dc">https://juejin.im/post/5ce906a3e51d455a2f2201dc</a></p>
+</blockquote>
+<blockquote>
+<p>总结就是锁表了</p>
+</blockquote>
+<p>MySQL对我说“Too young, too naive!”</p>
+<h2 id="大概过程"><a href="#大概过程" class="headerlink" title="大概过程"></a><strong>大概过程</strong></h2><hr>
+<p>在测试环境Docker容器中，在跨进程调用服务的时候，A应用通过Dubbo调用B应用的RPC接口，发现B应用接口超时错误，接着通过debug和日志，<strong>发现具体耗时的地方在于一句简单SQL执行，但是耗时超过1000ms。</strong></p>
+<p>通过查看数据库的进程列表，发现是有<strong>死锁锁表</strong>了，<strong>很多进程状态status处于’sending data</strong>‘，最后为锁住的表添加索引，并且kill掉阻塞的请求，解除死锁，服务速度恢复正常。</p>
+<p><strong>下面记录的是大致排查过程：</strong></p>
+<p>通过观察业务代码，确认没有内存溢出或者其它事务问题，于是只能考虑Docker环境的数据库和jvm底层详情了。</p>
+<h2 id="使用Druid监控SQL执行状态"><a href="#使用Druid监控SQL执行状态" class="headerlink" title="使用Druid监控SQL执行状态"></a><strong>使用Druid监控SQL执行状态</strong></h2><hr>
+<p>通过日志，发现有一句SQL严重超时，一句简单SQL，原本是批量插入多条记录，为了定位问题，测试时<a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MzI3ODcxMzQzMw==&mid=2247489830&idx=2&sn=bbd2436d491ee2ea7079ae51ffa5560f&chksm=eb539c10dc2415062598194b0f8668afc236adc0307f775d98ff2a4103c8c125239e2f552a8f&scene=21#wechat_redirect"><strong>Mybatis</strong></a><strong>只插入一条记录</strong>，但即便如此，还是耗时10秒</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707134444.png"></p>
+<p>于是打算使用阿里巴巴的数据库连接池Druid进行监控，这篇文章有教如何<a href="https://link.juejin.im/?target=https://my.oschina.net/wangmengjun/blog/788386">使用Druid监控SQL执行状态</a>，监控SQL效果如下：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707134507.png"></p>
+<p>在SQL监控Tab中，可以看到执行SQL的具体情况，包括某条SQL语句执行的时间（平均、最慢）、SQL执行次数、SQL执行出错的次数等</p>
+<p>上面显示的是正常情况下，时间单位是ms，正常的SQL一般在10ms之内，数据量大的控制在30ms之内，这样用户的使用体验感才会良好。所以说之前的1000ms，是不可接受的结果。</p>
+<h2 id="通过JMC远程监控Tomcat"><a href="#通过JMC远程监控Tomcat" class="headerlink" title="通过JMC远程监控Tomcat"></a>通过JMC远程监控Tomcat</h2><p><strong>JMC(java mission control)是jdk自带的一个监控工具</strong>，在jdk的bin目录下（java大法好，该目录下有很多实用的工具）。</p>
+<p>具体要<a href="https://link.juejin.im/?target=https://blog.csdn.net/kong2030/article/details/80312417">怎么配置和加的参数请参考此文</a></p>
+<p>为了简单，我加了一个tomcat无验证模式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#在tomcat的conf目录下的catalina.sh增加如下java启动参数： </span><br><span class="line">-Dcom.sun.management.jmxremote=true</span><br><span class="line">-Dcom.sun.management.jmxremote.port=8888</span><br><span class="line">-Dcom.sun.management.jmxremote.ssl=false</span><br><span class="line">-Dcom.sun.management.jmxremote.authenticate=false</span><br><span class="line">-XX:+UnlockCommercialFeatures -XX:+FlightRecorder</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<p>下面是自己本地调试的截图</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707135004.png"></p>
+<p>然后打开jmc，创建一个JMX连接，输入对应的ip和JMX端口。接着可以设定一段时间内的飞行监控，监测这一分钟内jvm具体参数</p>
+<p>当时调试的时候，发现内存使用、CPU占用率、线程状态也挺正常的，没有发现明显的异常错误，效果如下图：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707135152.png"></p>
+<p>唯一比较耗时的是在代码tab页中，<strong>当时发现了大量的I&#x2F;O，比上图的比例还高，当时大概占了80%，查看调用树，很多循环tcp socket连接</strong>，考虑到应用中本来就有很多需要io以及netty也需要tcp连接，所以大概排除了jvm虚拟机的问题，然后就去排查MySQL的问题。</p>
+<p>排查MySQL<br>在了解MySQL锁概念的时候，可以参考这篇文章mysql什么情况下会触发表锁，由于现在使用的比较多的是InnoDB，所以可以着重看看InnoDB锁问题。</p>
+<p>直接执行SQL语句<br>通过DEBUG代码，从mybatis中取出映射后的SQL语句，在MySQL客户款直接执行SQL和Explain查看执行计划，速度都很快，排除了SQL语句的问题。</p>
+<h3 id="查看MySQL线程列表"><a href="#查看MySQL线程列表" class="headerlink" title="查看MySQL线程列表"></a>查看MySQL线程列表</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show processlist;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707135424.png"></p>
+<p>从图中可以看出，有些线程的状态处于sending data，查阅资料：<strong>所谓的“Sending data”并不是单纯的发送数据，而是包括“收集 + 发送 数据”</strong>。</p>
+<p>然后后面一列info显示的是具体信息，是查询用来生成主键ID的函数，之前速度都很快，为啥突然就这么慢呢，于是回过头去查看该函数：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> next_value <span class="keyword">into</span> ret_val <span class="keyword">from</span> `xxx` <span class="keyword">where</span> table_name<span class="operator">=</span>tableName <span class="keyword">for</span> <span class="keyword">update</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">update</span> `xxx` <span class="keyword">set</span></span><br><span class="line">		current_value<span class="operator">=</span>current_value<span class="operator">+</span>step,</span><br><span class="line">		next_value<span class="operator">=</span>next_value<span class="operator">+</span>step</span><br><span class="line">	<span class="keyword">where</span> table_name<span class="operator">=</span>tableName;</span><br></pre></td></tr></table></figure>
+
+<p>select for update，给这个表加了排它锁，阻止其它事务取得相同数据集的共享读锁和排他写锁，同时，这个序列表表中，用来检索的字段没有加索引，在InnoDB行锁机制中：</p>
+<p><img src="https://raw.githubusercontent.com/gaohanghang/images/master/img20190707141005.png"></p>
+<p>由于MySQL的行锁是针对索引加的锁，不是针对记录加的锁，所以虽然是访问不同行的记录，但是如果是使用<strong>相同的索引键</strong>（在我们的场景中，就是查询时用到的table_name)，是会出现锁冲突的</p>
+<p>所以祥哥了解到其它团队因为查询这个表产生事务问题，造成死锁，这个序列表被锁住了。</p>
+<p>由于这个自增序列表每个团队都在使用，所以当时测试环境中，经常有dao层超时错误，最终祥哥将这些阻塞的线程kill掉，为序列表加了索引，解决了问题。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>下次遇到MySQL执行耗时的情况，排除了代码问题之后，要去看数据库是否有死锁的情况存在，观察有没有被阻塞的线程，排查被阻塞的线程具体info，定位到具体问题。</p>
+<hr>
+<h2 id="欢迎吐槽"><a href="#欢迎吐槽" class="headerlink" title="欢迎吐槽"></a>欢迎吐槽</h2><p>具体排查过程是这样，其中还有些细节问题，不清除自己写的思路或者方法有没有错误，如有请轻喷。</p>
+<p>对于MySQL锁的机制和底层设计，还是太年轻了，听祥哥意见，去查看官方文档，还有多敲一些命令熟悉一下吧。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2019/07/07/%E4%B8%80%E6%9D%A1%E7%AE%80%E5%8D%95%E7%9A%84-SQL-%E6%89%A7%E8%A1%8C%E8%B6%85%E8%BF%871000ms%EF%BC%8C%E7%BA%B3%E5%B0%BC%EF%BC%9F/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql/" rel="tag">sql</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2019/07/07/%E3%80%90TEDx%E6%BC%94%E8%AE%B2%E3%80%91%E4%B8%89%E4%B8%AA%E7%A7%98%E8%AF%80%EF%BC%8C%E8%AE%A9%E4%BD%A0%E6%88%90%E4%B8%BA%E8%87%AA%E4%BF%A1%E7%9A%84%E6%BC%94%E8%AE%B2%E8%80%85/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            【TEDx演讲】三个秘诀，让你成为自信的演讲者
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2019/07/06/%E3%80%8A%E6%9E%81%E7%AE%80%E6%80%9D%E7%BB%B4%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">《极简思维》读书笔记</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>

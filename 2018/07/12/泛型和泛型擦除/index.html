@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+  
+
+    <head>
+      <meta charset="utf-8" />
+        
+      <meta name="description" content="个人公众号《骇客与画家》" />
+      
+      <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1"
+      />
+      <title>泛型和泛型擦除 |  高行行的个人博客</title>
+  <meta name="generator" content="hexo-theme-ayer">
+      
+      <link rel="shortcut icon" href="/favicon.ico" />
+       
+<link rel="stylesheet" href="/dist/main.css">
+
+      
+<link rel="stylesheet" href="/css/fonts/remixicon.css">
+
+      
+<link rel="stylesheet" href="/css/custom.css">
+ 
+      <script src="https://cdn.staticfile.org/pace/1.2.4/pace.min.js"></script>
+       
+ 
+
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bulma@5.0.1/bulma.min.css"
+      />
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>
+
+      <!-- mermaid -->
+      
+      <style>
+        .swal2-styled.swal2-confirm {
+          font-size: 1.6rem;
+        }
+      </style>
+    </head>
+  </html>
+</html>
+
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-泛型和泛型擦除"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  泛型和泛型擦除
+</h1>
+ 
+
+      
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2018/07/12/%E6%B3%9B%E5%9E%8B%E5%92%8C%E6%B3%9B%E5%9E%8B%E6%93%A6%E9%99%A4/" class="article-date">
+  <time datetime="2018-07-12T14:06:22.000Z" itemprop="datePublished">2018-07-12</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">11 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>泛型是 JDK1.5 的一个新特性，其实就是一个『语法糖』，本质上就是编译器为了提供更好的可读性而提供的一种小「手段」，虚拟机层面是不存在所谓『泛型』的概念的。</p>
+<p>在我看来，『泛型』的存在具有以下两点意义，这也是它被设计出来的初衷。</p>
+<p>一是，通过泛型的语法定义，编译器可以在编译期提供一定的类型安全检查，过滤掉大部分因为类型不符而导致的运行时异常，例如：</p>
+<blockquote>
+<p>ArrayList<Integer> list &#x3D; new ArrayList&lt;&gt;();</p>
+<p>list.add(“ddddd”); &#x2F;&#x2F;编译失败</p>
+</blockquote>
+<p>由于我们的 ArrayList 是符合泛型语法定义的容器，所以你可以在实例化的时候指定一个类型，限定该容器只能容纳 Integer 类型的元素。而如果你强行添加其他类型的元素进入，那么编译器是不会通过的。</p>
+<p>二是，泛型可以让程序代码的可读性更高，并且由于本身只是一个语法糖，所以对于 JVM 运行时的性能是没有任何影响的。</p>
+<p>当然，『泛型』也有它与身俱来的一些缺点，虽然看起来好像只是提供了一种类型安全检查的功能，但是实际上这种语法糖的实现却没有看起来的那样轻松，理解好泛型的基本原理将有助于你理解各类容器集合框架。</p>
+<p><strong>类型擦除</strong></p>
+<p>『类型擦除』的概念放在最开始进行介绍是为了方便大家初步建立起对于『泛型』的一个基本认识，从而对于后续介绍的使用方式上会更容易理解。</p>
+<p>泛型这种语法糖，编译器会在编译期间「擦除」泛型语法并相应的做出一些类型转换动作。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Caculate</span>&lt;T&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> T num;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们定义了一个泛型类，具体定义泛型类的细节待会会进行详细介绍，这里关注我们的类型擦除过程。定义了一个属性成员，该成员的类型是一个泛型类型，这个 T 具体是什么类型，我们也不知道，它只是用于限定类型的。</p>
+<p>当然，我们也可以反编译一下这个 Caculate 类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Caculate</span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Caculate</span><span class="params">()</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Object num;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>会得到这样一个结果，很明显的是，编译器擦除 Caculate 类后面的两个尖括号，并且将 num 的类型定义为 Object 类型。</p>
+<span id="more"></span>
+
+<p>当然，有人可能就会问了，「是不是所有的泛型类型都以 Object 进行擦除呢？」</p>
+<p>答案是：大部分情况下，泛型类型都会以 Object 进行替换，而有一种情况则不是。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Caculate</span>&lt;T <span class="keyword">extends</span> <span class="title class_">String</span>&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> T num;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种情况的泛型类型，num 会被替换为 String 而不再是 Object。</p>
+<p>这是一个类型限定的语法，它限定 T 是 String 或者 String 的子类，也就是你构建 Caculate 实例的时候只能限定 T 为 String 或者 String 的子类，所以无论你限定 T 为什么类型，String 都是父类，不会出现类型不匹配的问题，于是可以使用 String 进行类型擦除。</p>
+<p>那么很多人也会有这样的疑问，你类型擦除之后，所有泛型相关方法的返回值都是 Object，那我当初泛型限定的具体类型还有用吗？例如这样一个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;Integer&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>();</span><br><span class="line"></span><br><span class="line">list.add(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">Integer</span> <span class="variable">num</span> <span class="operator">=</span> list.get(<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这是 ArrayList 内部的一个方法</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> E <span class="title function_">get</span><span class="params">(<span class="type">int</span> index)</span> &#123;</span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://omi0o6pp2.bkt.clouddn.com/blog/180712/i605FhG464.png" alt="mark"></p>
+<p>这是上述三行代码的一个反编译结果，可以看到，实际上编译器会正常的将 ArrayList 编译并进行类型擦除，然后返回实例。但是除此之外的是，如果构建 ArrayList 实例时使用了泛型语法，那么编译器将标记该实例并关注该实例后续所有方法的调用，每次调用前都进行安全检查，非指定类型的方法都不能调用成功。</p>
+<p>其实还有一点可能大家都很少关注，大多数人只是知道编译器会类型擦除一个泛型类并对创建出来的实例进行一定的安全检查。但是实际上编译器不仅关注一个泛型方法的调用，它还会为某些返回值为限定的泛型类型的方法进行强制类型转换，由于类型擦除，返回值为泛型类型的方法都会擦除成 Object 类型，当这些方法被调用后，编译器会额外插入一行 checkcast 指令用于强制类型转换。</p>
+<p>其实这一个过程，我们管它叫做『泛型翻译』。不得不感叹一下，编译器为了蒙骗虚拟机对程序员提供泛型服务可是没少费心思啊。</p>
+<p><strong>泛型的基本使用</strong></p>
+<p><strong>泛型类与接口</strong></p>
+<p>定义一个泛型类或接口是容易的，我们看几个 JDK 中的泛型类。</p>
+<ul>
+<li>public class ArrayList<E></li>
+<li>public interface List<E></li>
+<li>public interface Queue<E></li>
+</ul>
+<p>基本格式是这样的：</p>
+<blockquote>
+<p>访问修饰符 class&#x2F;interface 类名或接口名&lt;限定类型变量名&gt;</p>
+</blockquote>
+<p>其中「限定类型变量名」可以是任意一个变量名称，你叫它 T 也好，E 也好，只要符合 Java 变量命名规范就可以。在这里相当于声明了一个泛型限定类型，该类中的成员属性或者方法都可以直接拿来用。</p>
+<p><strong>泛型方法</strong></p>
+<p>这里大家需要明确一点的是，泛型方法并不一定依赖其外部的类或者接口，它可以独立存在，也可以依赖外围类存在。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> E <span class="title function_">get</span><span class="params">(<span class="type">int</span> index)</span> &#123;</span><br><span class="line">    rangeCheck(index);</span><br><span class="line">    <span class="keyword">return</span> elementData(index);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ArrayList 的这个 get 方法就是一个泛型方法，它依赖外围 ArrayList 声明的 E 这个泛型类型，也就是它没有自己声明一个泛型类型而用的外围类的。</p>
+<p>当然，另一种方式就是自己申明一个泛型类型并使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public class Caculate &#123;</span><br><span class="line"></span><br><span class="line">    public &lt;T&gt; T add(T num)&#123;</span><br><span class="line">        return num;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是泛型方法的另一种形态，其中 &lt;T&gt; 用于声明一个名称为 T 的泛型类型，第二个 T 是方法的返回值。</p>
+<p>所以外部调用该方法都需要指定一个限定类型才能调用，像这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Caculate</span> <span class="variable">caculate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Caculate</span>();</span><br><span class="line"></span><br><span class="line">caculate.&lt;Integer&gt;add(<span class="number">12</span>);</span><br><span class="line"></span><br><span class="line">caculate.&lt;String&gt;add(<span class="string">&quot;fadf&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>使用泛型的目的就是为了限定类型，本来不使用泛型语法，那么所有的参数都是 Object 类型的，现在泛型允许我们限定具体类型，这一点要明确。</p>
+<p>当然，大家可能没怎么见过这样的调用语法，无论是日常写代码，或是看 JDK 源码实现里，基本上都省略了类型限定部分，也就是上述代码等效于：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Caculate</span> <span class="variable">caculate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Caculate</span>();</span><br><span class="line">caculate.add(<span class="number">12</span>);</span><br><span class="line">caculate.add(<span class="string">&quot;fadf&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>为什么呢？因为编译会推断你的参数类型，所以允许你省略，但前提是你这个方法是有参数的，如果你这个方法的逻辑是不需要传参的，那么你依然需要显式指定限定的具体类型。例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Caculate</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; T <span class="title function_">add</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="type">T</span> <span class="variable">num</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">return</span> num;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Caculate</span> <span class="variable">caculate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Caculate</span>();</span><br><span class="line">caculate.add();</span><br></pre></td></tr></table></figure>
+
+<p>这样的 add 方法调用，就意味着你没有限定 T 的类型，那么这个 T 实际上就是 Object 类型，并没有被限定。</p>
+<p><strong>泛型的类型限定</strong></p>
+<p>这里的类型限定其实指的是这么个语法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;T <span class="keyword">extends</span> <span class="title class_">String</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>它既可以应用于泛型类或者接口的定义上，也可以应用在泛型方法的定义上，它声明了一个泛型的类型 T，并且 T 类型必须是 String 或者 String 的子类，也就是外部使用时所传入的具体限定类型不能是非 String 体系的类型。</p>
+<p>使用这种语法时，由于编译器会确保外部使用时传入的具体限定类型不会超过 String，所以在编译期间将不再使用 Object 做类型擦除，可以使用 String 进行类型擦除。</p>
+<p><strong>通配符</strong></p>
+<p>通配符是用于解决泛型之间引用传递问题的特殊语法。看下面一段代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span>&#123;</span><br><span class="line"></span><br><span class="line">    Integer[] integerArr = <span class="keyword">new</span> <span class="title class_">Integer</span>[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">    Number[] numberArr = <span class="keyword">new</span> <span class="title class_">Number</span>[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">    numberArr = integerArr;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    ArrayList&lt;Integer&gt; integers = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    ArrayList&lt;Number&gt; numbers = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    numbers = integers;<span class="comment">//编译不通过</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Java 中，数组是协变的，即 Integer extends Number，那么子类数组实例是可以赋值给父类数组实例的。那是由于 Java 中的数组类型本质上会由虚拟机运行时动态生成一个类型，这个类型除了记录数组的必要属性，如长度，元素类型等，会有一个指针指向内存某个位置，这个位置就是该数组元素的起始位置。</p>
+<p>所以子类数组实例赋值父类数组实例，只不过意味着父类数组实例的引用指向堆中子类数组而已，并不会有所冲突，因此是 Java 允许这种操作的。</p>
+<p>而泛型是不允许这么做的，为什么呢？</p>
+<p>我们假设泛型允许这种协变，看看会有什么问题。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;Integer&gt; integers = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">ArrayList&lt;Number&gt; numbers = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">numbers = integers;<span class="comment">//假设的前提下，编译器是能通过的</span></span><br><span class="line">numbers.add(<span class="number">23.5</span>);</span><br></pre></td></tr></table></figure>
+
+<p>假设 Java 允许泛型协变，那么上述代码在编译器看来是没问题的，但运行时就会出现问题。这个 add 方法实际上就将一个浮点数放入了整型容器中了，虽然由于类型擦除并不会对程序运行造成问题，但显然违背了泛型的设计初衷，容易造成逻辑混乱，所以 Java 干脆禁止泛型协变。</p>
+<p>所以虽然 ArrayList<Integer> 和 ArrayList<Number> 编译器类型擦除之后都是 ArrayList 的实例，但是起码在编译器看来，这两者是两种不同的类型。</p>
+<p>那么，假如有某种需求，我们的方法既要支持子类泛型作为形参传入，也要支持父类泛型作为形参传入，又该怎么办呢？</p>
+<p>我们使用通配符处理这样的需求，例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test2</span><span class="params">(ArrayList&lt;? extends Number&gt; list)</span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ArrayList&lt;? extends Number&gt; 表示泛型类型具体是什么不知道，但是具体类型必须是 Number 及其子类类型。例如：ArrayList<Number>，ArrayList<Integer>，ArrayList<Double> 等。</p>
+<p>但是，<strong>通配符往往用于方法的形参中</strong>，而不允许用于定义和调用语法中。例如下面的语句是不被支持的：</p>
+<blockquote>
+<p>ArrayList&lt;?&gt; list &#x3D; new ArrayList&lt;&gt;();</p>
+</blockquote>
+<p>当然了，除了&lt;? extends xxx&gt; 这种通配符，还有另外两种</p>
+<ul>
+<li><?>：通配任意一种类型</li>
+<li><? super xxx>：必须是某个类型的父类</li>
+</ul>
+<p>通配符相当于一个集合，符合通配符描述的类型都被框进集合中，方法调用时传入的实参都必须是这个集合中的一员，否则将不能通过编译。</p>
+<p><strong>细节与局限</strong></p>
+<p><strong>通配符的只读性</strong></p>
+<p>考虑这样一段代码：</p>
+<blockquote>
+<p>ArrayList<Number> list &#x3D; new ArrayList&lt;&gt;();</p>
+<p>ArrayList&lt;?&gt; arrayList &#x3D; list;</p>
+<p>arrayList.add(32);</p>
+<p>arrayList.add(“fadsf”);</p>
+<p>arrayList.add(new Object());</p>
+</blockquote>
+<p>上述的三条 add 语句都不能通过编译，这就是通配符的一个局限点，通配符匹配出来的泛型类型只能读取，不能写。</p>
+<p>原因也很简单，? 代表不确定类型，即你不知道你这个容器里面放的是什么类型的数据，所以你只能读取里面的数据，不能瞎往里面添加元素。</p>
+<p><strong>泛型不允许创建数组</strong></p>
+<p>我们刚开始介绍通配符的时候说过，数组具有协变性，即子类数组实例可以赋值给父类数组实例。我们也说过，泛型类型不具有协变性，即便两个泛型类实例的具体类型是父子关系，他们之间也不能相互转换。</p>
+<p>具体原因是什么，我们也详细介绍了，大致意思就是，父类容器可以放任意类型的元素，而子类容器只能放某种特殊类型的元素，如果父类代表了某一个子类容器，那么父类容器就有可能放入非当前子类实例所允许的元素进入容器，这会导致逻辑上的混乱，所以 Java 不允许这么做。</p>
+<p>那么，如果允许泛型创建数组，由于数组的协变性，泛型数组必然也具有协变性，而泛型本身又不允许协变，自然冲突，所以泛型数组也是不允许创建的。</p>
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://gaohanghang.cn/2018/07/12/%E6%B3%9B%E5%9E%8B%E5%92%8C%E6%B3%9B%E5%9E%8B%E6%93%A6%E9%99%A4/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/" rel="tag">Java</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2018/07/14/Volatile%E5%85%B3%E9%94%AE%E5%AD%97/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Volatile关键字
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2018/07/12/MySQL%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">MySQL优化方案</div>
+      </a>
+    
+  </nav>
+
+  
+   
+    
+    <script src="https://cdn.staticfile.org/twikoo/1.4.18/twikoo.all.min.js"></script>
+    <div id="twikoo" class="twikoo"></div>
+    <script>
+        twikoo.init({
+            envId: ""
+        })
+    </script>
+ 
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2015-2023
+        <i class="ri-heart-fill heart_icon"></i> 高行行
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></span>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>    
+    </main>
+    <div class="float_btns">
+      <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+    </div>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="高行行的个人博客"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="http://gaohanghang.lofter.com">摄影</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/twitter">Twitter</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://weibo.com/u/5125203090">微博</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/about">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-3.6.0.min.js"></script>
+ 
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+ 
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: ".tocbot",
+    contentSelector: ".article-entry",
+    headingSelector: "h1, h2, h3, h4, h5, h6",
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: "main",
+    positionFixedSelector: ".tocbot",
+    positionFixedClass: "is-position-fixed",
+    fixedSidebarOffset: "auto",
+  });
+</script>
+
+<script src="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.staticfile.org/jquery-modal/0.9.2/jquery.modal.min.css"
+/>
+<script src="https://cdn.staticfile.org/justifiedGallery/3.8.1/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+ <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.staticfile.org/photoswipe/4.1.3/default-skin/default-skin.min.css">
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe.min.js"></script>
+<script src="https://cdn.staticfile.org/photoswipe/4.1.3/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script> 
+<!-- MathJax -->
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+ 
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+ 
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+ 
+<link rel="stylesheet" href="/css/clipboard.css">
+ <script src="https://cdn.staticfile.org/clipboard.js/2.0.10/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+ 
+<!-- CanvasBackground -->
+
+<script>
+  if (window.mermaid) {
+    mermaid.initialize({ theme: "forest" });
+  }
+</script>
+
+
+    
+    
+
+  </div>
+</body>
+
+</html>
